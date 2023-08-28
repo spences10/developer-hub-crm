@@ -1,5 +1,14 @@
 # Developers' Hub (CRM) - Connect, Relate, Meet
 
+This was inspired from something Graham said on a spaces and I thought
+it was a good idea!
+
+Sources:
+
+- SvelteKit with Turso and Drizzle ORM:
+  https://github.com/justinfriebel/sveltekit-turso-drizzle
+- Personal CRM: https://www.youtube.com/watch?v=CvHFg5ASuh8
+
 ## How is CRM Relevant to a Developer?
 
 1. **Networking**: As a developer, you interact with numerous people –
