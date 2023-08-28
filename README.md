@@ -1,6 +1,6 @@
 # Developers' Hub (CRM) - Connect, Relate, Meet
 
-**How is CRM Relevant to a Developer?**
+## How is CRM Relevant to a Developer?
 
 1. **Networking**: As a developer, you interact with numerous people –
    be they colleagues, potential employers, freelancers, or clients. A
@@ -32,101 +32,99 @@
    portfolios, checking in on old clients, or even just catching up
    with developer friends.
 
-## 1. Requirements Gathering:
+## Data Modeling and Schema:
 
-- Determine the essential features you want in the CRM.
-  - Contact Management: Store and manage personal and professional
-    details.
-  - Interaction Tracking: Record calls, meetings, emails, and other
+The application will focus on two main things:
+
+1. Reminding users to maintain contact with important people.
+2. Being easy to update and maintain.
+
+The data model reflects this focus, aiming to reduce friction and make
+the application genuinely useful.
+
+### Tables:
+
+1. **Contacts Table**:
+
+   - `contact_id` (INTEGER, PRIMARY KEY, AUTOINCREMENT)
+   - `name` (TEXT)
+   - `relationship` (TEXT)
+   - `birthday` (DATE)
+   - `industry` (TEXT)
+   - `location` (TEXT)
+   - `vip` (BOOLEAN)
+   - `last_update` (TEXT)
+   - `last_contacted` (DATE)
+   - `status` (TEXT)
+
+2. **Interactions Table**:
+
+   - `interaction_id` (INTEGER, PRIMARY KEY, AUTOINCREMENT)
+   - `contact_id` (INTEGER, FOREIGN KEY)
+   - `type` (TEXT)
+   - `date` (DATE)
+   - `notes` (TEXT)
+
+3. **Background Table** (For VIPs):
+
+   - `background_id` (INTEGER, PRIMARY KEY, AUTOINCREMENT)
+   - `contact_id` (INTEGER, FOREIGN KEY)
+   - `family` (TEXT)
+   - `company` (TEXT)
+   - `likes_dislikes` (TEXT)
+   - `misc_notes` (TEXT)
+
+4. **ContactInfo Table** (For VIPs):
+   - `contact_info_id` (INTEGER, PRIMARY KEY, AUTOINCREMENT)
+   - `contact_id` (INTEGER, FOREIGN KEY)
+   - `main_app` (TEXT)
+   - `email` (TEXT)
+   - `phone_number` (TEXT)
+   - `social_links` (TEXT)
+
+### Relationships:
+
+- **Contacts and Interactions**:
+
+  - One-to-Many relationship. Each contact can have multiple
     interactions.
-  - Reminders and Notifications: Alert when it's time to reach out or
-    follow-up.
-  - Job Opportunity Management: Keep track of work opportunities for
-    your contacts.
-  - Search and Filter: Easily find contacts or interactions.
 
-## 2. Data Modeling:
+- **Contacts and Background**:
 
-- Contact Information:
-  - Unique ID
-  - Name
-  - Email
-  - Phone
-  - Address
-  - Notes
-  - Last Contacted Date
-  - Interaction History (list of interaction IDs)
-  - Opportunities (list of opportunity IDs)
-- Interactions:
-  - Unique ID
-  - Type (e.g., email, call, meeting)
-  - Date
-  - Notes
-- Opportunities:
-  - Unique ID
-  - Description
-  - Status (e.g., proposed, accepted, declined)
+  - One-to-One relationship. Each VIP contact has one background
+    entry.
 
-## 3. Setting up SvelteKit:
+- **Contacts and ContactInfo**:
 
-- Initialize a SvelteKit project.
-- Set up routing for the various pages (e.g., Dashboard, Contacts,
-  Interactions, Opportunities).
-- Use Svelte stores to manage global state, if necessary.
+  - One-to-One relationship. Each VIP contact has one contact_info
+    entry.
 
-## 4. Integration with Upstash Redis:
+### Data Flexibility:
 
-- Store each contact, interaction, and opportunity as a JSON string.
-  Use a unique key (e.g., contact:1, interaction:23).
-- For fast access, you might use sets or sorted sets in Redis for
-  certain functionalities like listing all contacts.
+- **Relationship Types**: Pre-defined options include "friend",
+  "family", "colleague", "school", "network", "services", with the
+  flexibility to add more.
+- **Industry Types**: Pre-defined options include "technology",
+  "entertainment", "finance", "education", with the flexibility to add
+  more.
+- **Status Timing**: Users can customize the time frame for when a
+  contact should be "hit up" versus when they are "all good".
 
-## 5. Development:
+### VIP Features:
 
-- Dashboard: A quick overview of upcoming reminders, recent
-  interactions, and any other essential metrics.
-- Contacts Page: Display a list of contacts with search and filter
-  functionality. Clicking on a contact can open a detailed view/edit
-  page.
-- Interactions Page: List interactions with filters to see
-  interactions by contact or date. A form to add new interactions.
-- Opportunities Page: List and manage job opportunities. Link them
-  with the contacts they are relevant to.
-- Reminder & Notification System: Integrate with browsers'
-  Notification API or use a service worker to provide offline
-  reminders.
-
-## 6. Testing:
-
-- Functional Testing: Ensure that all the features work as intended.
-- Usability Testing: Ensure that the CRM is intuitive and easy to use.
-- Performance Testing: Ensure the system performs well with a large
-  number of contacts and interactions.
-
-## 7. Deployment:
-
-- Deploy your SvelteKit app on platforms like Vercel, Netlify, or any
-  other preferred hosting provider.
-- Make sure Upstash Redis configurations are set correctly for
-  production.
-
-## 8. Maintenance & Iteration:
-
-- As you use the CRM, note down any additional features or
-  improvements needed.
-- Implement feedback from other users if shared.
-- Regularly backup data from Redis and check for any updates or
-  patches needed for your tech stack.
+- **Snapshot View**: For VIP contacts, additional fields will appear
+  in a snapshot view including `last_update`, `last_contacted`, and
+  `status`.
+- **Additional Sections**: For VIPs, the Background, ContactInfo, and
+  Notes tables hold supplementary information.
+- **Activation/Deactivation**: VIPs can be toggled on and off.
+  Deactivating a VIP will keep the extra information but remove them
+  from the snapshot view.
 
 ## Tips:
 
-- Security: Ensure your CRM is secure. If it's online, use
-  authentication and authorization mechanisms.
-- Responsive Design: Use responsive design principles to make the CRM
-  usable on both desktop and mobile.
-- Backup: Regularly backup your Redis data.
-
-Building this CRM will be a rewarding experience as you'll have a
-custom tool tailored to your needs. SvelteKit is an excellent choice
-due to its simplicity and efficiency, and Redis will ensure fast data
-access. Best of luck with your project!
+- **Security**: Ensure robust authentication and authorization
+  mechanisms.
+- **Responsive Design**: Implement a responsive design to cater to
+  both desktop and mobile.
+- **Backup**: Regularly backup your SQLite database.
