@@ -12,32 +12,42 @@
 		"lint": "prettier --plugin-search-dir . --check . && eslint .",
 		"format": "prettier --plugin-search-dir . --write .",
 		"test:integration": "playwright test",
-		"test:unit": "vitest"
+		"test:unit": "vitest",
+		"drizzle-generate": "drizzle-kit generate:sqlite",
+		"migrate": "tsm ./src/lib/server/migrate.ts",
+		"studio": "pnpm drizzle-kit studio"
 	},
 	"devDependencies": {
-		"@auth/core": "^0.10.0",
-		"@auth/sveltekit": "^0.3.6",
+		"@libsql/client": "^0.3.1",
+		"@lucia-auth/adapter-sqlite": "^2.0.0",
 		"@playwright/test": "^1.28.1",
 		"@sveltejs/adapter-auto": "^2.0.0",
 		"@sveltejs/kit": "^1.20.4",
+		"@tailwindcss/typography": "^0.5.9",
 		"@typescript-eslint/eslint-plugin": "^5.45.0",
 		"@typescript-eslint/parser": "^5.45.0",
+		"autoprefixer": "^10.4.14",
+		"daisyui": "^3.1.6",
+		"dotenv": "^16.3.1",
+		"drizzle-kit": "^0.19.13",
+		"drizzle-orm": "^0.28.5",
+		"drizzle-zod": "^0.5.1",
 		"eslint": "^8.28.0",
 		"eslint-config-prettier": "^8.5.0",
 		"eslint-plugin-svelte": "^2.30.0",
-		"github": "link:@auth/core/providers/github",
+		"lucia": "^2.4.0",
+		"postcss": "^8.4.24",
+		"postcss-load-config": "^4.0.1",
 		"prettier": "^2.8.0",
 		"prettier-plugin-svelte": "^2.10.1",
 		"svelte": "^4.0.5",
 		"svelte-check": "^3.4.3",
+		"tailwindcss": "^3.3.2",
 		"tslib": "^2.4.1",
+		"tsm": "^2.3.0",
 		"typescript": "^5.0.0",
 		"vite": "^4.4.2",
 		"vitest": "^0.32.2"
 	},
-	"type": "module",
-	"dependencies": {
-		"@auth/upstash-redis-adapter": "^1.0.0",
-		"@upstash/redis": "^1.22.0"
-	}
+	"type": "module"
 }

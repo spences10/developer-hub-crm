@@ -6,7 +6,19 @@ declare global {
 		// interface Locals {}
 		// interface PageData {}
 		// interface Platform {}
+		interface Locals {
+			auth: import('lucia').AuthRequest
+		}
+	}
+	namespace Lucia {
+		type Auth = import('$lib/server/lucia').Auth
+		type DatabaseUserAttributes = {
+			username: string
+			email: string
+		}
+		// eslint-disable-next-line @typescript-eslint/ban-types
+		type DatabaseSessionAttributes = {}
 	}
 }
 
-export {};
+export {}
