@@ -4,69 +4,74 @@ import { createInsertSchema, createSelectSchema } from 'drizzle-zod'
 
 export const user = sqliteTable('user', {
 	id: text('id').primaryKey(),
-	createdAt: integer('created_at', { mode: 'timestamp' }).default(
+	created_at: integer('created_at', { mode: 'timestamp' }).default(
 		sql`(strftime('%s', 'now'))`,
 	),
-	updateAt: integer('updated_at', { mode: 'timestamp' }).default(
+	update_at: integer('updated_at', { mode: 'timestamp' }).default(
 		sql`(strftime('%s', 'now'))`,
 	),
-	firstName: text('first_name'),
-	lastName: text('last_name'),
-	userName: text('username', { length: 32 }).notNull().unique(),
+	first_name: text('first_name'),
+	last_name: text('last_name'),
+	user_name: text('username', { length: 32 }).notNull().unique(),
 	email: text('email').notNull(),
 })
-export const insertUserSchema = createInsertSchema(user)
-export const selectUserSchema = createSelectSchema(user)
+export const insert_user_schema = createInsertSchema(user)
+export const select_user_schema = createSelectSchema(user)
 
-export const userKey = sqliteTable('user_key', {
+export const user_key = sqliteTable('user_key', {
 	id: text('id').primaryKey(),
-	createdAt: integer('created_at', { mode: 'timestamp' }).default(
+	created_at: integer('created_at', { mode: 'timestamp' }).default(
 		sql`(strftime('%s', 'now'))`,
 	),
-	updateAt: integer('updated_at', { mode: 'timestamp' }).default(
+	updated_at: integer('updated_at', { mode: 'timestamp' }).default(
 		sql`(strftime('%s', 'now'))`,
 	),
-	userId: text('user_id')
+	user_id: text('user_id')
 		.notNull()
 		.references(() => user.id),
-	hashedPassword: text('hashed_password'),
+	hashed_password: text('hashed_password'),
 })
-export const insertUserKeySchema = createInsertSchema(userKey)
-export const selectUserKeySchema = createSelectSchema(userKey)
+export const insert_user_key_schema = createInsertSchema(user_key)
+export const select_user_key_schema = createSelectSchema(user_key)
 
-export const userSession = sqliteTable('user_session', {
+export const user_session = sqliteTable('user_session', {
 	id: text('id').primaryKey(),
-	createdAt: integer('created_at', { mode: 'timestamp' }).default(
+	created_at: integer('created_at', { mode: 'timestamp' }).default(
 		sql`(strftime('%s', 'now'))`,
 	),
-	updateAt: integer('updated_at', { mode: 'timestamp' }).default(
+	updated_at: integer('updated_at', { mode: 'timestamp' }).default(
 		sql`(strftime('%s', 'now'))`,
 	),
-	userId: text('user_id')
+	user_id: text('user_id')
 		.notNull()
 		.references(() => user.id),
-	activeExpires: integer('active_expires').notNull(),
-	idleExpires: integer('idle_expires').notNull(),
+	active_expires: integer('active_expires').notNull(),
+	idle_expires: integer('idle_expires').notNull(),
 })
-export const insertUserSessionSchema = createInsertSchema(userSession)
-export const selectUserSessionSchema = createSelectSchema(userSession)
+export const insert_user_session_schema =
+	createInsertSchema(user_session)
+export const select_user_session_schema =
+	createSelectSchema(user_session)
 
 // Contacts Table Schema
 export const contacts = sqliteTable('contacts', {
 	contact_id: integer('contact_id').primaryKey(),
+	user_id: text('user_id')
+		.notNull()
+		.references(() => user.id),
 	name: text('name').notNull(),
 	relationship: text('relationship'),
-	birthday: text('birthday'),
+	birthday: integer('birthday', { mode: 'timestamp' }),
 	industry: text('industry'),
 	location: text('location'),
 	vip: integer('vip').default(0),
-	last_update: text('last_update'),
-	last_contacted: text('last_contacted'),
+	last_update: integer('last_update', { mode: 'timestamp' }),
+	last_contacted: integer('last_contacted', { mode: 'timestamp' }),
 	status: text('status').default('All Good'),
 })
 
-export const insertContactsSchema = createInsertSchema(contacts)
-export const selectContactsSchema = createSelectSchema(contacts)
+export const insert_contacts_schema = createInsertSchema(contacts)
+export const select_contacts_schema = createSelectSchema(contacts)
 
 // Interactions Table Schema
 export const interactions = sqliteTable('interactions', {
@@ -75,13 +80,13 @@ export const interactions = sqliteTable('interactions', {
 		.notNull()
 		.references(() => contacts.contact_id),
 	type: text('type'),
-	date: text('date').notNull(),
+	date: integer('date', { mode: 'timestamp' }).notNull(),
 	notes: text('notes'),
 })
 
-export const insertInteractionsSchema =
+export const insert_interactions_schema =
 	createInsertSchema(interactions)
-export const selectInteractionsSchema =
+export const select_interactions_schema =
 	createSelectSchema(interactions)
 
 // Background Table Schema
@@ -96,11 +101,11 @@ export const background = sqliteTable('background', {
 	misc_notes: text('misc_notes'),
 })
 
-export const insertBackgroundSchema = createInsertSchema(background)
-export const selectBackgroundSchema = createSelectSchema(background)
+export const insert_background_schema = createInsertSchema(background)
+export const select_background_schema = createSelectSchema(background)
 
 // ContactInfo Table Schema
-export const contactInfo = sqliteTable('contact_info', {
+export const contact_info = sqliteTable('contact_info', {
 	contact_info_id: integer('contact_info_id').primaryKey(),
 	contact_id: integer('contact_id')
 		.notNull()
@@ -111,5 +116,7 @@ export const contactInfo = sqliteTable('contact_info', {
 	social_links: text('social_links'),
 })
 
-export const insertContactInfoSchema = createInsertSchema(contactInfo)
-export const selectContactInfoSchema = createSelectSchema(contactInfo)
+export const insert_contact_info_schema =
+	createInsertSchema(contact_info)
+export const select_contact_info_schema =
+	createSelectSchema(contact_info)
