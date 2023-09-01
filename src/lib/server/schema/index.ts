@@ -14,10 +14,35 @@ export {
 	select_contacts_schema,
 } from './contacts'
 export {
+	industry_type,
+	insert_industry_type_schema,
+	select_industry_type_schema,
+} from './industry_type'
+export {
+	insert_interaction_type_schema,
+	interaction_type,
+	select_interaction_type_schema,
+} from './interaction_type'
+export {
 	insert_interactions_schema,
 	interactions,
 	select_interactions_schema,
 } from './interactions'
+export {
+	insert_location_type_schema,
+	location_type,
+	select_location_type_schema,
+} from './location_type'
+export {
+	insert_relationship_type_schema,
+	relationship_type,
+	select_relationship_type_schema,
+} from './relationship_type'
+export {
+	insert_status_type_schema,
+	select_status_type_schema,
+	status_type,
+} from './status_type'
 export { insert_user_schema, select_user_schema, user } from './user'
 export {
 	insert_user_key_schema,
