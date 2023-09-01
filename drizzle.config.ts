@@ -3,7 +3,7 @@ import * as dotenv from 'dotenv'
 dotenv.config()
 
 export default {
-	schema: './src/lib/server/schema.ts',
+	schema: './src/lib/server/schema',
 	out: './migrations',
 	driver: 'turso',
 	dbCredentials: {
