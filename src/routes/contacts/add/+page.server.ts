@@ -28,9 +28,9 @@ const add_contact: Action = async ({ locals, request }) => {
 	parsedFormData.user_id = userId
 
 	if (formData.vip === 'on') {
-		parsedFormData.vip = 1
+		parsedFormData.vip = true
 	} else {
-		parsedFormData.vip = 0
+		parsedFormData.vip = false
 	}
 
 	// Convert date fields to Unix timestamp
