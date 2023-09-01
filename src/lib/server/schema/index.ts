@@ -34,10 +34,20 @@ export {
 	select_location_type_schema,
 } from './location_type'
 export {
+	insert_notes_schema,
+	notes,
+	select_notes_schema,
+} from './notes'
+export {
 	insert_relationship_type_schema,
 	relationship_type,
 	select_relationship_type_schema,
 } from './relationship_type'
+export {
+	insert_reminders_schema,
+	reminders,
+	select_reminders_schema,
+} from './reminders'
 export {
 	insert_status_type_schema,
 	select_status_type_schema,
