@@ -1,8 +1,8 @@
-import { redirect } from '@sveltejs/kit';
-import type { PageServerLoad } from './$types';
 import { db } from '$lib/server/db';
 import { contact } from '$lib/server/db/schema';
+import { redirect } from '@sveltejs/kit';
 import { eq } from 'drizzle-orm';
+import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ locals }) => {
 	// Protect this route - redirect to login if not authenticated
@@ -11,15 +11,15 @@ export const load: PageServerLoad = async ({ locals }) => {
 	}
 
 	const user_id = locals.user.id;
-	
+
 	// Get user contacts for dashboard stats
 	const user_contacts = await db.query.contact.findMany({
 		where: eq(contact.userId, user_id),
-		orderBy: (contact, { desc }) => [desc(contact.lastUpdate)]
+		orderBy: (contact, { desc }) => [desc(contact.lastUpdate)],
 	});
-	
+
 	return {
 		user: locals.user,
-		contacts: user_contacts
+		contacts: user_contacts,
 	};
 };

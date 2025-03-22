@@ -1,5 +1,5 @@
-import { sqliteTable, text, integer } from 'drizzle-orm/sqlite-core';
 import { sql } from 'drizzle-orm';
+import { integer, sqliteTable, text } from 'drizzle-orm/sqlite-core';
 
 // Helper for created_at and updated_at fields
 const timestamps = {
@@ -37,7 +37,9 @@ export const contact = sqliteTable('contact', {
 	birthday: integer('birthday', { mode: 'timestamp' }),
 	industry: text('industry'),
 	location: text('location'),
-	vip: integer('vip', { mode: 'boolean' }).notNull().default(sql`0`),
+	vip: integer('vip', { mode: 'boolean' })
+		.notNull()
+		.default(sql`0`),
 	lastUpdate: integer('last_update', { mode: 'timestamp' })
 		.notNull()
 		.default(sql`(unixepoch())`),

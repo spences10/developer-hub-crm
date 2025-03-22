@@ -5,13 +5,24 @@
 	export let form: ActionData;
 </script>
 
-<div class="flex min-h-screen items-center justify-center bg-base-200">
-	<div class="card w-full max-w-md bg-base-100 shadow-xl">
+<div
+	class="bg-base-200 flex min-h-screen items-center justify-center"
+>
+	<div class="card bg-base-100 w-full max-w-md shadow-xl">
 		<div class="card-body">
-			<h1 class="card-title text-2xl justify-center">Developer Hub CRM</h1>
-			<h2 class="text-xl font-semibold text-center">Create Account</h2>
+			<h1 class="card-title justify-center text-2xl">
+				Developer Hub CRM
+			</h1>
+			<h2 class="text-center text-xl font-semibold">
+				Create Account
+			</h2>
 
-			<form method="POST" action="?/register" use:enhance class="space-y-4">
+			<form
+				method="POST"
+				action="?/register"
+				use:enhance
+				class="space-y-4"
+			>
 				{#if form?.message}
 					<div class="alert alert-error">
 						{form.message}
@@ -30,7 +41,10 @@
 						required
 					/>
 					<div class="label">
-						<span class="label-text-alt">3-31 characters, lowercase letters, numbers, hyphens, and underscores only</span>
+						<span class="label-text-alt">
+							3-31 characters, lowercase letters, numbers, hyphens,
+							and underscores only
+						</span>
 					</div>
 				</div>
 

@@ -1,10 +1,10 @@
+import * as auth from '$lib/server/auth';
+import { db } from '$lib/server/db';
+import * as table from '$lib/server/db/schema';
 import { hash } from '@node-rs/argon2';
 import { encodeBase32LowerCase } from '@oslojs/encoding';
 import { fail, redirect } from '@sveltejs/kit';
 import { eq } from 'drizzle-orm';
-import * as auth from '$lib/server/auth';
-import { db } from '$lib/server/db';
-import * as table from '$lib/server/db/schema';
 import type { Actions, PageServerLoad } from './$types';
 
 export const load = (async (event) => {
@@ -24,7 +24,8 @@ export const actions = {
 
 		if (!validate_username(username)) {
 			return fail(400, {
-				message: 'Invalid username (min 3, max 31 characters, alphanumeric only)',
+				message:
+					'Invalid username (min 3, max 31 characters, alphanumeric only)',
 			});
 		}
 		if (!validate_password(password)) {
@@ -60,12 +61,17 @@ export const actions = {
 		});
 
 		try {
-			await db
-				.insert(table.user)
-				.values({ id: user_id, username, passwordHash: password_hash });
+			await db.insert(table.user).values({
+				id: user_id,
+				username,
+				passwordHash: password_hash,
+			});
 
 			const session_token = auth.generateSessionToken();
-			const session = await auth.createSession(session_token, user_id);
+			const session = await auth.createSession(
+				session_token,
+				user_id,
+			);
 			auth.setSessionTokenCookie(
 				event,
 				session_token,
@@ -73,9 +79,11 @@ export const actions = {
 			);
 		} catch (e) {
 			console.error('Registration error:', e);
-			return fail(500, { message: 'An error occurred during registration' });
+			return fail(500, {
+				message: 'An error occurred during registration',
+			});
 		}
-		
+
 		return redirect(302, '/dashboard');
 	},
 } satisfies Actions;

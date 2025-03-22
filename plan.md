@@ -202,6 +202,7 @@ graph TD
 ### Phase 4: AI-Enhanced Features
 
 1. **Speech-to-Text Form Filling**
+
    - ❌ Implement speech recognition for form input
    - ❌ Develop AI processing for entity extraction
    - ❌ Create field mapping system for auto-filling forms
@@ -369,6 +370,7 @@ export const contactStore = new ContactStore();
 ## Known Issues and Next Steps
 
 ### Completed
+
 - ✅ Basic CRUD operations for contacts
 - ✅ Authentication system with Lucia
 - ✅ Responsive layout with DaisyUI
@@ -376,11 +378,13 @@ export const contactStore = new ContactStore();
 - ✅ Optimistic UI updates for contacts
 
 ### In Progress
+
 - ⚠️ Mobile optimization
 - ⚠️ Contact filtering and search
 - ⚠️ Contact interactions tracking
 
 ### To Do
+
 - ❌ Background information system
 - ❌ Contact info management
 - ❌ Offline capabilities

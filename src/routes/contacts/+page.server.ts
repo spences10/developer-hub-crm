@@ -1,9 +1,9 @@
-import { error, fail, redirect } from '@sveltejs/kit';
-import type { Actions, PageServerLoad } from './$types';
 import { db } from '$lib/server/db';
 import { contact } from '$lib/server/db/schema';
+import { fail, redirect } from '@sveltejs/kit';
 import { eq } from 'drizzle-orm';
 import { nanoid } from 'nanoid';
+import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ locals }) => {
 	// Protect this route - redirect to login if not authenticated
@@ -14,12 +14,12 @@ export const load: PageServerLoad = async ({ locals }) => {
 	const user_id = locals.user.id;
 	const user_contacts = await db.query.contact.findMany({
 		where: eq(contact.userId, user_id),
-		orderBy: (contact, { desc }) => [desc(contact.lastUpdate)]
+		orderBy: (contact, { desc }) => [desc(contact.lastUpdate)],
 	});
 
 	return {
 		contacts: user_contacts,
-		user: locals.user
+		user: locals.user,
 	};
 };
 
@@ -52,12 +52,12 @@ export const actions: Actions = {
 				industry: industry || null,
 				location: location || null,
 				vip: vip,
-				lastUpdate: new Date()
+				lastUpdate: new Date(),
 			});
 
 			// Get the created contact to return
 			const new_contact = await db.query.contact.findFirst({
-				where: eq(contact.id, contact_id)
+				where: eq(contact.id, contact_id),
 			});
 
 			return { success: true, data: new_contact };
@@ -89,28 +89,29 @@ export const actions: Actions = {
 		try {
 			// Verify the contact belongs to the user
 			const existing_contact = await db.query.contact.findFirst({
-				where: (contact, { and, eq }) => 
-					and(eq(contact.id, id), eq(contact.userId, user_id))
+				where: (contact, { and, eq }) =>
+					and(eq(contact.id, id), eq(contact.userId, user_id)),
 			});
 
 			if (!existing_contact) {
 				return fail(404, { error: 'Contact not found' });
 			}
 
-			await db.update(contact)
+			await db
+				.update(contact)
 				.set({
 					name,
 					relationship: relationship || null,
 					industry: industry || null,
 					location: location || null,
 					vip: vip,
-					lastUpdate: new Date()
+					lastUpdate: new Date(),
 				})
 				.where(eq(contact.id, id));
 
 			// Get the updated contact to return
 			const updated_contact = await db.query.contact.findFirst({
-				where: eq(contact.id, id)
+				where: eq(contact.id, id),
 			});
 
 			return { success: true, data: updated_contact };
@@ -137,8 +138,8 @@ export const actions: Actions = {
 		try {
 			// Verify the contact belongs to the user
 			const existing_contact = await db.query.contact.findFirst({
-				where: (contact, { and, eq }) => 
-					and(eq(contact.id, id), eq(contact.userId, user_id))
+				where: (contact, { and, eq }) =>
+					and(eq(contact.id, id), eq(contact.userId, user_id)),
 			});
 
 			if (!existing_contact) {
@@ -151,5 +152,5 @@ export const actions: Actions = {
 			console.error('Failed to delete contact:', err);
 			return fail(500, { error: 'Failed to delete contact' });
 		}
-	}
+	},
 };

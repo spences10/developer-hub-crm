@@ -54,9 +54,11 @@ export function create_contact_state(
 	function update_contact(updated_contact: Contact): void {
 		loading = true;
 		error = null;
-		
+
 		// Optimistically update the contacts array
-		const contact_index = contacts.findIndex(c => c.id === updated_contact.id);
+		const contact_index = contacts.findIndex(
+			(c) => c.id === updated_contact.id,
+		);
 		if (contact_index !== -1) {
 			const updated_contacts = [...contacts];
 			updated_contacts[contact_index] = updated_contact;
@@ -67,7 +69,7 @@ export function create_contact_state(
 	function add_contact(new_contact: Contact): void {
 		loading = true;
 		error = null;
-		
+
 		// Optimistically add the new contact
 		contacts = [new_contact, ...contacts];
 	}
@@ -75,14 +77,14 @@ export function create_contact_state(
 	function delete_contact(contact_id: string): void {
 		loading = true;
 		error = null;
-		
+
 		// Optimistically remove the contact
-		contacts = contacts.filter(c => c.id !== contact_id);
+		contacts = contacts.filter((c) => c.id !== contact_id);
 	}
 
 	function get_filtered_contacts(search_term?: string): Contact[] {
 		if (!search_term) return contacts;
-		return contacts.filter(contact =>
+		return contacts.filter((contact) =>
 			contact.name.toLowerCase().includes(search_term.toLowerCase()),
 		);
 	}

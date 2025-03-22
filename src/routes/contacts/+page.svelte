@@ -190,9 +190,13 @@
 										contact_state.update_contact({
 											...current_contact,
 											name: formData.get('name')?.toString() || '',
-											relationship: formData.get('relationship')?.toString() || null,
-											industry: formData.get('industry')?.toString() || null,
-											location: formData.get('location')?.toString() || null,
+											relationship:
+												formData.get('relationship')?.toString() ||
+												null,
+											industry:
+												formData.get('industry')?.toString() || null,
+											location:
+												formData.get('location')?.toString() || null,
 											vip: formData.has('vip'),
 										});
 									} else {
@@ -203,9 +207,13 @@
 											id: crypto.randomUUID(),
 											userId: data.user.id,
 											name: formData.get('name')?.toString() || '',
-											relationship: formData.get('relationship')?.toString() || null,
-											industry: formData.get('industry')?.toString() || null,
-											location: formData.get('location')?.toString() || null,
+											relationship:
+												formData.get('relationship')?.toString() ||
+												null,
+											industry:
+												formData.get('industry')?.toString() || null,
+											location:
+												formData.get('location')?.toString() || null,
 											vip: formData.has('vip'),
 											created_at: now,
 											updated_at: now,
@@ -477,7 +485,9 @@
 													return async ({ result }) => {
 														if (result.type === 'success') {
 															// Optimistically delete the contact
-															contact_state.delete_contact(contact.id);
+															contact_state.delete_contact(
+																contact.id,
+															);
 														}
 													};
 												}}

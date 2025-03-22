@@ -1,5 +1,5 @@
-import { redirect } from '@sveltejs/kit';
 import * as auth from '$lib/server/auth';
+import { redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
 
 export const load = (async (event) => {
@@ -7,7 +7,7 @@ export const load = (async (event) => {
 	if (!event.locals.user) {
 		return redirect(302, '/auth/login');
 	}
-	
+
 	// Redirect to dashboard if authenticated
 	return redirect(302, '/dashboard');
 }) satisfies PageServerLoad;

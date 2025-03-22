@@ -120,8 +120,10 @@ For more complex derivations, use `$derived.by` with a function:
 // Complex derivation with $derived.by
 const filtered_contacts = $derived.by(() => {
 	// Complex filtering logic here
-	return contacts.filter(contact => {
-		return contact.name.toLowerCase().includes(search_term.toLowerCase());
+	return contacts.filter((contact) => {
+		return contact.name
+			.toLowerCase()
+			.includes(search_term.toLowerCase());
 	});
 });
 ```
@@ -134,7 +136,7 @@ const filtered_contacts = $derived(
 	[search_term, contacts],
 	([search_term, contacts]) => {
 		return contacts.filter(/* ... */);
-	}
+	},
 );
 ```
 
@@ -149,7 +151,8 @@ const filtered_contacts = $derived.by(() => {
 
 ### 3. Always Handle Null/Undefined Values
 
-Always check for null or undefined values when accessing properties, especially from props or stores:
+Always check for null or undefined values when accessing properties,
+especially from props or stores:
 
 ```typescript
 // BAD - Will cause TypeError if user is undefined
@@ -213,7 +216,8 @@ export const theme_store = new ThemeStore();
 
 ### 6. Safely Initialize Store Data
 
-When initializing store data from server or async sources, always use null checks:
+When initializing store data from server or async sources, always use
+null checks:
 
 ```typescript
 // In your component
@@ -251,7 +255,9 @@ interface ContactState {
 	get_filtered_contacts: (search_term?: string) => Contact[];
 }
 
-export function create_contact_state(initial_contacts: Contact[] = []): ContactState {
+export function create_contact_state(
+	initial_contacts: Contact[] = [],
+): ContactState {
 	// Check for existing context
 	if (hasContext(CONTACT_CONTEXT_KEY)) {
 		return getContext<ContactState>(CONTACT_CONTEXT_KEY);
@@ -288,8 +294,9 @@ export function get_contact_state(): ContactState {
 
 ### Optimistic Updates
 
-When using state management with server operations (like form submissions),
-implement optimistic updates to provide instant feedback:
+When using state management with server operations (like form
+submissions), implement optimistic updates to provide instant
+feedback:
 
 ```typescript
 // In your form component
@@ -308,6 +315,7 @@ use:enhance={({ formElement }) => {
 ```
 
 This approach:
+
 1. Updates the UI immediately when the user takes an action
 2. Maintains data consistency with automatic derived value updates
 3. Provides a smoother user experience
@@ -326,15 +334,15 @@ actions:
 export const load = async ({ locals }) => {
 	// Always check if user exists before accessing properties
 	if (!locals.user) {
-		return { 
+		return {
 			user: null,
-			contacts: [] 
+			contacts: [],
 		};
 	}
-	
+
 	return {
 		user: locals.user,
-		contacts: await get_contacts_for_user(locals.user.id)
+		contacts: await get_contacts_for_user(locals.user.id),
 	};
 };
 ```
@@ -361,17 +369,24 @@ Initialize client-side state from server data:
 
 ## Common Pitfalls to Avoid
 
-1. **Not checking for null/undefined values**: Always add null checks when accessing properties that might be undefined.
+1. **Not checking for null/undefined values**: Always add null checks
+   when accessing properties that might be undefined.
 
-2. **Using incorrect $derived syntax**: Remember that `$derived` takes a single expression, while `$derived.by` takes a function for complex logic.
+2. **Using incorrect $derived syntax**: Remember that `$derived` takes
+   a single expression, while `$derived.by` takes a function for
+   complex logic.
 
-3. **Forgetting to initialize store data**: Always initialize store data in `onMount` to ensure it's only done on the client.
+3. **Forgetting to initialize store data**: Always initialize store
+   data in `onMount` to ensure it's only done on the client.
 
-4. **Directly mutating arrays or objects**: Create new copies when updating arrays or objects in state.
+4. **Directly mutating arrays or objects**: Create new copies when
+   updating arrays or objects in state.
 
-5. **Using reactive state outside of components**: Reactive state should be encapsulated in classes for global usage.
+5. **Using reactive state outside of components**: Reactive state
+   should be encapsulated in classes for global usage.
 
-6. **Not handling async data properly**: Always handle loading states and errors when fetching data.
+6. **Not handling async data properly**: Always handle loading states
+   and errors when fetching data.
 
 ## Performance Considerations
 

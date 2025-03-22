@@ -2,19 +2,20 @@
 	import { enhance } from '$app/forms';
 </script>
 
-<div class="flex min-h-screen items-center justify-center bg-base-200">
-	<div class="card w-full max-w-md bg-base-100 shadow-xl">
+<div
+	class="bg-base-200 flex min-h-screen items-center justify-center"
+>
+	<div class="card bg-base-100 w-full max-w-md shadow-xl">
 		<div class="card-body">
-			<h1 class="card-title text-2xl justify-center">Developer Hub CRM</h1>
+			<h1 class="card-title justify-center text-2xl">
+				Developer Hub CRM
+			</h1>
 			<p class="text-center">Redirecting...</p>
-			
+
 			<div class="divider"></div>
-			
+
 			<form method="POST" action="?/logout" use:enhance>
-				<button
-					type="submit"
-					class="btn btn-error w-full"
-				>
+				<button type="submit" class="btn btn-error w-full">
 					Log Out
 				</button>
 			</form>
