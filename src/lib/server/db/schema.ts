@@ -6,10 +6,10 @@ import { relations } from 'drizzle-orm';
 const timestamps = {
 	created_at: integer('created_at', { mode: 'timestamp_ms' })
 		.notNull()
-		.default(sql`CAST((julianday('now') - 2440587.5) * 86400000 AS INTEGER)`),
+		.default(sql`((strftime('%s', 'now') * 1000))`),
 	updated_at: integer('updated_at', { mode: 'timestamp_ms' })
 		.notNull()
-		.default(sql`CAST((julianday('now') - 2440587.5) * 86400000 AS INTEGER)`),
+		.default(sql`((strftime('%s', 'now') * 1000))`),
 };
 
 export const user = sqliteTable('user', {
@@ -47,7 +47,7 @@ export const contact = sqliteTable('contact', {
 		.default(sql`0`),
 	lastUpdate: integer('last_update', { mode: 'timestamp_ms' })
 		.notNull()
-		.default(sql`CAST((julianday('now') - 2440587.5) * 86400000 AS INTEGER)`),
+		.default(sql`((strftime('%s', 'now') * 1000))`),
 	lastContacted: integer('last_contacted', { mode: 'timestamp_ms' }),
 	status: text('status').notNull().default('active'),
 	...timestamps,
@@ -72,6 +72,10 @@ export const interaction = sqliteTable('interaction', {
 	type: text('type').notNull(),
 	date: integer('date', { mode: 'timestamp_ms' }).notNull(),
 	notes: text('notes'),
+	// New fields for AI features - all nullable since we're adding to existing table
+	transcriptSource: text('transcript_source'),
+	aiSuggestions: text('ai_suggestions'),
+	confidence: integer('confidence'),
 	...timestamps,
 });
 

@@ -5,8 +5,8 @@ CREATE TABLE `background` (
 	`company` text,
 	`likes_dislikes` text,
 	`misc_notes` text,
-	`created_at` integer DEFAULT (unixepoch()) NOT NULL,
-	`updated_at` integer DEFAULT (unixepoch()) NOT NULL,
+	`created_at` integer DEFAULT CAST((julianday('now') - 2440587.5) * 86400000 AS INTEGER) NOT NULL,
+	`updated_at` integer DEFAULT CAST((julianday('now') - 2440587.5) * 86400000 AS INTEGER) NOT NULL,
 	FOREIGN KEY (`contact_id`) REFERENCES `contact`(`id`) ON UPDATE no action ON DELETE no action
 );
 --> statement-breakpoint
@@ -19,11 +19,11 @@ CREATE TABLE `contact` (
 	`industry` text,
 	`location` text,
 	`vip` integer DEFAULT 0 NOT NULL,
-	`last_update` integer DEFAULT (unixepoch()) NOT NULL,
+	`last_update` integer DEFAULT CAST((julianday('now') - 2440587.5) * 86400000 AS INTEGER) NOT NULL,
 	`last_contacted` integer,
 	`status` text DEFAULT 'active' NOT NULL,
-	`created_at` integer DEFAULT (unixepoch()) NOT NULL,
-	`updated_at` integer DEFAULT (unixepoch()) NOT NULL,
+	`created_at` integer DEFAULT CAST((julianday('now') - 2440587.5) * 86400000 AS INTEGER) NOT NULL,
+	`updated_at` integer DEFAULT CAST((julianday('now') - 2440587.5) * 86400000 AS INTEGER) NOT NULL,
 	FOREIGN KEY (`user_id`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE no action
 );
 --> statement-breakpoint
@@ -34,8 +34,8 @@ CREATE TABLE `contact_info` (
 	`email` text,
 	`phone_number` text,
 	`social_links` text,
-	`created_at` integer DEFAULT (unixepoch()) NOT NULL,
-	`updated_at` integer DEFAULT (unixepoch()) NOT NULL,
+	`created_at` integer DEFAULT CAST((julianday('now') - 2440587.5) * 86400000 AS INTEGER) NOT NULL,
+	`updated_at` integer DEFAULT CAST((julianday('now') - 2440587.5) * 86400000 AS INTEGER) NOT NULL,
 	FOREIGN KEY (`contact_id`) REFERENCES `contact`(`id`) ON UPDATE no action ON DELETE no action
 );
 --> statement-breakpoint
@@ -45,8 +45,11 @@ CREATE TABLE `interaction` (
 	`type` text NOT NULL,
 	`date` integer NOT NULL,
 	`notes` text,
-	`created_at` integer DEFAULT (unixepoch()) NOT NULL,
-	`updated_at` integer DEFAULT (unixepoch()) NOT NULL,
+	`transcript_source` text,
+	`ai_suggestions` text,
+	`confidence` integer,
+	`created_at` integer DEFAULT CAST((julianday('now') - 2440587.5) * 86400000 AS INTEGER) NOT NULL,
+	`updated_at` integer DEFAULT CAST((julianday('now') - 2440587.5) * 86400000 AS INTEGER) NOT NULL,
 	FOREIGN KEY (`contact_id`) REFERENCES `contact`(`id`) ON UPDATE no action ON DELETE no action
 );
 --> statement-breakpoint
@@ -61,8 +64,8 @@ CREATE TABLE `user` (
 	`id` text PRIMARY KEY NOT NULL,
 	`username` text NOT NULL,
 	`password_hash` text NOT NULL,
-	`created_at` integer DEFAULT (unixepoch()) NOT NULL,
-	`updated_at` integer DEFAULT (unixepoch()) NOT NULL
+	`created_at` integer DEFAULT CAST((julianday('now') - 2440587.5) * 86400000 AS INTEGER) NOT NULL,
+	`updated_at` integer DEFAULT CAST((julianday('now') - 2440587.5) * 86400000 AS INTEGER) NOT NULL
 );
 --> statement-breakpoint
 CREATE UNIQUE INDEX `user_username_unique` ON `user` (`username`);

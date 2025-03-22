@@ -85,9 +85,9 @@
 	<!-- Navigation -->
 	<div class="navbar bg-base-100 rounded-box mb-6 shadow-md">
 		<div class="flex-1">
-			<a href="/dashboard" class="btn btn-ghost text-xl"
-				>Developer Hub CRM</a
-			>
+			<a href="/dashboard" class="btn btn-ghost text-xl">
+				Developer Hub CRM
+			</a>
 		</div>
 		<div class="flex-none">
 			<div class="dropdown dropdown-end">
@@ -98,7 +98,7 @@
 					<div
 						class="bg-neutral text-neutral-content w-10 rounded-full"
 					>
-						<span>{user_initial}</span>
+						<span>{user_initial()}</span>
 					</div>
 				</label>
 				<ul
