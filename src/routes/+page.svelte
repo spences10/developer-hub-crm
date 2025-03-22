@@ -17,9 +17,3 @@
 <Pricing />
 <Cta />
 <Footer />
-
-<div class="footer footer-center bg-base-300 text-base-content p-4">
-	<aside>
-		<p>Copyright 2025 - Developer Hub CRM. All rights reserved.</p>
-	</aside>
-</div>

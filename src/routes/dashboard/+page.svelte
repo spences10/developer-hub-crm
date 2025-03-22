@@ -68,9 +68,9 @@
 					<li><a href="/profile">Profile</a></li>
 					<li>
 						<form method="POST" action="/auth?/logout">
-							<button type="submit" class="w-full text-left"
-								>Logout</button
-							>
+							<button type="submit" class="w-full text-left">
+								Logout
+							</button>
 						</form>
 					</li>
 				</ul>
