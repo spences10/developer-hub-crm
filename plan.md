@@ -7,14 +7,14 @@ graph TD
     subgraph "Frontend"
         UI[SvelteKit UI Components]
         Routes[SvelteKit Routes]
-        State[State Modules]
+        State[State Modules (.svelte.ts)]
         Auth[Auth Client]
     end
 
     subgraph "Backend"
         API[SvelteKit API Routes]
-        AuthServer[Auth Server]
-        DB[SQL Query Builder]
+        AuthServer[Lucia Auth]
+        DB[Drizzle ORM]
     end
 
     subgraph "Database"
@@ -35,29 +35,29 @@ graph TD
 1. **Database Layer**
 
    - Turso for distributed SQLite database
-   - Raw SQL queries for maximum flexibility
-   - SQL query builder utility for type safety
-   - Schema management with SQL migrations
+   - Drizzle ORM for type-safe database operations
+   - Schema management with Drizzle migrations
+   - Efficient query building with Drizzle's fluent API
 
 2. **Authentication System**
 
-   - Custom JWT-based authentication
-   - Secure password hashing
-   - Session management
+   - Lucia authentication library
+   - Argon2 for secure password hashing
+   - Session-based authentication with cookies
    - CSRF protection
    - Role-based access control
 
 3. **Frontend Architecture**
 
    - SvelteKit with Svelte 5 runes
-   - Modern state management with .svelte.ts files
-   - Tailwind v4 for styling
+   - Modern state management with class-based .svelte.ts files
+   - Tailwind v4 for styling (CSS-first approach)
    - DaisyUI v5 for UI components
    - Responsive design for mobile and desktop
    - Dark/light mode support
 
 4. **API Layer**
-   - RESTful API endpoints
+   - SvelteKit form actions for secure server operations
    - Type-safe request/response handling
    - Error handling and validation
    - Rate limiting
@@ -69,11 +69,16 @@ graph TD
 #### Users
 
 - `id` (TEXT, PRIMARY KEY)
-- `email` (TEXT, UNIQUE)
-- `name` (TEXT)
+- `username` (TEXT, UNIQUE)
 - `password_hash` (TEXT)
 - `created_at` (TIMESTAMP)
 - `updated_at` (TIMESTAMP)
+
+#### Sessions
+
+- `id` (TEXT, PRIMARY KEY)
+- `user_id` (TEXT, FOREIGN KEY)
+- `expires_at` (TIMESTAMP)
 
 #### Contacts
 
@@ -130,36 +135,40 @@ graph TD
 1. **Project Setup**
 
    - ✅ Initialize SvelteKit project
-   - ✅ Configure Tailwind v4 and DaisyUI v5 (basic setup)
+   - ✅ Configure Tailwind v4 and DaisyUI v5
    - ✅ Set up Turso database connection
-   - ⚠️ Create SQL migration system (partially implemented with Drizzle)
+   - ✅ Configure Drizzle ORM for database operations
    - ❌ Implement base layout and navigation
 
 2. **Authentication System**
-   - ✅ Implement user registration and login (demo implementation with Lucia patterns)
-   - ✅ Create JWT token generation and validation
-   - ✅ Set up secure password hashing (using Argon2)
-   - ✅ Develop session management
-   - ⚠️ Add authentication guards for routes (implemented for demo only)
+   - ✅ Implement user registration and login with Lucia
+   - ✅ Set up session-based authentication
+   - ✅ Configure Argon2 for secure password hashing
+   - ✅ Develop session management with cookies
+   - ⚠️ Add authentication guards for routes (implemented for demo
+     only)
 
 ### Phase 2: Core Features
 
 1. **Contact Management**
 
-   - ✅ Create contact CRUD operations
-   - ✅ Implement contact listing with filtering and sorting
-   - ✅ Develop contact detail view
-   - ⚠️ Add VIP functionality
-   - ❌ Create contact search
+   - ❌ Create contact schema with Drizzle ORM
+   - ❌ Implement contact CRUD operations
+   - ❌ Develop contact listing with filtering and sorting
+   - ❌ Create contact detail view
+   - ❌ Add VIP functionality
+   - ❌ Implement contact search
 
 2. **Interaction Tracking**
 
-   - ✅ Implement interaction CRUD operations
-   - ✅ Create interaction history view
-   - ⚠️ Add interaction filtering
+   - ❌ Define interaction schema with Drizzle ORM
+   - ❌ Implement interaction CRUD operations
+   - ❌ Create interaction history view
+   - ❌ Add interaction filtering
    - ❌ Develop notes functionality
 
 3. **VIP Features**
+   - ❌ Define VIP-related schemas with Drizzle ORM
    - ❌ Implement extended profile for VIPs
    - ❌ Create background information section
    - ❌ Develop contact information section
@@ -200,11 +209,12 @@ graph TD
 │   │   │   └── dashboard/     # Dashboard components
 │   │   ├── server/
 │   │   │   ├── db/
-│   │   │   │   ├── migrations/  # SQL migrations
-│   │   │   │   └── queries/     # SQL query functions
-│   │   │   ├── auth/          # Authentication logic
+│   │   │   │   ├── schema.ts  # Drizzle schema definitions
+│   │   │   │   ├── index.ts   # Database connection
+│   │   │   │   └── migrations/# Drizzle migrations
+│   │   │   ├── auth.ts        # Lucia authentication
 │   │   │   └── api/           # API utilities
-│   │   ├── state/             # State modules (.svelte.ts files)
+│   │   ├── state/             # .svelte.ts state modules
 │   │   ├── types/             # TypeScript type definitions
 │   │   └── utils/             # Utility functions
 │   ├── routes/
@@ -225,19 +235,11 @@ graph TD
 
 ### Database Access
 
-Instead of using an ORM like Drizzle, we'll implement a lightweight
-SQL query builder that provides:
-
-1. Type safety for queries and results
-2. SQL injection protection
-3. Transaction support
-4. Connection pooling
-
-Example implementation:
+Using Drizzle ORM for type-safe database operations:
 
 ```typescript
 // src/lib/server/db/index.ts
-import { createClient } from '@libsql/client';
+import { createClient } from 'drizzle-orm';
 
 const client = createClient({
 	url: process.env.DATABASE_URL || 'file:local.db',
@@ -276,47 +278,28 @@ export async function transaction<T>(
 
 ### Authentication
 
-We'll implement a custom JWT-based authentication system:
-
-1. Generate secure JWT tokens with appropriate expiration
-2. Store hashed passwords using Argon2
-3. Implement refresh token rotation for security
-4. Add CSRF protection for forms
-
-Example JWT implementation:
+Implementing Lucia authentication library:
 
 ```typescript
-// src/lib/server/auth/jwt.ts
-import { SignJWT, jwtVerify } from 'jose';
+// src/lib/server/auth/lucia.ts
+import { createAuth } from 'lucia-auth';
 
-const secret = new TextEncoder().encode(process.env.JWT_SECRET);
+const auth = createAuth({
+	// Lucia auth configuration
+});
 
-export async function createToken(
-	payload: any,
-	expiresIn: string = '15m',
-) {
-	return await new SignJWT(payload)
-		.setProtectedHeader({ alg: 'HS256' })
-		.setIssuedAt()
-		.setExpirationTime(expiresIn)
-		.sign(secret);
+export async function createSession(user: any) {
+	return auth.createSession(user);
 }
 
-export async function verifyToken(token: string) {
-	try {
-		const { payload } = await jwtVerify(token, secret);
-		return payload;
-	} catch (error) {
-		return null;
-	}
+export async function verifySession(session: any) {
+	return auth.verifySession(session);
 }
 ```
 
 ### Frontend Components and State Management
 
-#### Component-Level State
-
-Using Svelte 5's runes for component-level state management:
+Using Svelte 5 runes for component-level state management:
 
 ```svelte
 <!-- src/lib/components/contacts/ContactList.svelte -->
@@ -344,10 +327,7 @@ Using Svelte 5's runes for component-level state management:
 </div>
 ```
 
-#### Global State Management
-
-For global state, we'll use the modern approach with `.svelte.ts`
-files:
+Using .svelte.ts files for global state management:
 
 ```typescript
 // src/lib/state/contacts.svelte.ts
@@ -375,52 +355,6 @@ export function setLoading(isLoading) {
 export function setError(error) {
 	contacts.error = error;
 }
-```
-
-Using the global state in components:
-
-```svelte
-<!-- src/routes/contacts/+page.svelte -->
-<script>
-	import {
-		contacts,
-		addContact,
-		setLoading,
-	} from '$lib/state/contacts.svelte';
-	import ContactForm from '$lib/components/contacts/ContactForm.svelte';
-	import ContactList from '$lib/components/contacts/ContactList.svelte';
-
-	async function handleAddContact(event) {
-		setLoading(true);
-		try {
-			const newContact = event.detail;
-			await fetch('/api/contacts', {
-				method: 'POST',
-				body: JSON.stringify(newContact),
-				headers: {
-					'Content-Type': 'application/json',
-				},
-			});
-			addContact(newContact);
-		} catch (error) {
-			console.error('Failed to add contact:', error);
-		} finally {
-			setLoading(false);
-		}
-	}
-</script>
-
-<h1>Contacts</h1>
-
-<ContactForm on:add={handleAddContact} />
-
-{#if contacts.loading}
-	<div class="loading">Loading...</div>
-{:else if contacts.error}
-	<div class="error">{contacts.error}</div>
-{:else}
-	<ContactList contacts={contacts.items} />
-{/if}
 ```
 
 ## Best Practices
