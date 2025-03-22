@@ -6,82 +6,13 @@ This guide outlines how to implement the database schema for our
 Developer Hub CRM using Drizzle ORM with Turso (SQLite). We'll follow
 our data model as defined in the plan.md file.
 
-## Current Schema
+## Current Schema Implementation
 
-Currently, we have implemented the following tables:
+We have implemented a complete schema with the following tables:
 
 ```typescript
 // From src/lib/server/db/schema.ts
-export const user = sqliteTable('user', {
-	id: text('id').primaryKey(),
-	username: text('username').notNull().unique(),
-	passwordHash: text('password_hash').notNull(),
-});
-
-export const session = sqliteTable('session', {
-	id: text('id').primaryKey(),
-	userId: text('user_id')
-		.notNull()
-		.references(() => user.id),
-	expiresAt: integer('expires_at', { mode: 'timestamp' }).notNull(),
-});
-```
-
-## Implementing the Full Schema
-
-### Step 1: Import Required Drizzle Components
-
-```typescript
-import {
-	sqliteTable,
-	text,
-	integer,
-	real,
-	blob,
-} from 'drizzle-orm/sqlite-core';
-import { sql } from 'drizzle-orm';
-```
-
-### Step 2: Define Timestamp Helper Functions
-
-```typescript
-// Helper for created_at and updated_at fields
-const timestamps = {
-	created_at: integer('created_at', { mode: 'timestamp' })
-		.notNull()
-		.default(sql`(unixepoch())`),
-	updated_at: integer('updated_at', { mode: 'timestamp' })
-		.notNull()
-		.default(sql`(unixepoch())`),
-};
-```
-
-### Step 3: Complete the Schema Implementation
-
-Here's the full schema implementation based on our plan:
-
-```typescript
-// src/lib/server/db/schema.ts
-import {
-	sqliteTable,
-	text,
-	integer,
-	real,
-	blob,
-} from 'drizzle-orm/sqlite-core';
-import { sql } from 'drizzle-orm';
-
-// Helper for created_at and updated_at fields
-const timestamps = {
-	created_at: integer('created_at', { mode: 'timestamp' })
-		.notNull()
-		.default(sql`(unixepoch())`),
-	updated_at: integer('updated_at', { mode: 'timestamp' })
-		.notNull()
-		.default(sql`(unixepoch())`),
-};
-
-// Users table
+// User and session tables for authentication
 export const user = sqliteTable('user', {
 	id: text('id').primaryKey(),
 	username: text('username').notNull().unique(),
@@ -89,7 +20,6 @@ export const user = sqliteTable('user', {
 	...timestamps,
 });
 
-// Sessions table
 export const session = sqliteTable('session', {
 	id: text('id').primaryKey(),
 	userId: text('user_id')
@@ -98,7 +28,7 @@ export const session = sqliteTable('session', {
 	expiresAt: integer('expires_at', { mode: 'timestamp' }).notNull(),
 });
 
-// Contacts table
+// Contacts table for managing developer contacts
 export const contact = sqliteTable('contact', {
 	id: text('id').primaryKey(),
 	userId: text('user_id')
@@ -109,7 +39,7 @@ export const contact = sqliteTable('contact', {
 	birthday: integer('birthday', { mode: 'timestamp' }),
 	industry: text('industry'),
 	location: text('location'),
-	vip: integer('vip', { mode: 'boolean' }).notNull().default(0),
+	vip: integer('vip', { mode: 'boolean' }).notNull().default(sql`0`),
 	lastUpdate: integer('last_update', { mode: 'timestamp' })
 		.notNull()
 		.default(sql`(unixepoch())`),
@@ -118,70 +48,51 @@ export const contact = sqliteTable('contact', {
 	...timestamps,
 });
 
-// Interactions table
-export const interaction = sqliteTable('interaction', {
-	id: text('id').primaryKey(),
-	contactId: text('contact_id')
-		.notNull()
-		.references(() => contact.id),
-	type: text('type').notNull(),
-	date: integer('date', { mode: 'timestamp' }).notNull(),
-	notes: text('notes'),
-	...timestamps,
-});
+// Additional tables for VIP features and interaction tracking
+export const interaction = sqliteTable('interaction', { /* fields */ });
+export const background = sqliteTable('background', { /* fields */ });
+export const contactInfo = sqliteTable('contact_info', { /* fields */ });
+```
 
-// Background table (for VIPs)
-export const background = sqliteTable('background', {
-	id: text('id').primaryKey(),
-	contactId: text('contact_id')
-		.notNull()
-		.references(() => contact.id),
-	family: text('family'),
-	company: text('company'),
-	likesDislikes: text('likes_dislikes'),
-	miscNotes: text('misc_notes'),
-	...timestamps,
-});
+## Schema Design Principles
 
-// ContactInfo table (for VIPs)
-export const contactInfo = sqliteTable('contact_info', {
-	id: text('id').primaryKey(),
-	contactId: text('contact_id')
-		.notNull()
-		.references(() => contact.id),
-	mainApp: text('main_app'),
-	email: text('email'),
-	phoneNumber: text('phone_number'),
-	socialLinks: text('social_links'), // JSON stored as TEXT
-	...timestamps,
-});
+1. **Timestamps**: All tables include `created_at` and `updated_at` fields using a reusable timestamps helper.
+2. **Foreign Keys**: Tables maintain proper relationships with foreign key constraints.
+3. **Type Safety**: We use Drizzle's type inference for compile-time type checking.
+4. **Boolean Fields**: For SQLite, boolean values are stored as integers using `{ mode: 'boolean' }`.
 
-// Type inference
+## Database Schema Components
+
+### Timestamps Helper
+
+```typescript
+const timestamps = {
+	created_at: integer('created_at', { mode: 'timestamp' })
+		.notNull()
+		.default(sql`(unixepoch())`),
+	updated_at: integer('updated_at', { mode: 'timestamp' })
+		.notNull()
+		.default(sql`(unixepoch())`),
+};
+```
+
+### Type Inference
+
+```typescript
+// Type inference for select operations
 export type User = typeof user.$inferSelect;
-export type Session = typeof session.$inferSelect;
 export type Contact = typeof contact.$inferSelect;
-export type Interaction = typeof interaction.$inferSelect;
-export type Background = typeof background.$inferSelect;
-export type ContactInfo = typeof contactInfo.$inferSelect;
 
-// Insert types
+// Type inference for insert operations
 export type NewUser = typeof user.$inferInsert;
-export type NewSession = typeof session.$inferInsert;
 export type NewContact = typeof contact.$inferInsert;
-export type NewInteraction = typeof interaction.$inferInsert;
-export type NewBackground = typeof background.$inferInsert;
-export type NewContactInfo = typeof contactInfo.$inferInsert;
 ```
 
-## Setting Up Migrations
+## Database Management
 
-### Step 1: Install Drizzle Kit
+### Available Scripts
 
-```bash
-npm install -D drizzle-kit
-```
-
-### Step 2: Create Migration Script in package.json
+Our project includes the following database-related scripts in package.json:
 
 ```json
 "scripts": {
@@ -191,7 +102,9 @@ npm install -D drizzle-kit
 }
 ```
 
-### Step 3: Create drizzle.config.ts
+### Drizzle Configuration
+
+The database configuration is defined in `drizzle.config.ts`:
 
 ```typescript
 // drizzle.config.ts
@@ -207,82 +120,72 @@ export default {
 } satisfies Config;
 ```
 
-### Step 4: Create Migration Runner
+## Working with the Database
 
-```typescript
-// src/lib/server/db/migrate.js
-import { createClient } from '@libsql/client';
-import { drizzle } from 'drizzle-orm/libsql';
-import { migrate } from 'drizzle-orm/libsql/migrator';
+### Direct Schema Changes (Development)
 
-const client = createClient({
-	url: process.env.DATABASE_URL || 'file:./local.db',
-	authToken: process.env.DATABASE_AUTH_TOKEN,
-});
+During development, you can push schema changes directly to the database:
 
-const db = drizzle(client);
-
-async function main() {
-	try {
-		console.log('Running migrations...');
-		await migrate(db, {
-			migrationsFolder: './src/lib/server/db/migrations',
-		});
-		console.log('Migrations completed successfully');
-		process.exit(0);
-	} catch (error) {
-		console.error('Error performing migrations:', error);
-		process.exit(1);
-	}
-}
-
-main();
+```bash
+npm run db:generate
+npm run db:migrate
 ```
 
-## Running Migrations
+This will update your database schema without creating migration files.
 
-To generate and apply migrations:
+### Migration-based Changes (Production)
+
+For production environments, use the migration workflow:
 
 1. Generate migration files:
-
    ```bash
    npm run db:generate
    ```
 
-2. Apply migrations to the database:
-
+2. Apply migrations:
    ```bash
    npm run db:migrate
    ```
 
-3. Explore your database with Drizzle Studio:
-   ```bash
-   npm run db:studio
-   ```
+### Using Drizzle Studio
+
+Drizzle Studio provides a visual interface to manage your database:
+
+```bash
+npm run db:studio
+```
+
+This will start a local web server (typically at http://localhost:4983) where you can:
+
+- Browse all tables and their data
+- Perform CRUD operations through the UI
+- Filter and search data
+- Visualize relationships between tables
+- Execute custom SQL queries
+
+Drizzle Studio is particularly useful for:
+- Debugging data issues
+- Quick data entry during development
+- Verifying schema changes
+- Understanding table relationships
 
 ## Best Practices
 
-1. **Use Type Inference**: Always use the `$inferSelect` and
-   `$inferInsert` types for type safety.
+1. **Schema Changes**: Always update the schema.ts file first, then apply changes to the database.
 
-2. **Timestamps**: Use the timestamps helper for consistent created_at
-   and updated_at fields.
+2. **Type Safety**: Use the generated types (e.g., `User`, `NewUser`) throughout your application.
 
-3. **Foreign Keys**: Always define proper foreign key relationships
-   between tables.
+3. **Migrations**: For production, always use migrations rather than direct schema pushes.
 
-4. **Migrations**: Generate and apply migrations for any schema
-   changes rather than modifying the database directly.
+4. **Validation**: Implement validation before inserting or updating data.
 
-5. **Validation**: Implement validation before inserting or updating
-   data in the database.
+5. **Transactions**: Use transactions for operations that modify multiple tables.
 
 ## Next Steps
 
-Once the schema is implemented, we'll need to:
+With our schema implemented, we'll now:
 
-1. Create repositories or services for each entity to handle CRUD
-   operations
+1. Create repositories or services for each entity to handle CRUD operations
 2. Implement form actions in SvelteKit for database operations
 3. Create UI components for interacting with the data
 4. Set up proper error handling and validation
