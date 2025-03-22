@@ -1,5 +1,15 @@
 <script lang="ts">
-	import { Network, Notes, Settings, Stats, VIP } from '$lib/icons';
+	import {
+		AddContact,
+		Calendar,
+		Clock,
+		Network,
+		Notes,
+		Settings,
+		Stats,
+		Tasks,
+		VIP,
+	} from '$lib/icons';
 	import { create_contact_state } from '$lib/state/contacts.svelte';
 	import type { PageData } from './$types';
 
@@ -33,9 +43,9 @@
 	<!-- Navigation -->
 	<div class="navbar bg-base-100 rounded-box mb-6 shadow-md">
 		<div class="flex-1">
-			<a href="/dashboard" class="btn btn-ghost text-xl"
-				>Developer Hub CRM</a
-			>
+			<a href="/dashboard" class="btn btn-ghost text-xl">
+				Developer Hub CRM
+			</a>
 		</div>
 		<div class="flex-none gap-2">
 			<a href="/contacts" class="btn btn-ghost btn-sm">Contacts</a>
@@ -136,20 +146,7 @@
 		<div class="card bg-base-100 shadow-xl">
 			<div class="card-body">
 				<h2 class="card-title flex items-center gap-2">
-					<svg
-						xmlns="http://www.w3.org/2000/svg"
-						class="h-6 w-6"
-						fill="none"
-						viewBox="0 0 24 24"
-						stroke="currentColor"
-					>
-						<path
-							stroke-linecap="round"
-							stroke-linejoin="round"
-							stroke-width="2"
-							d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-						/>
-					</svg>
+					<Clock height="24px" width="24px" class_names="h-6 w-6" />
 					Recent Activity
 				</h2>
 				<div class="overflow-x-auto">
@@ -182,20 +179,7 @@
 		<div class="card bg-base-100 shadow-xl">
 			<div class="card-body">
 				<h2 class="card-title flex items-center gap-2">
-					<svg
-						xmlns="http://www.w3.org/2000/svg"
-						class="h-6 w-6"
-						fill="none"
-						viewBox="0 0 24 24"
-						stroke="currentColor"
-					>
-						<path
-							stroke-linecap="round"
-							stroke-linejoin="round"
-							stroke-width="2"
-							d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
-						/>
-					</svg>
+					<Tasks height="24px" width="24px" class_names="h-6 w-6" />
 					Upcoming Tasks
 				</h2>
 				<div class="space-y-3">
@@ -236,37 +220,19 @@
 			<h2 class="card-title">Quick Actions</h2>
 			<div class="mt-2 flex flex-wrap gap-3">
 				<a href="/contacts/new" class="btn btn-primary">
-					<svg
-						xmlns="http://www.w3.org/2000/svg"
-						class="mr-2 h-5 w-5"
-						fill="none"
-						viewBox="0 0 24 24"
-						stroke="currentColor"
-					>
-						<path
-							stroke-linecap="round"
-							stroke-linejoin="round"
-							stroke-width="2"
-							d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"
-						/>
-					</svg>
+					<AddContact
+						height="20px"
+						width="20px"
+						class_names="mr-2 h-5 w-5"
+					/>
 					Add Contact
 				</a>
 				<a href="/calendar" class="btn btn-outline">
-					<svg
-						xmlns="http://www.w3.org/2000/svg"
-						class="mr-2 h-5 w-5"
-						fill="none"
-						viewBox="0 0 24 24"
-						stroke="currentColor"
-					>
-						<path
-							stroke-linecap="round"
-							stroke-linejoin="round"
-							stroke-width="2"
-							d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-						/>
-					</svg>
+					<Calendar
+						height="20px"
+						width="20px"
+						class_names="mr-2 h-5 w-5"
+					/>
 					Calendar
 				</a>
 				<a href="/notes" class="btn btn-outline">
