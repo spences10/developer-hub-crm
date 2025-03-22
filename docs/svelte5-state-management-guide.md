@@ -224,6 +224,94 @@ onMount(() => {
 });
 ```
 
+### Context-Based State Management
+
+For more complex state that needs to be shared between components, use
+Svelte's context API combined with runes:
+
+```typescript
+// state/contacts.svelte.ts
+const CONTACT_CONTEXT_KEY = Symbol('contact-context');
+
+interface ContactState {
+	// State
+	readonly contacts: Contact[];
+	readonly loading: boolean;
+	readonly error: string | null;
+
+	// Computed values (automatically update when contacts change)
+	readonly total_contacts: number;
+	readonly vip_contacts: number;
+
+	// Methods
+	initialize: (contacts: Contact[]) => void;
+	update_contact: (updated_contact: Contact) => void;
+	add_contact: (new_contact: Contact) => void;
+	delete_contact: (contact_id: string) => void;
+	get_filtered_contacts: (search_term?: string) => Contact[];
+}
+
+export function create_contact_state(initial_contacts: Contact[] = []): ContactState {
+	// Check for existing context
+	if (hasContext(CONTACT_CONTEXT_KEY)) {
+		return getContext<ContactState>(CONTACT_CONTEXT_KEY);
+	}
+
+	// Create reactive state
+	let contacts = $state<Contact[]>(initial_contacts);
+	let loading = $state<boolean>(false);
+	let error = $state<string | null>(null);
+
+	// Computed values using $derived
+	let total_contacts = $derived(contacts.length);
+	let vip_contacts = $derived(
+		contacts.filter((contact: Contact) => contact.vip).length,
+	);
+
+	// Create and return state object
+	const state = {
+		// ... getters and methods
+	};
+
+	setContext(CONTACT_CONTEXT_KEY, state);
+	return state;
+}
+
+// Get existing context
+export function get_contact_state(): ContactState {
+	if (!hasContext(CONTACT_CONTEXT_KEY)) {
+		throw new Error('Contact state context has not been initialized');
+	}
+	return getContext<ContactState>(CONTACT_CONTEXT_KEY);
+}
+```
+
+### Optimistic Updates
+
+When using state management with server operations (like form submissions),
+implement optimistic updates to provide instant feedback:
+
+```typescript
+// In your form component
+use:enhance={({ formElement }) => {
+	return async ({ result }) => {
+		if (result.type === 'success') {
+			// Optimistically update state before server response
+			const formData = new FormData(formElement);
+			contact_state.add_contact({
+				id: crypto.randomUUID(),
+				// ... other fields from form
+			});
+		}
+	};
+}}
+```
+
+This approach:
+1. Updates the UI immediately when the user takes an action
+2. Maintains data consistency with automatic derived value updates
+3. Provides a smoother user experience
+
 ## Integration with SvelteKit
 
 In SvelteKit applications, consider these additional patterns:
