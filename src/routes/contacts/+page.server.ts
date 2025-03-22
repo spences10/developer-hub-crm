@@ -43,14 +43,14 @@ export const actions: Actions = {
 		}
 
 		try {
-			const new_contact = await db.insert(contact).values({
+			await db.insert(contact).values({
 				id: nanoid(),
 				userId: user_id,
 				name,
 				relationship: relationship || null,
 				industry: industry || null,
 				location: location || null,
-				vip: vip ? 1 : 0,
+				vip: vip,
 				lastUpdate: new Date()
 			});
 
@@ -97,7 +97,7 @@ export const actions: Actions = {
 					relationship: relationship || null,
 					industry: industry || null,
 					location: location || null,
-					vip: vip ? 1 : 0,
+					vip: vip,
 					lastUpdate: new Date()
 				})
 				.where(eq(contact.id, id));
