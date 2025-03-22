@@ -71,14 +71,14 @@ graph TD
 - `id` (TEXT, PRIMARY KEY)
 - `username` (TEXT, UNIQUE)
 - `password_hash` (TEXT)
-- `created_at` (TIMESTAMP)
-- `updated_at` (TIMESTAMP)
+- `created_at` (TIMESTAMP_MS)
+- `updated_at` (TIMESTAMP_MS)
 
 #### Sessions
 
 - `id` (TEXT, PRIMARY KEY)
 - `user_id` (TEXT, FOREIGN KEY)
-- `expires_at` (TIMESTAMP)
+- `expires_at` (TIMESTAMP_MS)
 
 #### Contacts
 
@@ -86,27 +86,27 @@ graph TD
 - `user_id` (TEXT, FOREIGN KEY)
 - `name` (TEXT)
 - `relationship` (TEXT)
-- `birthday` (DATE, nullable)
+- `birthday` (TIMESTAMP_MS, nullable)
 - `industry` (TEXT)
 - `location` (TEXT, nullable)
 - `vip` (BOOLEAN)
-- `last_update` (TIMESTAMP)
-- `last_contacted` (DATE, nullable)
+- `last_update` (TIMESTAMP_MS)
+- `last_contacted` (TIMESTAMP_MS, nullable)
 - `status` (TEXT)
-- `created_at` (TIMESTAMP)
-- `updated_at` (TIMESTAMP)
+- `created_at` (TIMESTAMP_MS)
+- `updated_at` (TIMESTAMP_MS)
 
 #### Interactions
 
 - `id` (TEXT, PRIMARY KEY)
 - `contact_id` (TEXT, FOREIGN KEY)
 - `type` (TEXT)
-- `date` (DATE)
-- `notes` (TEXT)
-- `created_at` (TIMESTAMP)
-- `updated_at` (TIMESTAMP)
+- `date` (TIMESTAMP_MS)
+- `notes` (TEXT, nullable)
+- `created_at` (TIMESTAMP_MS)
+- `updated_at` (TIMESTAMP_MS)
 
-#### Background (for VIPs)
+#### Background (VIP Info)
 
 - `id` (TEXT, PRIMARY KEY)
 - `contact_id` (TEXT, FOREIGN KEY)
@@ -114,10 +114,10 @@ graph TD
 - `company` (TEXT, nullable)
 - `likes_dislikes` (TEXT, nullable)
 - `misc_notes` (TEXT, nullable)
-- `created_at` (TIMESTAMP)
-- `updated_at` (TIMESTAMP)
+- `created_at` (TIMESTAMP_MS)
+- `updated_at` (TIMESTAMP_MS)
 
-#### ContactInfo (for VIPs)
+#### Contact Info (VIP Info)
 
 - `id` (TEXT, PRIMARY KEY)
 - `contact_id` (TEXT, FOREIGN KEY)
@@ -125,8 +125,8 @@ graph TD
 - `email` (TEXT, nullable)
 - `phone_number` (TEXT, nullable)
 - `social_links` (TEXT, nullable) // JSON stored as TEXT
-- `created_at` (TIMESTAMP)
-- `updated_at` (TIMESTAMP)
+- `created_at` (TIMESTAMP_MS)
+- `updated_at` (TIMESTAMP_MS)
 
 ## Implementation Plan
 
@@ -158,7 +158,7 @@ graph TD
    - ✅ Implement contact listing with filtering
    - ⚠️ Fix reactivity issues with Svelte 5 runes
    - ⚠️ Implement proper null checks for user data
-   - ❌ Create contact detail view
+   - ✅ Create contact detail view
    - ✅ Add VIP functionality (toggle in UI)
    - ✅ Implement contact search
 
@@ -342,29 +342,14 @@ export type Auth = typeof auth;
 Using Svelte 5 runes for reactive state:
 
 ```typescript
-// src/lib/state/contact-store.svelte.ts
-class ContactStore {
-	contacts = $state([]);
+// src/lib/state/contacts.svelte.ts
+class ContactState {
+	contacts = $state.raw([]);
 	loading = $state(false);
-	error = $state(null);
-
-	async fetchContacts() {
-		this.loading = true;
-		try {
-			const response = await fetch('/api/contacts');
-			this.contacts = await response.json();
-			this.error = null;
-		} catch (err) {
-			this.error = err.message;
-		} finally {
-			this.loading = false;
-		}
-	}
-
-	// Other methods...
+	error = $state<string | null>(null);
 }
 
-export const contactStore = new ContactStore();
+export const contactState = new ContactState();
 ```
 
 ## Known Issues and Next Steps

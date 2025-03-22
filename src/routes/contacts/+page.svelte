@@ -430,9 +430,20 @@
 										class="dropdown-content menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow"
 									>
 										<li>
-											<button onclick={() => edit_contact(contact)}
-												>Edit</button
+											<a
+												href={`/contacts/${contact.id}`}
+												class="btn btn-ghost btn-sm"
 											>
+												View
+											</a>
+										</li>
+										<li>
+											<button
+												class="btn btn-ghost btn-sm"
+												onclick={() => edit_contact(contact)}
+											>
+												Edit
+											</button>
 										</li>
 										<li>
 											<form
