@@ -1,19 +1,14 @@
 <script lang="ts">
-	import { create_contact_store } from '$lib/state/contact-context.svelte';
+	import { enhance } from '$app/forms';
+	import { create_contact_state } from '$lib/state/contacts.svelte';
 	import { onMount } from 'svelte';
 	import type { PageData } from './$types';
 
 	// Get data from the server
 	const { data } = $props<{ data: PageData }>();
 
-	// Initialize contact store
-	const contact_store = create_contact_store();
-
-	// Initialize with data when component mounts
-	onMount(() => {
-		// Initialize with contacts data from the server
-		contact_store.initialize(data.contacts || []);
-	});
+	// Initialize contact state
+	const contact_state = create_contact_state(data.contacts);
 
 	// Mock recent activity - in a real app, this would come from the server
 	const recent_activities = $state([
@@ -137,7 +132,7 @@
 						</div>
 						<div class="stat-title">Total Contacts</div>
 						<div class="stat-value text-primary">
-							{contact_store.total_contacts}
+							{contact_state.total_contacts}
 						</div>
 						<div class="stat-desc">Your network size</div>
 					</div>
@@ -160,7 +155,7 @@
 						</div>
 						<div class="stat-title">VIP Contacts</div>
 						<div class="stat-value text-secondary">
-							{contact_store.vip_contacts}
+							{contact_state.vip_contacts}
 						</div>
 						<div class="stat-desc">High-priority connections</div>
 					</div>

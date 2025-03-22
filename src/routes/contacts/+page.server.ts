@@ -43,8 +43,9 @@ export const actions: Actions = {
 		}
 
 		try {
+			const contact_id = nanoid();
 			await db.insert(contact).values({
-				id: nanoid(),
+				id: contact_id,
 				userId: user_id,
 				name,
 				relationship: relationship || null,
@@ -54,7 +55,12 @@ export const actions: Actions = {
 				lastUpdate: new Date()
 			});
 
-			return { success: true };
+			// Get the created contact to return
+			const new_contact = await db.query.contact.findFirst({
+				where: eq(contact.id, contact_id)
+			});
+
+			return { success: true, data: new_contact };
 		} catch (err) {
 			console.error('Failed to create contact:', err);
 			return fail(500, { error: 'Failed to create contact' });
@@ -102,7 +108,12 @@ export const actions: Actions = {
 				})
 				.where(eq(contact.id, id));
 
-			return { success: true };
+			// Get the updated contact to return
+			const updated_contact = await db.query.contact.findFirst({
+				where: eq(contact.id, id)
+			});
+
+			return { success: true, data: updated_contact };
 		} catch (err) {
 			console.error('Failed to update contact:', err);
 			return fail(500, { error: 'Failed to update contact' });

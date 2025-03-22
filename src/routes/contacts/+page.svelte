@@ -1,22 +1,21 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
 	import type { Contact } from '$lib/server/db/schema';
-	import { create_contact_store } from '$lib/state/contact-context.svelte';
-	import { onMount } from 'svelte';
+	import { create_contact_state } from '$lib/state/contacts.svelte';
 	import type { PageData } from './$types';
 
 	// Get data from the server
 	const { data } = $props<{ data: PageData }>();
 
-	// Initialize the store with context API
-	const contact_store = create_contact_store();
+	// Initialize the state with context API and server data
+	const contact_state = create_contact_state(data.contacts || []);
 
-	// Initialize the store with server data
-	onMount(() => {
-		if (data.contacts) {
-			contact_store.initialize(data.contacts);
-		}
-	});
+	// State for UI
+	let is_creating = $state(false);
+	let is_editing = $state(false);
+	let current_contact = $state<Contact | null>(null);
+	let search_term = $state('');
+	let show_vip_only = $state(false);
 
 	// Get user initial for avatar
 	const user_initial = $derived(() => {
@@ -26,21 +25,11 @@
 		return '?';
 	});
 
-	// State for UI
-	let is_creating = $state(false);
-	let is_editing = $state(false);
-	let current_contact = $state<Contact | null>(null);
-	let search_term = $state('');
-	let show_vip_only = $state(false);
-
-	// Get safe access to the contacts from the store
-	const store_contacts = $derived(contact_store.contacts || []);
-
 	// Filtered contacts based on search and VIP filter
 	const filtered_contacts = $derived.by(() => {
 		// First filter by search term
 		const search_filtered = search_term
-			? store_contacts.filter((contact: Contact) => {
+			? contact_state.contacts.filter((contact: Contact) => {
 					return (
 						contact.name
 							.toLowerCase()
@@ -55,7 +44,7 @@
 								.includes(search_term.toLowerCase()))
 					);
 				})
-			: store_contacts;
+			: contact_state.contacts;
 
 		// Then filter by VIP status if needed
 		return show_vip_only
@@ -163,7 +152,7 @@
 								stroke-linecap="round"
 								stroke-linejoin="round"
 								stroke-width="2"
-								d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+								d="M21 21l-6-6m2-5a7 7 0 01-14 0 7 7 0 0114 0z"
 							/>
 						</svg>
 					</button>
@@ -195,6 +184,14 @@
 						use:enhance={({ formData }) => {
 							return async ({ result }) => {
 								if (result.type === 'success') {
+									// Update state based on action type
+									if (is_editing) {
+										const updated_contact = result.data as Contact;
+										contact_state.update_contact(updated_contact);
+									} else {
+										const new_contact = result.data as Contact;
+										contact_state.add_contact(new_contact);
+									}
 									reset_form();
 								}
 							};
