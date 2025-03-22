@@ -1,7 +1,6 @@
 <script lang="ts">
-	import { enhance } from '$app/forms';
+	import { Network, Notes, Settings, Stats, VIP } from '$lib/icons';
 	import { create_contact_state } from '$lib/state/contacts.svelte';
-	import { onMount } from 'svelte';
 	import type { PageData } from './$types';
 
 	// Get data from the server
@@ -96,39 +95,17 @@
 		<div class="card bg-base-100 shadow-xl">
 			<div class="card-body">
 				<h2 class="card-title flex items-center gap-2">
-					<svg
-						xmlns="http://www.w3.org/2000/svg"
-						class="h-6 w-6"
-						fill="none"
-						viewBox="0 0 24 24"
-						stroke="currentColor"
-					>
-						<path
-							stroke-linecap="round"
-							stroke-linejoin="round"
-							stroke-width="2"
-							d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
-						/>
-					</svg>
+					<Stats height="24px" width="24px" class_names="h-6 w-6" />
 					Quick Stats
 				</h2>
 				<div class="stats stats-vertical bg-base-200 shadow">
 					<div class="stat">
 						<div class="stat-figure text-primary">
-							<svg
-								xmlns="http://www.w3.org/2000/svg"
-								class="h-8 w-8"
-								fill="none"
-								viewBox="0 0 24 24"
-								stroke="currentColor"
-							>
-								<path
-									stroke-linecap="round"
-									stroke-linejoin="round"
-									stroke-width="2"
-									d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
-								/>
-							</svg>
+							<Network
+								height="32px"
+								width="32px"
+								class_names="h-8 w-8"
+							/>
 						</div>
 						<div class="stat-title">Total Contacts</div>
 						<div class="stat-value text-primary">
@@ -138,20 +115,7 @@
 					</div>
 					<div class="stat">
 						<div class="stat-figure text-secondary">
-							<svg
-								xmlns="http://www.w3.org/2000/svg"
-								class="h-8 w-8"
-								fill="none"
-								viewBox="0 0 24 24"
-								stroke="currentColor"
-							>
-								<path
-									stroke-linecap="round"
-									stroke-linejoin="round"
-									stroke-width="2"
-									d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 008 4.07M3 15.364c.64-1.319 1-2.8 1-4.364 0-1.457.39-2.823 1.07-4"
-								/>
-							</svg>
+							<VIP height="32px" width="32px" class_names="h-8 w-8" />
 						</div>
 						<div class="stat-title">VIP Contacts</div>
 						<div class="stat-value text-secondary">
@@ -258,9 +222,9 @@
 					{/each}
 				</div>
 				<div class="card-actions mt-4 justify-end">
-					<a href="/tasks" class="btn btn-sm btn-outline"
-						>Manage Tasks</a
-					>
+					<a href="/tasks" class="btn btn-sm btn-outline">
+						Manage Tasks
+					</a>
 				</div>
 			</div>
 		</div>
@@ -306,43 +270,19 @@
 					Calendar
 				</a>
 				<a href="/notes" class="btn btn-outline">
-					<svg
-						xmlns="http://www.w3.org/2000/svg"
-						class="mr-2 h-5 w-5"
-						fill="none"
-						viewBox="0 0 24 24"
-						stroke="currentColor"
-					>
-						<path
-							stroke-linecap="round"
-							stroke-linejoin="round"
-							stroke-width="2"
-							d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-						/>
-					</svg>
+					<Notes
+						height="20px"
+						width="20px"
+						class_names="mr-2 h-5 w-5"
+					/>
 					Notes
 				</a>
 				<a href="/settings" class="btn btn-outline">
-					<svg
-						xmlns="http://www.w3.org/2000/svg"
-						class="mr-2 h-5 w-5"
-						fill="none"
-						viewBox="0 0 24 24"
-						stroke="currentColor"
-					>
-						<path
-							stroke-linecap="round"
-							stroke-linejoin="round"
-							stroke-width="2"
-							d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
-						/>
-						<path
-							stroke-linecap="round"
-							stroke-linejoin="round"
-							stroke-width="2"
-							d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-						/>
-					</svg>
+					<Settings
+						height="20px"
+						width="20px"
+						class_names="mr-2 h-5 w-5"
+					/>
 					Settings
 				</a>
 			</div>

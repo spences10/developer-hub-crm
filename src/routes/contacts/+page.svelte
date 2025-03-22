@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
+	import { Microphone } from '$lib/icons';
 	import type { Contact } from '$lib/server/db/schema';
 	import { create_contact_state } from '$lib/state/contacts.svelte';
 	import type { PageData } from './$types';
@@ -255,25 +256,14 @@
 									<!-- Future Speech-to-Text integration point -->
 									<button
 										type="button"
-										class="btn btn-circle btn-ghost btn-xs tooltip tooltip-left absolute top-1/2 right-2 -translate-y-1/2 transform"
-										data-tip="Speech-to-text coming soon!"
-										aria-label="Speech-to-text for name"
+										class="btn btn-circle btn-ghost btn-sm absolute top-2 right-2"
 										disabled
 									>
-										<svg
-											xmlns="http://www.w3.org/2000/svg"
-											class="h-4 w-4"
-											fill="none"
-											viewBox="0 0 24 24"
-											stroke="currentColor"
-										>
-											<path
-												stroke-linecap="round"
-												stroke-linejoin="round"
-												stroke-width="2"
-												d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"
-											/>
-										</svg>
+										<Microphone
+											height="16px"
+											width="16px"
+											class_names="h-4 w-4"
+										/>
 									</button>
 								</div>
 							</div>
@@ -293,25 +283,14 @@
 									<!-- Future Speech-to-Text integration point -->
 									<button
 										type="button"
-										class="btn btn-circle btn-ghost btn-xs tooltip tooltip-left absolute top-1/2 right-2 -translate-y-1/2 transform"
-										data-tip="Speech-to-text coming soon!"
-										aria-label="Speech-to-text for relationship"
+										class="btn btn-circle btn-ghost btn-sm absolute top-2 right-2"
 										disabled
 									>
-										<svg
-											xmlns="http://www.w3.org/2000/svg"
-											class="h-4 w-4"
-											fill="none"
-											viewBox="0 0 24 24"
-											stroke="currentColor"
-										>
-											<path
-												stroke-linecap="round"
-												stroke-linejoin="round"
-												stroke-width="2"
-												d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"
-											/>
-										</svg>
+										<Microphone
+											height="16px"
+											width="16px"
+											class_names="h-4 w-4"
+										/>
 									</button>
 								</div>
 							</div>
@@ -331,25 +310,14 @@
 									<!-- Future Speech-to-Text integration point -->
 									<button
 										type="button"
-										class="btn btn-circle btn-ghost btn-xs tooltip tooltip-left absolute top-1/2 right-2 -translate-y-1/2 transform"
-										data-tip="Speech-to-text coming soon!"
-										aria-label="Speech-to-text for industry"
+										class="btn btn-circle btn-ghost btn-sm absolute top-2 right-2"
 										disabled
 									>
-										<svg
-											xmlns="http://www.w3.org/2000/svg"
-											class="h-4 w-4"
-											fill="none"
-											viewBox="0 0 24 24"
-											stroke="currentColor"
-										>
-											<path
-												stroke-linecap="round"
-												stroke-linejoin="round"
-												stroke-width="2"
-												d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"
-											/>
-										</svg>
+										<Microphone
+											height="16px"
+											width="16px"
+											class_names="h-4 w-4"
+										/>
 									</button>
 								</div>
 							</div>
@@ -369,25 +337,14 @@
 									<!-- Future Speech-to-Text integration point -->
 									<button
 										type="button"
-										class="btn btn-circle btn-ghost btn-xs tooltip tooltip-left absolute top-1/2 right-2 -translate-y-1/2 transform"
-										data-tip="Speech-to-text coming soon!"
-										aria-label="Speech-to-text for location"
+										class="btn btn-circle btn-ghost btn-sm absolute top-2 right-2"
 										disabled
 									>
-										<svg
-											xmlns="http://www.w3.org/2000/svg"
-											class="h-4 w-4"
-											fill="none"
-											viewBox="0 0 24 24"
-											stroke="currentColor"
-										>
-											<path
-												stroke-linecap="round"
-												stroke-linejoin="round"
-												stroke-width="2"
-												d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"
-											/>
-										</svg>
+										<Microphone
+											height="16px"
+											width="16px"
+											class_names="h-4 w-4"
+										/>
 									</button>
 								</div>
 							</div>
