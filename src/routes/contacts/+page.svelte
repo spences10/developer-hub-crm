@@ -181,18 +181,43 @@
 					<form
 						method="POST"
 						action={is_editing ? '?/update' : '?/create'}
-						use:enhance={({ formData }) => {
+						use:enhance={({ formElement }) => {
 							return async ({ result }) => {
 								if (result.type === 'success') {
-									// Update state based on action type
-									if (is_editing) {
-										const updated_contact = result.data as Contact;
-										contact_state.update_contact(updated_contact);
+									if (is_editing && current_contact) {
+										// Optimistically update the contact
+										const formData = new FormData(formElement);
+										contact_state.update_contact({
+											...current_contact,
+											name: formData.get('name')?.toString() || '',
+											relationship: formData.get('relationship')?.toString() || null,
+											industry: formData.get('industry')?.toString() || null,
+											location: formData.get('location')?.toString() || null,
+											vip: formData.has('vip'),
+										});
 									} else {
-										const new_contact = result.data as Contact;
-										contact_state.add_contact(new_contact);
+										// Optimistically add the new contact
+										const formData = new FormData(formElement);
+										const now = new Date();
+										contact_state.add_contact({
+											id: crypto.randomUUID(),
+											userId: data.user.id,
+											name: formData.get('name')?.toString() || '',
+											relationship: formData.get('relationship')?.toString() || null,
+											industry: formData.get('industry')?.toString() || null,
+											location: formData.get('location')?.toString() || null,
+											vip: formData.has('vip'),
+											created_at: now,
+											updated_at: now,
+											lastUpdate: now,
+											lastContacted: null,
+											birthday: null,
+											status: 'active',
+										});
 									}
-									reset_form();
+									is_creating = false;
+									is_editing = false;
+									current_contact = null;
 								}
 							};
 						}}
@@ -448,10 +473,11 @@
 											<form
 												method="POST"
 												action="?/delete"
-												use:enhance={({ formData }) => {
+												use:enhance={() => {
 													return async ({ result }) => {
 														if (result.type === 'success') {
-															// Handle success
+															// Optimistically delete the contact
+															contact_state.delete_contact(contact.id);
 														}
 													};
 												}}
