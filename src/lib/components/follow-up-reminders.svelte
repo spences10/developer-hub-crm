@@ -1,1 +1,0 @@
-<h2>Follow-up reminders</h2>

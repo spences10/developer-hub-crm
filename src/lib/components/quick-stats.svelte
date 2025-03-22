@@ -1,1 +1,0 @@
-<h2>Quick stats</h2>
