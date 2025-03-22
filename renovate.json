@@ -1,10 +1,4 @@
 {
-  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": [
-    "config:base",
-    "baseBranches": ["renovate-updates"],
-    "onboardingBranch": "renovate-updates",
-    "schedule": ["before 5am"],
-    "timezone": "UTC"
-  ]
+	"$schema": "https://docs.renovatebot.com/renovate-schema.json",
+	"extends": ["config:recommended"]
 }

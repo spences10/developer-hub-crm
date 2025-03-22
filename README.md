@@ -1,139 +1,106 @@
-# Developers' Hub (CRM) - Connect, Relate, Meet
+# Developer Hub CRM
 
-This was inspired from something Graham said on a spaces and I thought
-it was a good idea!
+A modern CRM built with SvelteKit, Turso, and Drizzle ORM, designed
+for managing developer relationships and interactions.
 
-Sources:
+## Features
 
-- SvelteKit with Turso and Drizzle ORM:
-  https://github.com/justinfriebel/sveltekit-turso-drizzle
-- Personal CRM: https://www.youtube.com/watch?v=CvHFg5ASuh8
+- 👤 Contact Management with VIP Support
+- 🤝 Interaction Tracking
+- 🎯 Smart Follow-ups
+- 🧠 AI-Powered Features
+- 📱 Responsive Design
+- 🌓 Dark/Light Mode
 
-## How is CRM Relevant to a Developer?
+## Tech Stack
 
-1. **Networking**: As a developer, you interact with numerous people –
-   be they colleagues, potential employers, freelancers, or clients. A
-   CRM can help keep track of these contacts, ensuring you never lose
-   touch.
+- **Frontend**: SvelteKit + Svelte 5 + Tailwind CSS + DaisyUI
+- **Database**: Turso (Distributed SQLite)
+- **ORM**: Drizzle ORM
+- **Auth**: Lucia Auth
+- **Styling**: Tailwind v4 + DaisyUI v5
 
-2. **Project Tracking**: If you're freelancing or running a software
-   business, a CRM can help manage your leads and clients, keeping
-   track of project statuses, payment schedules, and more.
+## Development Setup
 
-3. **Knowledge Sharing**: A CRM can help track whom you've shared
-   particular resources or information with, ensuring you never repeat
-   or forget to share essential materials.
+1. **Clone and Install**
 
-4. **Mentorship & Learning**: If you're a mentor or looking for
-   mentorship, a CRM can help track mentees, their progress, topics
-   covered, and more. If you attend workshops, webinars, or online
-   courses, you can note down who you met, what you learned, and any
-   follow-up actions.
+```bash
+git clone https://github.com/spences10/developer-hub-crm.git
+cd developer-hub-crm
+pnpm install
+```
 
-5. **Job Opportunities**: Use the CRM to track job offers, interviews,
-   and related interactions.
+2. **Environment Setup**
 
-6. **Personal Branding & Content**: If you're into blogging,
-   podcasting, or any form of content creation, a CRM can help manage
-   your audience, collaborations, and feedback.
+Create a `.env` file in the root directory:
 
-7. **Reminders**: Set reminders for follow-ups, sending out
-   portfolios, checking in on old clients, or even just catching up
-   with developer friends.
+```env
+DATABASE_URL="libsql://your-database-url"
+DATABASE_AUTH_TOKEN="your-database-token"
+```
 
-## Data Modeling and Schema:
+3. **Database Setup**
 
-The application will focus on two main things:
+First, install the Turso CLI and authenticate:
 
-1. Reminding users to maintain contact with important people.
-2. Being easy to update and maintain.
+```bash
+# Install Turso CLI
+curl -sSfL https://get.tur.so/install.sh | bash
 
-The data model reflects this focus, aiming to reduce friction and make
-the application genuinely useful.
+# Login to Turso
+turso auth login
+```
 
-### Tables:
+Create a new Turso database:
 
-1. **Contacts Table**:
+```bash
+turso db create developer-hub-crm-dev
+turso db tokens create developer-hub-crm-dev
+```
 
-   - `contact_id` (INTEGER, PRIMARY KEY, AUTOINCREMENT)
-   - `name` (TEXT)
-   - `relationship` (TEXT)
-   - `birthday` (DATE)
-   - `industry` (TEXT)
-   - `location` (TEXT)
-   - `vip` (BOOLEAN)
-   - `last_update` (TEXT)
-   - `last_contacted` (DATE)
-   - `status` (TEXT)
+4. **Database Schema Management**
 
-2. **Interactions Table**:
+The project uses Drizzle ORM for schema management. Available
+commands:
 
-   - `interaction_id` (INTEGER, PRIMARY KEY, AUTOINCREMENT)
-   - `contact_id` (INTEGER, FOREIGN KEY)
-   - `type` (TEXT)
-   - `date` (DATE)
-   - `notes` (TEXT)
+```bash
+# Generate migrations from schema changes
+pnpm run db:gen
 
-3. **Background Table** (For VIPs):
+# Push schema changes to the database
+pnpm run db:push
 
-   - `background_id` (INTEGER, PRIMARY KEY, AUTOINCREMENT)
-   - `contact_id` (INTEGER, FOREIGN KEY)
-   - `family` (TEXT)
-   - `company` (TEXT)
-   - `likes_dislikes` (TEXT)
-   - `misc_notes` (TEXT)
+# Note: For Turso databases, make sure to wrap timestamp defaults in double parentheses:
+# Example: .default(sql\`((strftime('%s', 'now') * 1000))\`)
+```
 
-4. **ContactInfo Table** (For VIPs):
-   - `contact_info_id` (INTEGER, PRIMARY KEY, AUTOINCREMENT)
-   - `contact_id` (INTEGER, FOREIGN KEY)
-   - `main_app` (TEXT)
-   - `email` (TEXT)
-   - `phone_number` (TEXT)
-   - `social_links` (TEXT)
+5. **Development Server**
 
-### Relationships:
+```bash
+# Start the development server
+pnpm run dev
 
-- **Contacts and Interactions**:
+# Start with network access
+pnpm run dev -- --host
+```
 
-  - One-to-Many relationship. Each contact can have multiple
-    interactions.
+## Building for Production
 
-- **Contacts and Background**:
+```bash
+pnpm run build
+pnpm run preview
+```
 
-  - One-to-One relationship. Each VIP contact has one background
-    entry.
+## Contributing
 
-- **Contacts and ContactInfo**:
+1. Fork the repository
+2. Create your feature branch
+   (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
-  - One-to-One relationship. Each VIP contact has one contact_info
-    entry.
+## License
 
-### Data Flexibility:
-
-- **Relationship Types**: Pre-defined options include "friend",
-  "family", "colleague", "school", "network", "services", with the
-  flexibility to add more.
-- **Industry Types**: Pre-defined options include "technology",
-  "entertainment", "finance", "education", with the flexibility to add
-  more.
-- **Status Timing**: Users can customize the time frame for when a
-  contact should be "hit up" versus when they are "all good".
-
-### VIP Features:
-
-- **Snapshot View**: For VIP contacts, additional fields will appear
-  in a snapshot view including `last_update`, `last_contacted`, and
-  `status`.
-- **Additional Sections**: For VIPs, the Background, ContactInfo, and
-  Notes tables hold supplementary information.
-- **Activation/Deactivation**: VIPs can be toggled on and off.
-  Deactivating a VIP will keep the extra information but remove them
-  from the snapshot view.
-
-## Tips:
-
-- **Security**: Ensure robust authentication and authorization
-  mechanisms.
-- **Responsive Design**: Implement a responsive design to cater to
-  both desktop and mobile.
-- **Backup**: Regularly backup your SQLite database.
+This project is licensed under the MIT License - see the
+[LICENSE](LICENSE) file for details.

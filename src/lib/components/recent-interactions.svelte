@@ -1,1 +1,0 @@
-<h2>Recent interactions</h2>

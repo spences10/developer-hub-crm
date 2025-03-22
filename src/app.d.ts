@@ -1,24 +1,19 @@
-// See https://kit.svelte.dev/docs/types#app
+// See https://svelte.dev/docs/kit/types#app.d.ts
 // for information about these interfaces
 declare global {
 	namespace App {
-		// interface Error {}
-		// interface Locals {}
-		// interface PageData {}
-		// interface Platform {}
 		interface Locals {
-			auth: import('lucia').AuthRequest
+			user: {
+				id: string;
+				username: string;
+			} | null;
+			session: {
+				id: string;
+				userId: string;
+				expiresAt: Date;
+			} | null;
 		}
-	}
-	namespace Lucia {
-		type Auth = import('$lib/server/lucia').Auth
-		type DatabaseUserAttributes = {
-			username: string
-			email: string
-		}
-		// eslint-disable-next-line @typescript-eslint/ban-types
-		type DatabaseSessionAttributes = {}
 	}
 }
 
-export {}
+export {};

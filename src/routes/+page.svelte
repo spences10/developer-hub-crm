@@ -1,12 +1,19 @@
 <script lang="ts">
-	export let data
+	import {
+		Cta,
+		Features,
+		Footer,
+		Hero,
+		Nav,
+		Pricing,
+		Testimonials,
+	} from '$lib/components';
 </script>
 
-<h1>Welcome to Developer Hub CRM</h1>
-
-{#if data.username}
-	<p>Logged in as {data.username}</p>
-{:else}
-	<a href="/login">Login</a>
-	<a href="/register">Register</a>
-{/if}
+<Nav />
+<Hero />
+<Features />
+<Testimonials />
+<Pricing />
+<Cta />
+<Footer />
