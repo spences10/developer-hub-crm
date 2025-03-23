@@ -301,35 +301,46 @@ The Developer Hub CRM focuses on two key aspects:
 
 #### Next Steps
 
-1. **Complete Developer-Focused Features**:
+1. **Implement Quick Connect Feature**:
+
+   - Create QR code generation with configurable context (event name,
+     location, session)
+   - Implement QR code expiration mechanism (default: 24 hours)
+   - Build web form with privacy notice and GitHub integration
+   - Create token validation and storage system
+   - Develop notification for new contacts added through Quick Connect
+   - Add automatic context tagging for contacts based on QR code
+     configuration
+
+2. **Complete Developer-Focused Features**:
 
    - Add job tracking functionality for interviews and opportunities
    - Implement resource sharing tracking
    - Create mentorship relationship tracking
    - Add content creation collaboration tracking
 
-2. **Complete Interaction Tracking System**:
+3. **Complete Interaction Tracking System**:
 
    - Add more interaction types (project milestones, interviews, etc.)
    - Implement interaction filtering and search
    - Add interaction analytics and insights
    - Implement custom interaction types
 
-3. **Enhance Reminder System**:
+4. **Enhance Reminder System**:
 
    - Create customizable follow-up reminders with timing preferences
    - Implement status tracking ("hit up" vs "all good" states)
    - Add notification system for upcoming follow-ups
    - Create recurring reminder options
 
-4. **Complete VIP Features**:
+5. **Complete VIP Features**:
 
    - Add UI for editing background information
    - Add UI for editing contact information
    - Implement comprehensive VIP dashboard
    - Add VIP activation/deactivation with data preservation
 
-5. **Enhance the Dashboard**:
+6. **Enhance the Dashboard**:
 
    - Replace mock data with real data
    - Add contact status visualization
@@ -337,46 +348,52 @@ The Developer Hub CRM focuses on two key aspects:
    - Add VIP quick access
    - Create developer-specific insights widgets
 
-6. **Implement AI Features** (optional/nice-to-have):
+7. **Implement AI Features** (premium feature):
    - Speech-to-text form filling
    - Smart suggestions for follow-ups
    - Confidence scoring for AI suggestions
    - AI-assisted note summarization
 
-## Folder Structure
+## Feature Roadmap
 
-```
-/
-├── src/
-│   ├── lib/
-│   │   ├── components/
-│   │   │   ├── ui/
-│   │   │   ├── contacts/
-│   │   │   ├── interactions/
-│   │   │   └── dashboard/
-│   │   ├── server/
-│   │   │   ├── db/
-│   │   │   │   ├── schema.ts
-│   │   │   │   ├── index.ts
-│   │   │   │   └── migrations/
-│   │   │   ├── auth.ts
-│   │   │   └── api/
-│   │   ├── state/
-│   │   ├── types/
-│   │   └── utils/
-│   ├── routes/
-│   │   ├── api/
-│   │   ├── auth/
-│   │   ├── contacts/
-│   │   ├── interactions/
-│   │   └── dashboard/
-│   ├── app.html
-│   └── app.css
-├── static/
-├── migrations/
-├── tests/
-└── scripts/
-```
+The development of Developer Hub CRM will proceed in phases:
+
+### Phase 1: Core Functionality (Current)
+
+- Basic contact management
+- Interaction tracking
+- VIP designation
+- User authentication
+
+### Phase 2: Developer-Specific Enhancements
+
+- **Quick Connect Feature**: QR code generation and GitHub profile
+  prefilling
+- Job and opportunity tracking
+- Resource sharing tracking
+- Mentorship tracking
+
+### Phase 3: Advanced Features
+
+- Enhanced reminder system
+- Comprehensive VIP features
+- Enhanced dashboard with real-time data
+- Advanced interaction tracking
+
+### Phase 4: Advanced Networking Features
+
+- Conference mode and event-based organization
+- Tech stack visualization
+- Contextual search by technology
+- Collaboration matching algorithm
+- Technical discussion note taking
+
+### Phase 5: Premium Features
+
+- AI-powered features (as a paid tier)
+- Advanced analytics
+- Integration with additional developer platforms
+- Enterprise features
 
 ## Technical Approach
 

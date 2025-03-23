@@ -41,9 +41,53 @@ relationships and networking.
 - 🎯 Smart Follow-ups with Customizable Timing
 - 💼 Industry and Relationship Categorization
 - 🌟 VIP Contact Information with Detailed Profiles
-- 🧠 AI-Powered Suggestions and Notes
+- 🧠 AI-Powered Suggestions and Notes (Premium Feature)
 - 📱 Responsive Design for Desktop and Mobile
 - 🌓 Dark/Light Mode
+
+## Unique Developer Networking Features
+
+- **🔗 Quick Connect**: Share a QR code that leads contacts to a
+  simple form where they can enter their GitHub username to instantly
+  connect and pre-populate their profile data
+  - Configurable context tags for events, conferences, and sessions
+  - GitHub profile integration for developer-specific information
+  - No account creation required for new contacts
+  - Secure, expiring QR codes for networking events
+
+## Feature Roadmap
+
+### Phase 1: Core Functionality (Current)
+
+- Contact management
+- Interaction tracking
+- VIP features
+- Basic dashboard
+
+### Phase 2: Developer-Specific Enhancements
+
+- GitHub integration for profile data prefilling
+- Tech stack tracking for contacts
+- Enhanced interaction categorization for developer contexts
+
+### Phase 3: Advanced Networking Features
+
+- **🏷️ Conference Mode**: Tag and organize contacts by events and
+  sessions
+- **📊 Tech Stack Visualization**: See what technologies your contacts
+  work with
+- **🤓 Contextual Search**: Find contacts by technology, not just by
+  name
+- **🔄 Matching Algorithm**: Discover collaboration opportunities
+  based on skills and interests
+- **📝 Technical Discussion Notes**: Record code snippets and
+  technical conversations with context
+
+### Phase 4: Premium Features
+
+- AI-powered suggestions and insights
+- Advanced analytics
+- Integration with additional developer platforms
 
 ## Data Model
 
