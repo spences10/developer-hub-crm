@@ -1,24 +1,71 @@
-# Developer Hub CRM
+# Developer Hub CRM - Connect, Relate, Meet
 
-A modern CRM built with SvelteKit, Turso, and Drizzle ORM, designed
-for managing developer relationships and interactions.
+A modern CRM built with SvelteKit, Turso, and Drizzle ORM,
+specifically designed for developers to manage professional
+relationships and networking.
+
+## How is CRM Relevant to a Developer?
+
+1. **Networking**: As a developer, you interact with numerous people –
+   colleagues, potential employers, freelancers, or clients. This CRM
+   helps keep track of these contacts, ensuring you never lose touch.
+
+2. **Project Tracking**: If you're freelancing or running a software
+   business, use this CRM to manage leads and clients, track project
+   statuses, and payment schedules.
+
+3. **Knowledge Sharing**: Track whom you've shared particular
+   resources or information with, ensuring you never repeat or forget
+   to share essential materials.
+
+4. **Mentorship & Learning**: Track mentees, their progress, and
+   topics covered. If you attend workshops or courses, note down who
+   you met and follow-up actions.
+
+5. **Job Opportunities**: Use the CRM to track job offers, interviews,
+   and related interactions.
+
+6. **Personal Branding & Content**: Manage your audience,
+   collaborations, and feedback for blogs, podcasts, or any content
+   creation.
+
+7. **Reminders**: Get notifications for follow-ups, sending
+   portfolios, checking in on old clients, or catching up with
+   developer friends.
 
 ## Features
 
 - 👤 Contact Management with VIP Support
-- 🤝 Interaction Tracking
-- 🎯 Smart Follow-ups
-- 🧠 AI-Powered Features
-- 📱 Responsive Design
+- 🤝 Interaction Tracking (meetings, calls, emails, messages)
+- 🗓️ Important Dates (birthdays, last contacted)
+- 🎯 Smart Follow-ups with Customizable Timing
+- 💼 Industry and Relationship Categorization
+- 🌟 VIP Contact Information with Detailed Profiles
+- 🧠 AI-Powered Suggestions and Notes
+- 📱 Responsive Design for Desktop and Mobile
 - 🌓 Dark/Light Mode
+
+## Data Model
+
+The application focuses on two main things:
+
+1. Reminding users to maintain contact with important people
+2. Being easy to update and maintain
+
+### Primary Entities:
+
+- **Contacts**: Core contact information with VIP designation option
+- **Interactions**: Track all meetings, calls, and communications
+- **VIP Information**: Extended data for your most important contacts
+- **Status Tracking**: Know when it's time to reconnect with contacts
 
 ## Tech Stack
 
-- **Frontend**: SvelteKit + Svelte 5 + Tailwind CSS + DaisyUI
+- **Frontend**: SvelteKit + Svelte 5 + Tailwind CSS + daisyUI
 - **Database**: Turso (Distributed SQLite)
 - **ORM**: Drizzle ORM
 - **Auth**: Lucia Auth
-- **Styling**: Tailwind v4 + DaisyUI v5
+- **Styling**: Tailwind v4 + daisyUI v5
 
 ## Development Setup
 
