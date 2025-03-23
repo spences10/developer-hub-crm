@@ -28,7 +28,9 @@ export const session = sqliteTable('session', {
 	userId: text('user_id')
 		.notNull()
 		.references(() => user.id),
-	expiresAt: integer('expires_at', { mode: 'timestamp_ms' }).notNull(),
+	expiresAt: integer('expires_at', {
+		mode: 'timestamp_ms',
+	}).notNull(),
 });
 
 // Contacts table
@@ -53,15 +55,18 @@ export const contact = sqliteTable('contact', {
 	...timestamps,
 });
 
-export const contactRelations = relations(contact, ({ one, many }) => ({
-	user: one(user, {
-		fields: [contact.userId],
-		references: [user.id],
+export const contactRelations = relations(
+	contact,
+	({ one, many }) => ({
+		user: one(user, {
+			fields: [contact.userId],
+			references: [user.id],
+		}),
+		interactions: many(interaction),
+		background: one(background),
+		contactInfo: one(contactInfo),
 	}),
-	interactions: many(interaction),
-	background: one(background),
-	contactInfo: one(contactInfo),
-}));
+);
 
 // Interactions table
 export const interaction = sqliteTable('interaction', {
@@ -79,12 +84,15 @@ export const interaction = sqliteTable('interaction', {
 	...timestamps,
 });
 
-export const interactionRelations = relations(interaction, ({ one }) => ({
-	contact: one(contact, {
-		fields: [interaction.contactId],
-		references: [contact.id],
+export const interactionRelations = relations(
+	interaction,
+	({ one }) => ({
+		contact: one(contact, {
+			fields: [interaction.contactId],
+			references: [contact.id],
+		}),
 	}),
-}));
+);
 
 // Background table (for VIPs)
 export const background = sqliteTable('background', {
@@ -99,12 +107,15 @@ export const background = sqliteTable('background', {
 	...timestamps,
 });
 
-export const backgroundRelations = relations(background, ({ one }) => ({
-	contact: one(contact, {
-		fields: [background.contactId],
-		references: [contact.id],
+export const backgroundRelations = relations(
+	background,
+	({ one }) => ({
+		contact: one(contact, {
+			fields: [background.contactId],
+			references: [contact.id],
+		}),
 	}),
-}));
+);
 
 // ContactInfo table (for VIPs)
 export const contactInfo = sqliteTable('contact_info', {
@@ -119,12 +130,15 @@ export const contactInfo = sqliteTable('contact_info', {
 	...timestamps,
 });
 
-export const contactInfoRelations = relations(contactInfo, ({ one }) => ({
-	contact: one(contact, {
-		fields: [contactInfo.contactId],
-		references: [contact.id],
+export const contactInfoRelations = relations(
+	contactInfo,
+	({ one }) => ({
+		contact: one(contact, {
+			fields: [contactInfo.contactId],
+			references: [contact.id],
+		}),
 	}),
-}));
+);
 
 // Type inference
 export type User = typeof user.$inferSelect;

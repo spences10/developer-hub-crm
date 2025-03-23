@@ -1,7 +1,12 @@
 import { error, redirect } from '@sveltejs/kit';
 import type { PageServerLoad, Actions } from './$types';
 import { db } from '$lib/server/db';
-import { contact, interaction, background, contactInfo } from '$lib/server/db/schema';
+import {
+	contact,
+	interaction,
+	background,
+	contactInfo,
+} from '$lib/server/db/schema';
 import { eq } from 'drizzle-orm';
 import { nanoid } from 'nanoid';
 
@@ -18,8 +23,8 @@ export const load = (async ({ params, locals }) => {
 				orderBy: (interaction, { desc }) => [desc(interaction.date)],
 			},
 			background: true,
-			contactInfo: true
-		}
+			contactInfo: true,
+		},
 	});
 
 	if (!contact_data) {
@@ -32,7 +37,7 @@ export const load = (async ({ params, locals }) => {
 
 	return {
 		contact: contact_data,
-		user: locals.user
+		user: locals.user,
 	};
 }) satisfies PageServerLoad;
 
@@ -56,7 +61,7 @@ export const actions = {
 
 		// Verify contact exists and belongs to user
 		const contact_data = await db.query.contact.findFirst({
-			where: eq(contact.id, params.id)
+			where: eq(contact.id, params.id),
 		});
 
 		if (!contact_data) {
@@ -75,11 +80,12 @@ export const actions = {
 			date: date_obj,
 			notes: notes || null,
 			created_at: new Date(),
-			updated_at: new Date()
+			updated_at: new Date(),
 		});
 
 		// Update contact's lastContacted
-		await db.update(contact)
+		await db
+			.update(contact)
 			.set({ lastContacted: date_obj })
 			.where(eq(contact.id, params.id));
 
@@ -102,8 +108,8 @@ export const actions = {
 		const interaction_data = await db.query.interaction.findFirst({
 			where: eq(interaction.id, id),
 			with: {
-				contact: true
-			}
+				contact: true,
+			},
 		});
 
 		if (!interaction_data) {
@@ -118,17 +124,21 @@ export const actions = {
 		await db.delete(interaction).where(eq(interaction.id, id));
 
 		// Update contact's lastContacted to the most recent remaining interaction
-		const most_recent_interaction = await db.query.interaction.findFirst({
-			where: eq(interaction.contactId, params.id),
-			orderBy: (interaction, { desc }) => [desc(interaction.date)]
-		});
+		const most_recent_interaction =
+			await db.query.interaction.findFirst({
+				where: eq(interaction.contactId, params.id),
+				orderBy: (interaction, { desc }) => [desc(interaction.date)],
+			});
 
-		await db.update(contact)
-			.set({ 
-				lastContacted: most_recent_interaction ? most_recent_interaction.date : null 
+		await db
+			.update(contact)
+			.set({
+				lastContacted: most_recent_interaction
+					? most_recent_interaction.date
+					: null,
 			})
 			.where(eq(contact.id, params.id));
 
 		return { success: true };
-	}
+	},
 } satisfies Actions;

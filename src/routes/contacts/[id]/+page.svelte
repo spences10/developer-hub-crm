@@ -215,7 +215,9 @@
 									type="button"
 									class="btn btn-ghost"
 									onclick={reset_interaction_form}
-								>Cancel</button>
+								>
+									Cancel
+								</button>
 							</div>
 						</div>
 					</form>
