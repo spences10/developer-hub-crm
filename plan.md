@@ -7,7 +7,7 @@ graph TD
     subgraph "Frontend"
         UI[SvelteKit UI Components]
         Routes[SvelteKit Routes]
-        State[State Modules (.svelte.ts)]
+        State["State Modules (.svelte.ts)"]
         Auth[Auth Client]
     end
 
