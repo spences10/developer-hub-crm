@@ -190,118 +190,60 @@ The Developer Hub CRM focuses on two key aspects:
    - Develop session management with cookies
    - Add authentication guards for routes
 
-### Phase 2: Core Features
+### Phase 2: Developer-Specific Enhancements
 
-1. **Contact Management**
-
-   - Create contact schema with Drizzle ORM
-   - Implement contact CRUD operations (backend)
-   - Develop contact form for creation and editing
-   - Implement contact listing with filtering
-   - Fix reactivity issues with Svelte 5 runes
-   - Implement proper null checks for user data
-   - Create contact detail view
-   - Add VIP functionality (toggle in UI)
-   - Implement contact search
-
-2. **Interaction Tracking**
-
-   - Define interaction schema with Drizzle ORM
-   - Implement interaction CRUD operations
-   - Create interaction history view
-   - Add interaction filtering
-   - Develop notes functionality
-
-3. **VIP Features**
-   - Define VIP-related schemas with Drizzle ORM
-   - Implement extended profile for VIPs
-   - Create background information section
-   - Develop contact information section
-   - Add VIP dashboard view
+- **Enhanced Reminder System**: Status tracking and customizable
+  follow-ups
+- **Quick Connect Feature**: QR code generation and GitHub profile
+  prefilling
+- Job and opportunity tracking
+- Resource sharing tracking
+- Mentorship tracking
 
 ### Phase 3: Advanced Features
 
-1. **AI Features**
+- Comprehensive VIP features
+- Enhanced dashboard with real-time data
+- Advanced interaction tracking
 
-   - ✅ Update database schema for AI features
-   - Implement speech-to-text form filling
-   - Add smart suggestions based on interaction history
-   - Develop confidence scoring for AI suggestions
-   - Create AI-assisted note summarization
+### Phase 4: Advanced Networking Features
 
-2. **Reminder System**
+- Conference mode and event-based organization
+- Tech stack visualization
+- Contextual search by technology
+- Collaboration matching algorithm
+- Technical discussion note taking
 
-   - Implement follow-up reminders
-   - Create status tracking
-   - Develop notification system
-   - Add email notifications
+### Phase 5: Premium Features
 
-3. **Dashboard**
+- AI-powered features (as a paid tier)
+- Advanced analytics
+- Integration with additional developer platforms
+- Enterprise features
 
-   - Create overview dashboard
-   - Implement contact status visualization
-   - Add recent interactions display
-   - Develop VIP quick access
+## Next Steps
 
-4. **Mobile Optimization**
+1. **Enhance Reminder System** (Prioritized):
 
-   - Ensure responsive design
-   - Optimize for touch interfaces
-   - Implement progressive enhancement
-   - Add offline capabilities
+   - Implement specialized status tracking system for developer
+     relationships
+   - Create customizable follow-up reminders with timing preferences
+   - Add visual status indicators throughout the UI
+   - Develop automated status updates based on interaction history
+   - Implement dashboard widget showing contacts needing attention
+   - Add UI for setting per-contact follow-up frequency and importance
+     level
+   - Create analytics for relationship health
 
-### Phase 4: Polish & Performance
+   > _Why prioritized: The reminder system is the core functionality
+   > of any CRM - maintaining relationships over time. It addresses
+   > the primary purpose of "ensuring developers never lose touch with
+   > valuable connections" and provides immediate value for existing
+   > contacts. This feature leverages the existing schema (`status`
+   > and `last_contacted` fields) and forms the foundation for other
+   > advanced features._
 
-1. **Performance Optimization**
-
-   - Implement lazy loading for large lists
-   - Add caching for frequently accessed data
-   - Optimize database queries
-   - Add client-side state management
-
-2. **UI/UX Improvements**
-
-   - Add loading states and transitions
-   - Implement error boundaries
-   - Add form validation feedback
-   - Improve accessibility
-
-3. **Testing & Documentation**
-
-   - Write unit tests for core functionality
-   - Add end-to-end tests with Playwright
-   - Document API endpoints
-   - Create user documentation
-
-### Current Status
-
-#### Completed
-
-- Project setup and configuration
-- Basic authentication system with Lucia
-- Contact management core features (create, read, update, delete)
-- Database schema setup with Drizzle ORM including:
-  - Users and sessions tables
-  - Contacts table
-  - Interactions table
-  - Background and ContactInfo tables for VIPs
-  - AI-related fields in the schema
-- Basic dashboard implementation with mock data
-- Basic contact detail view with:
-  - Contact information display
-  - Interaction tracking (add, list, delete)
-  - VIP information display (when contact is marked as VIP)
-
-#### In Progress
-
-- VIP feature implementation (partial)
-- Interaction tracking system (partial)
-- Mobile optimization
-- Dashboard functionality with real data
-
-#### Next Steps
-
-1. **Implement Quick Connect Feature**:
+2. **Implement Quick Connect Feature**:
 
    - Create QR code generation with configurable context (event name,
      location, session)
@@ -312,26 +254,19 @@ The Developer Hub CRM focuses on two key aspects:
    - Add automatic context tagging for contacts based on QR code
      configuration
 
-2. **Complete Developer-Focused Features**:
+3. **Complete Developer-Focused Features**:
 
    - Add job tracking functionality for interviews and opportunities
    - Implement resource sharing tracking
    - Create mentorship relationship tracking
    - Add content creation collaboration tracking
 
-3. **Complete Interaction Tracking System**:
+4. **Complete Interaction Tracking System**:
 
    - Add more interaction types (project milestones, interviews, etc.)
    - Implement interaction filtering and search
    - Add interaction analytics and insights
    - Implement custom interaction types
-
-4. **Enhance Reminder System**:
-
-   - Create customizable follow-up reminders with timing preferences
-   - Implement status tracking ("hit up" vs "all good" states)
-   - Add notification system for upcoming follow-ups
-   - Create recurring reminder options
 
 5. **Complete VIP Features**:
 
@@ -358,6 +293,80 @@ The Developer Hub CRM focuses on two key aspects:
 
 The development of Developer Hub CRM will proceed in phases:
 
+```mermaid
+graph TD
+    %% Phases
+    subgraph Phase1["Phase 1: Foundation"]
+        Auth[Authentication System]
+        DB[Database Setup]
+        UI[Basic UI Framework]
+        ContactCRUD[Contact CRUD]
+    end
+
+    subgraph Phase2["Phase 2: Developer-Specific Features"]
+        Reminder[Enhanced Reminder System]
+        QC[Quick Connect Feature]
+        JobTrack[Job/Opportunity Tracking]
+        Resources[Resource Sharing]
+        Mentorship[Mentorship Tracking]
+    end
+
+    subgraph Phase3["Phase 3: Advanced Features"]
+        VIP[Comprehensive VIP Features]
+        Dashboard[Enhanced Dashboard]
+        AdvInteraction[Advanced Interaction Tracking]
+    end
+
+    subgraph Phase4["Phase 4: Advanced Networking"]
+        Conference[Conference Mode]
+        TechViz[Tech Stack Visualization]
+        ContextSearch[Contextual Tech Search]
+        Matching[Collaboration Matching]
+    end
+
+    subgraph Phase5["Phase 5: Premium"]
+        AI[AI Features]
+        Analytics[Advanced Analytics]
+        Integration[Platform Integrations]
+        Enterprise[Enterprise Features]
+    end
+
+    %% Dependencies
+    Auth --> ContactCRUD
+    DB --> ContactCRUD
+    UI --> ContactCRUD
+
+    ContactCRUD --> Reminder
+    Reminder --> QC
+    ContactCRUD --> QC
+
+    Reminder --> VIP
+    QC --> JobTrack
+    QC --> Resources
+
+    Reminder --> Dashboard
+    VIP --> Dashboard
+
+    Dashboard --> Conference
+    AdvInteraction --> TechViz
+
+    Conference --> AI
+    Dashboard --> Analytics
+
+    %% Current Focus
+    style Reminder fill:#f96,stroke:#333,stroke-width:4px
+
+    %% Completed
+    style Auth fill:#9f9,stroke:#333
+    style DB fill:#9f9,stroke:#333
+    style UI fill:#9f9,stroke:#333
+    style ContactCRUD fill:#9f9,stroke:#333
+
+    %% In Progress
+    style VIP fill:#ff9,stroke:#333
+    style Dashboard fill:#ff9,stroke:#333
+```
+
 ### Phase 1: Core Functionality (Current)
 
 - Basic contact management
@@ -367,6 +376,8 @@ The development of Developer Hub CRM will proceed in phases:
 
 ### Phase 2: Developer-Specific Enhancements
 
+- **Enhanced Reminder System**: Status tracking and customizable
+  follow-ups
 - **Quick Connect Feature**: QR code generation and GitHub profile
   prefilling
 - Job and opportunity tracking
@@ -375,7 +386,6 @@ The development of Developer Hub CRM will proceed in phases:
 
 ### Phase 3: Advanced Features
 
-- Enhanced reminder system
 - Comprehensive VIP features
 - Enhanced dashboard with real-time data
 - Advanced interaction tracking
@@ -472,9 +482,11 @@ export const contactState = new ContactState();
 
 ### In Progress
 
+- VIP feature implementation (partial)
+- Interaction tracking system (partial)
 - Mobile optimization
-- Authentication guards
-- Reactivity with Svelte 5 runes
+- Dashboard functionality with real data
+- Reminder system implementation (started)
 
 ### To Do
 
