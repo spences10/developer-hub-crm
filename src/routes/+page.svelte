@@ -4,13 +4,11 @@
 		Features,
 		Footer,
 		Hero,
-		Nav,
 		Pricing,
 		Testimonials,
 	} from '$lib/components';
 </script>
 
-<Nav />
 <Hero />
 <Features />
 <Testimonials />

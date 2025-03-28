@@ -2,6 +2,7 @@
 	import {
 		AddContact,
 		Calendar,
+		Checkmark,
 		Clock,
 		Network,
 		Notes,
@@ -39,45 +40,7 @@
 	};
 </script>
 
-<div class="bg-base-200 min-h-screen p-4">
-	<!-- Navigation -->
-	<div class="navbar bg-base-100 rounded-box mb-6 shadow-md">
-		<div class="flex-1">
-			<a href="/dashboard" class="btn btn-ghost text-xl">
-				Developer Hub CRM
-			</a>
-		</div>
-		<div class="flex-none gap-2">
-			<a href="/contacts" class="btn btn-ghost btn-sm">Contacts</a>
-			<a href="/analytics" class="btn btn-ghost btn-sm">Analytics</a>
-			<div class="dropdown dropdown-end">
-				<label
-					for="user-menu"
-					class="btn btn-ghost btn-circle avatar placeholder"
-				>
-					<div
-						class="bg-neutral text-neutral-content w-10 rounded-full"
-					>
-						<span>{get_user_initial()}</span>
-					</div>
-				</label>
-				<ul
-					id="user-menu"
-					class="menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-52 p-2 shadow"
-				>
-					<li><a href="/profile">Profile</a></li>
-					<li>
-						<form method="POST" action="/auth?/logout">
-							<button type="submit" class="w-full text-left">
-								Logout
-							</button>
-						</form>
-					</li>
-				</ul>
-			</div>
-		</div>
-	</div>
-
+<div class="bg-base-200 min-h-screen p-4 pt-20">
 	<!-- Welcome Banner -->
 	<div class="hero bg-base-100 rounded-box mb-6 p-6 shadow-md">
 		<div class="hero-content text-center">
@@ -200,8 +163,14 @@
 							</div>
 							<button
 								class="btn btn-ghost btn-xs"
-								aria-label="Mark as complete">✓</button
+								aria-label="Mark as complete"
 							>
+								<Checkmark
+									height="16px"
+									width="16px"
+									class_names="h-4 w-4"
+								/>
+							</button>
 						</div>
 					{/each}
 				</div>

@@ -51,30 +51,7 @@
 	}
 </script>
 
-<div class="bg-base-200 min-h-screen p-4">
-	<!-- Navigation -->
-	<div class="navbar bg-base-100 rounded-box mb-6 shadow-md">
-		<div class="flex-1">
-			<a href="/contacts" class="btn btn-ghost">
-				<svg
-					xmlns="http://www.w3.org/2000/svg"
-					class="h-6 w-6"
-					fill="none"
-					viewBox="0 0 24 24"
-					stroke="currentColor"
-				>
-					<path
-						stroke-linecap="round"
-						stroke-linejoin="round"
-						stroke-width="2"
-						d="M10 19l-7-7m0 0l7-7m-7 7h18"
-					/>
-				</svg>
-				Back to Contacts
-			</a>
-		</div>
-	</div>
-
+<div class="bg-base-200 min-h-screen p-4 pt-20">
 	<!-- Main content -->
 	<div class="container mx-auto">
 		<div class="card bg-base-100 shadow-xl">
