@@ -2,7 +2,7 @@
 	import { Facebook, Twitter, YouTube } from '$lib/icons';
 </script>
 
-<footer class="bg-neutral text-neutral-content">
+<footer class="full-width-section bg-neutral text-neutral-content">
 	<div class="container mx-auto px-4">
 		<div
 			class="grid grid-cols-1 gap-8 p-10 md:grid-cols-2 lg:grid-cols-4"

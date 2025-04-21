@@ -40,7 +40,7 @@
 	};
 </script>
 
-<div class="bg-base-200 min-h-screen p-4 pt-20">
+<div class="bg-base-200 min-h-screen">
 	<!-- Welcome Banner -->
 	<div class="hero bg-base-100 rounded-box mb-6 p-6 shadow-md">
 		<div class="hero-content text-center">

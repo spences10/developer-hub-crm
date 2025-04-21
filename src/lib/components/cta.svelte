@@ -2,7 +2,7 @@
 	// No special imports needed for this component
 </script>
 
-<section class="bg-base-100 py-20">
+<section class="full-width-section bg-base-100 py-20">
 	<div class="container mx-auto px-4">
 		<div class="card bg-primary text-primary-content">
 			<div class="card-body text-center">

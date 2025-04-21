@@ -15,6 +15,10 @@
 	const is_auth_page = $derived(
 		page.url.pathname.startsWith('/auth'),
 	);
+
+	// Determine if the current page needs a full-width layout
+	// Currently only the home page with hero sections needs full width
+	const is_full_width_page = $derived(page.url.pathname === '/');
 </script>
 
 <div class="app">
@@ -26,7 +30,18 @@
 	/>
 
 	<div class="content">
-		{@render children()}
+		{#if is_auth_page}
+			<!-- Auth pages have their own container -->
+			{@render children()}
+		{:else if is_full_width_page}
+			<!-- Full-width pages render content directly -->
+			{@render children()}
+		{:else}
+			<!-- Standard container for all other pages -->
+			<div class="container mx-auto px-4 pt-20">
+				{@render children()}
+			</div>
+		{/if}
 	</div>
 </div>
 

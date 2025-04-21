@@ -2,7 +2,10 @@
 	// No special imports needed for this component
 </script>
 
-<section id="testimonials" class="bg-base-100 py-20">
+<section
+	id="testimonials"
+	class="full-width-section bg-base-100 py-20"
+>
 	<div class="container mx-auto px-4">
 		<h2 class="mb-16 text-center text-4xl font-bold">
 			What Our Users Say

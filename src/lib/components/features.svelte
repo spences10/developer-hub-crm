@@ -6,7 +6,7 @@
 	} from '$lib/icons';
 </script>
 
-<section id="features" class="bg-base-200 py-20">
+<section id="features" class="full-width-section bg-base-200 py-20">
 	<div class="container mx-auto px-4">
 		<h2 class="mb-16 text-center text-4xl font-bold">
 			Powerful Features

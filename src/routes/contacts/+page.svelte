@@ -81,423 +81,416 @@
 	}
 </script>
 
-<div class="bg-base-200 min-h-screen p-4 pt-20">
-	<!-- Main content -->
-	<div class="container mx-auto">
-		<div
-			class="mb-6 flex flex-col items-center justify-between md:flex-row"
-		>
-			<h1 class="text-3xl font-bold">Contacts</h1>
-			<div class="mt-4 flex flex-col gap-4 sm:flex-row md:mt-0">
-				<button class="btn btn-primary" onclick={toggle_create_form}>
-					{is_creating ? 'Cancel' : 'Add Contact'}
+<div class="bg-base-200 min-h-screen">
+	<div
+		class="mb-6 flex flex-col items-center justify-between md:flex-row"
+	>
+		<h1 class="text-3xl font-bold">Contacts</h1>
+		<div class="mt-4 flex flex-col gap-4 sm:flex-row md:mt-0">
+			<button class="btn btn-primary" onclick={toggle_create_form}>
+				{is_creating ? 'Cancel' : 'Add Contact'}
+			</button>
+		</div>
+	</div>
+
+	<!-- Search and filter -->
+	<div class="mb-6 flex flex-col gap-4 md:flex-row">
+		<div class="form-control flex-1">
+			<div class="input-group">
+				<input
+					type="text"
+					placeholder="Search contacts..."
+					class="input input-bordered w-full"
+					bind:value={search_term}
+				/>
+				<button class="btn btn-square" aria-label="Search contacts">
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						class="h-6 w-6"
+						fill="none"
+						viewBox="0 0 24 24"
+						stroke="currentColor"
+					>
+						<path
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							stroke-width="2"
+							d="M21 21l-6-6m2-5a7 7 0 01-14 0 7 7 0 0114 0z"
+						/>
+					</svg>
 				</button>
 			</div>
 		</div>
-
-		<!-- Search and filter -->
-		<div class="mb-6 flex flex-col gap-4 md:flex-row">
-			<div class="form-control flex-1">
-				<div class="input-group">
-					<input
-						type="text"
-						placeholder="Search contacts..."
-						class="input input-bordered w-full"
-						bind:value={search_term}
-					/>
-					<button class="btn btn-square" aria-label="Search contacts">
-						<svg
-							xmlns="http://www.w3.org/2000/svg"
-							class="h-6 w-6"
-							fill="none"
-							viewBox="0 0 24 24"
-							stroke="currentColor"
-						>
-							<path
-								stroke-linecap="round"
-								stroke-linejoin="round"
-								stroke-width="2"
-								d="M21 21l-6-6m2-5a7 7 0 01-14 0 7 7 0 0114 0z"
-							/>
-						</svg>
-					</button>
-				</div>
-			</div>
-			<div class="form-control">
-				<label class="label cursor-pointer">
-					<span class="label-text mr-2">VIP Only</span>
-					<input
-						type="checkbox"
-						class="toggle toggle-primary"
-						bind:checked={show_vip_only}
-					/>
-				</label>
-			</div>
+		<div class="form-control">
+			<label class="label cursor-pointer">
+				<span class="label-text mr-2">VIP Only</span>
+				<input
+					type="checkbox"
+					class="toggle toggle-primary"
+					bind:checked={show_vip_only}
+				/>
+			</label>
 		</div>
+	</div>
 
-		<!-- Create/Edit Contact Form -->
-		{#if is_creating || is_editing}
-			<div class="card bg-base-100 mb-6 shadow-xl">
-				<div class="card-body">
-					<h2 class="card-title">
-						{is_editing ? 'Edit Contact' : 'Add New Contact'}
-					</h2>
+	<!-- Create/Edit Contact Form -->
+	{#if is_creating || is_editing}
+		<div class="card bg-base-100 mb-6 shadow-xl">
+			<div class="card-body">
+				<h2 class="card-title">
+					{is_editing ? 'Edit Contact' : 'Add New Contact'}
+				</h2>
 
-					<form
-						method="POST"
-						action={is_editing ? '?/update' : '?/create'}
-						use:enhance={({ formElement }) => {
-							return async ({ result }) => {
-								if (result.type === 'success') {
-									if (is_editing && current_contact) {
-										// Optimistically update the contact
-										const formData = new FormData(formElement);
-										contact_state.update_contact({
-											...current_contact,
-											name: formData.get('name')?.toString() || '',
-											relationship:
-												formData.get('relationship')?.toString() ||
-												null,
-											industry:
-												formData.get('industry')?.toString() || null,
-											location:
-												formData.get('location')?.toString() || null,
-											vip: formData.has('vip'),
-										});
-									} else {
-										// Optimistically add the new contact
-										const formData = new FormData(formElement);
-										const now = new Date();
-										contact_state.add_contact({
-											id: crypto.randomUUID(),
-											userId: data.user.id,
-											name: formData.get('name')?.toString() || '',
-											relationship:
-												formData.get('relationship')?.toString() ||
-												null,
-											industry:
-												formData.get('industry')?.toString() || null,
-											location:
-												formData.get('location')?.toString() || null,
-											vip: formData.has('vip'),
-											created_at: now,
-											updated_at: now,
-											lastUpdate: now,
-											lastContacted: null,
-											birthday: null,
-											status: 'active',
-										});
-									}
-									is_creating = false;
-									is_editing = false;
-									current_contact = null;
+				<form
+					method="POST"
+					action={is_editing ? '?/update' : '?/create'}
+					use:enhance={({ formElement }) => {
+						return async ({ result }) => {
+							if (result.type === 'success') {
+								if (is_editing && current_contact) {
+									// Optimistically update the contact
+									const formData = new FormData(formElement);
+									contact_state.update_contact({
+										...current_contact,
+										name: formData.get('name')?.toString() || '',
+										relationship:
+											formData.get('relationship')?.toString() ||
+											null,
+										industry:
+											formData.get('industry')?.toString() || null,
+										location:
+											formData.get('location')?.toString() || null,
+										vip: formData.has('vip'),
+									});
+								} else {
+									// Optimistically add the new contact
+									const formData = new FormData(formElement);
+									const now = new Date();
+									contact_state.add_contact({
+										id: crypto.randomUUID(),
+										userId: data.user.id,
+										name: formData.get('name')?.toString() || '',
+										relationship:
+											formData.get('relationship')?.toString() ||
+											null,
+										industry:
+											formData.get('industry')?.toString() || null,
+										location:
+											formData.get('location')?.toString() || null,
+										vip: formData.has('vip'),
+										created_at: now,
+										updated_at: now,
+										lastUpdate: now,
+										lastContacted: null,
+										birthday: null,
+										status: 'active',
+									});
 								}
-							};
-						}}
-					>
-						{#if is_editing && current_contact}
-							<input
-								type="hidden"
-								name="id"
-								value={current_contact.id}
-							/>
-						{/if}
+								is_creating = false;
+								is_editing = false;
+								current_contact = null;
+							}
+						};
+					}}
+				>
+					{#if is_editing && current_contact}
+						<input
+							type="hidden"
+							name="id"
+							value={current_contact.id}
+						/>
+					{/if}
 
-						<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-							<div class="form-control">
-								<label class="label" for="name">
-									<span class="label-text">Name*</span>
-								</label>
-								<div class="relative">
-									<input
-										type="text"
-										id="name"
-										name="name"
-										class="input input-bordered w-full"
-										value={current_contact?.name || ''}
-										required
-									/>
-									<!-- Future Speech-to-Text integration point -->
-									<button
-										type="button"
-										class="btn btn-circle btn-ghost btn-sm absolute top-2 right-2"
-										disabled
-									>
-										<Microphone
-											height="16px"
-											width="16px"
-											class_names="h-4 w-4"
-										/>
-									</button>
-								</div>
-							</div>
-
-							<div class="form-control">
-								<label class="label" for="relationship">
-									<span class="label-text">Relationship</span>
-								</label>
-								<div class="relative">
-									<input
-										type="text"
-										id="relationship"
-										name="relationship"
-										class="input input-bordered w-full"
-										value={current_contact?.relationship || ''}
-									/>
-									<!-- Future Speech-to-Text integration point -->
-									<button
-										type="button"
-										class="btn btn-circle btn-ghost btn-sm absolute top-2 right-2"
-										disabled
-									>
-										<Microphone
-											height="16px"
-											width="16px"
-											class_names="h-4 w-4"
-										/>
-									</button>
-								</div>
-							</div>
-
-							<div class="form-control">
-								<label class="label" for="industry">
-									<span class="label-text">Industry</span>
-								</label>
-								<div class="relative">
-									<input
-										type="text"
-										id="industry"
-										name="industry"
-										class="input input-bordered w-full"
-										value={current_contact?.industry || ''}
-									/>
-									<!-- Future Speech-to-Text integration point -->
-									<button
-										type="button"
-										class="btn btn-circle btn-ghost btn-sm absolute top-2 right-2"
-										disabled
-									>
-										<Microphone
-											height="16px"
-											width="16px"
-											class_names="h-4 w-4"
-										/>
-									</button>
-								</div>
-							</div>
-
-							<div class="form-control">
-								<label class="label" for="location">
-									<span class="label-text">Location</span>
-								</label>
-								<div class="relative">
-									<input
-										type="text"
-										id="location"
-										name="location"
-										class="input input-bordered w-full"
-										value={current_contact?.location || ''}
-									/>
-									<!-- Future Speech-to-Text integration point -->
-									<button
-										type="button"
-										class="btn btn-circle btn-ghost btn-sm absolute top-2 right-2"
-										disabled
-									>
-										<Microphone
-											height="16px"
-											width="16px"
-											class_names="h-4 w-4"
-										/>
-									</button>
-								</div>
-							</div>
-						</div>
-
-						<div class="form-control mt-4">
-							<label class="label cursor-pointer justify-start">
-								<input
-									type="checkbox"
-									name="vip"
-									class="checkbox checkbox-primary mr-2"
-									checked={current_contact?.vip || false}
-								/>
-								<span class="label-text">VIP Contact</span>
+					<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+						<div class="form-control">
+							<label class="label" for="name">
+								<span class="label-text">Name*</span>
 							</label>
-						</div>
-
-						<!-- Future Speech-to-Text transcript preview area -->
-						<div class="bg-base-200 mt-4 hidden rounded-lg p-4">
-							<h3 class="mb-2 font-semibold">Speech Transcript</h3>
-							<p class="text-sm opacity-70">
-								This area will display the speech transcript and allow
-								for editing before applying to fields.
-							</p>
-							<div class="mt-2 flex justify-end">
-								<button type="button" class="btn btn-sm btn-outline"
-									>Apply to Fields</button
+							<div class="relative">
+								<input
+									type="text"
+									id="name"
+									name="name"
+									class="input input-bordered w-full"
+									value={current_contact?.name || ''}
+									required
+								/>
+								<!-- Future Speech-to-Text integration point -->
+								<button
+									type="button"
+									class="btn btn-circle btn-ghost btn-sm absolute top-2 right-2"
+									disabled
 								>
+									<Microphone
+										height="16px"
+										width="16px"
+										class_names="h-4 w-4"
+									/>
+								</button>
 							</div>
 						</div>
 
-						<div class="card-actions mt-6 justify-end">
-							<button
-								type="button"
-								class="btn btn-ghost"
-								onclick={reset_form}>Cancel</button
-							>
-							<button type="submit" class="btn btn-primary">
-								{is_editing ? 'Update Contact' : 'Save Contact'}
-							</button>
-						</div>
-					</form>
-				</div>
-			</div>
-		{/if}
-
-		<!-- Contacts List -->
-		{#if filtered_contacts.length > 0}
-			<div
-				class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3"
-			>
-				{#each filtered_contacts as contact (contact.id)}
-					<div class="card bg-base-100 shadow-xl">
-						<div class="card-body">
-							<div class="flex items-start justify-between">
-								<h2 class="card-title">
-									{contact.name}
-									{#if contact.vip}
-										<div class="badge badge-primary">VIP</div>
-									{/if}
-								</h2>
-								<div class="dropdown dropdown-end">
-									<button
-										class="btn btn-ghost btn-xs btn-circle"
-										aria-label="Contact options"
-									>
-										<svg
-											xmlns="http://www.w3.org/2000/svg"
-											class="h-4 w-4"
-											fill="none"
-											viewBox="0 0 24 24"
-											stroke="currentColor"
-										>
-											<path
-												stroke-linecap="round"
-												stroke-linejoin="round"
-												stroke-width="2"
-												d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"
-											/>
-										</svg>
-									</button>
-									<ul
-										class="dropdown-content menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow"
-									>
-										<li>
-											<a
-												href={`/contacts/${contact.id}`}
-												class="btn btn-ghost btn-sm"
-											>
-												View
-											</a>
-										</li>
-										<li>
-											<button
-												class="btn btn-ghost btn-sm"
-												onclick={() => edit_contact(contact)}
-											>
-												Edit
-											</button>
-										</li>
-										<li>
-											<form
-												method="POST"
-												action="?/delete"
-												use:enhance={() => {
-													return async ({ result }) => {
-														if (result.type === 'success') {
-															// Optimistically delete the contact
-															contact_state.delete_contact(
-																contact.id,
-															);
-														}
-													};
-												}}
-											>
-												<input
-													type="hidden"
-													name="id"
-													value={contact.id}
-												/>
-												<button type="submit" class="text-error"
-													>Delete</button
-												>
-											</form>
-										</li>
-									</ul>
-								</div>
-							</div>
-
-							{#if contact.relationship}
-								<p>
-									<span class="font-semibold">Relationship:</span>
-									{contact.relationship}
-								</p>
-							{/if}
-
-							{#if contact.industry}
-								<p>
-									<span class="font-semibold">Industry:</span>
-									{contact.industry}
-								</p>
-							{/if}
-
-							{#if contact.location}
-								<p>
-									<span class="font-semibold">Location:</span>
-									{contact.location}
-								</p>
-							{/if}
-
-							<div class="card-actions mt-4 justify-end">
-								<a
-									href={`/contacts/${contact.id}`}
-									class="btn btn-sm btn-outline"
+						<div class="form-control">
+							<label class="label" for="relationship">
+								<span class="label-text">Relationship</span>
+							</label>
+							<div class="relative">
+								<input
+									type="text"
+									id="relationship"
+									name="relationship"
+									class="input input-bordered w-full"
+									value={current_contact?.relationship || ''}
+								/>
+								<!-- Future Speech-to-Text integration point -->
+								<button
+									type="button"
+									class="btn btn-circle btn-ghost btn-sm absolute top-2 right-2"
+									disabled
 								>
-									View Details
-								</a>
-								{#if contact.vip}
-									<a
-										href={`/contacts/${contact.id}/vip`}
-										class="btn btn-sm btn-primary"
-									>
-										VIP Profile
-									</a>
-								{/if}
+									<Microphone
+										height="16px"
+										width="16px"
+										class_names="h-4 w-4"
+									/>
+								</button>
+							</div>
+						</div>
+
+						<div class="form-control">
+							<label class="label" for="industry">
+								<span class="label-text">Industry</span>
+							</label>
+							<div class="relative">
+								<input
+									type="text"
+									id="industry"
+									name="industry"
+									class="input input-bordered w-full"
+									value={current_contact?.industry || ''}
+								/>
+								<!-- Future Speech-to-Text integration point -->
+								<button
+									type="button"
+									class="btn btn-circle btn-ghost btn-sm absolute top-2 right-2"
+									disabled
+								>
+									<Microphone
+										height="16px"
+										width="16px"
+										class_names="h-4 w-4"
+									/>
+								</button>
+							</div>
+						</div>
+
+						<div class="form-control">
+							<label class="label" for="location">
+								<span class="label-text">Location</span>
+							</label>
+							<div class="relative">
+								<input
+									type="text"
+									id="location"
+									name="location"
+									class="input input-bordered w-full"
+									value={current_contact?.location || ''}
+								/>
+								<!-- Future Speech-to-Text integration point -->
+								<button
+									type="button"
+									class="btn btn-circle btn-ghost btn-sm absolute top-2 right-2"
+									disabled
+								>
+									<Microphone
+										height="16px"
+										width="16px"
+										class_names="h-4 w-4"
+									/>
+								</button>
 							</div>
 						</div>
 					</div>
-				{/each}
-			</div>
-		{:else}
-			<div class="card bg-base-100 shadow-xl">
-				<div class="card-body text-center">
-					<h2 class="card-title justify-center">No contacts found</h2>
-					<p>
-						{search_term || show_vip_only
-							? 'Try adjusting your search or filters'
-							: 'Get started by adding your first contact'}
-					</p>
-					{#if !is_creating}
-						<div class="card-actions mt-4 justify-center">
-							<button
-								class="btn btn-primary"
-								onclick={toggle_create_form}>Add Contact</button
+
+					<div class="form-control mt-4">
+						<label class="label cursor-pointer justify-start">
+							<input
+								type="checkbox"
+								name="vip"
+								class="checkbox checkbox-primary mr-2"
+								checked={current_contact?.vip || false}
+							/>
+							<span class="label-text">VIP Contact</span>
+						</label>
+					</div>
+
+					<!-- Future Speech-to-Text transcript preview area -->
+					<div class="bg-base-200 mt-4 hidden rounded-lg p-4">
+						<h3 class="mb-2 font-semibold">Speech Transcript</h3>
+						<p class="text-sm opacity-70">
+							This area will display the speech transcript and allow
+							for editing before applying to fields.
+						</p>
+						<div class="mt-2 flex justify-end">
+							<button type="button" class="btn btn-sm btn-outline"
+								>Apply to Fields</button
 							>
 						</div>
-					{/if}
-				</div>
+					</div>
+
+					<div class="card-actions mt-6 justify-end">
+						<button
+							type="button"
+							class="btn btn-ghost"
+							onclick={reset_form}>Cancel</button
+						>
+						<button type="submit" class="btn btn-primary">
+							{is_editing ? 'Update Contact' : 'Save Contact'}
+						</button>
+					</div>
+				</form>
 			</div>
-		{/if}
-	</div>
+		</div>
+	{/if}
+
+	<!-- Contacts List -->
+	{#if filtered_contacts.length > 0}
+		<div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+			{#each filtered_contacts as contact (contact.id)}
+				<div class="card bg-base-100 shadow-xl">
+					<div class="card-body">
+						<div class="flex items-start justify-between">
+							<h2 class="card-title">
+								{contact.name}
+								{#if contact.vip}
+									<div class="badge badge-primary">VIP</div>
+								{/if}
+							</h2>
+							<div class="dropdown dropdown-end">
+								<button
+									class="btn btn-ghost btn-xs btn-circle"
+									aria-label="Contact options"
+								>
+									<svg
+										xmlns="http://www.w3.org/2000/svg"
+										class="h-4 w-4"
+										fill="none"
+										viewBox="0 0 24 24"
+										stroke="currentColor"
+									>
+										<path
+											stroke-linecap="round"
+											stroke-linejoin="round"
+											stroke-width="2"
+											d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"
+										/>
+									</svg>
+								</button>
+								<ul
+									class="dropdown-content menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow"
+								>
+									<li>
+										<a
+											href={`/contacts/${contact.id}`}
+											class="btn btn-ghost btn-sm"
+										>
+											View
+										</a>
+									</li>
+									<li>
+										<button
+											class="btn btn-ghost btn-sm"
+											onclick={() => edit_contact(contact)}
+										>
+											Edit
+										</button>
+									</li>
+									<li>
+										<form
+											method="POST"
+											action="?/delete"
+											use:enhance={() => {
+												return async ({ result }) => {
+													if (result.type === 'success') {
+														// Optimistically delete the contact
+														contact_state.delete_contact(contact.id);
+													}
+												};
+											}}
+										>
+											<input
+												type="hidden"
+												name="id"
+												value={contact.id}
+											/>
+											<button type="submit" class="text-error"
+												>Delete</button
+											>
+										</form>
+									</li>
+								</ul>
+							</div>
+						</div>
+
+						{#if contact.relationship}
+							<p>
+								<span class="font-semibold">Relationship:</span>
+								{contact.relationship}
+							</p>
+						{/if}
+
+						{#if contact.industry}
+							<p>
+								<span class="font-semibold">Industry:</span>
+								{contact.industry}
+							</p>
+						{/if}
+
+						{#if contact.location}
+							<p>
+								<span class="font-semibold">Location:</span>
+								{contact.location}
+							</p>
+						{/if}
+
+						<div class="card-actions mt-4 justify-end">
+							<a
+								href={`/contacts/${contact.id}`}
+								class="btn btn-sm btn-outline"
+							>
+								View Details
+							</a>
+							{#if contact.vip}
+								<a
+									href={`/contacts/${contact.id}/vip`}
+									class="btn btn-sm btn-primary"
+								>
+									VIP Profile
+								</a>
+							{/if}
+						</div>
+					</div>
+				</div>
+			{/each}
+		</div>
+	{:else}
+		<div class="card bg-base-100 shadow-xl">
+			<div class="card-body text-center">
+				<h2 class="card-title justify-center">No contacts found</h2>
+				<p>
+					{search_term || show_vip_only
+						? 'Try adjusting your search or filters'
+						: 'Get started by adding your first contact'}
+				</p>
+				{#if !is_creating}
+					<div class="card-actions mt-4 justify-center">
+						<button
+							class="btn btn-primary"
+							onclick={toggle_create_form}>Add Contact</button
+						>
+					</div>
+				{/if}
+			</div>
+		</div>
+	{/if}
 </div>
