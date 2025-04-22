@@ -7,3 +7,10 @@
 		light --default,
 		dark --prefersdark;
 }
+
+/* Global styles */
+@layer base {
+	html {
+		scroll-behavior: smooth;
+	}
+}

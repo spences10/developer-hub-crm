@@ -42,17 +42,17 @@
 
 <div class="bg-base-200 min-h-screen">
 	<!-- Welcome Banner -->
-	<div class="hero bg-base-100 rounded-box mb-6 p-6 shadow-md">
+	<div class="hero bg-base-100 rounded-box mb-8 p-8 shadow-sm">
 		<div class="hero-content text-center">
 			<div class="max-w-md">
-				<h1 class="text-3xl font-bold">
+				<h1 class="mb-4 text-4xl font-extrabold tracking-tight">
 					{#if data.user && data.user.username}
 						Welcome, {data.user.username}!
 					{:else}
 						Welcome to Developer Hub CRM!
 					{/if}
 				</h1>
-				<p class="py-4">
+				<p class="mb-6 text-lg">
 					Your Developer Hub CRM dashboard is ready. Manage your
 					contacts, track activities, and grow your network.
 				</p>
@@ -63,15 +63,25 @@
 	</div>
 
 	<!-- Dashboard Grid -->
-	<div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
+	<div class="grid grid-cols-1 gap-8 lg:grid-cols-3">
 		<!-- Quick Stats -->
-		<div class="card bg-base-100 shadow-xl">
+		<div class="card bg-base-100 border-base-300 border shadow-sm">
 			<div class="card-body">
-				<h2 class="card-title flex items-center gap-2">
-					<Stats height="24px" width="24px" class_names="h-6 w-6" />
+				<h2
+					class="card-title flex items-center gap-2 text-xl font-bold"
+				>
+					<div
+						class="bg-primary/10 flex h-8 w-8 items-center justify-center rounded-lg"
+					>
+						<Stats
+							height="20px"
+							width="20px"
+							class_names="text-primary"
+						/>
+					</div>
 					Quick Stats
 				</h2>
-				<div class="stats stats-vertical bg-base-200 shadow">
+				<div class="stats stats-vertical bg-base-200 shadow-sm">
 					<div class="stat">
 						<div class="stat-figure text-primary">
 							<Network
@@ -80,36 +90,50 @@
 								class_names="h-8 w-8"
 							/>
 						</div>
-						<div class="stat-title">Total Contacts</div>
+						<div class="stat-title font-medium">Total Contacts</div>
 						<div class="stat-value text-primary">
 							{contact_state.total_contacts}
 						</div>
 						<div class="stat-desc">Your network size</div>
 					</div>
 					<div class="stat">
-						<div class="stat-figure text-secondary">
-							<VIP height="32px" width="32px" class_names="h-8 w-8" />
+						<div class="stat-figure text-primary">
+							<VIP
+								height="32px"
+								width="32px"
+								class_names="h-8 w-8 text-primary"
+							/>
 						</div>
-						<div class="stat-title">VIP Contacts</div>
-						<div class="stat-value text-secondary">
+						<div class="stat-title font-medium">VIP Contacts</div>
+						<div class="stat-value text-primary">
 							{contact_state.vip_contacts}
 						</div>
 						<div class="stat-desc">High-priority connections</div>
 					</div>
 				</div>
 				<div class="card-actions mt-4 justify-end">
-					<a href="/analytics" class="btn btn-sm btn-outline"
-						>View Analytics</a
+					<a href="/analytics" class="btn btn-sm btn-ghost"
+						>View Analytics →</a
 					>
 				</div>
 			</div>
 		</div>
 
 		<!-- Recent Activity -->
-		<div class="card bg-base-100 shadow-xl">
+		<div class="card bg-base-100 border-base-300 border shadow-sm">
 			<div class="card-body">
-				<h2 class="card-title flex items-center gap-2">
-					<Clock height="24px" width="24px" class_names="h-6 w-6" />
+				<h2
+					class="card-title flex items-center gap-2 text-xl font-bold"
+				>
+					<div
+						class="bg-primary/10 flex h-8 w-8 items-center justify-center rounded-lg"
+					>
+						<Clock
+							height="20px"
+							width="20px"
+							class_names="text-primary"
+						/>
+					</div>
 					Recent Activity
 				</h2>
 				<div class="overflow-x-auto">
@@ -131,18 +155,28 @@
 					</table>
 				</div>
 				<div class="card-actions mt-4 justify-end">
-					<a href="/activity" class="btn btn-sm btn-outline"
-						>View All Activity</a
+					<a href="/activity" class="btn btn-sm btn-ghost"
+						>View All Activity →</a
 					>
 				</div>
 			</div>
 		</div>
 
 		<!-- Upcoming Tasks -->
-		<div class="card bg-base-100 shadow-xl">
+		<div class="card bg-base-100 border-base-300 border shadow-sm">
 			<div class="card-body">
-				<h2 class="card-title flex items-center gap-2">
-					<Tasks height="24px" width="24px" class_names="h-6 w-6" />
+				<h2
+					class="card-title flex items-center gap-2 text-xl font-bold"
+				>
+					<div
+						class="bg-primary/10 flex h-8 w-8 items-center justify-center rounded-lg"
+					>
+						<Tasks
+							height="20px"
+							width="20px"
+							class_names="text-primary"
+						/>
+					</div>
 					Upcoming Tasks
 				</h2>
 				<div class="space-y-3">
@@ -175,8 +209,8 @@
 					{/each}
 				</div>
 				<div class="card-actions mt-4 justify-end">
-					<a href="/tasks" class="btn btn-sm btn-outline">
-						Manage Tasks
+					<a href="/tasks" class="btn btn-sm btn-ghost">
+						Manage Tasks →
 					</a>
 				</div>
 			</div>
@@ -184,40 +218,32 @@
 	</div>
 
 	<!-- Quick Actions -->
-	<div class="card bg-base-100 mt-6 shadow-xl">
+	<div class="card bg-base-100 border-base-300 mt-8 border shadow-sm">
 		<div class="card-body">
-			<h2 class="card-title">Quick Actions</h2>
-			<div class="mt-2 flex flex-wrap gap-3">
+			<h2 class="card-title text-xl font-bold">Quick Actions</h2>
+			<div class="mt-4 flex flex-wrap gap-4">
 				<a href="/contacts/new" class="btn btn-primary">
-					<AddContact
-						height="20px"
-						width="20px"
-						class_names="mr-2 h-5 w-5"
-					/>
+					<div class="mr-2 flex h-5 w-5 items-center justify-center">
+						<AddContact height="16px" width="16px" />
+					</div>
 					Add Contact
 				</a>
 				<a href="/calendar" class="btn btn-outline">
-					<Calendar
-						height="20px"
-						width="20px"
-						class_names="mr-2 h-5 w-5"
-					/>
+					<div class="mr-2 flex h-5 w-5 items-center justify-center">
+						<Calendar height="16px" width="16px" />
+					</div>
 					Calendar
 				</a>
 				<a href="/notes" class="btn btn-outline">
-					<Notes
-						height="20px"
-						width="20px"
-						class_names="mr-2 h-5 w-5"
-					/>
+					<div class="mr-2 flex h-5 w-5 items-center justify-center">
+						<Notes height="16px" width="16px" />
+					</div>
 					Notes
 				</a>
 				<a href="/settings" class="btn btn-outline">
-					<Settings
-						height="20px"
-						width="20px"
-						class_names="mr-2 h-5 w-5"
-					/>
+					<div class="mr-2 flex h-5 w-5 items-center justify-center">
+						<Settings height="16px" width="16px" />
+					</div>
 					Settings
 				</a>
 			</div>

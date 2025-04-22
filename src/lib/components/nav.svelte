@@ -44,17 +44,17 @@
 {#if !is_auth_page}
 	<div
 		class="navbar bg-base-100 {fixed
-			? 'fixed top-0 z-50'
-			: ''} {rounded ? 'rounded-box' : ''} shadow-md {rounded
-			? 'mb-6'
-			: ''}"
+			? 'bg-opacity-90 fixed top-0 z-50 backdrop-blur-md'
+			: ''} {rounded ? 'rounded-box' : ''} shadow-sm {rounded
+			? 'mb-8'
+			: ''} transition-all duration-300"
 	>
 		<div class="navbar-start">
 			{#if show_back_button}
-				<a href={back_url} class="btn btn-ghost">
+				<a href={back_url} class="btn btn-ghost btn-sm">
 					<svg
 						xmlns="http://www.w3.org/2000/svg"
-						class="h-6 w-6"
+						class="h-5 w-5"
 						fill="none"
 						viewBox="0 0 24 24"
 						stroke="currentColor"
@@ -66,20 +66,31 @@
 							d="M10 19l-7-7m0 0l7-7m-7 7h18"
 						/>
 					</svg>
-					{back_text}
+					<span class="ml-1">{back_text}</span>
 				</a>
 			{:else if show_landing_links || is_landing_page}
 				<div class="dropdown">
-					<label for="mobile-menu" class="btn btn-ghost lg:hidden">
+					<label
+						tabindex="0"
+						class="btn btn-ghost btn-circle lg:hidden"
+					>
 						<Menu class_names="h-5 w-5" />
 					</label>
 					<ul
-						id="mobile-menu"
-						class="menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-52 p-2 shadow"
+						tabindex="0"
+						class="menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-52 p-2 shadow-lg"
 					>
-						<li><a href="#features">Features</a></li>
-						<li><a href="#testimonials">Testimonials</a></li>
-						<li><a href="#pricing">Pricing</a></li>
+						<li>
+							<a href="#features" class="font-medium">Features</a>
+						</li>
+						<li>
+							<a href="#testimonials" class="font-medium"
+								>Testimonials</a
+							>
+						</li>
+						<li>
+							<a href="#pricing" class="font-medium">Pricing</a>
+						</li>
 					</ul>
 				</div>
 			{/if}
@@ -89,47 +100,65 @@
 				is_contact_detail_page
 					? '/dashboard'
 					: '/'}
-				class="btn btn-ghost text-xl">Developer Hub CRM</a
+				class="btn btn-ghost text-xl font-extrabold tracking-tight"
 			>
+				<span class="text-primary">Dev</span>Hub CRM
+			</a>
 		</div>
 
 		{#if show_landing_links || is_landing_page}
 			<div class="navbar-center hidden lg:flex">
 				<ul class="menu menu-horizontal px-1">
-					<li><a href="#features">Features</a></li>
-					<li><a href="#testimonials">Testimonials</a></li>
-					<li><a href="#pricing">Pricing</a></li>
+					<li>
+						<a href="#features" class="font-medium">Features</a>
+					</li>
+					<li>
+						<a href="#testimonials" class="font-medium"
+							>Testimonials</a
+						>
+					</li>
+					<li><a href="#pricing" class="font-medium">Pricing</a></li>
 				</ul>
 			</div>
 		{/if}
 
 		<div class="navbar-end">
 			{#if is_dashboard_page}
-				<a href="/contacts" class="btn btn-ghost btn-sm">Contacts</a>
-				<a href="/analytics" class="btn btn-ghost btn-sm">Analytics</a
+				<a href="/contacts" class="btn btn-ghost btn-sm font-medium"
+					>Contacts</a
+				>
+				<a href="/analytics" class="btn btn-ghost btn-sm font-medium"
+					>Analytics</a
 				>
 			{/if}
 
 			{#if is_dashboard_page || is_contacts_page}
 				<div class="dropdown dropdown-end">
 					<label
-						for="user-menu"
+						tabindex="0"
 						class="btn btn-ghost btn-circle avatar placeholder"
 					>
 						<div
-							class="bg-neutral text-neutral-content w-10 rounded-full"
+							class="bg-primary text-primary-content w-10 rounded-full"
 						>
-							<span>{get_user_initial()}</span>
+							<span class="text-base font-medium"
+								>{get_user_initial()}</span
+							>
 						</div>
 					</label>
 					<ul
-						id="user-menu"
-						class="menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-52 p-2 shadow"
+						tabindex="0"
+						class="menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-52 p-2 shadow-lg"
 					>
-						<li><a href="/profile">Profile</a></li>
+						<li>
+							<a href="/profile" class="font-medium">Profile</a>
+						</li>
 						<li>
 							<form method="POST" action="/auth?/logout">
-								<button type="submit" class="w-full text-left">
+								<button
+									type="submit"
+									class="w-full text-left font-medium"
+								>
 									Logout
 								</button>
 							</form>
@@ -137,8 +166,13 @@
 					</ul>
 				</div>
 			{:else if !is_auth_page && !is_contact_detail_page}
-				<a href="/auth/login" class="btn btn-ghost">Login</a>
-				<a href="/auth/register" class="btn btn-primary">Register</a>
+				<a
+					href="/auth/login"
+					class="btn btn-ghost btn-sm mr-3 font-medium">Login</a
+				>
+				<a href="/auth/register" class="btn btn-primary btn-sm"
+					>Register</a
+				>
 			{/if}
 		</div>
 	</div>

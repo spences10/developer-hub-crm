@@ -81,11 +81,11 @@
 	}
 </script>
 
-<div class="bg-base-200 min-h-screen">
+<div class="bg-base-200 min-h-screen p-4 md:p-8">
 	<div
-		class="mb-6 flex flex-col items-center justify-between md:flex-row"
+		class="mb-8 flex flex-col items-center justify-between md:flex-row"
 	>
-		<h1 class="text-3xl font-bold">Contacts</h1>
+		<h1 class="text-4xl font-extrabold tracking-tight">Contacts</h1>
 		<div class="mt-4 flex flex-col gap-4 sm:flex-row md:mt-0">
 			<button class="btn btn-primary" onclick={toggle_create_form}>
 				{is_creating ? 'Cancel' : 'Add Contact'}
@@ -94,19 +94,22 @@
 	</div>
 
 	<!-- Search and filter -->
-	<div class="mb-6 flex flex-col gap-4 md:flex-row">
+	<div class="mb-8 flex flex-col gap-4 md:flex-row">
 		<div class="form-control flex-1">
-			<div class="input-group">
+			<div class="join w-full">
 				<input
 					type="text"
 					placeholder="Search contacts..."
-					class="input input-bordered w-full"
+					class="input input-bordered join-item w-full"
 					bind:value={search_term}
 				/>
-				<button class="btn btn-square" aria-label="Search contacts">
+				<button
+					class="btn btn-primary join-item"
+					aria-label="Search contacts"
+				>
 					<svg
 						xmlns="http://www.w3.org/2000/svg"
-						class="h-6 w-6"
+						class="h-5 w-5"
 						fill="none"
 						viewBox="0 0 24 24"
 						stroke="currentColor"
@@ -123,7 +126,7 @@
 		</div>
 		<div class="form-control">
 			<label class="label cursor-pointer">
-				<span class="label-text mr-2">VIP Only</span>
+				<span class="label-text mr-4 font-medium">VIP Only</span>
 				<input
 					type="checkbox"
 					class="toggle toggle-primary"
@@ -135,9 +138,11 @@
 
 	<!-- Create/Edit Contact Form -->
 	{#if is_creating || is_editing}
-		<div class="card bg-base-100 mb-6 shadow-xl">
+		<div
+			class="card bg-base-100 border-base-300 mb-8 border shadow-sm"
+		>
 			<div class="card-body">
-				<h2 class="card-title">
+				<h2 class="card-title text-xl font-bold">
 					{is_editing ? 'Edit Contact' : 'Add New Contact'}
 				</h2>
 
@@ -357,7 +362,9 @@
 	{#if filtered_contacts.length > 0}
 		<div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
 			{#each filtered_contacts as contact (contact.id)}
-				<div class="card bg-base-100 shadow-xl">
+				<div
+					class="card bg-base-100 border-base-300 border shadow-sm transition-shadow duration-300 hover:shadow-md"
+				>
 					<div class="card-body">
 						<div class="flex items-start justify-between">
 							<h2 class="card-title">
@@ -474,16 +481,18 @@
 			{/each}
 		</div>
 	{:else}
-		<div class="card bg-base-100 shadow-xl">
-			<div class="card-body text-center">
-				<h2 class="card-title justify-center">No contacts found</h2>
-				<p>
+		<div class="card bg-base-100 border-base-300 border shadow-sm">
+			<div class="card-body py-12 text-center">
+				<h2 class="card-title mb-2 justify-center text-xl font-bold">
+					No contacts found
+				</h2>
+				<p class="text-base-content/70 mb-6">
 					{search_term || show_vip_only
 						? 'Try adjusting your search or filters'
 						: 'Get started by adding your first contact'}
 				</p>
 				{#if !is_creating}
-					<div class="card-actions mt-4 justify-center">
+					<div class="card-actions justify-center">
 						<button
 							class="btn btn-primary"
 							onclick={toggle_create_form}>Add Contact</button

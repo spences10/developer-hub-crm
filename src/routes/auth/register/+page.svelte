@@ -6,14 +6,16 @@
 </script>
 
 <div
-	class="bg-base-200 flex min-h-screen items-center justify-center"
+	class="bg-base-200 flex min-h-screen items-center justify-center p-4"
 >
-	<div class="card bg-base-100 w-full max-w-md shadow-xl">
-		<div class="card-body">
-			<h1 class="card-title justify-center text-2xl">
-				Developer Hub CRM
+	<div
+		class="card bg-base-100 border-base-300 w-full max-w-md border shadow-sm"
+	>
+		<div class="card-body p-8">
+			<h1 class="mb-2 text-center text-3xl font-extrabold">
+				<span class="text-primary">Dev</span>Hub CRM
 			</h1>
-			<h2 class="text-center text-xl font-semibold">
+			<h2 class="mb-6 text-center text-xl font-bold">
 				Create Account
 			</h2>
 
@@ -31,7 +33,7 @@
 
 				<div class="form-control">
 					<label for="username" class="label">
-						<span class="label-text">Username</span>
+						<span class="label-text font-medium">Username</span>
 					</label>
 					<input
 						type="text"
@@ -41,7 +43,7 @@
 						required
 					/>
 					<div class="label">
-						<span class="label-text-alt">
+						<span class="label-text-alt text-base-content/70">
 							3-31 characters, lowercase letters, numbers, hyphens,
 							and underscores only
 						</span>
@@ -50,7 +52,7 @@
 
 				<div class="form-control">
 					<label for="password" class="label">
-						<span class="label-text">Password</span>
+						<span class="label-text font-medium">Password</span>
 					</label>
 					<input
 						type="password"
@@ -60,13 +62,17 @@
 						required
 					/>
 					<div class="label">
-						<span class="label-text-alt">Minimum 6 characters</span>
+						<span class="label-text-alt text-base-content/70"
+							>Minimum 6 characters</span
+						>
 					</div>
 				</div>
 
 				<div class="form-control">
 					<label for="confirmPassword" class="label">
-						<span class="label-text">Confirm Password</span>
+						<span class="label-text font-medium"
+							>Confirm Password</span
+						>
 					</label>
 					<input
 						type="password"
@@ -77,7 +83,7 @@
 					/>
 				</div>
 
-				<div class="form-control mt-6">
+				<div class="form-control mt-8">
 					<button type="submit" class="btn btn-primary">
 						Register
 					</button>
