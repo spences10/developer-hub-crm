@@ -202,10 +202,12 @@ export const get_contacts = query((): Contact[] => {
 	return stmt.all() as Contact[];
 });
 
-export const get_contact = query((id: string): Contact | undefined => {
-	const stmt = db.prepare('SELECT * FROM contacts WHERE id = ?');
-	return stmt.get(id) as Contact | undefined;
-});
+export const get_contact = query(
+	(id: string): Contact | undefined => {
+		const stmt = db.prepare('SELECT * FROM contacts WHERE id = ?');
+		return stmt.get(id) as Contact | undefined;
+	},
+);
 ```
 
 ## Migrations
