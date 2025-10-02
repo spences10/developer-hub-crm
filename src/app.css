@@ -1,16 +1,4 @@
 @import 'tailwindcss';
-
-/* Plugin configurations */
-@plugin "@tailwindcss/typography";
-@plugin "daisyui" {
-	themes:
-		light --default,
-		dark --prefersdark;
-}
-
-/* Global styles */
-@layer base {
-	html {
-		scroll-behavior: smooth;
-	}
-}
+@plugin '@tailwindcss/forms';
+@plugin '@tailwindcss/typography';
+@plugin 'daisyui';

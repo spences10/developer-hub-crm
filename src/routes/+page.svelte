@@ -1,17 +1,2 @@
-<script lang="ts">
-	import {
-		Cta,
-		Features,
-		Footer,
-		Hero,
-		Pricing,
-		Testimonials,
-	} from '$lib/components';
-</script>
-
-<Hero />
-<Features />
-<Testimonials />
-<Pricing />
-<Cta />
-<Footer />
+<h1>Welcome to SvelteKit</h1>
+<p>Visit <a href="https://svelte.dev/docs/kit">svelte.dev/docs/kit</a> to read the documentation</p>
