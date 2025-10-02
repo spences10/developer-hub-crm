@@ -1,6 +1,7 @@
 # Developer Hub CRM
 
-A modern CRM for developers to manage professional relationships and networking.
+A modern CRM for developers to manage professional relationships and
+networking.
 
 ## Features
 
@@ -8,7 +9,8 @@ A modern CRM for developers to manage professional relationships and networking.
 - Interaction Tracking (meetings, calls, emails, messages)
 - Important Dates (birthdays, last contacted)
 - Smart Follow-ups with customizable timing
-- **Quick Connect**: Share QR codes at conferences/events for instant GitHub profile imports
+- **Quick Connect**: Share QR codes at conferences/events for instant
+  GitHub profile imports
 - Dark/Light Mode
 
 ## Tech Stack
