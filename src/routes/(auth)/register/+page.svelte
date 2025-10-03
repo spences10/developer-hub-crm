@@ -2,52 +2,52 @@
 	import { register } from '../../auth.remote';
 </script>
 
-<h2 class="card-title text-2xl">Register</h2>
+<h2 class="card-title mb-6 text-2xl">Register</h2>
 
-<form {...register}>
-	<div class="form-control">
-		<label class="label" for="name">
-			<span class="label-text">Name</span>
+<form {...register} class="space-y-4">
+	<fieldset class="fieldset">
+		<legend class="fieldset-legend">Name</legend>
+		<label class="input validator w-full">
+			<input
+				type="text"
+				name="name"
+				placeholder="Your name"
+				class="grow"
+				required
+			/>
 		</label>
-		<input
-			type="text"
-			id="name"
-			name="name"
-			class="input-bordered input"
-			required
-		/>
-	</div>
+	</fieldset>
 
-	<div class="form-control">
-		<label class="label" for="email">
-			<span class="label-text">Email</span>
+	<fieldset class="fieldset">
+		<legend class="fieldset-legend">Email</legend>
+		<label class="input validator w-full">
+			<input
+				type="email"
+				name="email"
+				placeholder="[email protected]"
+				class="grow"
+				required
+			/>
 		</label>
-		<input
-			type="email"
-			id="email"
-			name="email"
-			class="input-bordered input"
-			required
-		/>
-	</div>
+	</fieldset>
 
-	<div class="form-control">
-		<label class="label" for="password">
-			<span class="label-text">Password</span>
+	<fieldset class="fieldset">
+		<legend class="fieldset-legend">Password</legend>
+		<label class="input validator w-full">
+			<input
+				type="password"
+				name="password"
+				placeholder="At least 8 characters"
+				class="grow"
+				required
+			/>
 		</label>
-		<input
-			type="password"
-			id="password"
-			name="password"
-			class="input-bordered input"
-			placeholder="At least 8 characters"
-			required
-		/>
-	</div>
+		<p class="label">Must be at least 8 characters</p>
+	</fieldset>
 
-	<div class="form-control mt-6">
-		<button class="btn btn-primary" type="submit">Register</button>
-	</div>
+	<button class="btn btn-primary btn-block mt-6" type="submit">
+		Register
+	</button>
 </form>
 
 <div class="divider">OR</div>

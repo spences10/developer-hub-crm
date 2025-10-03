@@ -61,6 +61,20 @@ Covers:
 - Form error handling
 - Nested boundaries
 
+### [forms-pattern.md](./forms-pattern.md)
+
+**Read this when creating forms**
+
+Covers:
+
+- daisyUI v5 form structure (changed from v4!)
+- **Important CSS fix for @tailwindcss/forms plugin conflict**
+- Fieldset and input patterns
+- Full-width inputs (important!)
+- Validation with validator class
+- Common input types (text, email, password, etc.)
+- Select, checkbox, radio patterns
+
 ## Quick Start Checklist
 
 When implementing a new feature:

@@ -2,38 +2,38 @@
 	import { login } from '../../auth.remote';
 </script>
 
-<h2 class="card-title text-2xl">Login</h2>
+<h2 class="mb-6 card-title text-2xl">Login</h2>
 
-<form {...login}>
-	<div class="form-control">
-		<label class="label" for="email">
-			<span class="label-text">Email</span>
+<form {...login} class="space-y-4">
+	<fieldset class="fieldset">
+		<legend class="fieldset-legend">Email</legend>
+		<label class="input validator w-full">
+			<input
+				type="email"
+				name="email"
+				placeholder="[email protected]"
+				class="grow"
+				required
+			/>
 		</label>
-		<input
-			type="email"
-			id="email"
-			name="email"
-			class="input-bordered input"
-			required
-		/>
-	</div>
+	</fieldset>
 
-	<div class="form-control">
-		<label class="label" for="password">
-			<span class="label-text">Password</span>
+	<fieldset class="fieldset">
+		<legend class="fieldset-legend">Password</legend>
+		<label class="input validator w-full">
+			<input
+				type="password"
+				name="password"
+				placeholder="Enter your password"
+				class="grow"
+				required
+			/>
 		</label>
-		<input
-			type="password"
-			id="password"
-			name="password"
-			class="input-bordered input"
-			required
-		/>
-	</div>
+	</fieldset>
 
-	<div class="form-control mt-6">
-		<button class="btn btn-primary" type="submit">Login</button>
-	</div>
+	<button class="btn mt-6 btn-block btn-primary" type="submit">
+		Login
+	</button>
 </form>
 
 <div class="divider">OR</div>
