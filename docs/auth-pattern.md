@@ -19,6 +19,8 @@ pnpm rebuild better-sqlite3
 // lib/server/auth.ts
 import { betterAuth } from 'better-auth';
 import Database from 'better-sqlite3';
+import { sveltekitCookies } from 'better-auth/svelte-kit';
+import { getRequestEvent } from '$app/server';
 
 // Create database instance for Better Auth
 const auth_db = new Database('local.db');
@@ -31,6 +33,9 @@ export const auth = betterAuth({
 	secret:
 		process.env.AUTH_SECRET || 'dev-secret-change-in-production',
 	baseURL: process.env.AUTH_BASE_URL || 'http://localhost:5173',
+	plugins: [
+		sveltekitCookies(getRequestEvent), // Automatically handles cookies
+	],
 });
 ```
 
@@ -186,7 +191,8 @@ export const logout = command(async () => {
 		headers: event.request.headers,
 	});
 
-	redirect(303, '/');
+	// Commands cannot redirect - return success and use goto() on client
+	return { success: true };
 });
 
 export const get_current_user = query(async () => {
@@ -219,7 +225,7 @@ export const guarded_query = <T>(fn: () => T) => {
 		});
 
 		if (!session) {
-			redirect(307, '/auth/login');
+			redirect(307, '/login');
 		}
 
 		return fn();
@@ -273,11 +279,17 @@ export const get_dashboard_data = guarded_query(() => {
 <script lang="ts">
 	import { get_current_user, logout } from '../auth/auth.remote';
 	import { get_dashboard_data } from './dashboard.remote';
+	import { goto } from '$app/navigation';
+
+	async function handle_logout() {
+		await logout();
+		goto('/login');
+	}
 </script>
 
 <svelte:boundary>
 	<div>
-		<button onclick={logout}>Logout</button>
+		<button onclick={handle_logout}>Logout</button>
 
 		{#await get_current_user() then user}
 			{#if user}
@@ -307,14 +319,18 @@ export const get_dashboard_data = guarded_query(() => {
 
 1. **Direct database instance** - Pass Better Auth a direct `Database`
    instance, not wrapped
-2. **Cookie transfer required** - When using `asResponse: true`,
-   manually transfer cookies
+2. **sveltekitCookies plugin** - Automatically handles cookie
+   management, no manual transfer needed
 3. **Redirect outside try/catch** - SvelteKit's `redirect()` throws an
    error that must propagate
 4. **Use Better Auth CLI** - Let Better Auth manage schema with
    `generate` and `migrate` commands
 5. **No hooks needed** - Access session via `auth.api.getSession()` in
    remote functions
+6. **Commands cannot redirect** - Use `command()` for logout but
+   handle navigation client-side with `goto()`
+7. **ORIGIN required in production** - Set `ORIGIN` environment
+   variable to avoid CSRF 403 errors on forms
 
 ## Enable Remote Functions
 

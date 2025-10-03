@@ -75,6 +75,19 @@ Covers:
 - Common input types (text, email, password, etc.)
 - Select, checkbox, radio patterns
 
+### [deployment.md](./deployment.md)
+
+**Read this before deploying to production**
+
+Covers:
+
+- ORIGIN environment variable (critical for CSRF)
+- Native module setup (better-sqlite3)
+- Vite SSR configuration
+- Common production issues and fixes
+- Coolify/Docker deployment
+- Database persistence
+
 ## Quick Start Checklist
 
 When implementing a new feature:

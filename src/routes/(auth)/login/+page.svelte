@@ -7,7 +7,7 @@
 <form {...login} class="space-y-4">
 	<fieldset class="fieldset">
 		<legend class="fieldset-legend">Email</legend>
-		<label class="input validator w-full">
+		<label class="validator input w-full">
 			<input
 				type="email"
 				name="email"
@@ -20,7 +20,7 @@
 
 	<fieldset class="fieldset">
 		<legend class="fieldset-legend">Password</legend>
-		<label class="input validator w-full">
+		<label class="validator input w-full">
 			<input
 				type="password"
 				name="password"

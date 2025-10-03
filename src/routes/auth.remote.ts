@@ -64,6 +64,8 @@ export const logout = command(async () => {
 	await auth.api.signOut({
 		headers: event.request.headers,
 	});
+
+	return { success: true };
 });
 
 export const get_current_user = query(async () => {

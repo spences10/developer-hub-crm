@@ -2,12 +2,12 @@
 	import { register } from '../../auth.remote';
 </script>
 
-<h2 class="card-title mb-6 text-2xl">Register</h2>
+<h2 class="mb-6 card-title text-2xl">Register</h2>
 
 <form {...register} class="space-y-4">
 	<fieldset class="fieldset">
 		<legend class="fieldset-legend">Name</legend>
-		<label class="input validator w-full">
+		<label class="validator input w-full">
 			<input
 				type="text"
 				name="name"
@@ -20,7 +20,7 @@
 
 	<fieldset class="fieldset">
 		<legend class="fieldset-legend">Email</legend>
-		<label class="input validator w-full">
+		<label class="validator input w-full">
 			<input
 				type="email"
 				name="email"
@@ -33,7 +33,7 @@
 
 	<fieldset class="fieldset">
 		<legend class="fieldset-legend">Password</legend>
-		<label class="input validator w-full">
+		<label class="validator input w-full">
 			<input
 				type="password"
 				name="password"
@@ -45,7 +45,7 @@
 		<p class="label">Must be at least 8 characters</p>
 	</fieldset>
 
-	<button class="btn btn-primary btn-block mt-6" type="submit">
+	<button class="btn mt-6 btn-block btn-primary" type="submit">
 		Register
 	</button>
 </form>
