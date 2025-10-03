@@ -10,6 +10,7 @@
 	}
 </script>
 
+<!-- svelte-ignore a11y_no_noninteractive_tabindex -->
 <svelte:boundary>
 	<div class="min-h-screen bg-base-200">
 		<div class="navbar bg-base-100 shadow-lg">
