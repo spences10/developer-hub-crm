@@ -5,7 +5,7 @@
 
 	async function handle_logout() {
 		await logout();
-		goto('/');
+		goto('/auth/login');
 	}
 </script>
 
