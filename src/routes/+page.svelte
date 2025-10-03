@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { get_current_user } from './auth/auth.remote';
+	import { get_current_user } from './auth.remote';
 </script>
 
 <div class="flex min-h-screen flex-col items-center justify-center">
@@ -17,10 +17,8 @@
 				</div>
 			{:else}
 				<div class="flex gap-4">
-					<a href="/auth/login" class="btn btn-primary"> Login </a>
-					<a href="/auth/register" class="btn btn-outline">
-						Register
-					</a>
+					<a href="/login" class="btn btn-primary">Login</a>
+					<a href="/register" class="btn btn-outline">Register</a>
 				</div>
 			{/if}
 		{/await}
