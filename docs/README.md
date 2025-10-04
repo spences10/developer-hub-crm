@@ -4,14 +4,19 @@ Quick reference for LLMs working on this codebase.
 
 ## Core Patterns
 
-This project uses modern SvelteKit patterns with minimal boilerplate:
+This project uses modern SvelteKit + Svelte 5 patterns with minimal
+boilerplate:
 
 - **Remote Functions** (`*.remote.ts`) - Type-safe client-server
   communication
+- **Batched Queries** (`query.batch()`) - Automatic request batching
+  for parameterized queries
 - **Raw SQL** - No ORM, direct SQLite queries with better-sqlite3
 - **Better Auth** - Authentication without hooks.server.ts
 - **Error Boundaries** - Graceful error handling at component level
 - **Await Expressions** - Direct async/await in markup
+- **Svelte 5 Runes** - `$state`, `$derived`, and `page` from
+  `$app/state`
 
 ## Documentation Files
 
@@ -93,10 +98,12 @@ Covers:
 When implementing a new feature:
 
 1. ✅ Create `*.remote.ts` file for server logic
-2. ✅ Use raw SQL queries with prepared statements
-3. ✅ Add error boundary in component
-4. ✅ Use `await` directly in markup
-5. ✅ Add type definitions for database rows
+2. ✅ Use `query.batch()` for parameterized queries
+3. ✅ Use raw SQL queries with prepared statements
+4. ✅ Add error boundary in component
+5. ✅ Use `await` directly in markup
+6. ✅ Add type definitions for database rows
+7. ✅ Use `page` from `$app/state` for route params (Svelte 5)
 
 ## Key Principles
 
@@ -105,10 +112,13 @@ When implementing a new feature:
 2. **No +page.server.ts** - Use remote functions instead
 3. **No ORM** - Raw SQL with better-sqlite3
 4. **No API routes** - Remote functions handle everything
-5. **Type safety everywhere** - TypeScript for all database operations
-6. **snake_case for functions/variables** - Use snake_case naming
-7. **kebab-case for file names** - Use kebab-case for all file names
-8. **lang="ts" in Svelte files** - Always use TypeScript in components
+5. **Use query.batch()** - For all parameterized query functions
+6. **Use $app/state** - Not $app/stores (deprecated in Svelte 5)
+7. **Type safety everywhere** - TypeScript for all database operations
+8. **snake_case for functions/variables** - Use snake_case naming
+9. **kebab-case for file names** - Use kebab-case for all file names
+10. **lang="ts" in Svelte files** - Always use TypeScript in
+    components
 
 ## Tech Stack
 
@@ -125,16 +135,29 @@ src/
 ├── lib/
 │   ├── server/
 │   │   ├── db.ts              # Database instance
-│   │   └── auth.ts            # Better Auth setup
+│   │   ├── auth.ts            # Better Auth setup
+│   │   └── auth-helpers.ts    # Auth helper functions
 │   └── types/
 │       └── db.ts              # Database type definitions
 └── routes/
-    ├── contacts/
-    │   ├── contacts.remote.ts # Server functions
-    │   └── +page.svelte       # Component with error boundaries
-    └── auth/
-        ├── auth.remote.ts     # Auth server functions
-        └── +page.svelte       # Auth UI
+    ├── (app)/                 # Protected routes layout
+    │   ├── contacts/
+    │   │   ├── contacts.remote.ts       # Server functions with query.batch()
+    │   │   ├── +page.svelte             # Contacts list
+    │   │   ├── new/
+    │   │   │   └── +page.svelte         # Create contact form
+    │   │   └── [id]/
+    │   │       ├── +page.svelte         # Contact detail
+    │   │       └── edit/
+    │   │           └── +page.svelte     # Edit contact form
+    │   └── dashboard/
+    │       ├── dashboard.remote.ts      # Dashboard queries
+    │       └── +page.svelte             # Dashboard UI
+    └── (auth)/                # Public auth routes layout
+        ├── login/
+        │   └── +page.svelte             # Login form
+        └── register/
+            └── +page.svelte             # Register form
 ```
 
 ## Common Tasks
@@ -143,11 +166,11 @@ src/
 
 1. Create migration in `migrations/`
 2. Add TypeScript interface in `lib/types/db.ts`
-3. Create `*.remote.ts` with queries
+3. Create `*.remote.ts` with queries using `query.batch()`
 
 ### Add a protected route
 
-1. Use `guarded_query` from auth-pattern.md
+1. Use `guarded_query` or `guarded_form` from auth-helpers.ts
 2. Wrap component in error boundary
 3. Handle redirects in remote function
 
@@ -156,6 +179,21 @@ src/
 1. Create form function with valibot schema
 2. Use `{...form_function}` spread in component
 3. Handle errors with error boundary
+
+### Add a query with parameters
+
+1. Use `query.batch()` with valibot schema for validation
+2. Batch database queries for efficiency
+3. Return lookup function from batch handler
+4. Call with parameters in component:
+   `{#await get_item(id) then item}`
+
+### Access route parameters
+
+1. Import `page` from `$app/state` (not `$app/stores`)
+2. Use `$derived()` to create reactive param:
+   `const id = $derived(page.params.id)`
+3. Guard with `{#if id}` before passing to queries
 
 ## Official Docs
 

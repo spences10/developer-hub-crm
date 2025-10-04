@@ -1,12 +1,12 @@
 import { query } from '$app/server';
-import * as v from 'valibot';
-import { db } from '$lib/server/db';
 import {
 	get_current_user_id,
-	guarded_form,
 	guarded_command,
+	guarded_form,
 } from '$lib/server/auth-helpers';
+import { db } from '$lib/server/db';
 import type { FollowUp } from '$lib/types/db';
+import * as v from 'valibot';
 
 /**
  * Get all follow-ups with optional filtering
@@ -50,30 +50,44 @@ export const get_follow_ups = query(
 /**
  * Get follow-ups for a specific contact
  */
-export async function get_contact_follow_ups(
-	contact_id: string,
-): Promise<FollowUp[]> {
-	const user_id = await get_current_user_id();
+export const get_contact_follow_ups = query.batch(
+	v.pipe(v.string(), v.minLength(1)),
+	async (
+		contact_ids,
+	): Promise<(contact_id: string) => FollowUp[]> => {
+		const user_id = await get_current_user_id();
 
-	// Verify the contact belongs to the current user
-	const contact_check = db.prepare(`
-    SELECT id FROM contacts
-    WHERE id = ? AND user_id = ?
-  `);
-	const contact = contact_check.get(contact_id, user_id);
+		// Verify the contacts belong to the current user
+		const placeholders = contact_ids.map(() => '?').join(',');
+		const contact_check = db.prepare(`
+      SELECT id FROM contacts
+      WHERE id IN (${placeholders}) AND user_id = ?
+    `);
+		const valid_contacts = contact_check.all(
+			...contact_ids,
+			user_id,
+		) as Array<{ id: string }>;
+		const valid_ids = new Set(valid_contacts.map((c) => c.id));
 
-	if (!contact) {
-		return [];
-	}
+		// Fetch all follow-ups for valid contacts
+		const stmt = db.prepare(`
+      SELECT * FROM follow_ups
+      WHERE contact_id IN (${placeholders})
+      ORDER BY due_date ASC
+    `);
+		const all_follow_ups = stmt.all(...contact_ids) as FollowUp[];
 
-	const stmt = db.prepare(`
-    SELECT * FROM follow_ups
-    WHERE contact_id = ?
-    ORDER BY due_date ASC
-  `);
-
-	return stmt.all(contact_id) as FollowUp[];
-}
+		// Return lookup function
+		return (contact_id) => {
+			if (!valid_ids.has(contact_id)) {
+				return [];
+			}
+			return all_follow_ups.filter(
+				(f) => f.contact_id === contact_id,
+			);
+		};
+	},
+);
 
 /**
  * Get upcoming follow-ups (due within next 7 days)

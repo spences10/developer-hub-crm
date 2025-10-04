@@ -1,95 +1,125 @@
-import { query, command } from '$app/server';
-import { redirect } from '@sveltejs/kit';
-import * as v from 'valibot';
-import { db } from '$lib/server/db';
+import { query } from '$app/server';
 import {
 	get_current_user_id,
-	guarded_form,
 	guarded_command,
+	guarded_form,
 } from '$lib/server/auth-helpers';
+import { db } from '$lib/server/db';
 import type { Contact } from '$lib/types/db';
+import { redirect } from '@sveltejs/kit';
+import * as v from 'valibot';
 
 /**
  * Get all contacts for the current user with optional search
  */
-export const get_contacts = query(
-	async (search?: string): Promise<Contact[]> => {
+export const get_contacts = query.batch(
+	v.optional(v.string(), ''),
+	async (searches): Promise<(search?: string) => Contact[]> => {
 		const user_id = await get_current_user_id();
 
-		let sql = `
-      SELECT * FROM contacts
-      WHERE user_id = ?
-    `;
-		const params: any[] = [user_id];
-
-		if (search && search.trim()) {
-			sql += `
-        AND (
-          name LIKE ? OR
-          email LIKE ? OR
-          company LIKE ? OR
-          github_username LIKE ?
-        )
+		// For search queries, we can't really batch them efficiently
+		// since each search term is different. Return a function that
+		// executes the query for the specific search term.
+		return (search = '') => {
+			let sql = `
+        SELECT * FROM contacts
+        WHERE user_id = ?
       `;
-			const search_term = `%${search.trim()}%`;
-			params.push(search_term, search_term, search_term, search_term);
-		}
+			const params: any[] = [user_id];
 
-		sql += ' ORDER BY name ASC';
+			if (search && search.trim()) {
+				sql += `
+          AND (
+            name LIKE ? OR
+            email LIKE ? OR
+            company LIKE ? OR
+            github_username LIKE ?
+          )
+        `;
+				const search_term = `%${search.trim()}%`;
+				params.push(
+					search_term,
+					search_term,
+					search_term,
+					search_term,
+				);
+			}
 
-		const stmt = db.prepare(sql);
-		return stmt.all(...params) as Contact[];
+			sql += ' ORDER BY name ASC';
+
+			const stmt = db.prepare(sql);
+			return stmt.all(...params) as Contact[];
+		};
 	},
 );
 
 /**
  * Get a single contact with additional stats
  */
-export async function get_contact(id: string) {
-	const user_id = await get_current_user_id();
+export const get_contact = query.batch(
+	v.pipe(v.string(), v.minLength(1)),
+	async (ids) => {
+		const user_id = await get_current_user_id();
 
-	const contact_stmt = db.prepare(`
-    SELECT * FROM contacts
-    WHERE id = ? AND user_id = ?
-  `);
-	const contact = contact_stmt.get(id, user_id) as
-		| Contact
-		| undefined;
+		// Fetch all requested contacts in one go
+		const placeholders = ids.map(() => '?').join(',');
+		const contact_stmt = db.prepare(`
+      SELECT * FROM contacts
+      WHERE id IN (${placeholders}) AND user_id = ?
+    `);
+		const contacts = contact_stmt.all(...ids, user_id) as Contact[];
 
-	if (!contact) {
-		redirect(404, '/contacts');
-	}
+		// Get stats for all contacts
+		const stats_stmt = db.prepare(`
+      SELECT
+        contact_id,
+        COUNT(*) as interaction_count,
+        MAX(created_at) as last_interaction_at
+      FROM interactions
+      WHERE contact_id IN (${placeholders})
+      GROUP BY contact_id
+    `);
+		const stats = stats_stmt.all(...ids) as Array<{
+			contact_id: string;
+			interaction_count: number;
+			last_interaction_at: number | null;
+		}>;
 
-	// Get interaction count and last interaction date
-	const stats_stmt = db.prepare(`
-    SELECT
-      COUNT(*) as interaction_count,
-      MAX(created_at) as last_interaction_at
-    FROM interactions
-    WHERE contact_id = ?
-  `);
-	const stats = stats_stmt.get(id) as {
-		interaction_count: number;
-		last_interaction_at: number | null;
-	};
+		// Get follow-ups for all contacts
+		const follow_ups_stmt = db.prepare(`
+      SELECT contact_id, COUNT(*) as pending_follow_ups
+      FROM follow_ups
+      WHERE contact_id IN (${placeholders}) AND completed = 0
+      GROUP BY contact_id
+    `);
+		const follow_ups = follow_ups_stmt.all(...ids) as Array<{
+			contact_id: string;
+			pending_follow_ups: number;
+		}>;
 
-	// Get pending follow-ups count
-	const follow_ups_stmt = db.prepare(`
-    SELECT COUNT(*) as pending_follow_ups
-    FROM follow_ups
-    WHERE contact_id = ? AND completed = 0
-  `);
-	const follow_ups = follow_ups_stmt.get(id) as {
-		pending_follow_ups: number;
-	};
+		// Return lookup function
+		return (id) => {
+			const contact = contacts.find((c) => c.id === id);
+			if (!contact) {
+				redirect(404, '/contacts');
+			}
 
-	return {
-		...contact,
-		interaction_count: stats.interaction_count,
-		last_interaction_at: stats.last_interaction_at,
-		pending_follow_ups: follow_ups.pending_follow_ups,
-	};
-}
+			const contact_stats = stats.find((s) => s.contact_id === id);
+			const contact_follow_ups = follow_ups.find(
+				(f) => f.contact_id === id,
+			);
+
+			return {
+				...contact,
+				interaction_count: contact_stats?.interaction_count || 0,
+				last_interaction_at:
+					contact_stats?.last_interaction_at || null,
+				pending_follow_ups:
+					contact_follow_ups?.pending_follow_ups || 0,
+			};
+		};
+	},
+);
 
 /**
  * Create a new contact

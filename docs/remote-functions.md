@@ -22,16 +22,15 @@ src/lib/server/contacts.remote.ts
 
 ## Query Functions
 
-Use for reading data from the server.
+### Simple Queries (No Parameters)
+
+Use for reading data from the server without parameters.
 
 ```typescript
 // contacts.remote.ts
 import { query } from '$app/server';
 
-export const get_contacts = query(async () => {
-	// Access request context
-	const event = getRequestEvent();
-
+export const get_all_contacts = query(async () => {
 	const contacts = await db.query('SELECT * FROM contacts');
 	return contacts;
 });
@@ -40,14 +39,90 @@ export const get_contacts = query(async () => {
 ```svelte
 <!-- +page.svelte -->
 <script lang="ts">
-	import { get_contacts } from './contacts.remote';
+	import { get_all_contacts } from './contacts.remote';
 </script>
 
 <ul>
-	{#each await get_contacts() as contact}
+	{#each await get_all_contacts() as contact}
 		<li>{contact.name}</li>
 	{/each}
 </ul>
+```
+
+### Batched Queries (With Parameters)
+
+**IMPORTANT:** For query functions that accept parameters, use
+`query.batch()` instead of `query()`. This enables automatic request
+batching and proper TypeScript typing.
+
+```typescript
+// contacts.remote.ts
+import { query } from '$app/server';
+import * as v from 'valibot';
+
+export const get_contact = query.batch(
+	v.pipe(v.string(), v.minLength(1)), // Validation schema for the parameter
+	async (ids) => {
+		// This function receives ALL requested IDs in a single batch
+		const contacts = await db
+			.prepare(
+				`
+			SELECT * FROM contacts WHERE id IN (${ids.map(() => '?').join(',')})
+		`,
+			)
+			.all(...ids);
+
+		// Return a lookup function that finds the contact for each ID
+		return (id) => contacts.find((c) => c.id === id);
+	},
+);
+```
+
+```svelte
+<!-- +page.svelte -->
+<script lang="ts">
+	import { page } from '$app/state'; // Svelte 5
+	import { get_contact } from './contacts.remote';
+
+	const contact_id = $derived(page.params.id);
+</script>
+
+{#if contact_id}
+	{#await get_contact(contact_id) then contact}
+		<h1>{contact.name}</h1>
+	{/await}
+{/if}
+```
+
+**Benefits of `query.batch()`:**
+
+- **Automatic batching** - Multiple calls are batched into a single
+  request
+- **Type-safe parameters** - Full TypeScript support with validation
+- **Performance** - Reduces database queries when fetching multiple
+  records
+- **N+1 prevention** - Avoids the N+1 query problem
+
+**Example with optional parameters:**
+
+```typescript
+export const get_contacts = query.batch(
+	v.optional(v.string(), ''), // Optional search parameter
+	async (searches) => {
+		// Return function that performs the query
+		return (search = '') => {
+			let sql = 'SELECT * FROM contacts WHERE user_id = ?';
+			const params = [user_id];
+
+			if (search) {
+				sql += ' AND name LIKE ?';
+				params.push(`%${search}%`);
+			}
+
+			return db.prepare(sql).all(...params);
+		};
+	},
+);
 ```
 
 ## Form Functions
@@ -137,6 +212,30 @@ export const get_current_user = query(() => {
 });
 ```
 
+## Accessing Route Parameters (Svelte 5)
+
+In Svelte 5, use `page` from `$app/state` instead of the deprecated
+`$app/stores`:
+
+```svelte
+<script lang="ts">
+	import { page } from '$app/state'; // ✅ Svelte 5
+	// import { page } from '$app/stores'; // ❌ Deprecated
+
+	// Access route params
+	const contact_id = $derived(page.params.id);
+
+	// Access query params
+	const search = $derived(page.url.searchParams.get('q'));
+</script>
+```
+
+**Key differences:**
+
+- Import from `$app/state` instead of `$app/stores`
+- No `$` prefix needed (`page.params` not `$page.params`)
+- Use `$derived()` rune for reactive values
+
 ## Key Benefits
 
 1. **No locals passing** - Access request context directly via
@@ -145,3 +244,4 @@ export const get_current_user = query(() => {
 3. **Automatic validation** - Built-in schema validation with valibot
 4. **Progressive enhancement** - Forms work without JavaScript
 5. **Simple** - No need for API routes or +page.server.ts
+6. **Automatic batching** - `query.batch()` optimizes multiple calls

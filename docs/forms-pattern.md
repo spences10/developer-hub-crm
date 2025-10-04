@@ -43,7 +43,7 @@ inner `<input>` element.
 		<input
 			type="email"
 			name="email"
-			placeholder="[email protected]"
+			placeholder="Email"
 			class="grow"
 			required
 		/>
@@ -132,7 +132,7 @@ Use `<p class="label">` for helper text below inputs:
 			<input
 				type="email"
 				name="email"
-				placeholder="[email protected]"
+				placeholder="Email"
 				class="grow"
 				required
 			/>

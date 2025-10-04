@@ -1,40 +1,54 @@
 import { query } from '$app/server';
-import * as v from 'valibot';
-import { db } from '$lib/server/db';
 import {
 	get_current_user_id,
-	guarded_form,
 	guarded_command,
+	guarded_form,
 } from '$lib/server/auth-helpers';
+import { db } from '$lib/server/db';
 import type { Interaction } from '$lib/types/db';
+import * as v from 'valibot';
 
 /**
  * Get all interactions for a specific contact
  */
-export async function get_interactions(
-	contact_id: string,
-): Promise<Interaction[]> {
-	const user_id = await get_current_user_id();
+export const get_interactions = query.batch(
+	v.pipe(v.string(), v.minLength(1)),
+	async (contact_ids) => {
+		const user_id = await get_current_user_id();
 
-	// Verify the contact belongs to the current user
-	const contact_check = db.prepare(`
-    SELECT id FROM contacts
-    WHERE id = ? AND user_id = ?
-  `);
-	const contact = contact_check.get(contact_id, user_id);
+		// Verify the contacts belong to the current user
+		const placeholders = contact_ids.map(() => '?').join(',');
+		const contact_check = db.prepare(`
+      SELECT id FROM contacts
+      WHERE id IN (${placeholders}) AND user_id = ?
+    `);
+		const valid_contacts = contact_check.all(
+			...contact_ids,
+			user_id,
+		) as Array<{ id: string }>;
+		const valid_ids = new Set(valid_contacts.map((c) => c.id));
 
-	if (!contact) {
-		return [];
-	}
+		// Fetch all interactions for valid contacts
+		const stmt = db.prepare(`
+      SELECT * FROM interactions
+      WHERE contact_id IN (${placeholders})
+      ORDER BY created_at DESC
+    `);
+		const all_interactions = stmt.all(
+			...contact_ids,
+		) as Interaction[];
 
-	const stmt = db.prepare(`
-    SELECT * FROM interactions
-    WHERE contact_id = ?
-    ORDER BY created_at DESC
-  `);
-
-	return stmt.all(contact_id) as Interaction[];
-}
+		// Return lookup function
+		return (contact_id) => {
+			if (!valid_ids.has(contact_id)) {
+				return [];
+			}
+			return all_interactions.filter(
+				(i) => i.contact_id === contact_id,
+			);
+		};
+	},
+);
 
 /**
  * Get recent interactions across all contacts for the current user
@@ -195,42 +209,60 @@ export const delete_interaction = guarded_command(
 /**
  * Get interaction statistics for a contact
  */
-export async function get_interaction_stats(contact_id: string) {
-	const user_id = await get_current_user_id();
+export const get_interaction_stats = query.batch(
+	v.pipe(v.string(), v.minLength(1)),
+	async (contact_ids) => {
+		const user_id = await get_current_user_id();
 
-	// Verify the contact belongs to the current user
-	const contact_check = db.prepare(`
-    SELECT id FROM contacts
-    WHERE id = ? AND user_id = ?
-  `);
-	const contact = contact_check.get(contact_id, user_id);
+		// Verify the contacts belong to the current user
+		const placeholders = contact_ids.map(() => '?').join(',');
+		const contact_check = db.prepare(`
+      SELECT id FROM contacts
+      WHERE id IN (${placeholders}) AND user_id = ?
+    `);
+		const valid_contacts = contact_check.all(
+			...contact_ids,
+			user_id,
+		) as Array<{ id: string }>;
+		const valid_ids = new Set(valid_contacts.map((c) => c.id));
 
-	if (!contact) {
-		return null;
-	}
+		// Get stats for all contacts
+		const stmt = db.prepare(`
+      SELECT
+        contact_id,
+        type,
+        COUNT(*) as count
+      FROM interactions
+      WHERE contact_id IN (${placeholders})
+      GROUP BY contact_id, type
+    `);
 
-	const stmt = db.prepare(`
-    SELECT
-      type,
-      COUNT(*) as count
-    FROM interactions
-    WHERE contact_id = ?
-    GROUP BY type
-  `);
+		const all_stats = stmt.all(...contact_ids) as Array<{
+			contact_id: string;
+			type: string;
+			count: number;
+		}>;
 
-	const stats = stmt.all(contact_id) as Array<{
-		type: string;
-		count: number;
-	}>;
+		// Return lookup function
+		return (contact_id) => {
+			if (!valid_ids.has(contact_id)) {
+				return null;
+			}
 
-	return {
-		total: stats.reduce((sum, stat) => sum + stat.count, 0),
-		by_type: stats.reduce(
-			(acc, stat) => {
-				acc[stat.type] = stat.count;
-				return acc;
-			},
-			{} as Record<string, number>,
-		),
-	};
-}
+			const stats = all_stats.filter(
+				(s) => s.contact_id === contact_id,
+			);
+
+			return {
+				total: stats.reduce((sum, stat) => sum + stat.count, 0),
+				by_type: stats.reduce(
+					(acc, stat) => {
+						acc[stat.type] = stat.count;
+						return acc;
+					},
+					{} as Record<string, number>,
+				),
+			};
+		};
+	},
+);
