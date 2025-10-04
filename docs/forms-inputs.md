@@ -5,6 +5,53 @@ Complete reference for all form input types using daisyUI v5 patterns.
 See [forms-daisy-ui-v5.md](./forms-daisy-ui-v5.md) for basic structure
 and v4→v5 migration info.
 
+## Important: Number Input Validation
+
+**CRITICAL:** HTML number inputs send their values as **strings** in
+form data, not numbers. You must transform them in your validation
+schema.
+
+### ❌ Wrong (will fail validation)
+
+```typescript
+export const my_form = form(
+	v.object({
+		age: v.number(), // ❌ Will fail - receives string "25", not 25
+	}),
+	async (data) => {
+		// ...
+	},
+);
+```
+
+### ✅ Correct (transforms string to number)
+
+```typescript
+export const my_form = form(
+	v.object({
+		age: v.pipe(
+			v.string(), // 1. Accept the string
+			v.transform(Number), // 2. Transform to number
+			v.number(), // 3. Validate it's a number
+			v.minValue(0), // 4. Apply number validations
+			v.maxValue(120),
+		),
+	}),
+	async (data) => {
+		// data.age is now a number
+	},
+);
+```
+
+**Why this happens:** HTML forms serialize all input values as
+strings, regardless of the input type. The `type="number"` attribute
+only provides client-side validation and a numeric keyboard on mobile,
+but the submitted value is still a string.
+
+**Commands vs Forms:** This only applies to `form()` functions. With
+`command()` functions called from JavaScript, you can pass actual
+numbers directly.
+
 ## Text Inputs
 
 ### Basic Text

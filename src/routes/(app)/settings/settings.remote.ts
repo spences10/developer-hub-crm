@@ -5,7 +5,6 @@ import {
 } from '$lib/server/auth-helpers';
 import { db } from '$lib/server/db';
 import type { UserPreferences } from '$lib/types/db';
-import { redirect } from '@sveltejs/kit';
 import * as v from 'valibot';
 
 /**
@@ -84,6 +83,8 @@ export const update_preferences = guarded_form(
 			v.literal('company'),
 		]),
 		default_follow_up_days: v.pipe(
+			v.string(),
+			v.transform(Number),
 			v.number(),
 			v.minValue(1),
 			v.maxValue(90),
@@ -123,6 +124,7 @@ export const update_preferences = guarded_form(
 			user_id,
 		);
 
-		redirect(303, '/settings');
+		// Refresh the query to update the UI
+		await get_user_preferences().refresh();
 	},
 );

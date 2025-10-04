@@ -167,6 +167,82 @@ export const login = form(
 </form>
 ```
 
+### Refreshing Queries After Form Submission
+
+When a form updates data, you need to refresh queries to show the
+updated data. There are two approaches:
+
+#### Option 1: Server-side refresh (recommended)
+
+Call `.refresh()` on the query from within the form handler:
+
+```typescript
+// settings.remote.ts
+export const get_preferences = query(() => {
+	return db.prepare('SELECT * FROM preferences').get();
+});
+
+export const update_preferences = form(
+	v.object({
+		theme: v.string(),
+	}),
+	async (data) => {
+		// Update database
+		db.prepare('UPDATE preferences SET theme = ?').run(data.theme);
+
+		// Refresh the query so UI updates
+		await get_preferences().refresh();
+
+		// Don't redirect - stay on same page to see updates
+	},
+);
+```
+
+```svelte
+<script lang="ts">
+	import {
+		get_preferences,
+		update_preferences,
+	} from './settings.remote';
+
+	// Store query in a reactive variable
+	const preferences = get_preferences();
+</script>
+
+<!-- Use the reactive variable, not a function call -->
+{#await preferences then prefs}
+	<form {...update_preferences}>
+		<input name="theme" value={prefs.theme} />
+		<button>Save</button>
+	</form>
+{/await}
+```
+
+**Key points:**
+
+- Store query result in a variable
+  (`const preferences = get_preferences()`)
+- Use the variable in `{#await}`, not a function call
+- Call `.refresh()` in the form handler
+- Don't redirect if you want to show the update on the same page
+
+#### Option 2: Redirect after save
+
+If you redirect after saving, the new page will fetch fresh data:
+
+```typescript
+export const update_preferences = form(
+	v.object({ theme: v.string() }),
+	async (data) => {
+		db.prepare('UPDATE preferences SET theme = ?').run(data.theme);
+		redirect(303, '/settings'); // Fresh load gets new data
+	},
+);
+```
+
+**Trade-off:** Redirect causes a full page reload, but ensures all
+data is fresh.
+
 ## Command Functions
 
 Use for mutations without forms (like button clicks).
