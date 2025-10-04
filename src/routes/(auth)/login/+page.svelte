@@ -11,7 +11,7 @@
 			<input
 				type="email"
 				name="email"
-				placeholder="[email protected]"
+				placeholder="Email"
 				class="grow"
 				required
 			/>
@@ -24,7 +24,7 @@
 			<input
 				type="password"
 				name="password"
-				placeholder="Enter your password"
+				placeholder="Password"
 				class="grow"
 				required
 			/>

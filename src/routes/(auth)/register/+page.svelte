@@ -11,7 +11,7 @@
 			<input
 				type="text"
 				name="name"
-				placeholder="Your name"
+				placeholder="Name"
 				class="grow"
 				required
 			/>
@@ -24,7 +24,7 @@
 			<input
 				type="email"
 				name="email"
-				placeholder="[email protected]"
+				placeholder="Email"
 				class="grow"
 				required
 			/>
@@ -37,7 +37,7 @@
 			<input
 				type="password"
 				name="password"
-				placeholder="At least 8 characters"
+				placeholder="Password"
 				class="grow"
 				required
 			/>
