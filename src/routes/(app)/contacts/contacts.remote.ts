@@ -6,7 +6,7 @@ import {
 } from '$lib/server/auth-helpers';
 import { db } from '$lib/server/db';
 import { fetch_github_contact } from '$lib/server/github';
-import type { Contact } from '$lib/types/db';
+import type { Contact, SocialLink } from '$lib/types/db';
 import { redirect } from '@sveltejs/kit';
 import * as v from 'valibot';
 
@@ -98,6 +98,16 @@ export const get_contact = query.batch(
 			pending_follow_ups: number;
 		}>;
 
+		// Get social links for all contacts
+		const social_links_stmt = db.prepare(`
+      SELECT * FROM social_links
+      WHERE contact_id IN (${placeholders})
+      ORDER BY created_at ASC
+    `);
+		const all_social_links = social_links_stmt.all(
+			...ids,
+		) as SocialLink[];
+
 		// Return lookup function
 		return (id) => {
 			const contact = contacts.find((c) => c.id === id);
@@ -109,6 +119,9 @@ export const get_contact = query.batch(
 			const contact_follow_ups = follow_ups.find(
 				(f) => f.contact_id === id,
 			);
+			const contact_social_links = all_social_links.filter(
+				(s) => s.contact_id === id,
+			);
 
 			return {
 				...contact,
@@ -117,6 +130,7 @@ export const get_contact = query.batch(
 					contact_stats?.last_interaction_at || null,
 				pending_follow_ups:
 					contact_follow_ups?.pending_follow_ups || 0,
+				social_links: contact_social_links,
 			};
 		};
 	},
@@ -144,6 +158,7 @@ export const create_contact = guarded_form(
 		is_vip: v.optional(v.boolean()),
 		birthday: v.optional(v.string()), // YYYY-MM-DD format
 		notes: v.optional(v.string()),
+		social_links: v.optional(v.string()), // JSON stringified array
 	}),
 	async (data) => {
 		const user_id = await get_current_user_id();
@@ -176,6 +191,33 @@ export const create_contact = guarded_form(
 			now,
 			now,
 		);
+
+		// Save social links if provided
+		if (data.social_links) {
+			try {
+				const social_links = JSON.parse(data.social_links) as Array<{
+					platform: string;
+					url: string;
+				}>;
+
+				const social_stmt = db.prepare(`
+          INSERT INTO social_links (id, contact_id, platform, url, created_at)
+          VALUES (?, ?, ?, ?, ?)
+        `);
+
+				for (const link of social_links) {
+					social_stmt.run(
+						crypto.randomUUID(),
+						id,
+						link.platform,
+						link.url,
+						now,
+					);
+				}
+			} catch (e) {
+				// Ignore JSON parse errors
+			}
+		}
 
 		redirect(303, `/contacts/${id}`);
 	},
@@ -256,9 +298,13 @@ export const delete_contact = guarded_command(
       WHERE id = ? AND user_id = ?
     `);
 
-		stmt.run(id, user_id);
+		const result = stmt.run(id, user_id);
 
-		redirect(303, '/contacts');
+		if (result.changes === 0) {
+			return { error: 'Contact not found' };
+		}
+
+		return { success: true };
 	},
 );
 
@@ -333,5 +379,113 @@ export const fetch_github_data = guarded_command(
 			success: true,
 			data: contact_data,
 		};
+	},
+);
+
+/**
+ * Get social links for a specific contact
+ */
+export const get_social_links = query.batch(
+	v.pipe(v.string(), v.minLength(1)),
+	async (contact_ids) => {
+		const user_id = await get_current_user_id();
+
+		// Verify the contacts belong to the current user
+		const placeholders = contact_ids.map(() => '?').join(',');
+		const contact_check = db.prepare(`
+      SELECT id FROM contacts
+      WHERE id IN (${placeholders}) AND user_id = ?
+    `);
+		const valid_contacts = contact_check.all(
+			...contact_ids,
+			user_id,
+		) as Array<{ id: string }>;
+		const valid_ids = new Set(valid_contacts.map((c) => c.id));
+
+		// Fetch all social links for valid contacts
+		const stmt = db.prepare(`
+      SELECT * FROM social_links
+      WHERE contact_id IN (${placeholders})
+      ORDER BY created_at ASC
+    `);
+		const all_social_links = stmt.all(...contact_ids) as SocialLink[];
+
+		// Return lookup function
+		return (contact_id) => {
+			if (!valid_ids.has(contact_id)) {
+				return [];
+			}
+			return all_social_links.filter(
+				(s) => s.contact_id === contact_id,
+			);
+		};
+	},
+);
+
+/**
+ * Add a social link to a contact
+ */
+export const add_social_link = guarded_command(
+	v.object({
+		contact_id: v.pipe(v.string(), v.minLength(1)),
+		platform: v.pipe(v.string(), v.minLength(1)),
+		url: v.pipe(v.string(), v.url()),
+	}),
+	async (data: {
+		contact_id: string;
+		platform: string;
+		url: string;
+	}) => {
+		const user_id = await get_current_user_id();
+
+		// Verify contact belongs to user
+		const contact_check = db.prepare(
+			'SELECT id FROM contacts WHERE id = ? AND user_id = ?',
+		);
+		const contact = contact_check.get(data.contact_id, user_id);
+
+		if (!contact) {
+			throw new Error('Contact not found');
+		}
+
+		// Insert social link
+		const id = crypto.randomUUID();
+		const now = Date.now();
+
+		const stmt = db.prepare(`
+      INSERT INTO social_links (id, contact_id, platform, url, created_at)
+      VALUES (?, ?, ?, ?, ?)
+    `);
+
+		stmt.run(id, data.contact_id, data.platform, data.url, now);
+
+		return { success: true, id };
+	},
+);
+
+/**
+ * Delete a social link
+ */
+export const delete_social_link = guarded_command(
+	v.pipe(v.string(), v.minLength(1)),
+	async (id: string) => {
+		const user_id = await get_current_user_id();
+
+		// Verify the social link belongs to a contact owned by the user
+		const check_stmt = db.prepare(`
+      SELECT sl.id FROM social_links sl
+      INNER JOIN contacts c ON sl.contact_id = c.id
+      WHERE sl.id = ? AND c.user_id = ?
+    `);
+		const social_link = check_stmt.get(id, user_id);
+
+		if (!social_link) {
+			throw new Error('Social link not found');
+		}
+
+		const stmt = db.prepare('DELETE FROM social_links WHERE id = ?');
+		stmt.run(id);
+
+		return { success: true };
 	},
 );

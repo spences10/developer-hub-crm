@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
 	import {
 		format_due_date,
@@ -17,6 +18,7 @@
 
 	// Reactive key to trigger re-fetches after mutations
 	let refresh_key = $state(0);
+	let deleting = $state(false);
 
 	const type_badges: Record<string, string> = {
 		meeting: 'badge-primary',
@@ -26,9 +28,12 @@
 	};
 
 	async function handle_delete() {
-		if (confirm('Are you sure you want to delete this contact?')) {
-			await delete_contact(contact_id);
+		deleting = true;
+		const result = await delete_contact(contact_id);
+		if (result && 'success' in result) {
+			goto('/contacts');
 		}
+		deleting = false;
 	}
 
 	async function handle_complete_follow_up(id: string) {
@@ -42,10 +47,8 @@
 	}
 
 	async function handle_delete_follow_up(id: string) {
-		if (confirm('Are you sure you want to delete this follow-up?')) {
-			await delete_follow_up(id);
-			refresh_key++;
-		}
+		await delete_follow_up(id);
+		refresh_key++;
 	}
 </script>
 
@@ -77,9 +80,16 @@
 						</a>
 						<button
 							onclick={handle_delete}
+							disabled={deleting}
 							class="btn btn-outline btn-error"
 						>
-							Delete
+							{#if deleting}
+								<span class="loading loading-sm loading-spinner"
+								></span>
+								Deleting...
+							{:else}
+								Delete
+							{/if}
 						</button>
 					</div>
 				</div>
@@ -150,6 +160,37 @@
 												contact.birthday,
 											).toLocaleDateString()}
 										</p>
+									</div>
+								{/if}
+
+								{#if contact.social_links && contact.social_links.length > 0}
+									<div>
+										<p class="mb-2 text-sm opacity-70">
+											Social Links
+										</p>
+										<div class="flex flex-wrap gap-2">
+											{#each contact.social_links as link}
+												<a
+													href={link.url}
+													target="_blank"
+													rel="noopener noreferrer"
+													class="badge gap-1 badge-outline badge-lg"
+												>
+													{#if link.platform === 'twitter'}
+														𝕏
+													{:else if link.platform === 'bluesky'}
+														🦋
+													{:else if link.platform === 'linkedin'}
+														in
+													{:else if link.platform === 'website'}
+														🌐
+													{:else}
+														🔗
+													{/if}
+													{link.platform}
+												</a>
+											{/each}
+										</div>
 									</div>
 								{/if}
 							</div>

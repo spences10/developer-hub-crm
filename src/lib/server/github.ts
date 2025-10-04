@@ -15,6 +15,11 @@ interface GitHubProfile {
 	public_repos: number;
 	followers: number;
 	following: number;
+	twitter_username: string | null;
+	social_accounts?: Array<{
+		provider: string;
+		url: string;
+	}>;
 }
 
 interface ContactFromGitHub {
@@ -23,6 +28,10 @@ interface ContactFromGitHub {
 	company: string | null;
 	github_username: string;
 	notes: string;
+	social_links: Array<{
+		platform: string;
+		url: string;
+	}>;
 }
 
 /**
@@ -81,13 +90,59 @@ export function github_profile_to_contact(
 		notes_parts.push(`Location: ${profile.location}`);
 	}
 
-	if (profile.blog) {
-		notes_parts.push(`Website: ${profile.blog}`);
-	}
-
 	notes_parts.push(
 		`GitHub Stats: ${profile.public_repos} repos, ${profile.followers} followers`,
 	);
+
+	// Extract social links
+	const social_links: Array<{ platform: string; url: string }> = [];
+
+	// Add Twitter/X link if available
+	if (profile.twitter_username) {
+		social_links.push({
+			platform: 'twitter',
+			url: `https://twitter.com/${profile.twitter_username}`,
+		});
+	}
+
+	// Add blog/website if available
+	if (profile.blog) {
+		social_links.push({
+			platform: 'website',
+			url: profile.blog.startsWith('http')
+				? profile.blog
+				: `https://${profile.blog}`,
+		});
+	}
+
+	// Add social accounts from GitHub's social_accounts field
+	if (profile.social_accounts && profile.social_accounts.length > 0) {
+		for (const account of profile.social_accounts) {
+			// Map GitHub provider names to our platform names
+			const platform_map: Record<string, string> = {
+				twitter: 'twitter',
+				linkedin: 'linkedin',
+				bluesky: 'bluesky',
+			};
+
+			const platform =
+				platform_map[account.provider.toLowerCase()] ||
+				account.provider.toLowerCase();
+
+			// Avoid duplicates (e.g., if twitter is in both fields)
+			if (
+				!social_links.some(
+					(link) =>
+						link.platform === platform && link.url === account.url,
+				)
+			) {
+				social_links.push({
+					platform,
+					url: account.url,
+				});
+			}
+		}
+	}
 
 	return {
 		name: profile.name || profile.login,
@@ -95,6 +150,7 @@ export function github_profile_to_contact(
 		company: profile.company,
 		github_username: profile.login,
 		notes: notes_parts.join('\n'),
+		social_links,
 	};
 }
 

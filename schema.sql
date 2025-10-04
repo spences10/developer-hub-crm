@@ -44,6 +44,16 @@ CREATE TABLE IF NOT EXISTS follow_ups (
   FOREIGN KEY (contact_id) REFERENCES contacts(id) ON DELETE CASCADE
 );
 
+-- Social links table
+CREATE TABLE IF NOT EXISTS social_links (
+  id TEXT PRIMARY KEY,
+  contact_id TEXT NOT NULL,
+  platform TEXT NOT NULL,
+  url TEXT NOT NULL,
+  created_at INTEGER NOT NULL,
+  FOREIGN KEY (contact_id) REFERENCES contacts(id) ON DELETE CASCADE
+);
+
 -- Indexes for performance
 CREATE INDEX IF NOT EXISTS idx_contacts_user_id ON contacts(user_id);
 CREATE INDEX IF NOT EXISTS idx_contacts_email ON contacts(email);
@@ -55,3 +65,5 @@ CREATE INDEX IF NOT EXISTS idx_interactions_created_at ON interactions(created_a
 CREATE INDEX IF NOT EXISTS idx_follow_ups_contact_id ON follow_ups(contact_id);
 CREATE INDEX IF NOT EXISTS idx_follow_ups_due_date ON follow_ups(due_date);
 CREATE INDEX IF NOT EXISTS idx_follow_ups_completed ON follow_ups(completed);
+
+CREATE INDEX IF NOT EXISTS idx_social_links_contact_id ON social_links(contact_id);

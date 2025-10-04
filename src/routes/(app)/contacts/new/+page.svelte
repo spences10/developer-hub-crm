@@ -1,5 +1,7 @@
 <script lang="ts">
+	import { goto } from '$app/navigation';
 	import {
+		add_social_link,
 		create_contact,
 		fetch_github_data,
 	} from '../contacts.remote';
@@ -14,6 +16,11 @@
 	let is_vip = $state(false);
 	let birthday = $state('');
 	let notes = $state('');
+
+	// Social links from GitHub import (stored temporarily)
+	let pending_social_links = $state<
+		Array<{ platform: string; url: string }>
+	>([]);
 
 	// GitHub import state
 	let github_input = $state('');
@@ -40,6 +47,9 @@
 				github_username = data.github_username || github_username;
 				notes = data.notes || notes;
 
+				// Store social links temporarily
+				pending_social_links = data.social_links || [];
+
 				// Clear GitHub input on success
 				github_input = '';
 			}
@@ -49,6 +59,13 @@
 			loading = false;
 		}
 	}
+
+	function remove_social_link(index: number) {
+		pending_social_links = pending_social_links.filter(
+			(_, i) => i !== index,
+		);
+	}
+
 </script>
 
 <div class="mx-auto max-w-2xl">
@@ -103,6 +120,12 @@
 	<div class="card bg-base-100 shadow-xl">
 		<div class="card-body">
 			<form {...create_contact} class="space-y-4">
+				<!-- Hidden field for social links -->
+				<input
+					type="hidden"
+					name="social_links"
+					value={JSON.stringify(pending_social_links)}
+				/>
 				<!-- Name & VIP - Two Column Grid -->
 				<div class="grid items-end gap-4 md:grid-cols-2">
 					<fieldset class="fieldset">
@@ -218,6 +241,52 @@
 						</label>
 					</fieldset>
 				</div>
+
+				<!-- Social Links from GitHub Import -->
+				{#if pending_social_links.length > 0}
+					<div class="rounded-lg bg-base-200 p-4">
+						<p class="mb-3 text-sm font-medium">
+							Social Links (from GitHub)
+						</p>
+						<div class="space-y-2">
+							{#each pending_social_links as link, i}
+								<div class="flex items-center justify-between gap-2">
+									<div class="flex items-center gap-2">
+										{#if link.platform === 'twitter'}
+											𝕏
+										{:else if link.platform === 'bluesky'}
+											🦋
+										{:else if link.platform === 'linkedin'}
+											in
+										{:else if link.platform === 'website'}
+											🌐
+										{:else}
+											🔗
+										{/if}
+										<span class="text-sm font-medium">
+											{link.platform}:
+										</span>
+										<a
+											href={link.url}
+											target="_blank"
+											rel="noopener noreferrer"
+											class="link link-primary text-sm"
+										>
+											{link.url}
+										</a>
+									</div>
+									<button
+										type="button"
+										onclick={() => remove_social_link(i)}
+										class="btn btn-ghost btn-xs"
+									>
+										Remove
+									</button>
+								</div>
+							{/each}
+						</div>
+					</div>
+				{/if}
 
 				<!-- Notes - Full Width -->
 				<fieldset class="fieldset">

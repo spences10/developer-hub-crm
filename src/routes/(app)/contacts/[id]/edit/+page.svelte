@@ -1,12 +1,56 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
-	import { get_contact, update_contact } from '../../contacts.remote';
+	import {
+		add_social_link,
+		delete_social_link,
+		get_contact,
+		update_contact,
+	} from '../../contacts.remote';
 
 	const contact_id = $derived(page.params.id);
 
 	let error = $state<string | null>(null);
 	let submitting = $state(false);
+
+	// Reactive key to trigger re-fetch after social link changes
+	let refresh_key = $state(0);
+
+	// New social link state
+	let new_platform = $state('');
+	let new_url = $state('');
+	let adding_link = $state(false);
+
+	async function handle_add_social_link() {
+		if (!contact_id || !new_platform || !new_url) return;
+
+		adding_link = true;
+		try {
+			await add_social_link({
+				contact_id,
+				platform: new_platform,
+				url: new_url,
+			});
+			new_platform = '';
+			new_url = '';
+			refresh_key++;
+		} catch (err) {
+			console.error('Failed to add social link:', err);
+		} finally {
+			adding_link = false;
+		}
+	}
+
+	async function handle_delete_social_link(link_id: string) {
+		if (!confirm('Remove this social link?')) return;
+
+		try {
+			await delete_social_link(link_id);
+			refresh_key++;
+		} catch (err) {
+			console.error('Failed to delete social link:', err);
+		}
+	}
 
 	async function handle_submit(event: SubmitEvent) {
 		event.preventDefault();
@@ -55,7 +99,8 @@
 	</div>
 
 	{#if contact_id}
-		{#await get_contact(contact_id) then contact}
+		{#key refresh_key}
+			{#await get_contact(contact_id) then contact}
 			<div class="card bg-base-100 shadow-xl">
 				<div class="card-body">
 					<form onsubmit={handle_submit} class="space-y-4">
@@ -171,6 +216,94 @@
 							</label>
 						</fieldset>
 
+						<!-- Social Links Management -->
+						<div class="rounded-lg bg-base-200 p-4">
+							<p class="mb-3 text-sm font-medium">Social Links</p>
+
+							<!-- Existing Social Links -->
+							{#if contact.social_links && contact.social_links.length > 0}
+								<div class="mb-4 space-y-2">
+									{#each contact.social_links as link}
+										<div
+											class="flex items-center justify-between gap-2"
+										>
+											<div class="flex items-center gap-2">
+												{#if link.platform === 'twitter'}
+													𝕏
+												{:else if link.platform === 'bluesky'}
+													🦋
+												{:else if link.platform === 'linkedin'}
+													in
+												{:else if link.platform === 'website'}
+													🌐
+												{:else}
+													🔗
+												{/if}
+												<span class="text-sm font-medium">
+													{link.platform}:
+												</span>
+												<a
+													href={link.url}
+													target="_blank"
+													rel="noopener noreferrer"
+													class="link link-primary text-sm"
+												>
+													{link.url}
+												</a>
+											</div>
+											<button
+												type="button"
+												onclick={() =>
+													handle_delete_social_link(link.id)}
+												class="btn btn-ghost btn-xs"
+											>
+												Remove
+											</button>
+										</div>
+									{/each}
+								</div>
+							{/if}
+
+							<!-- Add New Social Link -->
+							<div class="space-y-2">
+								<p class="text-xs opacity-70">Add new social link</p>
+								<div class="flex gap-2">
+									<select
+										bind:value={new_platform}
+										class="select select-sm select-bordered"
+									>
+										<option value="">Select platform</option>
+										<option value="twitter">Twitter/X</option>
+										<option value="bluesky">Bluesky</option>
+										<option value="linkedin">LinkedIn</option>
+										<option value="website">Website</option>
+									</select>
+									<input
+										type="url"
+										placeholder="URL"
+										bind:value={new_url}
+										class="input input-sm input-bordered flex-1"
+									/>
+									<button
+										type="button"
+										onclick={handle_add_social_link}
+										disabled={adding_link ||
+											!new_platform ||
+											!new_url}
+										class="btn btn-primary btn-sm"
+									>
+										{#if adding_link}
+											<span
+												class="loading loading-sm loading-spinner"
+											></span>
+										{:else}
+											Add
+										{/if}
+									</button>
+								</div>
+							</div>
+						</div>
+
 						<!-- Notes -->
 						<fieldset class="fieldset">
 							<legend class="fieldset-legend">Notes</legend>
@@ -206,6 +339,7 @@
 					</form>
 				</div>
 			</div>
-		{/await}
+			{/await}
+		{/key}
 	{/if}
 </div>

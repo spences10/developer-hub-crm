@@ -36,3 +36,11 @@ export interface FollowUp {
 	created_at: number;
 	updated_at: number;
 }
+
+export interface SocialLink {
+	id: string;
+	contact_id: string;
+	platform: string; // 'twitter', 'bluesky', 'linkedin', 'website', etc.
+	url: string;
+	created_at: number;
+}

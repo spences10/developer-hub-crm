@@ -53,10 +53,8 @@
 	}
 
 	async function handle_delete(id: string) {
-		if (confirm('Are you sure you want to delete this follow-up?')) {
-			await delete_follow_up(id);
-			refresh_key++;
-		}
+		await delete_follow_up(id);
+		refresh_key++;
 	}
 </script>
 
