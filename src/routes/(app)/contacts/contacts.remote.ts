@@ -5,6 +5,7 @@ import {
 	guarded_form,
 } from '$lib/server/auth-helpers';
 import { db } from '$lib/server/db';
+import { fetch_github_contact } from '$lib/server/github';
 import type { Contact } from '$lib/types/db';
 import { redirect } from '@sveltejs/kit';
 import * as v from 'valibot';
@@ -295,5 +296,26 @@ export const get_upcoming_birthdays = query(
   `);
 
 		return stmt.all(user_id) as Contact[];
+	},
+);
+
+/**
+ * Fetch contact data from GitHub username
+ */
+export const fetch_github_data = guarded_command(
+	v.pipe(v.string(), v.minLength(1, 'GitHub username is required')),
+	async (username: string) => {
+		const contact_data = await fetch_github_contact(username);
+
+		if (!contact_data) {
+			return {
+				error: 'GitHub user not found',
+			};
+		}
+
+		return {
+			success: true,
+			data: contact_data,
+		};
 	},
 );

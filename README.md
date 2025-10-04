@@ -9,6 +9,7 @@ networking.
 
 - **Contact Management** - Full CRUD with VIP support, GitHub
   integration
+- **Quick Connect** - Import contacts from GitHub profiles instantly
 - **Interaction Tracking** - Log meetings, calls, emails, and messages
 - **Follow-ups** - Schedule and track follow-ups with overdue alerts
 - **Dashboard** - Stats, recent activity, and quick actions
@@ -19,7 +20,6 @@ networking.
 
 ### 📋 Planned
 
-- **Quick Connect** - QR codes for instant GitHub profile imports
 - **Dark/Light Mode** - Theme toggle
 
 ## Tech Stack

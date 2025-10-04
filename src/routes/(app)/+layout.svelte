@@ -1,6 +1,7 @@
 <script lang="ts">
-	import { get_current_user, logout } from '../auth.remote';
 	import { goto } from '$app/navigation';
+	import Logo from '$lib/logo.svelte';
+	import { get_current_user, logout } from '../auth.remote';
 
 	let { children } = $props();
 
@@ -15,8 +16,8 @@
 	<div class="min-h-screen bg-base-200">
 		<div class="navbar bg-base-100 shadow-lg">
 			<div class="flex-1">
-				<a href="/dashboard" class="btn text-xl btn-ghost">
-					Developer Hub CRM
+				<a href="/dashboard" class="">
+					<Logo />
 				</a>
 			</div>
 			<div class="flex-none gap-2">
@@ -31,9 +32,9 @@
 								<div
 									class="w-10 rounded-full bg-neutral text-neutral-content"
 								>
-									<span class="text-xl"
-										>{user.name?.[0]?.toUpperCase()}</span
-									>
+									<span class="text-xl">
+										{user.name?.[0]?.toUpperCase()}
+									</span>
 								</div>
 							</div>
 							<ul
