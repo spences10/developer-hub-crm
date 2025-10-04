@@ -1,7 +1,36 @@
 <script lang="ts">
+	import type { Contact } from '$lib/types/db';
+	import { get_user_preferences } from '../settings/settings.remote';
 	import { get_contacts } from './contacts.remote';
 
 	let search = $state('');
+
+	function sort_contacts(
+		contacts: Contact[],
+		sort_by: 'name' | 'last_contacted' | 'recently_added' | 'company',
+	): Contact[] {
+		const sorted = [...contacts];
+		switch (sort_by) {
+			case 'name':
+				return sorted.sort((a, b) => a.name.localeCompare(b.name));
+			case 'last_contacted':
+				return sorted.sort((a, b) => {
+					const a_time = a.last_contacted_at || 0;
+					const b_time = b.last_contacted_at || 0;
+					return b_time - a_time; // Most recent first
+				});
+			case 'recently_added':
+				return sorted.sort((a, b) => b.created_at - a.created_at);
+			case 'company':
+				return sorted.sort((a, b) => {
+					const a_company = a.company || '';
+					const b_company = b.company || '';
+					return a_company.localeCompare(b_company);
+				});
+			default:
+				return sorted;
+		}
+	}
 </script>
 
 <div class="mx-auto max-w-6xl">
@@ -26,7 +55,11 @@
 	</div>
 
 	<!-- Contacts List -->
-	{#await get_contacts(search) then contacts}
+	{#await Promise.all( [get_contacts(search), get_user_preferences()], ) then [contacts, preferences]}
+		{@const sorted_contacts = sort_contacts(
+			contacts,
+			preferences.default_contact_sort,
+		)}
 		{#if contacts.length === 0}
 			<div class="py-12 text-center">
 				<p class="text-lg opacity-70">
@@ -53,7 +86,7 @@
 						</tr>
 					</thead>
 					<tbody>
-						{#each contacts as contact}
+						{#each sorted_contacts as contact}
 							<tr class="hover">
 								<td>
 									<a

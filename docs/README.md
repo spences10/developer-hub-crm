@@ -256,16 +256,42 @@ For code used across multiple components:
 
 **Example utilities:**
 
-- `date-helpers.ts` - Date formatting and comparison functions
+- `date-helpers.ts` - Date and time formatting functions
   - `format_date(date, format)` - Format dates according to user
     preference
   - `format_due_date(timestamp, format)` - Format due dates with
     "Today"/"Tomorrow" labels
+  - `format_time(date, format)` - Format times in 12h or 24h format
+  - `format_datetime(date, dateFormat, timeFormat)` - Format date and
+    time together
   - `is_overdue(timestamp)` - Check if a date is in the past
-  - Supports formats: `YYYY-MM-DD`, `MM/DD/YYYY`, `DD/MM/YYYY`
-  - Get user's format preference from `get_user_preferences()` in
+  - Supports date formats: `YYYY-MM-DD`, `MM/DD/YYYY`, `DD/MM/YYYY`
+  - Supports time formats: `12h`, `24h`
+  - Get user's preferences from `get_user_preferences()` in
     `settings.remote.ts`
 - Type helpers, validation utilities, formatters, etc.
+
+### User Preferences
+
+User preferences are stored per-user and automatically applied
+throughout the app:
+
+**Date & Time:**
+
+- `date_format` - How dates are displayed (YYYY-MM-DD, MM/DD/YYYY,
+  DD/MM/YYYY)
+- `time_format` - How times are displayed (12h or 24h)
+
+**Defaults:**
+
+- `default_contact_sort` - How contacts are sorted by default (name,
+  last_contacted, recently_added, company)
+- `default_follow_up_days` - Days from today for new follow-up due
+  dates (1-90)
+- `default_interaction_type` - Pre-selected type when logging
+  interactions (meeting, call, email, message, or none)
+
+Access via `get_user_preferences()` from `settings.remote.ts`.
 
 ### Add a feature with list/detail/create pages (like interactions)
 

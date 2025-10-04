@@ -1,6 +1,7 @@
 // Date utility functions for Developer Hub CRM
 
 export type DateFormat = 'YYYY-MM-DD' | 'MM/DD/YYYY' | 'DD/MM/YYYY';
+export type TimeFormat = '12h' | '24h';
 
 /**
  * Format a date according to the specified format
@@ -73,4 +74,40 @@ export function format_due_date(
  */
 export function is_overdue(timestamp: number): boolean {
 	return timestamp < Date.now();
+}
+
+/**
+ * Format time according to the specified format
+ * @param date - Date object
+ * @param format - Time format ('12h' or '24h')
+ */
+export function format_time(
+	date: Date,
+	format: TimeFormat = '24h',
+): string {
+	const hours = date.getHours();
+	const minutes = String(date.getMinutes()).padStart(2, '0');
+
+	if (format === '12h') {
+		const period = hours >= 12 ? 'PM' : 'AM';
+		const hours12 = hours % 12 || 12;
+		return `${hours12}:${minutes} ${period}`;
+	} else {
+		const hours24 = String(hours).padStart(2, '0');
+		return `${hours24}:${minutes}`;
+	}
+}
+
+/**
+ * Format date and time together
+ * @param date - Date object
+ * @param dateFormat - Date format
+ * @param timeFormat - Time format
+ */
+export function format_datetime(
+	date: Date,
+	dateFormat: DateFormat = 'YYYY-MM-DD',
+	timeFormat: TimeFormat = '24h',
+): string {
+	return `${format_date(date, dateFormat)} ${format_time(date, timeFormat)}`;
 }

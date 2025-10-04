@@ -26,20 +26,37 @@ export const get_user_preferences = query(
 		// If no preferences exist, create default ones
 		if (!preferences) {
 			const insert_stmt = db.prepare(`
-      INSERT INTO user_preferences (id, user_id, date_format, created_at, updated_at)
-      VALUES (?, ?, ?, ?, ?)
+      INSERT INTO user_preferences (
+        id, user_id, date_format, time_format,
+        default_contact_sort, default_follow_up_days,
+        default_interaction_type, created_at, updated_at
+      )
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     `);
 
 			const id = crypto.randomUUID();
 			const now = Date.now();
-			const default_format = 'YYYY-MM-DD';
 
-			insert_stmt.run(id, user_id, default_format, now, now);
+			insert_stmt.run(
+				id,
+				user_id,
+				'YYYY-MM-DD',
+				'24h',
+				'name',
+				7,
+				null,
+				now,
+				now,
+			);
 
 			preferences = {
 				id,
 				user_id,
-				date_format: default_format,
+				date_format: 'YYYY-MM-DD',
+				time_format: '24h',
+				default_contact_sort: 'name',
+				default_follow_up_days: 7,
+				default_interaction_type: null,
 				created_at: now,
 				updated_at: now,
 			};
@@ -59,17 +76,52 @@ export const update_preferences = guarded_form(
 			v.literal('MM/DD/YYYY'),
 			v.literal('DD/MM/YYYY'),
 		]),
+		time_format: v.union([v.literal('12h'), v.literal('24h')]),
+		default_contact_sort: v.union([
+			v.literal('name'),
+			v.literal('last_contacted'),
+			v.literal('recently_added'),
+			v.literal('company'),
+		]),
+		default_follow_up_days: v.pipe(
+			v.number(),
+			v.minValue(1),
+			v.maxValue(90),
+		),
+		default_interaction_type: v.optional(
+			v.union([
+				v.literal('meeting'),
+				v.literal('call'),
+				v.literal('email'),
+				v.literal('message'),
+				v.literal(''),
+			]),
+		),
 	}),
 	async (data) => {
 		const user_id = await get_current_user_id();
 
 		const stmt = db.prepare(`
       UPDATE user_preferences
-      SET date_format = ?, updated_at = ?
+      SET
+        date_format = ?,
+        time_format = ?,
+        default_contact_sort = ?,
+        default_follow_up_days = ?,
+        default_interaction_type = ?,
+        updated_at = ?
       WHERE user_id = ?
     `);
 
-		stmt.run(data.date_format, Date.now(), user_id);
+		stmt.run(
+			data.date_format,
+			data.time_format,
+			data.default_contact_sort,
+			data.default_follow_up_days,
+			data.default_interaction_type || null,
+			Date.now(),
+			user_id,
+		);
 
 		redirect(303, '/settings');
 	},

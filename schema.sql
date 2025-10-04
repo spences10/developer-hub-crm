@@ -59,6 +59,10 @@ CREATE TABLE IF NOT EXISTS user_preferences (
   id TEXT PRIMARY KEY,
   user_id TEXT NOT NULL UNIQUE,
   date_format TEXT NOT NULL DEFAULT 'YYYY-MM-DD',
+  time_format TEXT NOT NULL DEFAULT '24h',
+  default_contact_sort TEXT NOT NULL DEFAULT 'name',
+  default_follow_up_days INTEGER NOT NULL DEFAULT 7,
+  default_interaction_type TEXT,
   created_at INTEGER NOT NULL,
   updated_at INTEGER NOT NULL,
   FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE

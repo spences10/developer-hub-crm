@@ -49,6 +49,19 @@ export interface UserPreferences {
 	id: string;
 	user_id: string;
 	date_format: 'YYYY-MM-DD' | 'MM/DD/YYYY' | 'DD/MM/YYYY';
+	time_format: '12h' | '24h';
+	default_contact_sort:
+		| 'name'
+		| 'last_contacted'
+		| 'recently_added'
+		| 'company';
+	default_follow_up_days: number;
+	default_interaction_type:
+		| 'meeting'
+		| 'call'
+		| 'email'
+		| 'message'
+		| null;
 	created_at: number;
 	updated_at: number;
 }
