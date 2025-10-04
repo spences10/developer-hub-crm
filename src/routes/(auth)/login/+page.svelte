@@ -27,6 +27,7 @@
 				placeholder="Password"
 				class="grow"
 				required
+				minlength="8"
 			/>
 		</label>
 	</fieldset>

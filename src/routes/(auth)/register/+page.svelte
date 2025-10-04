@@ -40,6 +40,7 @@
 				placeholder="Password"
 				class="grow"
 				required
+				minlength="8"
 			/>
 		</label>
 		<p class="label">Must be at least 8 characters</p>
