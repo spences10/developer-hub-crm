@@ -11,14 +11,11 @@ networking.
   integration
 - **Interaction Tracking** - Log meetings, calls, emails, and messages
 - **Follow-ups** - Schedule and track follow-ups with overdue alerts
+- **Dashboard** - Stats, recent activity, and quick actions
 - **Search & Filters** - Find contacts, interactions, and follow-ups
   quickly
 - **Authentication** - Secure login/register with Better Auth
 - **Auto-Updates** - Contacts automatically track last contacted date
-
-### 🚧 In Progress
-
-- **Dashboard Widgets** - Enhanced metrics and insights
 
 ### 📋 Planned
 
