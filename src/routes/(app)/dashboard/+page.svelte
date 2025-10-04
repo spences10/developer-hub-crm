@@ -18,7 +18,21 @@
 </script>
 
 <div class="mx-auto max-w-6xl">
-	<h1 class="mb-8 text-3xl font-bold">Dashboard</h1>
+	<div class="mb-8 flex flex-wrap items-center justify-between gap-4">
+		<h1 class="text-3xl font-bold">Dashboard</h1>
+
+		<div class="flex gap-2">
+			<a href="/contacts/new" class="btn btn-sm btn-primary">
+				+ Contact
+			</a>
+			<a href="/interactions/new" class="btn btn-sm btn-secondary">
+				+ Interaction
+			</a>
+			<a href="/follow-ups/new" class="btn btn-sm btn-accent">
+				+ Follow-up
+			</a>
+		</div>
+	</div>
 
 	<!-- Stats Cards -->
 	{#await get_dashboard_stats() then stats}
@@ -227,22 +241,4 @@
 			</div>
 		</div>
 	{/await}
-
-	<!-- Quick Actions -->
-	<div class="card mt-6 bg-base-100 shadow-xl">
-		<div class="card-body">
-			<h2 class="card-title">Quick Actions</h2>
-			<div class="flex flex-wrap gap-3">
-				<a href="/contacts/new" class="btn btn-primary">
-					Add Contact
-				</a>
-				<a href="/interactions/new" class="btn btn-secondary">
-					Log Interaction
-				</a>
-				<a href="/follow-ups/new" class="btn btn-accent">
-					Create Follow-up
-				</a>
-			</div>
-		</div>
-	</div>
 </div>
