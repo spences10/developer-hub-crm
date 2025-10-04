@@ -47,11 +47,13 @@ export async function fetch_github_profile(
 	}
 
 	try {
+		// Fetch main profile
 		const response = await fetch(
 			`https://api.github.com/users/${encodeURIComponent(username)}`,
 			{
 				headers: {
-					Accept: 'application/vnd.github.v3+json',
+					Accept: 'application/vnd.github+json',
+					'X-GitHub-Api-Version': '2022-11-28',
 					'User-Agent': 'Developer-Hub-CRM',
 				},
 			},
@@ -64,7 +66,30 @@ export async function fetch_github_profile(
 			throw new Error(`GitHub API error: ${response.status}`);
 		}
 
-		return await response.json();
+		const profile = await response.json();
+
+		// Fetch social accounts from separate endpoint
+		try {
+			const social_response = await fetch(
+				`https://api.github.com/users/${encodeURIComponent(username)}/social_accounts`,
+				{
+					headers: {
+						Accept: 'application/vnd.github+json',
+						'X-GitHub-Api-Version': '2022-11-28',
+						'User-Agent': 'Developer-Hub-CRM',
+					},
+				},
+			);
+
+			if (social_response.ok) {
+				profile.social_accounts = await social_response.json();
+			}
+		} catch (error) {
+			// If social accounts fetch fails, continue without them
+			console.warn('Could not fetch social accounts:', error);
+		}
+
+		return profile;
 	} catch (error) {
 		console.error('Error fetching GitHub profile:', error);
 		return null;
