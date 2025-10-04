@@ -232,6 +232,9 @@ Always use `class="grow"` on the actual `<input>` element:
 
 ### Textarea
 
+**Important:** Unlike inputs, textareas do NOT use a `<label>`
+wrapper. Apply classes directly to the `<textarea>` element.
+
 ```svelte
 <fieldset class="fieldset">
 	<legend class="fieldset-legend">Notes</legend>
@@ -242,6 +245,14 @@ Always use `class="grow"` on the actual `<input>` element:
 		placeholder="Enter your notes"
 	></textarea>
 </fieldset>
+```
+
+❌ **Wrong** (don't wrap textarea in label):
+
+```svelte
+<label class="textarea w-full">
+	<textarea name="notes" class="grow"></textarea>
+</label>
 ```
 
 ## Select/Dropdown

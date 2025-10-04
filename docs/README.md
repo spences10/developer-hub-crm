@@ -147,9 +147,16 @@ src/
     │   │   ├── new/
     │   │   │   └── +page.svelte         # Create contact form
     │   │   └── [id]/
-    │   │       ├── +page.svelte         # Contact detail
+    │   │       ├── +page.svelte         # Contact detail (with interactions)
     │   │       └── edit/
     │   │           └── +page.svelte     # Edit contact form
+    │   ├── interactions/
+    │   │   ├── interactions.remote.ts   # Interaction CRUD + batched queries
+    │   │   ├── +page.svelte             # Interactions list with filters
+    │   │   └── new/
+    │   │       └── +page.svelte         # Log interaction form
+    │   ├── follow-ups/
+    │   │   └── follow-ups.remote.ts     # Follow-up CRUD (UI pending)
     │   └── dashboard/
     │       ├── dashboard.remote.ts      # Dashboard queries
     │       └── +page.svelte             # Dashboard UI
@@ -194,6 +201,32 @@ src/
 2. Use `$derived()` to create reactive param:
    `const id = $derived(page.params.id)`
 3. Guard with `{#if id}` before passing to queries
+
+### Add a feature with list/detail/create pages (like interactions)
+
+1. **Create remote functions file** (e.g., `interactions.remote.ts`)
+   - Use `query.batch()` for getting items by contact_id
+   - Create `get_all_*` query for list page (no parameters)
+   - Use `guarded_form` for create/update forms
+   - Add redirect after successful form submission
+
+2. **Create list page** (`+page.svelte`)
+   - Import query functions
+   - Use `{#await}` for data loading
+   - Add filters with `$state` if needed
+   - Link to create page
+
+3. **Create form page** (`new/+page.svelte`)
+   - Use `{...form_function}` spread on `<form>`
+   - Support pre-fill via URL params:
+     `page.url.searchParams.get('param')`
+   - Use proper form patterns (see forms-pattern.md)
+   - Remember: `<textarea>` doesn't use label wrapper in daisyUI v5
+
+4. **Integrate with related pages**
+   - Add section to detail pages showing related items
+   - Add "Create" button with pre-filled params
+   - Use batched queries to avoid N+1 problems
 
 ## Official Docs
 

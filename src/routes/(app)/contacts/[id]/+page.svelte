@@ -1,8 +1,16 @@
 <script lang="ts">
 	import { page } from '$app/state';
+	import { get_interactions } from '../../interactions/interactions.remote';
 	import { delete_contact, get_contact } from '../contacts.remote';
 
 	const contact_id = $derived(page.params.id);
+
+	const type_badges: Record<string, string> = {
+		meeting: 'badge-primary',
+		call: 'badge-secondary',
+		email: 'badge-accent',
+		message: 'badge-info',
+	};
 
 	async function handle_delete() {
 		if (confirm('Are you sure you want to delete this contact?')) {
@@ -169,6 +177,65 @@
 					</div>
 				</div>
 			{/if}
+
+			<!-- Interactions Section -->
+			<div class="card mt-6 bg-base-100 shadow-xl">
+				<div class="card-body">
+					<div class="mb-4 flex items-center justify-between">
+						<h2 class="card-title">Interactions</h2>
+						<a
+							href="/interactions/new?contact_id={contact.id}"
+							class="btn btn-sm btn-primary"
+						>
+							Log Interaction
+						</a>
+					</div>
+
+					{#if contact_id}
+						{#await get_interactions(contact_id) then interactions}
+							{#if interactions.length === 0}
+								<p class="py-4 text-center opacity-70">
+									No interactions logged yet.
+								</p>
+							{:else}
+								<div class="space-y-3">
+									{#each interactions as interaction}
+										<div class="rounded-lg bg-base-200 p-4">
+											<div class="mb-2 flex items-center gap-2">
+												<span
+													class="badge {type_badges[
+														interaction.type
+													]}"
+												>
+													{interaction.type}
+												</span>
+												<span class="text-sm opacity-60">
+													{new Date(
+														interaction.created_at,
+													).toLocaleDateString()}
+												</span>
+											</div>
+											{#if interaction.note}
+												<p class="text-sm whitespace-pre-wrap">
+													{interaction.note}
+												</p>
+											{/if}
+										</div>
+									{/each}
+								</div>
+
+								{#if interactions.length > 5}
+									<div class="mt-4 text-center">
+										<a href="/interactions" class="link link-primary">
+											View all interactions
+										</a>
+									</div>
+								{/if}
+							{/if}
+						{/await}
+					{/if}
+				</div>
+			</div>
 
 			<!-- Metadata -->
 			<div class="mt-6 text-sm opacity-50">

@@ -6,6 +6,7 @@ import {
 } from '$lib/server/auth-helpers';
 import { db } from '$lib/server/db';
 import type { Interaction } from '$lib/types/db';
+import { redirect } from '@sveltejs/kit';
 import * as v from 'valibot';
 
 /**
@@ -51,12 +52,12 @@ export const get_interactions = query.batch(
 );
 
 /**
- * Get recent interactions across all contacts for the current user
+ * Get all interactions across all contacts for the current user
  */
-export const get_recent_interactions = query(
-	async (
-		limit: number = 10,
-	): Promise<Array<Interaction & { contact_name: string }>> => {
+export const get_all_interactions = query(
+	async (): Promise<
+		Array<Interaction & { contact_name: string }>
+	> => {
 		const user_id = await get_current_user_id();
 
 		const stmt = db.prepare(`
@@ -67,10 +68,35 @@ export const get_recent_interactions = query(
       INNER JOIN contacts c ON i.contact_id = c.id
       WHERE c.user_id = ?
       ORDER BY i.created_at DESC
-      LIMIT ?
     `);
 
-		return stmt.all(user_id, limit) as Array<
+		return stmt.all(user_id) as Array<
+			Interaction & { contact_name: string }
+		>;
+	},
+);
+
+/**
+ * Get recent interactions across all contacts for the current user
+ */
+export const get_recent_interactions = query(
+	async (): Promise<
+		Array<Interaction & { contact_name: string }>
+	> => {
+		const user_id = await get_current_user_id();
+
+		const stmt = db.prepare(`
+      SELECT
+        i.*,
+        c.name as contact_name
+      FROM interactions i
+      INNER JOIN contacts c ON i.contact_id = c.id
+      WHERE c.user_id = ?
+      ORDER BY i.created_at DESC
+      LIMIT 10
+    `);
+
+		return stmt.all(user_id) as Array<
 			Interaction & { contact_name: string }
 		>;
 	},
@@ -132,6 +158,8 @@ export const create_interaction = guarded_form(
 		});
 
 		transaction();
+
+		redirect(303, `/contacts/${data.contact_id}`);
 	},
 );
 
