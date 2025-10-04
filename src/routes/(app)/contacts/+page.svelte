@@ -4,31 +4,84 @@
 	import { get_contacts } from './contacts.remote';
 
 	let search = $state('');
+	let current_sort = $state<
+		| 'name'
+		| 'email'
+		| 'company'
+		| 'github'
+		| 'status'
+		| 'last_contacted'
+		| 'recently_added'
+	>('name');
+	let sort_direction = $state<'asc' | 'desc'>('asc');
 
-	function sort_contacts(
-		contacts: Contact[],
-		sort_by: 'name' | 'last_contacted' | 'recently_added' | 'company',
-	): Contact[] {
+	function sort_contacts(contacts: Contact[]): Contact[] {
 		const sorted = [...contacts];
-		switch (sort_by) {
+		switch (current_sort) {
 			case 'name':
-				return sorted.sort((a, b) => a.name.localeCompare(b.name));
-			case 'last_contacted':
-				return sorted.sort((a, b) => {
-					const a_time = a.last_contacted_at || 0;
-					const b_time = b.last_contacted_at || 0;
-					return b_time - a_time; // Most recent first
+				sorted.sort((a, b) => a.name.localeCompare(b.name));
+				break;
+			case 'email':
+				sorted.sort((a, b) => {
+					const a_email = a.email || '';
+					const b_email = b.email || '';
+					return a_email.localeCompare(b_email);
 				});
-			case 'recently_added':
-				return sorted.sort((a, b) => b.created_at - a.created_at);
+				break;
 			case 'company':
-				return sorted.sort((a, b) => {
+				sorted.sort((a, b) => {
 					const a_company = a.company || '';
 					const b_company = b.company || '';
 					return a_company.localeCompare(b_company);
 				});
-			default:
-				return sorted;
+				break;
+			case 'github':
+				sorted.sort((a, b) => {
+					const a_github = a.github_username || '';
+					const b_github = b.github_username || '';
+					return a_github.localeCompare(b_github);
+				});
+				break;
+			case 'status':
+				sorted.sort((a, b) => b.is_vip - a.is_vip); // VIPs first
+				break;
+			case 'last_contacted':
+				sorted.sort((a, b) => {
+					const a_time = a.last_contacted_at || 0;
+					const b_time = b.last_contacted_at || 0;
+					return b_time - a_time; // Most recent first
+				});
+				break;
+			case 'recently_added':
+				sorted.sort((a, b) => b.created_at - a.created_at);
+				break;
+		}
+
+		// Apply direction
+		if (sort_direction === 'desc') {
+			sorted.reverse();
+		}
+
+		return sorted;
+	}
+
+	function toggle_sort(
+		column:
+			| 'name'
+			| 'email'
+			| 'company'
+			| 'github'
+			| 'status'
+			| 'last_contacted'
+			| 'recently_added',
+	) {
+		if (current_sort === column) {
+			// Toggle direction
+			sort_direction = sort_direction === 'asc' ? 'desc' : 'asc';
+		} else {
+			// New column, default to asc
+			current_sort = column;
+			sort_direction = 'asc';
 		}
 	}
 </script>
@@ -56,10 +109,14 @@
 
 	<!-- Contacts List -->
 	{#await Promise.all( [get_contacts(search), get_user_preferences()], ) then [contacts, preferences]}
-		{@const sorted_contacts = sort_contacts(
-			contacts,
-			preferences.default_contact_sort,
-		)}
+		{#if !current_sort}
+			{(current_sort =
+				preferences.default_contact_sort === 'recently_added' ||
+				preferences.default_contact_sort === 'last_contacted'
+					? 'name'
+					: preferences.default_contact_sort)}
+		{/if}
+		{@const sorted_contacts = sort_contacts(contacts)}
 		{#if contacts.length === 0}
 			<div class="py-12 text-center">
 				<p class="text-lg opacity-70">
@@ -78,11 +135,81 @@
 				<table class="table">
 					<thead>
 						<tr>
-							<th>Name</th>
-							<th>Email</th>
-							<th>Company</th>
-							<th>GitHub</th>
-							<th>Status</th>
+							<th>
+								<button
+									onclick={() => toggle_sort('name')}
+									class="flex items-center gap-1 hover:underline"
+								>
+									Name
+									{#if current_sort === 'name'}
+										{#if sort_direction === 'asc'}
+											↑
+										{:else}
+											↓
+										{/if}
+									{/if}
+								</button>
+							</th>
+							<th>
+								<button
+									onclick={() => toggle_sort('email')}
+									class="flex items-center gap-1 hover:underline"
+								>
+									Email
+									{#if current_sort === 'email'}
+										{#if sort_direction === 'asc'}
+											↑
+										{:else}
+											↓
+										{/if}
+									{/if}
+								</button>
+							</th>
+							<th>
+								<button
+									onclick={() => toggle_sort('company')}
+									class="flex items-center gap-1 hover:underline"
+								>
+									Company
+									{#if current_sort === 'company'}
+										{#if sort_direction === 'asc'}
+											↑
+										{:else}
+											↓
+										{/if}
+									{/if}
+								</button>
+							</th>
+							<th>
+								<button
+									onclick={() => toggle_sort('github')}
+									class="flex items-center gap-1 hover:underline"
+								>
+									GitHub
+									{#if current_sort === 'github'}
+										{#if sort_direction === 'asc'}
+											↑
+										{:else}
+											↓
+										{/if}
+									{/if}
+								</button>
+							</th>
+							<th>
+								<button
+									onclick={() => toggle_sort('status')}
+									class="flex items-center gap-1 hover:underline"
+								>
+									Status
+									{#if current_sort === 'status'}
+										{#if sort_direction === 'asc'}
+											↑
+										{:else}
+											↓
+										{/if}
+									{/if}
+								</button>
+							</th>
 						</tr>
 					</thead>
 					<tbody>
