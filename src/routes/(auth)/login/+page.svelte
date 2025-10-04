@@ -1,8 +1,13 @@
 <script lang="ts">
+	import Logo from '$lib/logo.svelte';
 	import { login } from '../../auth.remote';
 </script>
 
-<h2 class="mb-6 card-title text-2xl">Login</h2>
+<div class="mb-8 flex justify-center">
+	<Logo size="70px" />
+</div>
+
+<h2 class="mb-6 text-center text-2xl font-bold">Sign in to DevHub</h2>
 
 <form {...login} class="space-y-4">
 	<fieldset class="fieldset">
@@ -37,7 +42,7 @@
 	</button>
 </form>
 
-<div class="divider">OR</div>
+<div class="divider">or</div>
 
 <p class="text-center">
 	Don't have an account?

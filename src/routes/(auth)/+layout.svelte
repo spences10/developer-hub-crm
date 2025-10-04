@@ -3,11 +3,9 @@
 </script>
 
 <div
-	class="flex min-h-screen items-center justify-center bg-base-200"
+	class="flex min-h-screen items-center justify-center bg-base-300"
 >
-	<div class="card w-full max-w-md bg-base-100 shadow-xl">
-		<div class="card-body">
-			{@render children()}
-		</div>
+	<div class="w-full max-w-md px-8">
+		{@render children()}
 	</div>
 </div>
