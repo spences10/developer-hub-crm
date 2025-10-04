@@ -112,10 +112,14 @@ When implementing a new feature:
 4. **No API routes** - Remote functions handle everything
 5. **Use query.batch()** - For all parameterized query functions
 6. **Use $app/state** - Not $app/stores (deprecated in Svelte 5)
-7. **Type safety everywhere** - TypeScript for all database operations
-8. **snake_case for functions/variables** - Use snake_case naming
-9. **kebab-case for file names** - Use kebab-case for all file names
-10. **lang="ts" in Svelte files** - Always use TypeScript in
+7. **Type safety everywhere** - TypeScript for all database
+   operations, use proper types instead of `any`
+8. **Proper reactivity** - Use `refresh_key` with `{#key}` blocks,
+   never `window.location.reload()`
+9. **Shared utilities** - Extract reusable functions to `lib/utils/`
+10. **snake_case for functions/variables** - Use snake_case naming
+11. **kebab-case for file names** - Use kebab-case for all file names
+12. **lang="ts" in Svelte files** - Always use TypeScript in
     components
 
 ## Tech Stack
@@ -135,8 +139,10 @@ src/
 │   │   ├── db.ts              # Database instance
 │   │   ├── auth.ts            # Better Auth setup
 │   │   └── auth-helpers.ts    # Auth helper functions
-│   └── types/
-│       └── db.ts              # Database type definitions
+│   ├── types/
+│   │   └── db.ts              # Database type definitions
+│   └── utils/
+│       └── date-helpers.ts    # Shared utility functions
 └── routes/
     ├── (app)/                 # Protected routes layout
     │   ├── contacts/
@@ -154,7 +160,10 @@ src/
     │   │   └── new/
     │   │       └── +page.svelte         # Log interaction form
     │   ├── follow-ups/
-    │   │   └── follow-ups.remote.ts     # Follow-up CRUD (UI pending)
+    │   │   ├── follow-ups.remote.ts     # Follow-up CRUD + batched queries
+    │   │   ├── +page.svelte             # Follow-ups list with filters
+    │   │   └── new/
+    │   │       └── +page.svelte         # Create follow-up form
     │   └── dashboard/
     │       ├── dashboard.remote.ts      # Dashboard queries
     │       └── +page.svelte             # Dashboard UI
@@ -199,6 +208,53 @@ src/
 2. Use `$derived()` to create reactive param:
    `const id = $derived(page.params.id)`
 3. Guard with `{#if id}` before passing to queries
+
+### Trigger re-fetch after mutations
+
+When you need to refresh data after a mutation (create/update/delete):
+
+1. **Use `refresh_key` with `{#key}` block** (NOT
+   `window.location.reload()`)
+
+   ```svelte
+   <script lang="ts">
+   	let refresh_key = $state(0);
+
+   	async function handle_delete(id: string) {
+   		await delete_item(id);
+   		refresh_key++; // Triggers re-fetch
+   	}
+   </script>
+
+   {#key refresh_key}
+   	{#await get_items() then items}
+   		<!-- Your UI -->
+   	{/await}
+   {/key}
+   ```
+
+2. **Never use `window.location.reload()`** - It's an anti-pattern
+   that:
+   - Loses scroll position
+   - Clears component state
+   - Provides poor UX
+   - Defeats Svelte's reactivity
+
+### Use shared utilities
+
+For code used across multiple components:
+
+1. Create utility files in `lib/utils/`
+2. Export functions with clear names
+3. Import with `$lib` alias:
+   ```svelte
+   import {(format_due_date, is_overdue)} from '$lib/utils/date-helpers';
+   ```
+
+**Example utilities:**
+
+- `date-helpers.ts` - Date formatting and comparison functions
+- Type helpers, validation utilities, formatters, etc.
 
 ### Add a feature with list/detail/create pages (like interactions)
 

@@ -192,6 +192,58 @@ export const delete_contact = command(
 <button onclick={() => delete_contact(contact.id)}> Delete </button>
 ```
 
+## Re-fetching Data After Mutations
+
+After mutations (create/update/delete), trigger data re-fetch using
+`refresh_key` with `{#key}` blocks:
+
+```svelte
+<script lang="ts">
+	import {
+		delete_contact,
+		get_all_contacts,
+	} from './contacts.remote';
+
+	let refresh_key = $state(0);
+
+	async function handle_delete(id: string) {
+		await delete_contact(id);
+		refresh_key++; // Triggers re-fetch
+	}
+</script>
+
+{#key refresh_key}
+	{#await get_all_contacts() then contacts}
+		<ul>
+			{#each contacts as contact}
+				<li>
+					{contact.name}
+					<button onclick={() => handle_delete(contact.id)}>
+						Delete
+					</button>
+				</li>
+			{/each}
+		</ul>
+	{/await}
+{/key}
+```
+
+**Why this works:**
+
+- `{#key}` block destroys and recreates its contents when the key
+  changes
+- Incrementing `refresh_key` triggers a fresh call to
+  `get_all_contacts()`
+- Maintains scroll position and component state outside the `{#key}`
+  block
+
+**❌ Anti-pattern:** Never use `window.location.reload()`
+
+- Loses scroll position
+- Clears all component state
+- Provides poor user experience
+- Defeats Svelte's reactivity system
+
 ## Accessing Request Context
 
 Use `getRequestEvent()` to access cookies, headers, etc:
