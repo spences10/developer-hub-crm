@@ -10,13 +10,14 @@ networking.
 - **Contact Management** - Full CRUD with VIP support, GitHub
   integration
 - **Interaction Tracking** - Log meetings, calls, emails, and messages
-- **Search & Filters** - Find contacts and interactions quickly
+- **Follow-ups** - Schedule and track follow-ups with overdue alerts
+- **Search & Filters** - Find contacts, interactions, and follow-ups
+  quickly
 - **Authentication** - Secure login/register with Better Auth
 - **Auto-Updates** - Contacts automatically track last contacted date
 
 ### 🚧 In Progress
 
-- **Smart Follow-ups** - Backend complete, UI pending
 - **Dashboard Widgets** - Enhanced metrics and insights
 
 ### 📋 Planned

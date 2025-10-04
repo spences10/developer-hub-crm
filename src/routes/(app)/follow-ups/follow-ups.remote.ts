@@ -6,46 +6,29 @@ import {
 } from '$lib/server/auth-helpers';
 import { db } from '$lib/server/db';
 import type { FollowUp } from '$lib/types/db';
+import { redirect } from '@sveltejs/kit';
 import * as v from 'valibot';
 
 /**
- * Get all follow-ups with optional filtering
+ * Get all follow-ups for the current user
  */
-export const get_follow_ups = query(
-	async (
-		filter: 'all' | 'pending' | 'completed' | 'overdue' = 'all',
-	) => {
-		const user_id = await get_current_user_id();
+export const get_all_follow_ups = query(async () => {
+	const user_id = await get_current_user_id();
 
-		let sql = `
-      SELECT
-        f.*,
-        c.name as contact_name
-      FROM follow_ups f
-      INNER JOIN contacts c ON f.contact_id = c.id
-      WHERE c.user_id = ?
-    `;
+	const stmt = db.prepare(`
+    SELECT
+      f.*,
+      c.name as contact_name
+    FROM follow_ups f
+    INNER JOIN contacts c ON f.contact_id = c.id
+    WHERE c.user_id = ?
+    ORDER BY f.due_date ASC
+  `);
 
-		const params: any[] = [user_id];
-		const now = Date.now();
-
-		if (filter === 'pending') {
-			sql += ' AND f.completed = 0';
-		} else if (filter === 'completed') {
-			sql += ' AND f.completed = 1';
-		} else if (filter === 'overdue') {
-			sql += ' AND f.completed = 0 AND f.due_date < ?';
-			params.push(now);
-		}
-
-		sql += ' ORDER BY f.due_date ASC';
-
-		const stmt = db.prepare(sql);
-		return stmt.all(...params) as Array<
-			FollowUp & { contact_name: string }
-		>;
-	},
-);
+	return stmt.all(user_id) as Array<
+		FollowUp & { contact_name: string }
+	>;
+});
 
 /**
  * Get follow-ups for a specific contact
@@ -148,6 +131,8 @@ export const create_follow_up = guarded_form(
 	v.object({
 		contact_id: v.pipe(v.string(), v.minLength(1)),
 		due_date: v.pipe(
+			v.string(),
+			v.transform(Number),
 			v.number(),
 			v.minValue(0, 'Due date must be a valid timestamp'),
 		),
@@ -191,7 +176,7 @@ export const create_follow_up = guarded_form(
 			now,
 		);
 
-		return { id };
+		redirect(303, `/contacts/${data.contact_id}`);
 	},
 );
 

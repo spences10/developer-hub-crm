@@ -1,5 +1,11 @@
 <script lang="ts">
 	import { page } from '$app/state';
+	import {
+		complete_follow_up,
+		delete_follow_up,
+		get_contact_follow_ups,
+		reopen_follow_up,
+	} from '../../follow-ups/follow-ups.remote';
 	import { get_interactions } from '../../interactions/interactions.remote';
 	import { delete_contact, get_contact } from '../contacts.remote';
 
@@ -12,9 +18,64 @@
 		message: 'badge-info',
 	};
 
+	function format_due_date(timestamp: number): string {
+		const date = new Date(timestamp);
+		const today = new Date();
+		const tomorrow = new Date(today);
+		tomorrow.setDate(tomorrow.getDate() + 1);
+
+		const date_only = new Date(
+			date.getFullYear(),
+			date.getMonth(),
+			date.getDate(),
+		);
+		const today_only = new Date(
+			today.getFullYear(),
+			today.getMonth(),
+			today.getDate(),
+		);
+		const tomorrow_only = new Date(
+			tomorrow.getFullYear(),
+			tomorrow.getMonth(),
+			tomorrow.getDate(),
+		);
+
+		if (date_only.getTime() === today_only.getTime()) {
+			return 'Today';
+		} else if (date_only.getTime() === tomorrow_only.getTime()) {
+			return 'Tomorrow';
+		} else if (date_only < today_only) {
+			return `Overdue: ${date.toLocaleDateString()}`;
+		} else {
+			return date.toLocaleDateString();
+		}
+	}
+
+	function is_overdue(timestamp: number): boolean {
+		return timestamp < Date.now();
+	}
+
 	async function handle_delete() {
 		if (confirm('Are you sure you want to delete this contact?')) {
 			await delete_contact(contact_id);
+		}
+	}
+
+	async function handle_complete_follow_up(id: string) {
+		await complete_follow_up(id);
+		// Force re-render by reassigning contact_id
+		window.location.reload();
+	}
+
+	async function handle_reopen_follow_up(id: string) {
+		await reopen_follow_up(id);
+		window.location.reload();
+	}
+
+	async function handle_delete_follow_up(id: string) {
+		if (confirm('Are you sure you want to delete this follow-up?')) {
+			await delete_follow_up(id);
+			window.location.reload();
 		}
 	}
 </script>
@@ -177,6 +238,90 @@
 					</div>
 				</div>
 			{/if}
+
+			<!-- Follow-ups Section -->
+			<div class="card mt-6 bg-base-100 shadow-xl">
+				<div class="card-body">
+					<div class="mb-4 flex items-center justify-between">
+						<h2 class="card-title">Follow-ups</h2>
+						<a
+							href="/follow-ups/new?contact_id={contact.id}"
+							class="btn btn-sm btn-primary"
+						>
+							Add Follow-up
+						</a>
+					</div>
+
+					{#if contact_id}
+						{#await get_contact_follow_ups(contact_id) then follow_ups}
+							{@const pending_follow_ups = follow_ups.filter(
+								(f) => !f.completed,
+							)}
+							{#if pending_follow_ups.length === 0}
+								<p class="py-4 text-center opacity-70">
+									No pending follow-ups.
+								</p>
+							{:else}
+								<div class="space-y-3">
+									{#each pending_follow_ups as follow_up}
+										{@const overdue = is_overdue(follow_up.due_date)}
+										<div class="rounded-lg bg-base-200 p-4">
+											<div
+												class="mb-2 flex items-center justify-between"
+											>
+												<div>
+													<span
+														class="text-sm font-medium"
+														class:text-error={overdue}
+													>
+														{format_due_date(follow_up.due_date)}
+													</span>
+													{#if overdue}
+														<span
+															class="ml-2 badge badge-sm badge-error"
+														>
+															Overdue
+														</span>
+													{/if}
+												</div>
+												<div class="flex gap-2">
+													<button
+														onclick={() =>
+															handle_complete_follow_up(follow_up.id)}
+														class="btn btn-xs btn-success"
+													>
+														Complete
+													</button>
+													<button
+														onclick={() =>
+															handle_delete_follow_up(follow_up.id)}
+														class="btn btn-outline btn-xs btn-error"
+													>
+														Delete
+													</button>
+												</div>
+											</div>
+											{#if follow_up.note}
+												<p class="text-sm whitespace-pre-wrap">
+													{follow_up.note}
+												</p>
+											{/if}
+										</div>
+									{/each}
+								</div>
+
+								{#if pending_follow_ups.length > 3}
+									<div class="mt-4 text-center">
+										<a href="/follow-ups" class="link link-primary">
+											View all follow-ups
+										</a>
+									</div>
+								{/if}
+							{/if}
+						{/await}
+					{/if}
+				</div>
+			</div>
 
 			<!-- Interactions Section -->
 			<div class="card mt-6 bg-base-100 shadow-xl">
