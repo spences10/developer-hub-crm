@@ -1,4 +1,4 @@
-import { query, form, command, getRequestEvent } from '$app/server';
+import { command, form, getRequestEvent, query } from '$app/server';
 import { redirect } from '@sveltejs/kit';
 import type { ObjectSchema } from 'valibot';
 import { auth } from './auth';
@@ -14,7 +14,7 @@ export async function get_current_user_id(): Promise<string> {
 	});
 
 	if (!session?.user?.id) {
-		redirect(307, '/login');
+		redirect(302, '/login');
 	}
 
 	return session.user.id;
@@ -32,7 +32,7 @@ export const guarded_query = <T>(fn: () => T) => {
 		});
 
 		if (!session) {
-			redirect(307, '/login');
+			redirect(302, '/login');
 		}
 
 		return fn();
@@ -54,7 +54,7 @@ export const guarded_form = <T extends ObjectSchema<any, any>>(
 		});
 
 		if (!session) {
-			redirect(307, '/login');
+			redirect(302, '/login');
 		}
 
 		return fn(data);
@@ -76,7 +76,7 @@ export const guarded_command = <T>(
 		});
 
 		if (!session) {
-			redirect(307, '/login');
+			redirect(302, '/login');
 		}
 
 		return fn(data);

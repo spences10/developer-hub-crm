@@ -107,7 +107,7 @@ export async function get_current_user_id(): Promise<string> {
 	});
 
 	if (!session?.user) {
-		redirect(307, '/login');
+		redirect(302, '/login');
 	}
 
 	return session.user.id;
@@ -125,7 +125,7 @@ export const guarded_query = <T>(fn: () => T | Promise<T>) => {
 		});
 
 		if (!session) {
-			redirect(307, '/login');
+			redirect(302, '/login');
 		}
 
 		return fn();
@@ -147,7 +147,7 @@ export const guarded_form = <Schema, Result>(
 		});
 
 		if (!session) {
-			redirect(307, '/login');
+			redirect(302, '/login');
 		}
 
 		return handler(data);
@@ -169,7 +169,7 @@ export const guarded_command = <Schema, Result>(
 		});
 
 		if (!session) {
-			redirect(307, '/login');
+			redirect(302, '/login');
 		}
 
 		return handler(data);
