@@ -1,16 +1,7 @@
 @import 'tailwindcss';
+@plugin '@tailwindcss/typography';
+@plugin 'daisyui';
 
-/* Plugin configurations */
-@plugin "@tailwindcss/typography";
 @plugin "daisyui" {
-	themes:
-		light --default,
-		dark --prefersdark;
-}
-
-/* Global styles */
-@layer base {
-	html {
-		scroll-behavior: smooth;
-	}
-}
+  themes: cyberpunk;
+};
