@@ -215,7 +215,8 @@ export const create_contact = guarded_form(
 					);
 				}
 			} catch (e) {
-				// Ignore JSON parse errors
+				console.error('Failed to parse social_links JSON:', e);
+				throw new Error('Invalid social links format. Please check your input.');
 			}
 		}
 
