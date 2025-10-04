@@ -164,6 +164,9 @@ src/
     │   │   ├── +page.svelte             # Follow-ups list with filters
     │   │   └── new/
     │   │       └── +page.svelte         # Create follow-up form
+    │   ├── settings/
+    │   │   ├── settings.remote.ts       # User preferences management
+    │   │   └── +page.svelte             # Settings page (date format, etc.)
     │   └── dashboard/
     │       ├── dashboard.remote.ts      # Dashboard queries
     │       └── +page.svelte             # Dashboard UI
@@ -254,6 +257,14 @@ For code used across multiple components:
 **Example utilities:**
 
 - `date-helpers.ts` - Date formatting and comparison functions
+  - `format_date(date, format)` - Format dates according to user
+    preference
+  - `format_due_date(timestamp, format)` - Format due dates with
+    "Today"/"Tomorrow" labels
+  - `is_overdue(timestamp)` - Check if a date is in the past
+  - Supports formats: `YYYY-MM-DD`, `MM/DD/YYYY`, `DD/MM/YYYY`
+  - Get user's format preference from `get_user_preferences()` in
+    `settings.remote.ts`
 - Type helpers, validation utilities, formatters, etc.
 
 ### Add a feature with list/detail/create pages (like interactions)

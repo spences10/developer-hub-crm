@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { format_date } from '$lib/utils/date-helpers';
+	import { get_user_preferences } from '../settings/settings.remote';
 	import { get_all_interactions } from './interactions.remote';
 
 	let filter = $state<
@@ -43,7 +45,7 @@
 	</div>
 
 	<!-- Interactions List -->
-	{#await get_all_interactions() then all_interactions}
+	{#await Promise.all( [get_all_interactions(), get_user_preferences()], ) then [all_interactions, preferences]}
 		{@const interactions =
 			filter === 'all'
 				? all_interactions
@@ -88,9 +90,10 @@
 										</p>
 									{/if}
 									<p class="mt-2 text-sm opacity-60">
-										{new Date(
-											interaction.created_at,
-										).toLocaleString()}
+										{format_date(
+											new Date(interaction.created_at),
+											preferences.date_format,
+										)}
 									</p>
 								</div>
 							</div>

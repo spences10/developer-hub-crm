@@ -1,9 +1,11 @@
 <script lang="ts">
 	import type { FollowUp } from '$lib/types/db';
 	import {
+		format_date,
 		format_due_date,
 		is_overdue,
 	} from '$lib/utils/date-helpers';
+	import { get_user_preferences } from '../settings/settings.remote';
 	import {
 		complete_follow_up,
 		delete_follow_up,
@@ -81,7 +83,7 @@
 
 	<!-- Follow-ups List -->
 	{#key refresh_key}
-		{#await get_all_follow_ups() then all_follow_ups}
+		{#await Promise.all( [get_all_follow_ups(), get_user_preferences()], ) then [all_follow_ups, preferences]}
 			{@const follow_ups = filter_follow_ups(all_follow_ups, filter)}
 			{#if follow_ups.length === 0}
 				<div class="py-12 text-center">
@@ -131,7 +133,10 @@
 												class:text-error={overdue &&
 													!follow_up.completed}
 											>
-												Due: {format_due_date(follow_up.due_date)}
+												Due: {format_due_date(
+													follow_up.due_date,
+													preferences.date_format,
+												)}
 											</span>
 										</div>
 
@@ -143,9 +148,10 @@
 
 										{#if follow_up.completed && follow_up.completed_at}
 											<p class="mt-2 text-sm opacity-60">
-												Completed: {new Date(
-													follow_up.completed_at,
-												).toLocaleDateString()}
+												Completed: {format_date(
+													new Date(follow_up.completed_at),
+													preferences.date_format,
+												)}
 											</p>
 										{/if}
 									</div>

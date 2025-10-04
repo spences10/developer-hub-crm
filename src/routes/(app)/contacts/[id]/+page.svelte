@@ -2,6 +2,7 @@
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
 	import {
+		format_date,
 		format_due_date,
 		is_overdue,
 	} from '$lib/utils/date-helpers';
@@ -12,6 +13,7 @@
 		reopen_follow_up,
 	} from '../../follow-ups/follow-ups.remote';
 	import { get_interactions } from '../../interactions/interactions.remote';
+	import { get_user_preferences } from '../../settings/settings.remote';
 	import { delete_contact, get_contact } from '../contacts.remote';
 
 	const contact_id = $derived(page.params.id);
@@ -61,7 +63,7 @@
 
 	{#if contact_id}
 		{#key refresh_key}
-			{#await get_contact(contact_id) then contact}
+			{#await Promise.all( [get_contact(contact_id), get_user_preferences()], ) then [contact, preferences]}
 				<div class="mb-6 flex items-start justify-between">
 					<div>
 						<h1 class="text-3xl font-bold">
@@ -156,9 +158,10 @@
 									<div>
 										<p class="text-sm opacity-70">Birthday</p>
 										<p>
-											{new Date(
-												contact.birthday,
-											).toLocaleDateString()}
+											{format_date(
+												new Date(contact.birthday),
+												preferences.date_format,
+											)}
 										</p>
 									</div>
 								{/if}
@@ -213,9 +216,10 @@
 									<div>
 										<p class="text-sm opacity-70">Last Contact</p>
 										<p>
-											{new Date(
-												contact.last_interaction_at,
-											).toLocaleDateString()}
+											{format_date(
+												new Date(contact.last_interaction_at),
+												preferences.date_format,
+											)}
 										</p>
 									</div>
 								{/if}
@@ -231,9 +235,10 @@
 									<div>
 										<p class="text-sm opacity-70">Last Contacted</p>
 										<p>
-											{new Date(
-												contact.last_contacted_at,
-											).toLocaleDateString()}
+											{format_date(
+												new Date(contact.last_contacted_at),
+												preferences.date_format,
+											)}
 										</p>
 									</div>
 								{/if}
@@ -289,7 +294,10 @@
 															class="text-sm font-medium"
 															class:text-error={overdue}
 														>
-															{format_due_date(follow_up.due_date)}
+															{format_due_date(
+																follow_up.due_date,
+																preferences.date_format,
+															)}
 														</span>
 														{#if overdue}
 															<span
@@ -372,9 +380,10 @@
 														{interaction.type}
 													</span>
 													<span class="text-sm opacity-60">
-														{new Date(
-															interaction.created_at,
-														).toLocaleDateString()}
+														{format_date(
+															new Date(interaction.created_at),
+															preferences.date_format,
+														)}
 													</span>
 												</div>
 												{#if interaction.note}

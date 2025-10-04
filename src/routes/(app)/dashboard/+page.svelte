@@ -1,5 +1,9 @@
 <script lang="ts">
-	import { format_due_date } from '$lib/utils/date-helpers';
+	import {
+		format_date,
+		format_due_date,
+	} from '$lib/utils/date-helpers';
+	import { get_user_preferences } from '../settings/settings.remote';
 	import {
 		get_dashboard_activity,
 		get_dashboard_stats,
@@ -71,7 +75,7 @@
 	{/await}
 
 	<!-- Activity Section -->
-	{#await get_dashboard_activity() then activity}
+	{#await Promise.all( [get_dashboard_activity(), get_user_preferences()], ) then [activity, preferences]}
 		<div class="grid gap-6 lg:grid-cols-2">
 			<!-- Overdue Follow-ups (if any) -->
 			{#if activity.overdue_follow_ups.length > 0}
@@ -100,7 +104,10 @@
 												{follow_up.contact_name}
 											</a>
 											<p class="text-sm text-error">
-												Due: {format_due_date(follow_up.due_date)}
+												Due: {format_due_date(
+													follow_up.due_date,
+													preferences.date_format,
+												)}
 											</p>
 											{#if follow_up.note}
 												<p class="text-sm opacity-80">
@@ -146,7 +153,10 @@
 										{follow_up.contact_name}
 									</p>
 									<p class="text-sm opacity-70">
-										{format_due_date(follow_up.due_date)}
+										{format_due_date(
+											follow_up.due_date,
+											preferences.date_format,
+										)}
 									</p>
 									{#if follow_up.note}
 										<p class="text-sm opacity-60">
@@ -196,9 +206,10 @@
 										</span>
 									</div>
 									<p class="text-xs opacity-60">
-										{new Date(
-											interaction.created_at,
-										).toLocaleDateString()}
+										{format_date(
+											new Date(interaction.created_at),
+											preferences.date_format,
+										)}
 									</p>
 									{#if interaction.note}
 										<p class="text-sm opacity-70">

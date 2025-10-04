@@ -44,3 +44,11 @@ export interface SocialLink {
 	url: string;
 	created_at: number;
 }
+
+export interface UserPreferences {
+	id: string;
+	user_id: string;
+	date_format: 'YYYY-MM-DD' | 'MM/DD/YYYY' | 'DD/MM/YYYY';
+	created_at: number;
+	updated_at: number;
+}
