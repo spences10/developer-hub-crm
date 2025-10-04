@@ -20,78 +20,76 @@ boilerplate:
 
 ## Documentation Files
 
-### [remote-functions.md](./remote-functions.md)
+### Core Patterns
 
-**Read this first if you're implementing any server logic**
+#### [remote-functions.md](./remote-functions.md)
 
-Covers:
+**Read this first for server logic**
 
-- Query functions (reading data)
-- Form functions (validated submissions)
-- Command functions (mutations)
-- How to use `getRequestEvent()` instead of passing locals
+Query functions, form functions, commands, and `getRequestEvent()`
+patterns.
 
-### [auth-pattern.md](./auth-pattern.md)
+#### [database-pattern.md](./database-pattern.md)
 
-**Read this for authentication implementation**
+**Database operations**
 
-Covers:
+Raw SQL queries, parameterized queries, transactions, type safety,
+migrations.
 
-- Three auth patterns (inline, helper, higher-order)
-- Login/logout with Better Auth
-- Protected routes without hooks
-- Getting current user in components
+#### [error-handling.md](./error-handling.md)
 
-### [database-pattern.md](./database-pattern.md)
+**Error handling & loading**
 
-**Read this for any database work**
+Error boundaries, await expressions, loading states, form errors.
 
-Covers:
+### Authentication
 
-- Raw SQL query patterns
-- Parameterized queries
-- Transactions
-- Type safety without ORM
-- Migrations
+#### [auth-setup.md](./auth-setup.md)
 
-### [error-handling.md](./error-handling.md)
+**Better Auth installation & config**
 
-**Read this for error handling and loading states**
+Install dependencies, configure auth, generate schema, environment
+variables, helpers.
 
-Covers:
+#### [auth-usage.md](./auth-usage.md)
 
-- Error boundaries with `<svelte:boundary>`
-- Await expressions in markup
-- Loading states with pending snippets
-- Form error handling
-- Nested boundaries
+**Auth patterns & usage**
 
-### [forms-pattern.md](./forms-pattern.md)
+Registration, login, logout, protected routes, component patterns,
+layout guards.
 
-**Read this when creating forms**
+### Forms
 
-Covers:
+#### [forms-daisy-ui-v5.md](./forms-daisy-ui-v5.md)
 
-- daisyUI v5 form structure (changed from v4!)
-- **Important CSS fix for @tailwindcss/forms plugin conflict**
-- Fieldset and input patterns
-- Full-width inputs (important!)
-- Validation with validator class
-- Common input types (text, email, password, etc.)
-- Select, checkbox, radio patterns
+**daisyUI v5 patterns (start here)**
 
-### [deployment.md](./deployment.md)
+Critical v4→v5 changes, basic structure, validation, error handling,
+common mistakes.
 
-**Read this before deploying to production**
+#### [forms-inputs.md](./forms-inputs.md)
 
-Covers:
+**Input types reference**
 
-- ORIGIN environment variable (critical for CSRF)
-- Native module setup (better-sqlite3)
-- Vite SSR configuration
-- Common production issues and fixes
-- Coolify/Docker deployment
-- Database persistence
+Complete guide to all input types: text, email, password, textarea,
+select, checkbox, radio, file, etc.
+
+### External Integrations
+
+#### [integrations.md](./integrations.md)
+
+**Third-party integrations**
+
+GitHub contact import, API patterns, rate limits, future enhancements.
+
+### Deployment
+
+#### [deployment.md](./deployment.md)
+
+**Production deployment**
+
+ORIGIN variable (critical!), native modules, Vite SSR, Coolify/Docker,
+troubleshooting.
 
 ## Quick Start Checklist
 
