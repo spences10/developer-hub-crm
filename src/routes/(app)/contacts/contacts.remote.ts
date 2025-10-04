@@ -128,7 +128,15 @@ export const get_contact = query.batch(
 export const create_contact = guarded_form(
 	v.object({
 		name: v.pipe(v.string(), v.minLength(1, 'Name is required')),
-		email: v.optional(v.pipe(v.string(), v.email('Invalid email'))),
+		email: v.optional(
+			v.union([
+				v.pipe(
+					v.literal(''),
+					v.transform(() => undefined),
+				),
+				v.pipe(v.string(), v.email('Invalid email')),
+			]),
+		),
 		phone: v.optional(v.string()),
 		company: v.optional(v.string()),
 		title: v.optional(v.string()),
@@ -176,7 +184,15 @@ export const create_contact = guarded_form(
 const update_contact_schema = v.object({
 	id: v.pipe(v.string(), v.minLength(1)),
 	name: v.pipe(v.string(), v.minLength(1, 'Name is required')),
-	email: v.optional(v.pipe(v.string(), v.email('Invalid email'))),
+	email: v.optional(
+		v.union([
+			v.pipe(
+				v.literal(''),
+				v.transform(() => undefined),
+			),
+			v.pipe(v.string(), v.email('Invalid email')),
+		]),
+	),
 	phone: v.optional(v.string()),
 	company: v.optional(v.string()),
 	title: v.optional(v.string()),
