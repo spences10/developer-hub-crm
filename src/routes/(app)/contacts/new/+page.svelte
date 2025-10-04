@@ -103,119 +103,123 @@
 	<div class="card bg-base-100 shadow-xl">
 		<div class="card-body">
 			<form {...create_contact} class="space-y-4">
-				<!-- Name (Required) -->
-				<fieldset class="fieldset">
-					<legend class="fieldset-legend">Name *</legend>
-					<label class="validator input w-full">
-						<input
-							type="text"
-							name="name"
-							placeholder="John Doe"
-							class="grow"
-							required
-							bind:value={name}
-						/>
-					</label>
-				</fieldset>
+				<!-- Name & VIP - Two Column Grid -->
+				<div class="grid items-end gap-4 md:grid-cols-2">
+					<fieldset class="fieldset">
+						<legend class="fieldset-legend">Name *</legend>
+						<label class="validator input w-full">
+							<input
+								type="text"
+								name="name"
+								placeholder="John Doe"
+								class="grow"
+								required
+								bind:value={name}
+							/>
+						</label>
+					</fieldset>
 
-				<!-- Email -->
-				<fieldset class="fieldset">
-					<legend class="fieldset-legend">Email</legend>
-					<label class="validator input w-full">
-						<input
-							type="email"
-							name="email"
-							placeholder="Email"
-							class="grow"
-							bind:value={email}
-						/>
-					</label>
-				</fieldset>
-
-				<!-- Phone -->
-				<fieldset class="fieldset">
-					<legend class="fieldset-legend">Phone</legend>
-					<label class="input w-full">
-						<input
-							type="tel"
-							name="phone"
-							placeholder="+1 (555) 123-4567"
-							class="grow"
-							bind:value={phone}
-						/>
-					</label>
-				</fieldset>
-
-				<!-- Company -->
-				<fieldset class="fieldset">
-					<legend class="fieldset-legend">Company</legend>
-					<label class="input w-full">
-						<input
-							type="text"
-							name="company"
-							placeholder="Acme Inc."
-							class="grow"
-							bind:value={company}
-						/>
-					</label>
-				</fieldset>
-
-				<!-- Title -->
-				<fieldset class="fieldset">
-					<legend class="fieldset-legend">Title</legend>
-					<label class="input w-full">
-						<input
-							type="text"
-							name="title"
-							placeholder="Senior Developer"
-							class="grow"
-							bind:value={title}
-						/>
-					</label>
-				</fieldset>
-
-				<!-- GitHub Username -->
-				<fieldset class="fieldset">
-					<legend class="fieldset-legend">GitHub Username</legend>
-					<label class="input w-full">
-						<input
-							type="text"
-							name="github_username"
-							placeholder="octocat"
-							class="grow"
-							bind:value={github_username}
-						/>
-					</label>
-					<p class="label">Enter username without @</p>
-				</fieldset>
-
-				<!-- VIP Checkbox -->
-				<div class="form-control">
-					<label class="label cursor-pointer justify-start gap-4">
-						<input
-							type="checkbox"
-							name="is_vip"
-							class="checkbox"
-							bind:checked={is_vip}
-						/>
-						<span class="label-text">Mark as VIP</span>
-					</label>
+					<div class="form-control pb-2">
+						<label class="label cursor-pointer justify-start gap-2">
+							<input
+								type="checkbox"
+								name="is_vip"
+								class="checkbox"
+								bind:checked={is_vip}
+							/>
+							<span class="label-text">Mark as VIP</span>
+						</label>
+					</div>
 				</div>
 
-				<!-- Birthday -->
-				<fieldset class="fieldset">
-					<legend class="fieldset-legend">Birthday</legend>
-					<label class="input w-full">
-						<input
-							type="date"
-							name="birthday"
-							class="grow"
-							bind:value={birthday}
-						/>
-					</label>
-				</fieldset>
+				<!-- Email & Phone - Two Column Grid -->
+				<div class="grid gap-4 md:grid-cols-2">
+					<fieldset class="fieldset">
+						<legend class="fieldset-legend">Email</legend>
+						<label class="validator input w-full">
+							<input
+								type="email"
+								name="email"
+								placeholder="Email"
+								class="grow"
+								bind:value={email}
+							/>
+						</label>
+					</fieldset>
 
-				<!-- Notes -->
+					<fieldset class="fieldset">
+						<legend class="fieldset-legend">Phone</legend>
+						<label class="input w-full">
+							<input
+								type="tel"
+								name="phone"
+								placeholder="+1 (555) 123-4567"
+								class="grow"
+								bind:value={phone}
+							/>
+						</label>
+					</fieldset>
+				</div>
+
+				<!-- Company & Title - Two Column Grid -->
+				<div class="grid gap-4 md:grid-cols-2">
+					<fieldset class="fieldset">
+						<legend class="fieldset-legend">Company</legend>
+						<label class="input w-full">
+							<input
+								type="text"
+								name="company"
+								placeholder="Acme Inc."
+								class="grow"
+								bind:value={company}
+							/>
+						</label>
+					</fieldset>
+
+					<fieldset class="fieldset">
+						<legend class="fieldset-legend">Title</legend>
+						<label class="input w-full">
+							<input
+								type="text"
+								name="title"
+								placeholder="Senior Developer"
+								class="grow"
+								bind:value={title}
+							/>
+						</label>
+					</fieldset>
+				</div>
+
+				<!-- GitHub Username & Birthday - Two Column Grid -->
+				<div class="grid gap-4 md:grid-cols-2">
+					<fieldset class="fieldset">
+						<legend class="fieldset-legend">GitHub Username</legend>
+						<label class="input w-full">
+							<input
+								type="text"
+								name="github_username"
+								placeholder="octocat"
+								class="grow"
+								bind:value={github_username}
+							/>
+						</label>
+						<p class="label">Enter username without @</p>
+					</fieldset>
+
+					<fieldset class="fieldset">
+						<legend class="fieldset-legend">Birthday</legend>
+						<label class="input w-full">
+							<input
+								type="date"
+								name="birthday"
+								class="grow"
+								bind:value={birthday}
+							/>
+						</label>
+					</fieldset>
+				</div>
+
+				<!-- Notes - Full Width -->
 				<fieldset class="fieldset">
 					<legend class="fieldset-legend">Notes</legend>
 					<textarea
