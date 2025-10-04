@@ -1,7 +1,7 @@
 import { query } from '$app/server';
 import {
 	get_current_user_id,
-	guarded_form,
+	guarded_command,
 } from '$lib/server/auth-helpers';
 import { db } from '$lib/server/db';
 import type { UserPreferences } from '$lib/types/db';
@@ -66,65 +66,88 @@ export const get_user_preferences = query(
 );
 
 /**
- * Update user preferences
+ * Update date format preference
  */
-export const update_preferences = guarded_form(
-	v.object({
-		date_format: v.union([
-			v.literal('YYYY-MM-DD'),
-			v.literal('MM/DD/YYYY'),
-			v.literal('DD/MM/YYYY'),
-		]),
-		time_format: v.union([v.literal('12h'), v.literal('24h')]),
-		default_contact_sort: v.union([
-			v.literal('name'),
-			v.literal('last_contacted'),
-			v.literal('recently_added'),
-			v.literal('company'),
-		]),
-		default_follow_up_days: v.pipe(
-			v.string(),
-			v.transform(Number),
-			v.number(),
-			v.minValue(1),
-			v.maxValue(90),
-		),
-		default_interaction_type: v.optional(
-			v.union([
-				v.literal('meeting'),
-				v.literal('call'),
-				v.literal('email'),
-				v.literal('message'),
-				v.literal(''),
-			]),
-		),
-	}),
-	async (data) => {
+export const update_date_format = guarded_command(
+	v.union([
+		v.literal('YYYY-MM-DD'),
+		v.literal('MM/DD/YYYY'),
+		v.literal('DD/MM/YYYY'),
+	]),
+	async (date_format) => {
 		const user_id = await get_current_user_id();
+		db.prepare(
+			'UPDATE user_preferences SET date_format = ?, updated_at = ? WHERE user_id = ?',
+		).run(date_format, Date.now(), user_id);
+		await get_user_preferences().refresh();
+	},
+);
 
-		const stmt = db.prepare(`
-      UPDATE user_preferences
-      SET
-        date_format = ?,
-        time_format = ?,
-        default_contact_sort = ?,
-        default_follow_up_days = ?,
-        default_interaction_type = ?,
-        updated_at = ?
-      WHERE user_id = ?
-    `);
+/**
+ * Update time format preference
+ */
+export const update_time_format = guarded_command(
+	v.union([v.literal('12h'), v.literal('24h')]),
+	async (time_format) => {
+		const user_id = await get_current_user_id();
+		db.prepare(
+			'UPDATE user_preferences SET time_format = ?, updated_at = ? WHERE user_id = ?',
+		).run(time_format, Date.now(), user_id);
+		await get_user_preferences().refresh();
+	},
+);
 
-		stmt.run(
-			data.date_format,
-			data.time_format,
-			data.default_contact_sort,
-			data.default_follow_up_days,
-			data.default_interaction_type || null,
-			Date.now(),
-			user_id,
-		);
+/**
+ * Update default contact sort preference
+ */
+export const update_default_contact_sort = guarded_command(
+	v.union([
+		v.literal('name'),
+		v.literal('last_contacted'),
+		v.literal('recently_added'),
+		v.literal('company'),
+	]),
+	async (sort) => {
+		const user_id = await get_current_user_id();
+		db.prepare(
+			'UPDATE user_preferences SET default_contact_sort = ?, updated_at = ? WHERE user_id = ?',
+		).run(sort, Date.now(), user_id);
+		await get_user_preferences().refresh();
+	},
+);
 
-		// Refresh the query to update the UI
+/**
+ * Update default follow-up days preference
+ */
+export const update_default_follow_up_days = guarded_command(
+	v.pipe(v.number(), v.minValue(1), v.maxValue(90)),
+	async (days) => {
+		const user_id = await get_current_user_id();
+		db.prepare(
+			'UPDATE user_preferences SET default_follow_up_days = ?, updated_at = ? WHERE user_id = ?',
+		).run(days, Date.now(), user_id);
+		await get_user_preferences().refresh();
+	},
+);
+
+/**
+ * Update default interaction type preference
+ */
+export const update_default_interaction_type = guarded_command(
+	v.optional(
+		v.union([
+			v.literal('meeting'),
+			v.literal('call'),
+			v.literal('email'),
+			v.literal('message'),
+			v.literal(''),
+		]),
+	),
+	async (type) => {
+		const user_id = await get_current_user_id();
+		db.prepare(
+			'UPDATE user_preferences SET default_interaction_type = ?, updated_at = ? WHERE user_id = ?',
+		).run(type || null, Date.now(), user_id);
 		await get_user_preferences().refresh();
 	},
 );
