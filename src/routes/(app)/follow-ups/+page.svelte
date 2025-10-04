@@ -1,4 +1,9 @@
 <script lang="ts">
+	import type { FollowUp } from '$lib/types/db';
+	import {
+		format_due_date,
+		is_overdue,
+	} from '$lib/utils/date-helpers';
 	import {
 		complete_follow_up,
 		delete_follow_up,
@@ -10,6 +15,9 @@
 		'all',
 	);
 
+	// Reactive key to trigger re-fetches after mutations
+	let refresh_key = $state(0);
+
 	const filter_options = [
 		'all',
 		'pending',
@@ -18,7 +26,7 @@
 	] as const;
 
 	function filter_follow_ups(
-		follow_ups: Array<any>,
+		follow_ups: Array<FollowUp & { contact_name: string }>,
 		filter_type: typeof filter,
 	) {
 		const now = Date.now();
@@ -34,59 +42,20 @@
 		return follow_ups;
 	}
 
-	function format_due_date(timestamp: number): string {
-		const date = new Date(timestamp);
-		const today = new Date();
-		const tomorrow = new Date(today);
-		tomorrow.setDate(tomorrow.getDate() + 1);
-
-		// Reset times to compare dates only
-		const date_only = new Date(
-			date.getFullYear(),
-			date.getMonth(),
-			date.getDate(),
-		);
-		const today_only = new Date(
-			today.getFullYear(),
-			today.getMonth(),
-			today.getDate(),
-		);
-		const tomorrow_only = new Date(
-			tomorrow.getFullYear(),
-			tomorrow.getMonth(),
-			tomorrow.getDate(),
-		);
-
-		if (date_only.getTime() === today_only.getTime()) {
-			return 'Today';
-		} else if (date_only.getTime() === tomorrow_only.getTime()) {
-			return 'Tomorrow';
-		} else if (date_only < today_only) {
-			return `Overdue: ${date.toLocaleDateString()}`;
-		} else {
-			return date.toLocaleDateString();
-		}
-	}
-
-	function is_overdue(timestamp: number): boolean {
-		return timestamp < Date.now();
-	}
-
 	async function handle_complete(id: string) {
 		await complete_follow_up(id);
-		// Trigger reactive update by reassigning filter
-		filter = filter;
+		refresh_key++;
 	}
 
 	async function handle_reopen(id: string) {
 		await reopen_follow_up(id);
-		filter = filter;
+		refresh_key++;
 	}
 
 	async function handle_delete(id: string) {
 		if (confirm('Are you sure you want to delete this follow-up?')) {
 			await delete_follow_up(id);
-			filter = filter;
+			refresh_key++;
 		}
 	}
 </script>
@@ -113,109 +82,112 @@
 	</div>
 
 	<!-- Follow-ups List -->
-	{#await get_all_follow_ups() then all_follow_ups}
-		{@const follow_ups = filter_follow_ups(all_follow_ups, filter)}
-		{#if follow_ups.length === 0}
-			<div class="py-12 text-center">
-				<p class="text-lg opacity-70">
-					{filter === 'all'
-						? 'No follow-ups yet.'
-						: `No ${filter} follow-ups found.`}
-				</p>
-				{#if filter === 'all'}
-					<a href="/follow-ups/new" class="btn mt-4 btn-primary">
-						Create Your First Follow-up
-					</a>
-				{/if}
-			</div>
-		{:else}
-			<div class="space-y-4">
-				{#each follow_ups as follow_up}
-					{@const overdue =
-						!follow_up.completed && is_overdue(follow_up.due_date)}
-					<div class="card bg-base-100 shadow-md">
-						<div class="card-body">
-							<div class="flex items-start justify-between gap-4">
-								<div class="flex-1">
-									<div class="mb-2 flex items-center gap-3">
-										<a
-											href="/contacts/{follow_up.contact_id}"
-											class="link text-lg font-semibold link-hover"
-										>
-											{follow_up.contact_name}
-										</a>
-										{#if follow_up.completed}
-											<span class="badge badge-success">
-												Completed
+	{#key refresh_key}
+		{#await get_all_follow_ups() then all_follow_ups}
+			{@const follow_ups = filter_follow_ups(all_follow_ups, filter)}
+			{#if follow_ups.length === 0}
+				<div class="py-12 text-center">
+					<p class="text-lg opacity-70">
+						{filter === 'all'
+							? 'No follow-ups yet.'
+							: `No ${filter} follow-ups found.`}
+					</p>
+					{#if filter === 'all'}
+						<a href="/follow-ups/new" class="btn mt-4 btn-primary">
+							Create Your First Follow-up
+						</a>
+					{/if}
+				</div>
+			{:else}
+				<div class="space-y-4">
+					{#each follow_ups as follow_up}
+						{@const overdue =
+							!follow_up.completed && is_overdue(follow_up.due_date)}
+						<div class="card bg-base-100 shadow-md">
+							<div class="card-body">
+								<div class="flex items-start justify-between gap-4">
+									<div class="flex-1">
+										<div class="mb-2 flex items-center gap-3">
+											<a
+												href="/contacts/{follow_up.contact_id}"
+												class="link text-lg font-semibold link-hover"
+											>
+												{follow_up.contact_name}
+											</a>
+											{#if follow_up.completed}
+												<span class="badge badge-success">
+													Completed
+												</span>
+											{:else if overdue}
+												<span class="badge badge-error">Overdue</span>
+											{:else}
+												<span class="badge badge-warning">
+													Pending
+												</span>
+											{/if}
+										</div>
+
+										<div class="mb-2">
+											<span
+												class="text-sm font-medium"
+												class:text-error={overdue &&
+													!follow_up.completed}
+											>
+												Due: {format_due_date(follow_up.due_date)}
 											</span>
-										{:else if overdue}
-											<span class="badge badge-error">Overdue</span>
-										{:else}
-											<span class="badge badge-warning">
-												Pending
-											</span>
+										</div>
+
+										{#if follow_up.note}
+											<p class="whitespace-pre-wrap opacity-80">
+												{follow_up.note}
+											</p>
+										{/if}
+
+										{#if follow_up.completed && follow_up.completed_at}
+											<p class="mt-2 text-sm opacity-60">
+												Completed: {new Date(
+													follow_up.completed_at,
+												).toLocaleDateString()}
+											</p>
 										{/if}
 									</div>
 
-									<div class="mb-2">
-										<span
-											class="text-sm font-medium"
-											class:text-error={overdue &&
-												!follow_up.completed}
+									<div class="flex flex-col gap-2">
+										{#if follow_up.completed}
+											<button
+												onclick={() => handle_reopen(follow_up.id)}
+												class="btn btn-outline btn-sm"
+											>
+												Reopen
+											</button>
+										{:else}
+											<button
+												onclick={() => handle_complete(follow_up.id)}
+												class="btn btn-sm btn-success"
+											>
+												Complete
+											</button>
+										{/if}
+										<button
+											onclick={() => handle_delete(follow_up.id)}
+											class="btn btn-outline btn-sm btn-error"
 										>
-											Due: {format_due_date(follow_up.due_date)}
-										</span>
+											Delete
+										</button>
 									</div>
-
-									{#if follow_up.note}
-										<p class="whitespace-pre-wrap opacity-80">
-											{follow_up.note}
-										</p>
-									{/if}
-
-									{#if follow_up.completed && follow_up.completed_at}
-										<p class="mt-2 text-sm opacity-60">
-											Completed: {new Date(
-												follow_up.completed_at,
-											).toLocaleDateString()}
-										</p>
-									{/if}
-								</div>
-
-								<div class="flex flex-col gap-2">
-									{#if follow_up.completed}
-										<button
-											onclick={() => handle_reopen(follow_up.id)}
-											class="btn btn-outline btn-sm"
-										>
-											Reopen
-										</button>
-									{:else}
-										<button
-											onclick={() => handle_complete(follow_up.id)}
-											class="btn btn-sm btn-success"
-										>
-											Complete
-										</button>
-									{/if}
-									<button
-										onclick={() => handle_delete(follow_up.id)}
-										class="btn btn-outline btn-sm btn-error"
-									>
-										Delete
-									</button>
 								</div>
 							</div>
 						</div>
-					</div>
-				{/each}
-			</div>
+					{/each}
+				</div>
 
-			<div class="mt-6 text-sm opacity-70">
-				Showing {follow_ups.length} follow-up{follow_ups.length !== 1
-					? 's'
-					: ''}
-			</div>
-		{/if}
-	{/await}
+				<div class="mt-6 text-sm opacity-70">
+					Showing {follow_ups.length} follow-up{follow_ups.length !==
+					1
+						? 's'
+						: ''}
+				</div>
+			{/if}
+		{/await}
+	{/key}
 </div>

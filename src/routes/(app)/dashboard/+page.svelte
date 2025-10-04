@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { format_due_date } from '$lib/utils/date-helpers';
 	import {
 		get_dashboard_activity,
 		get_dashboard_stats,
@@ -10,37 +11,6 @@
 		email: 'badge-accent',
 		message: 'badge-info',
 	};
-
-	function format_due_date(timestamp: number): string {
-		const date = new Date(timestamp);
-		const today = new Date();
-		const tomorrow = new Date(today);
-		tomorrow.setDate(tomorrow.getDate() + 1);
-
-		const date_only = new Date(
-			date.getFullYear(),
-			date.getMonth(),
-			date.getDate(),
-		);
-		const today_only = new Date(
-			today.getFullYear(),
-			today.getMonth(),
-			today.getDate(),
-		);
-		const tomorrow_only = new Date(
-			tomorrow.getFullYear(),
-			tomorrow.getMonth(),
-			tomorrow.getDate(),
-		);
-
-		if (date_only.getTime() === today_only.getTime()) {
-			return 'Today';
-		} else if (date_only.getTime() === tomorrow_only.getTime()) {
-			return 'Tomorrow';
-		} else {
-			return date.toLocaleDateString();
-		}
-	}
 </script>
 
 <div class="mx-auto max-w-6xl">
