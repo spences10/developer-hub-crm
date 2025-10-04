@@ -3,6 +3,7 @@
 /**
  * Format a timestamp as a human-readable due date
  * Returns "Today", "Tomorrow", "Overdue: MM/DD/YYYY", or MM/DD/YYYY
+ * @param timestamp - Unix timestamp in milliseconds
  */
 export function format_due_date(timestamp: number): string {
 	const date = new Date(timestamp);
@@ -40,6 +41,7 @@ export function format_due_date(timestamp: number): string {
 
 /**
  * Check if a timestamp is in the past
+ * @param timestamp - Unix timestamp in milliseconds
  */
 export function is_overdue(timestamp: number): boolean {
 	return timestamp < Date.now();

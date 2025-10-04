@@ -80,7 +80,7 @@ export const get_upcoming_follow_ups = query(
 		const user_id = await get_current_user_id();
 
 		const now = Date.now();
-		const future = now + days * 24 * 60 * 60 * 1000; // Convert days to milliseconds
+		const future = now + days * 24 * 60 * 60 * 1000; // Add days in milliseconds
 
 		const stmt = db.prepare(`
       SELECT
