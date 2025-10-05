@@ -3,6 +3,7 @@
 	import FollowUpCard from '$lib/components/follow-up-card.svelte';
 	import InteractionCard from '$lib/components/interaction-card.svelte';
 	import StatCard from '$lib/components/stat-card.svelte';
+	import { Warning } from '$lib/icons';
 	import { get_user_preferences } from '../settings/settings.remote';
 	import {
 		get_dashboard_activity,
@@ -65,15 +66,18 @@
 		<div class="grid gap-6 lg:grid-cols-2">
 			<!-- Overdue Follow-ups (if any) -->
 			{#if activity.overdue_follow_ups.length > 0}
-				<div class="card bg-error/10 shadow-xl lg:col-span-2">
+				<div class="card bg-warning/30 shadow-xl lg:col-span-2">
 					<div class="card-body">
 						<div class="mb-4 flex items-center justify-between">
-							<h2 class="card-title text-error">
-								⚠️ Overdue Follow-ups
+							<h2
+								class="card-title flex items-center gap-2 text-warning"
+							>
+								<Warning size="20px" />
+								Overdue Follow-ups
 							</h2>
 							<a
 								href="/follow-ups?filter=overdue"
-								class="link link-error"
+								class="link link-warning"
 							>
 								View all
 							</a>

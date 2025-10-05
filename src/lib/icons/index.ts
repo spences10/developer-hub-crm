@@ -6,3 +6,4 @@ export { default as Globe } from './globe.svelte';
 export { default as Link } from './link.svelte';
 export { default as LinkedIn } from './linkedin.svelte';
 export { default as Twitter } from './twitter.svelte';
+export { default as Warning } from './warning.svelte';
