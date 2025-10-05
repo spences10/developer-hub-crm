@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { type_badges } from '$lib/constants/badges';
 	import {
 		format_date,
 		format_due_date,
@@ -8,13 +9,6 @@
 		get_dashboard_activity,
 		get_dashboard_stats,
 	} from './dashboard.remote';
-
-	const type_badges: Record<string, string> = {
-		meeting: 'badge-primary',
-		call: 'badge-secondary',
-		email: 'badge-accent',
-		message: 'badge-info',
-	};
 </script>
 
 <div class="mx-auto max-w-6xl">

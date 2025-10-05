@@ -216,7 +216,9 @@ export const create_contact = guarded_form(
 				}
 			} catch (e) {
 				console.error('Failed to parse social_links JSON:', e);
-				throw new Error('Invalid social links format. Please check your input.');
+				throw new Error(
+					'Invalid social links format. Please check your input.',
+				);
 			}
 		}
 

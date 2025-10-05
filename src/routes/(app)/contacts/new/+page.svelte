@@ -1,5 +1,6 @@
 <script lang="ts">
 	import ContactFormFields from '$lib/components/contact-form-fields.svelte';
+	import SocialLinkIcon from '$lib/components/social-link.svelte';
 	import {
 		create_contact,
 		fetch_github_data,
@@ -147,17 +148,7 @@
 							{#each pending_social_links as link, i}
 								<div class="flex items-center justify-between gap-2">
 									<div class="flex items-center gap-2">
-										{#if link.platform === 'twitter'}
-											𝕏
-										{:else if link.platform === 'bluesky'}
-											🦋
-										{:else if link.platform === 'linkedin'}
-											in
-										{:else if link.platform === 'website'}
-											🌐
-										{:else}
-											🔗
-										{/if}
+										<SocialLinkIcon platform={link.platform} />
 										<span class="text-sm font-medium">
 											{link.platform}:
 										</span>

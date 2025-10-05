@@ -26,7 +26,4 @@ export const theme: Handle = async ({ event, resolve }) => {
 	});
 };
 
-export const handle = sequence(
-	sync_on_startup,
-	theme,
-);
+export const handle = sequence(sync_on_startup, theme);

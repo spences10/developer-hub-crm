@@ -1,6 +1,8 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
+	import { type_badges } from '$lib/constants/badges';
+	import SocialLinkIcon from '$lib/components/social-link.svelte';
 	import {
 		format_date,
 		format_due_date,
@@ -21,13 +23,6 @@
 	// Reactive key to trigger re-fetches after mutations
 	let refresh_key = $state(0);
 	let deleting = $state(false);
-
-	const type_badges: Record<string, string> = {
-		meeting: 'badge-primary',
-		call: 'badge-secondary',
-		email: 'badge-accent',
-		message: 'badge-info',
-	};
 
 	async function handle_delete() {
 		deleting = true;
@@ -179,17 +174,7 @@
 													rel="noopener noreferrer"
 													class="badge gap-1 badge-outline badge-lg"
 												>
-													{#if link.platform === 'twitter'}
-														𝕏
-													{:else if link.platform === 'bluesky'}
-														🦋
-													{:else if link.platform === 'linkedin'}
-														in
-													{:else if link.platform === 'website'}
-														🌐
-													{:else}
-														🔗
-													{/if}
+													<SocialLinkIcon platform={link.platform} />
 													{link.platform}
 												</a>
 											{/each}
