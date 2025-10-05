@@ -1,4 +1,4 @@
-# Dev Hub CRM
+# Devhub CRM
 
 A modern CRM for developers to manage professional relationships and
 networking.
