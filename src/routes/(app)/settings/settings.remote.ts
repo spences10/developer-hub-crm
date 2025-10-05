@@ -79,7 +79,6 @@ export const update_date_format = guarded_command(
 		db.prepare(
 			'UPDATE user_preferences SET date_format = ?, updated_at = ? WHERE user_id = ?',
 		).run(date_format, Date.now(), user_id);
-		await get_user_preferences().refresh();
 
 		return { success: true };
 	},
@@ -95,7 +94,6 @@ export const update_time_format = guarded_command(
 		db.prepare(
 			'UPDATE user_preferences SET time_format = ?, updated_at = ? WHERE user_id = ?',
 		).run(time_format, Date.now(), user_id);
-		await get_user_preferences().refresh();
 
 		return { success: true };
 	},
@@ -116,7 +114,6 @@ export const update_default_contact_sort = guarded_command(
 		db.prepare(
 			'UPDATE user_preferences SET default_contact_sort = ?, updated_at = ? WHERE user_id = ?',
 		).run(sort, Date.now(), user_id);
-		await get_user_preferences().refresh();
 
 		return { success: true };
 	},
@@ -132,7 +129,6 @@ export const update_default_follow_up_days = guarded_command(
 		db.prepare(
 			'UPDATE user_preferences SET default_follow_up_days = ?, updated_at = ? WHERE user_id = ?',
 		).run(days, Date.now(), user_id);
-		await get_user_preferences().refresh();
 
 		return { success: true };
 	},
@@ -156,7 +152,6 @@ export const update_default_interaction_type = guarded_command(
 		db.prepare(
 			'UPDATE user_preferences SET default_interaction_type = ?, updated_at = ? WHERE user_id = ?',
 		).run(type || null, Date.now(), user_id);
-		await get_user_preferences().refresh();
 
 		return { success: true };
 	},

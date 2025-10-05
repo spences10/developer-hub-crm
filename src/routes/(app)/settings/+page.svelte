@@ -30,7 +30,8 @@
 	async function save_with_indicator(fn: () => Promise<void>) {
 		saving = true;
 		await fn();
-		setTimeout(() => (saving = false), 500); // Show "Saved" briefly
+		await preferences.refresh();
+		setTimeout(() => (saving = false), 500);
 	}
 
 	function set_theme(event: Event) {
@@ -151,7 +152,7 @@
 		<div class="flex justify-center">
 			<span class="loading loading-lg loading-spinner"></span>
 		</div>
-	{:then preferences}
+	{:then preferences_data}
 		<div class="grid grid-cols-1 gap-6 md:grid-cols-2">
 			<!-- Theme Selector -->
 			<div class="card bg-base-100 shadow-xl">
@@ -202,7 +203,7 @@
 				'Choose how dates are displayed throughout the application',
 				'date_format',
 				date_formats,
-				preferences.date_format,
+				preferences_data.date_format,
 				update_date_format,
 			)}
 
@@ -211,7 +212,7 @@
 				'Choose how times are displayed',
 				'time_format',
 				time_formats,
-				preferences.time_format,
+				preferences_data.time_format,
 				update_time_format,
 			)}
 
@@ -220,7 +221,7 @@
 				'How contacts are sorted by default',
 				'default_contact_sort',
 				contact_sort_options,
-				preferences.default_contact_sort,
+				preferences_data.default_contact_sort,
 				update_default_contact_sort,
 			)}
 
@@ -239,7 +240,7 @@
 							name="default_follow_up_days"
 							min="1"
 							max="90"
-							value={preferences.default_follow_up_days}
+							value={preferences_data.default_follow_up_days}
 							class="input-bordered input w-full max-w-xs"
 							onchange={(e) =>
 								save_with_indicator(() =>
@@ -266,7 +267,7 @@
 						<select
 							name="default_interaction_type"
 							class="select-bordered select w-full max-w-xs"
-							value={preferences.default_interaction_type || ''}
+							value={preferences_data.default_interaction_type || ''}
 							onchange={(e) =>
 								save_with_indicator(() =>
 									update_default_interaction_type(
