@@ -1,13 +1,11 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
-	import { type_badges } from '$lib/constants/badges';
+	import EmptyState from '$lib/components/empty-state.svelte';
+	import FollowUpCard from '$lib/components/follow-up-card.svelte';
+	import InteractionCard from '$lib/components/interaction-card.svelte';
 	import SocialLinkIcon from '$lib/components/social-link.svelte';
-	import {
-		format_date,
-		format_due_date,
-		is_overdue,
-	} from '$lib/utils/date-helpers';
+	import { format_date } from '$lib/utils/date-helpers';
 	import {
 		complete_follow_up,
 		delete_follow_up,
@@ -261,62 +259,17 @@
 									(f) => !f.completed,
 								)}
 								{#if pending_follow_ups.length === 0}
-									<p class="py-4 text-center opacity-70">
-										No pending follow-ups.
-									</p>
+									<EmptyState message="No pending follow-ups." />
 								{:else}
 									<div class="space-y-3">
 										{#each pending_follow_ups as follow_up}
-											{@const overdue = is_overdue(
-												follow_up.due_date,
-											)}
-											<div class="rounded-box bg-base-200 p-4">
-												<div
-													class="mb-2 flex items-center justify-between"
-												>
-													<div>
-														<span
-															class="text-sm font-medium"
-															class:text-error={overdue}
-														>
-															{format_due_date(
-																follow_up.due_date,
-																preferences.date_format,
-															)}
-														</span>
-														{#if overdue}
-															<span
-																class="ml-2 badge badge-sm badge-error"
-															>
-																Overdue
-															</span>
-														{/if}
-													</div>
-													<div class="flex gap-2">
-														<button
-															onclick={() =>
-																handle_complete_follow_up(
-																	follow_up.id,
-																)}
-															class="btn btn-xs btn-success"
-														>
-															Complete
-														</button>
-														<button
-															onclick={() =>
-																handle_delete_follow_up(follow_up.id)}
-															class="btn btn-outline btn-xs btn-error"
-														>
-															Delete
-														</button>
-													</div>
-												</div>
-												{#if follow_up.note}
-													<p class="text-sm whitespace-pre-wrap">
-														{follow_up.note}
-													</p>
-												{/if}
-											</div>
+											<FollowUpCard
+												{follow_up}
+												date_format={preferences.date_format}
+												variant="full"
+												on_complete={handle_complete_follow_up}
+												on_delete={handle_delete_follow_up}
+											/>
 										{/each}
 									</div>
 
@@ -349,34 +302,15 @@
 						{#if contact_id}
 							{#await get_interactions(contact_id) then interactions}
 								{#if interactions.length === 0}
-									<p class="py-4 text-center opacity-70">
-										No interactions logged yet.
-									</p>
+									<EmptyState message="No interactions logged yet." />
 								{:else}
 									<div class="space-y-3">
 										{#each interactions as interaction}
-											<div class="rounded-box bg-base-200 p-4">
-												<div class="mb-2 flex items-center gap-2">
-													<span
-														class="badge {type_badges[
-															interaction.type
-														]}"
-													>
-														{interaction.type}
-													</span>
-													<span class="text-sm opacity-60">
-														{format_date(
-															new Date(interaction.created_at),
-															preferences.date_format,
-														)}
-													</span>
-												</div>
-												{#if interaction.note}
-													<p class="text-sm whitespace-pre-wrap">
-														{interaction.note}
-													</p>
-												{/if}
-											</div>
+											<InteractionCard
+												{interaction}
+												date_format={preferences.date_format}
+												variant="full"
+											/>
 										{/each}
 									</div>
 

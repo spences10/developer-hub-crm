@@ -1,4 +1,8 @@
 <script lang="ts">
+	import EmptyState from '$lib/components/empty-state.svelte';
+	import FilterTabs from '$lib/components/filter-tabs.svelte';
+	import ItemCount from '$lib/components/item-count.svelte';
+	import PageHeaderWithAction from '$lib/components/page-header-with-action.svelte';
 	import { format_date } from '$lib/utils/date-helpers';
 	import { get_user_preferences } from '../settings/settings.remote';
 	import { get_all_interactions } from './interactions.remote';
@@ -24,25 +28,18 @@
 </script>
 
 <div class="mx-auto max-w-6xl">
-	<div class="mb-8 flex items-center justify-between">
-		<h1 class="text-3xl font-bold">Interactions</h1>
+	<PageHeaderWithAction title="Interactions">
 		<a href="/interactions/new" class="btn btn-primary">
 			New Interaction
 		</a>
-	</div>
+	</PageHeaderWithAction>
 
 	<!-- Filter Tabs -->
-	<div class="tabs-boxed mb-6 tabs">
-		{#each interaction_types as type}
-			<button
-				class="tab"
-				class:tab-active={filter === type}
-				onclick={() => (filter = type)}
-			>
-				{type.charAt(0).toUpperCase() + type.slice(1)}
-			</button>
-		{/each}
-	</div>
+	<FilterTabs
+		options={interaction_types}
+		active_filter={filter}
+		on_filter_change={(f) => (filter = f)}
+	/>
 
 	<!-- Interactions List -->
 	{#await Promise.all( [get_all_interactions(), get_user_preferences()], ) then [all_interactions, preferences]}
@@ -52,18 +49,17 @@
 				: all_interactions.filter((i) => i.type === filter)}
 
 		{#if interactions.length === 0}
-			<div class="py-12 text-center">
-				<p class="text-lg opacity-70">
-					{filter === 'all'
-						? 'No interactions yet.'
-						: `No ${filter} interactions found.`}
-				</p>
-				{#if filter === 'all'}
-					<a href="/interactions/new" class="btn mt-4 btn-primary">
-						Log Your First Interaction
-					</a>
-				{/if}
-			</div>
+			<EmptyState
+				message={filter === 'all'
+					? 'No interactions yet.'
+					: `No ${filter} interactions found.`}
+				action_href={filter === 'all'
+					? '/interactions/new'
+					: undefined}
+				action_text={filter === 'all'
+					? 'Log Your First Interaction'
+					: undefined}
+			/>
 		{:else}
 			<div class="space-y-4">
 				{#each interactions as interaction}
@@ -102,12 +98,10 @@
 				{/each}
 			</div>
 
-			<div class="mt-6 text-sm opacity-70">
-				Showing {interactions.length} interaction{interactions.length !==
-				1
-					? 's'
-					: ''}
-			</div>
+			<ItemCount
+				count={interactions.length}
+				item_name="interaction"
+			/>
 		{/if}
 	{/await}
 </div>

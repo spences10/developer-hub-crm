@@ -1,0 +1,91 @@
+<script lang="ts">
+	import { type_badges } from '$lib/constants/badges';
+	import type { Interaction } from '$lib/types/db';
+	import {
+		type DateFormat,
+		format_date,
+	} from '$lib/utils/date-helpers';
+
+	interface Props {
+		interaction: Interaction & {
+			contact_name?: string;
+			contact_id?: string;
+		};
+		date_format: DateFormat;
+		variant?: 'full' | 'compact';
+	}
+
+	let {
+		interaction,
+		date_format,
+		variant = 'full',
+	}: Props = $props();
+</script>
+
+{#if variant === 'compact'}
+	<!-- Compact version (used in dashboard) -->
+	{#if interaction.contact_id}
+		<a
+			href="/contacts/{interaction.contact_id}"
+			class="block rounded-box bg-base-200 p-3 transition hover:bg-base-300"
+		>
+			<div class="mb-1 flex items-center gap-2">
+				{#if interaction.contact_name}
+					<p class="font-semibold">
+						{interaction.contact_name}
+					</p>
+				{/if}
+				<span class="badge badge-sm {type_badges[interaction.type]}">
+					{interaction.type}
+				</span>
+			</div>
+			<p class="text-xs opacity-60">
+				{format_date(new Date(interaction.created_at), date_format)}
+			</p>
+			{#if interaction.note}
+				<p class="text-sm opacity-70">
+					{interaction.note.substring(0, 50)}{interaction.note
+						.length > 50
+						? '...'
+						: ''}
+				</p>
+			{/if}
+		</a>
+	{:else}
+		<div class="block rounded-box bg-base-200 p-3">
+			<div class="mb-1 flex items-center gap-2">
+				<span class="badge badge-sm {type_badges[interaction.type]}">
+					{interaction.type}
+				</span>
+			</div>
+			<p class="text-xs opacity-60">
+				{format_date(new Date(interaction.created_at), date_format)}
+			</p>
+			{#if interaction.note}
+				<p class="text-sm opacity-70">
+					{interaction.note.substring(0, 50)}{interaction.note
+						.length > 50
+						? '...'
+						: ''}
+				</p>
+			{/if}
+		</div>
+	{/if}
+{:else}
+	<!-- Full version (used in interactions list and contact detail) -->
+	<div class="rounded-box bg-base-200 p-4">
+		<div class="mb-2 flex items-center gap-2">
+			<span class="badge {type_badges[interaction.type]}">
+				{interaction.type}
+			</span>
+			<span class="text-sm opacity-60">
+				{format_date(new Date(interaction.created_at), date_format)}
+			</span>
+		</div>
+		{#if interaction.note}
+			<p class="text-sm whitespace-pre-wrap">
+				{interaction.note}
+			</p>
+		{/if}
+	</div>
+{/if}

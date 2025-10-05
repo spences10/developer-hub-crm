@@ -1,4 +1,8 @@
 <script lang="ts">
+	import EmptyState from '$lib/components/empty-state.svelte';
+	import ItemCount from '$lib/components/item-count.svelte';
+	import PageHeaderWithAction from '$lib/components/page-header-with-action.svelte';
+	import SortableTableHeader from '$lib/components/sortable-table-header.svelte';
 	import type { Contact } from '$lib/types/db';
 	import { get_user_preferences } from '../settings/settings.remote';
 	import { get_contacts } from './contacts.remote';
@@ -87,10 +91,9 @@
 </script>
 
 <div class="mx-auto max-w-6xl">
-	<div class="mb-8 flex items-center justify-between">
-		<h1 class="text-3xl font-bold">Contacts</h1>
+	<PageHeaderWithAction title="Contacts">
 		<a href="/contacts/new" class="btn btn-primary">New Contact</a>
-	</div>
+	</PageHeaderWithAction>
 
 	<!-- Search Bar -->
 	<div class="mb-6">
@@ -118,98 +121,53 @@
 		{/if}
 		{@const sorted_contacts = sort_contacts(contacts)}
 		{#if contacts.length === 0}
-			<div class="py-12 text-center">
-				<p class="text-lg opacity-70">
-					{search
-						? 'No contacts found matching your search.'
-						: 'No contacts yet.'}
-				</p>
-				{#if !search}
-					<a href="/contacts/new" class="btn mt-4 btn-primary">
-						Add Your First Contact
-					</a>
-				{/if}
-			</div>
+			<EmptyState
+				message={search
+					? 'No contacts found matching your search.'
+					: 'No contacts yet.'}
+				action_href={!search ? '/contacts/new' : undefined}
+				action_text={!search ? 'Add Your First Contact' : undefined}
+			/>
 		{:else}
 			<div class="overflow-x-auto">
 				<table class="table">
 					<thead>
 						<tr>
-							<th>
-								<button
-									onclick={() => toggle_sort('name')}
-									class="flex items-center gap-1 hover:underline"
-								>
-									Name
-									{#if current_sort === 'name'}
-										{#if sort_direction === 'asc'}
-											↑
-										{:else}
-											↓
-										{/if}
-									{/if}
-								</button>
-							</th>
-							<th>
-								<button
-									onclick={() => toggle_sort('email')}
-									class="flex items-center gap-1 hover:underline"
-								>
-									Email
-									{#if current_sort === 'email'}
-										{#if sort_direction === 'asc'}
-											↑
-										{:else}
-											↓
-										{/if}
-									{/if}
-								</button>
-							</th>
-							<th>
-								<button
-									onclick={() => toggle_sort('company')}
-									class="flex items-center gap-1 hover:underline"
-								>
-									Company
-									{#if current_sort === 'company'}
-										{#if sort_direction === 'asc'}
-											↑
-										{:else}
-											↓
-										{/if}
-									{/if}
-								</button>
-							</th>
-							<th>
-								<button
-									onclick={() => toggle_sort('github')}
-									class="flex items-center gap-1 hover:underline"
-								>
-									GitHub
-									{#if current_sort === 'github'}
-										{#if sort_direction === 'asc'}
-											↑
-										{:else}
-											↓
-										{/if}
-									{/if}
-								</button>
-							</th>
-							<th>
-								<button
-									onclick={() => toggle_sort('status')}
-									class="flex items-center gap-1 hover:underline"
-								>
-									Status
-									{#if current_sort === 'status'}
-										{#if sort_direction === 'asc'}
-											↑
-										{:else}
-											↓
-										{/if}
-									{/if}
-								</button>
-							</th>
+							<SortableTableHeader
+								label="Name"
+								column="name"
+								{current_sort}
+								{sort_direction}
+								on_toggle={toggle_sort}
+							/>
+							<SortableTableHeader
+								label="Email"
+								column="email"
+								{current_sort}
+								{sort_direction}
+								on_toggle={toggle_sort}
+							/>
+							<SortableTableHeader
+								label="Company"
+								column="company"
+								{current_sort}
+								{sort_direction}
+								on_toggle={toggle_sort}
+							/>
+							<SortableTableHeader
+								label="GitHub"
+								column="github"
+								{current_sort}
+								{sort_direction}
+								on_toggle={toggle_sort}
+							/>
+							<SortableTableHeader
+								label="Status"
+								column="status"
+								{current_sort}
+								{sort_direction}
+								on_toggle={toggle_sort}
+							/>
 						</tr>
 					</thead>
 					<tbody>
@@ -250,11 +208,7 @@
 				</table>
 			</div>
 
-			<div class="mt-4 text-sm opacity-70">
-				Showing {contacts.length} contact{contacts.length !== 1
-					? 's'
-					: ''}
-			</div>
+			<ItemCount count={contacts.length} item_name="contact" />
 		{/if}
 	{/await}
 </div>

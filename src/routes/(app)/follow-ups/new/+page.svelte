@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { page } from '$app/state';
+	import PageHeader from '$lib/components/page-header.svelte';
 	import { get_contacts } from '../../contacts/contacts.remote';
 	import { get_user_preferences } from '../../settings/settings.remote';
 	import { create_follow_up } from '../follow-ups.remote';
@@ -32,13 +33,11 @@
 </script>
 
 <div class="mx-auto max-w-2xl">
-	<div class="mb-8">
-		<a href="/follow-ups" class="link link-hover">
-			&larr; Back to Follow-ups
-		</a>
-	</div>
-
-	<h1 class="mb-8 text-3xl font-bold">Create New Follow-up</h1>
+	<PageHeader
+		back_href="/follow-ups"
+		back_text="Back to Follow-ups"
+		title="Create New Follow-up"
+	/>
 
 	{#await get_user_preferences() then preferences}
 		{@const default_values = get_default_date(

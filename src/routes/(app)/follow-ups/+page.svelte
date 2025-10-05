@@ -1,4 +1,8 @@
 <script lang="ts">
+	import EmptyState from '$lib/components/empty-state.svelte';
+	import FilterTabs from '$lib/components/filter-tabs.svelte';
+	import ItemCount from '$lib/components/item-count.svelte';
+	import PageHeaderWithAction from '$lib/components/page-header-with-action.svelte';
 	import type { FollowUp } from '$lib/types/db';
 	import {
 		format_date,
@@ -61,43 +65,35 @@
 </script>
 
 <div class="mx-auto max-w-6xl">
-	<div class="mb-8 flex items-center justify-between">
-		<h1 class="text-3xl font-bold">Follow-ups</h1>
+	<PageHeaderWithAction title="Follow-ups">
 		<a href="/follow-ups/new" class="btn btn-primary">
 			New Follow-up
 		</a>
-	</div>
+	</PageHeaderWithAction>
 
 	<!-- Filter Tabs -->
-	<div class="tabs-boxed mb-6 tabs">
-		{#each filter_options as option}
-			<button
-				class="tab"
-				class:tab-active={filter === option}
-				onclick={() => (filter = option)}
-			>
-				{option.charAt(0).toUpperCase() + option.slice(1)}
-			</button>
-		{/each}
-	</div>
+	<FilterTabs
+		options={filter_options}
+		active_filter={filter}
+		on_filter_change={(f) => (filter = f)}
+	/>
 
 	<!-- Follow-ups List -->
 	{#key refresh_key}
 		{#await Promise.all( [get_all_follow_ups(), get_user_preferences()], ) then [all_follow_ups, preferences]}
 			{@const follow_ups = filter_follow_ups(all_follow_ups, filter)}
 			{#if follow_ups.length === 0}
-				<div class="py-12 text-center">
-					<p class="text-lg opacity-70">
-						{filter === 'all'
-							? 'No follow-ups yet.'
-							: `No ${filter} follow-ups found.`}
-					</p>
-					{#if filter === 'all'}
-						<a href="/follow-ups/new" class="btn mt-4 btn-primary">
-							Create Your First Follow-up
-						</a>
-					{/if}
-				</div>
+				<EmptyState
+					message={filter === 'all'
+						? 'No follow-ups yet.'
+						: `No ${filter} follow-ups found.`}
+					action_href={filter === 'all'
+						? '/follow-ups/new'
+						: undefined}
+					action_text={filter === 'all'
+						? 'Create Your First Follow-up'
+						: undefined}
+				/>
 			{:else}
 				<div class="space-y-4">
 					{#each follow_ups as follow_up}
@@ -185,12 +181,7 @@
 					{/each}
 				</div>
 
-				<div class="mt-6 text-sm opacity-70">
-					Showing {follow_ups.length} follow-up{follow_ups.length !==
-					1
-						? 's'
-						: ''}
-				</div>
+				<ItemCount count={follow_ups.length} item_name="follow-up" />
 			{/if}
 		{/await}
 	{/key}

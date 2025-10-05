@@ -2,6 +2,7 @@
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
 	import ContactFormFields from '$lib/components/contact-form-fields.svelte';
+	import PageHeader from '$lib/components/page-header.svelte';
 	import SocialLinkIcon from '$lib/components/social-link.svelte';
 	import {
 		add_social_link,
@@ -93,12 +94,11 @@
 </script>
 
 <div class="mx-auto max-w-2xl">
-	<div class="mb-8">
-		<a href="/contacts/{contact_id}" class="link link-hover">
-			&larr; Back to Contact
-		</a>
-		<h1 class="mt-4 text-3xl font-bold">Edit Contact</h1>
-	</div>
+	<PageHeader
+		back_href="/contacts/{contact_id}"
+		back_text="Back to Contact"
+		title="Edit Contact"
+	/>
 
 	{#if contact_id}
 		{#key refresh_key}

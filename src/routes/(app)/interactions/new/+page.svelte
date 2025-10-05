@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { page } from '$app/state';
+	import PageHeader from '$lib/components/page-header.svelte';
 	import { get_contacts } from '../../contacts/contacts.remote';
 	import { get_user_preferences } from '../../settings/settings.remote';
 	import { create_interaction } from '../interactions.remote';
@@ -10,13 +11,11 @@
 </script>
 
 <div class="mx-auto max-w-2xl">
-	<div class="mb-8">
-		<a href="/interactions" class="link link-hover">
-			&larr; Back to Interactions
-		</a>
-	</div>
-
-	<h1 class="mb-8 text-3xl font-bold">Log New Interaction</h1>
+	<PageHeader
+		back_href="/interactions"
+		back_text="Back to Interactions"
+		title="Log New Interaction"
+	/>
 
 	{#await get_user_preferences() then preferences}
 		<form {...create_interaction} class="card bg-base-100 shadow-xl">

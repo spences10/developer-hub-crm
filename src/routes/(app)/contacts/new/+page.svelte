@@ -1,6 +1,9 @@
 <script lang="ts">
 	import ContactFormFields from '$lib/components/contact-form-fields.svelte';
-	import SocialLinkIcon from '$lib/components/social-link.svelte';
+	import FormActions from '$lib/components/form-actions.svelte';
+	import LoadingButton from '$lib/components/loading-button.svelte';
+	import PageHeader from '$lib/components/page-header.svelte';
+	import SocialLinksList from '$lib/components/social-links-list.svelte';
 	import {
 		create_contact,
 		fetch_github_data,
@@ -60,20 +63,19 @@
 		}
 	}
 
-	function remove_social_link(index: number) {
+	function remove_social_link(id_or_index: string | number) {
 		pending_social_links = pending_social_links.filter(
-			(_, i) => i !== index,
+			(_, i) => i !== id_or_index,
 		);
 	}
 </script>
 
 <div class="mx-auto max-w-2xl">
-	<div class="mb-8">
-		<a href="/contacts" class="link link-hover">
-			&larr; Back to Contacts
-		</a>
-		<h1 class="mt-4 text-3xl font-bold">New Contact</h1>
-	</div>
+	<PageHeader
+		back_href="/contacts"
+		back_text="Back to Contacts"
+		title="New Contact"
+	/>
 
 	<!-- GitHub Import Section -->
 	<div class="card mb-6 bg-primary/5 shadow-md">
@@ -94,18 +96,15 @@
 						disabled={loading}
 					/>
 				</label>
-				<button
-					class="btn btn-primary"
+				<LoadingButton
+					{loading}
+					disabled={!github_input.trim()}
+					class_names="btn btn-primary"
+					loading_text="Fetching..."
 					onclick={handle_github_import}
-					disabled={loading || !github_input.trim()}
 				>
-					{#if loading}
-						<span class="loading loading-sm loading-spinner"></span>
-						Fetching...
-					{:else}
-						Fetch Profile
-					{/if}
-				</button>
+					Fetch Profile
+				</LoadingButton>
 			</div>
 			{#if error}
 				<div class="mt-2 alert alert-error">
@@ -138,49 +137,16 @@
 					{notes}
 				/>
 
-				<!-- Social Links from GitHub Import -->
-				{#if pending_social_links.length > 0}
-					<div class="rounded-box bg-base-200 p-4">
-						<p class="mb-3 text-sm font-medium">
-							Social Links (from GitHub)
-						</p>
-						<div class="space-y-2">
-							{#each pending_social_links as link, i}
-								<div class="flex items-center justify-between gap-2">
-									<div class="flex items-center gap-2">
-										<SocialLinkIcon platform={link.platform} />
-										<span class="text-sm font-medium">
-											{link.platform}:
-										</span>
-										<a
-											href={link.url}
-											target="_blank"
-											rel="noopener noreferrer"
-											class="link text-sm link-primary"
-										>
-											{link.url}
-										</a>
-									</div>
-									<button
-										type="button"
-										onclick={() => remove_social_link(i)}
-										class="btn btn-ghost btn-xs"
-									>
-										Remove
-									</button>
-								</div>
-							{/each}
-						</div>
-					</div>
-				{/if}
+				<SocialLinksList
+					links={pending_social_links}
+					editable
+					on_remove={remove_social_link}
+				/>
 
-				<!-- Submit Button -->
-				<div class="flex gap-4">
-					<button class="btn flex-1 btn-primary" type="submit">
-						Create Contact
-					</button>
-					<a href="/contacts" class="btn btn-ghost">Cancel</a>
-				</div>
+				<FormActions
+					submit_text="Create Contact"
+					cancel_href="/contacts"
+				/>
 			</form>
 		</div>
 	</div>
