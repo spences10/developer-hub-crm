@@ -1,22 +1,39 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
+	import ActivityCard from '$lib/components/activity-card.svelte';
 	import ConfirmDialog from '$lib/components/confirm-dialog.svelte';
 	import EmptyState from '$lib/components/empty-state.svelte';
-	import FollowUpCard from '$lib/components/follow-up-card.svelte';
-	import InteractionCard from '$lib/components/interaction-card.svelte';
 	import PageHeaderWithAction from '$lib/components/page-header-with-action.svelte';
 	import PageNav from '$lib/components/page-nav.svelte';
 	import SocialLinkIcon from '$lib/components/social-link.svelte';
-	import { Edit, Trash } from '$lib/icons';
-	import { format_date } from '$lib/utils/date-helpers';
+	import {
+		Calendar,
+		Call,
+		Check,
+		CircleBack,
+		Edit,
+		Email,
+		Message,
+		Trash,
+	} from '$lib/icons';
+	import {
+		format_date,
+		format_due_date,
+		is_overdue,
+	} from '$lib/utils/date-helpers';
 	import {
 		complete_follow_up,
 		delete_follow_up,
 		get_contact_follow_ups,
 		reopen_follow_up,
+		update_follow_up,
 	} from '../../follow-ups/follow-ups.remote';
-	import { get_interactions } from '../../interactions/interactions.remote';
+	import {
+		delete_interaction,
+		get_interactions,
+		update_interaction,
+	} from '../../interactions/interactions.remote';
 	import { get_user_preferences } from '../../settings/settings.remote';
 	import { delete_contact, get_contact } from '../contacts.remote';
 
@@ -25,6 +42,34 @@
 	// Reactive key to trigger re-fetches after mutations
 	let refresh_key = $state(0);
 	let show_delete_confirmation = $state(false);
+
+	// Follow-up state
+	let delete_follow_up_id = $state<string | null>(null);
+	let edit_follow_up_id = $state<string | null>(null);
+	let edit_follow_up_due_date_str = $state('');
+	let edit_follow_up_note = $state('');
+
+	// Interaction state
+	let delete_interaction_id = $state<string | null>(null);
+	let edit_interaction_id = $state<string | null>(null);
+	let edit_interaction_type = $state<
+		'meeting' | 'call' | 'email' | 'message'
+	>('meeting');
+	let edit_interaction_note = $state('');
+
+	const type_icons = {
+		meeting: Calendar,
+		call: Call,
+		email: Email,
+		message: Message,
+	};
+
+	const type_colors = {
+		meeting: 'bg-primary text-primary-content',
+		call: 'bg-secondary text-secondary-content',
+		email: 'bg-accent text-accent-content',
+		message: 'bg-info text-info-content',
+	};
 
 	function handle_delete_click() {
 		show_delete_confirmation = true;
@@ -42,6 +87,36 @@
 		show_delete_confirmation = false;
 	}
 
+	// Follow-up handlers
+	function handle_edit_follow_up_click(
+		event: MouseEvent,
+		follow_up: any,
+	) {
+		event.stopPropagation();
+		edit_follow_up_id = follow_up.id;
+		const date = new Date(follow_up.due_date);
+		edit_follow_up_due_date_str = date.toISOString().slice(0, 16);
+		edit_follow_up_note = follow_up.note || '';
+	}
+
+	async function save_edit_follow_up() {
+		if (!edit_follow_up_id) return;
+		const due_date = new Date(
+			edit_follow_up_due_date_str,
+		).getTime();
+		await update_follow_up({
+			id: edit_follow_up_id,
+			due_date,
+			note: edit_follow_up_note,
+		});
+		edit_follow_up_id = null;
+		refresh_key++;
+	}
+
+	function cancel_edit_follow_up() {
+		edit_follow_up_id = null;
+	}
+
 	async function handle_complete_follow_up(id: string) {
 		await complete_follow_up(id);
 		refresh_key++;
@@ -52,9 +127,68 @@
 		refresh_key++;
 	}
 
-	async function handle_delete_follow_up(id: string) {
-		await delete_follow_up(id);
+	function handle_delete_follow_up_click(
+		event: MouseEvent,
+		id: string,
+	) {
+		event.stopPropagation();
+		delete_follow_up_id = id;
+	}
+
+	async function confirm_delete_follow_up() {
+		if (!delete_follow_up_id) return;
+		await delete_follow_up(delete_follow_up_id);
+		delete_follow_up_id = null;
 		refresh_key++;
+	}
+
+	function cancel_delete_follow_up() {
+		delete_follow_up_id = null;
+	}
+
+	// Interaction handlers
+	function handle_edit_interaction_click(
+		event: MouseEvent,
+		interaction: any,
+	) {
+		event.stopPropagation();
+		edit_interaction_id = interaction.id;
+		edit_interaction_type = interaction.type;
+		edit_interaction_note = interaction.note || '';
+	}
+
+	async function save_edit_interaction() {
+		if (!edit_interaction_id) return;
+		await update_interaction({
+			id: edit_interaction_id,
+			type: edit_interaction_type,
+			note: edit_interaction_note,
+		});
+		edit_interaction_id = null;
+		refresh_key++;
+	}
+
+	function cancel_edit_interaction() {
+		edit_interaction_id = null;
+	}
+
+	function handle_delete_interaction_click(
+		event: MouseEvent,
+		id: string,
+	) {
+		event.stopPropagation();
+		delete_interaction_id = id;
+	}
+
+	async function confirm_delete_interaction() {
+		if (!delete_interaction_id) return;
+		await delete_interaction(delete_interaction_id);
+		delete_interaction_id = null;
+		refresh_key++;
+	}
+
+	function cancel_delete_interaction() {
+		delete_interaction_id = null;
 	}
 </script>
 
@@ -205,13 +339,13 @@
 								</h3>
 								<div>
 									<p class="text-xs opacity-70">Total Interactions</p>
-									<p class="text-2xl font-bold">
+									<p class="text-sm font-bold">
 										{contact.interaction_count}
 									</p>
 								</div>
 								<div>
 									<p class="text-xs opacity-70">Pending Follow-ups</p>
-									<p class="text-2xl font-bold">
+									<p class="text-sm font-bold">
 										{contact.pending_follow_ups}
 									</p>
 								</div>
@@ -273,15 +407,143 @@
 								{#if pending_follow_ups.length === 0}
 									<EmptyState message="No pending follow-ups." />
 								{:else}
-									<div class="space-y-3">
+									<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
 										{#each pending_follow_ups as follow_up}
-											<FollowUpCard
-												{follow_up}
-												date_format={preferences.date_format}
-												variant="full"
-												on_complete={handle_complete_follow_up}
-												on_delete={handle_delete_follow_up}
-											/>
+											{@const overdue =
+												!follow_up.completed &&
+												is_overdue(follow_up.due_date)}
+											{@const icon_color =
+												overdue && !follow_up.completed
+													? 'bg-error text-error-content'
+													: follow_up.completed
+														? 'bg-success text-success-content'
+														: 'bg-base-200'}
+											{@const metadata_classes =
+												overdue && !follow_up.completed
+													? 'opacity-60 text-error'
+													: 'opacity-60'}
+											{#if edit_follow_up_id === follow_up.id}
+												<!-- Edit Mode -->
+												<div
+													class="card bg-base-100 shadow-md transition-shadow hover:shadow-lg"
+												>
+													<div class="card-body p-4">
+														<div class="space-y-4">
+															<div class="flex items-center justify-between">
+																<span class="text-lg font-semibold">
+																	{contact.name}
+																</span>
+															</div>
+
+															<div class="space-y-3">
+																<label class="form-control w-full">
+																	<div class="label">
+																		<span class="label-text">Due Date</span>
+																	</div>
+																	<input
+																		type="datetime-local"
+																		bind:value={edit_follow_up_due_date_str}
+																		class="input-bordered input w-full"
+																	/>
+																</label>
+
+																<label class="form-control w-full">
+																	<div class="label">
+																		<span class="label-text">Note</span>
+																	</div>
+																	<textarea
+																		bind:value={edit_follow_up_note}
+																		class="textarea-bordered textarea h-24 w-full"
+																		placeholder="Add a note..."
+																	></textarea>
+																</label>
+															</div>
+
+															<div class="flex justify-end gap-2">
+																<button
+																	class="btn btn-ghost btn-sm"
+																	onclick={cancel_edit_follow_up}
+																>
+																	Cancel
+																</button>
+																<button
+																	class="btn btn-sm btn-primary"
+																	onclick={save_edit_follow_up}
+																>
+																	Save
+																</button>
+															</div>
+														</div>
+													</div>
+												</div>
+											{:else}
+												<!-- View Mode -->
+												<ActivityCard
+													icon={Calendar}
+													icon_color_classes={icon_color}
+													contact_id={contact.id}
+													contact_name={contact.name}
+													metadata="Due: {format_due_date(
+														follow_up.due_date,
+														preferences.date_format,
+													)}"
+													{metadata_classes}
+													note={follow_up.note}
+													footer_text={follow_up.completed &&
+													follow_up.completed_at
+														? `Completed: ${format_date(
+																new Date(follow_up.completed_at),
+																preferences.date_format,
+															)}`
+														: undefined}
+													show_delete_confirmation={delete_follow_up_id ===
+														follow_up.id}
+													on_confirm_delete={confirm_delete_follow_up}
+													on_cancel_delete={cancel_delete_follow_up}
+												>
+													{#snippet action_buttons()}
+														{#if follow_up.completed}
+															<button
+																onclick={() =>
+																	handle_reopen_follow_up(follow_up.id)}
+																class="btn gap-1 btn-ghost btn-xs"
+																aria-label="Reopen follow-up"
+															>
+																<CircleBack size="16px" />
+																Reopen
+															</button>
+														{:else}
+															<button
+																onclick={() =>
+																	handle_complete_follow_up(follow_up.id)}
+																class="btn gap-1 text-success btn-ghost btn-xs"
+																aria-label="Complete follow-up"
+															>
+																<Check size="16px" />
+																Complete
+															</button>
+														{/if}
+														<button
+															class="btn gap-1 btn-ghost btn-xs"
+															aria-label="Edit follow-up"
+															onclick={(e) =>
+																handle_edit_follow_up_click(e, follow_up)}
+														>
+															<Edit size="16px" />
+															Edit
+														</button>
+														<button
+															class="btn gap-1 text-error btn-ghost btn-xs"
+															aria-label="Delete follow-up"
+															onclick={(e) =>
+																handle_delete_follow_up_click(e, follow_up.id)}
+														>
+															<Trash size="16px" />
+															Delete
+														</button>
+													{/snippet}
+												</ActivityCard>
+											{/if}
 										{/each}
 									</div>
 
@@ -316,13 +578,109 @@
 								{#if interactions.length === 0}
 									<EmptyState message="No interactions logged yet." />
 								{:else}
-									<div class="space-y-3">
+									<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
 										{#each interactions as interaction}
-											<InteractionCard
-												{interaction}
-												date_format={preferences.date_format}
-												variant="full"
-											/>
+											{@const TypeIcon = type_icons[interaction.type]}
+											{#if edit_interaction_id === interaction.id}
+												<!-- Edit Mode -->
+												<div
+													class="card bg-base-100 shadow-md transition-shadow hover:shadow-lg"
+												>
+													<div class="card-body p-4">
+														<div class="space-y-4">
+															<div class="flex items-center justify-between">
+																<span class="text-lg font-semibold">
+																	{contact.name}
+																</span>
+															</div>
+
+															<div class="space-y-3">
+																<label class="form-control w-full">
+																	<div class="label">
+																		<span class="label-text">Type</span>
+																	</div>
+																	<select
+																		bind:value={edit_interaction_type}
+																		class="select-bordered select w-full"
+																	>
+																		<option value="meeting">Meeting</option>
+																		<option value="call">Call</option>
+																		<option value="email">Email</option>
+																		<option value="message">Message</option>
+																	</select>
+																</label>
+
+																<label class="form-control w-full">
+																	<div class="label">
+																		<span class="label-text">Note</span>
+																	</div>
+																	<textarea
+																		bind:value={edit_interaction_note}
+																		class="textarea-bordered textarea h-24 w-full"
+																		placeholder="Add a note..."
+																	></textarea>
+																</label>
+															</div>
+
+															<div class="flex justify-end gap-2">
+																<button
+																	class="btn btn-ghost btn-sm"
+																	onclick={cancel_edit_interaction}
+																>
+																	Cancel
+																</button>
+																<button
+																	class="btn btn-sm btn-primary"
+																	onclick={save_edit_interaction}
+																>
+																	Save
+																</button>
+															</div>
+														</div>
+													</div>
+												</div>
+											{:else}
+												<!-- View Mode -->
+												<ActivityCard
+													icon={TypeIcon}
+													icon_color_classes={type_colors[interaction.type]}
+													contact_id={contact.id}
+													contact_name={contact.name}
+													metadata="<span class='capitalize'>{interaction.type}</span> • {format_date(
+														new Date(interaction.created_at),
+														preferences.date_format,
+													)}"
+													note={interaction.note}
+													show_delete_confirmation={delete_interaction_id ===
+														interaction.id}
+													on_confirm_delete={confirm_delete_interaction}
+													on_cancel_delete={cancel_delete_interaction}
+												>
+													{#snippet action_buttons()}
+														<button
+															class="btn gap-1 btn-ghost btn-xs"
+															aria-label="Edit interaction"
+															onclick={(e) =>
+																handle_edit_interaction_click(e, interaction)}
+														>
+															<Edit size="16px" />
+															Edit
+														</button>
+														<button
+															class="btn gap-1 text-error btn-ghost btn-xs"
+															aria-label="Delete interaction"
+															onclick={(e) =>
+																handle_delete_interaction_click(
+																	e,
+																	interaction.id,
+																)}
+														>
+															<Trash size="16px" />
+															Delete
+														</button>
+													{/snippet}
+												</ActivityCard>
+											{/if}
 										{/each}
 									</div>
 

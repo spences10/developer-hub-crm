@@ -138,9 +138,6 @@
 	<div class="mb-8 flex items-center justify-between">
 		<div>
 			<h1 class="text-3xl font-bold">Settings</h1>
-			<p class="mt-2 text-sm opacity-70">
-				Customize your Developer Hub CRM experience
-			</p>
 		</div>
 		{#if saving}
 			<span class="badge badge-lg badge-success">Saving...</span>

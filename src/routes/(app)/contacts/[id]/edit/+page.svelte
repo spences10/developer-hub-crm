@@ -1,111 +1,72 @@
 <script lang="ts">
-	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
-	import ContactFormFields from '$lib/components/contact-form-fields.svelte';
-	import PageHeaderWithAction from '$lib/components/page-header-with-action.svelte';
 	import PageNav from '$lib/components/page-nav.svelte';
-	import SocialLinkIcon from '$lib/components/social-link.svelte';
+	import SocialLinksManager from '$lib/components/social-links-manager.svelte';
 	import { Cancel } from '$lib/icons';
-	import {
-		add_social_link,
-		delete_social_link,
-		get_contact,
-		update_contact,
-	} from '../../contacts.remote';
+	import { get_contact, update_contact } from '../../contacts.remote';
 
 	const contact_id = $derived(page.params.id);
 
 	let error = $state<string | null>(null);
-	let submitting = $state(false);
+	let saving = $state(false);
 
 	// Reactive key to trigger re-fetch after social link changes
 	let refresh_key = $state(0);
 
-	// New social link state
-	let new_platform = $state('');
-	let new_url = $state('');
-	let adding_link = $state(false);
-
-	async function handle_add_social_link() {
-		if (!contact_id || !new_platform || !new_url) return;
-
-		adding_link = true;
+	async function save_with_indicator(fn: () => Promise<void>) {
+		saving = true;
 		try {
-			await add_social_link({
-				contact_id,
-				platform: new_platform,
-				url: new_url,
-			});
-			new_platform = '';
-			new_url = '';
-			refresh_key++;
-		} catch (err) {
-			console.error('Failed to add social link:', err);
-		} finally {
-			adding_link = false;
-		}
-	}
-
-	async function handle_delete_social_link(link_id: string) {
-		if (!confirm('Remove this social link?')) return;
-
-		try {
-			await delete_social_link(link_id);
-			refresh_key++;
-		} catch (err) {
-			console.error('Failed to delete social link:', err);
-		}
-	}
-
-	async function handle_submit(event: SubmitEvent) {
-		event.preventDefault();
-		submitting = true;
-		error = null;
-
-		if (!contact_id) {
-			error = 'Contact ID is required';
-			submitting = false;
-			return;
-		}
-
-		const form = event.target as HTMLFormElement;
-		const formData = new FormData(form);
-
-		try {
-			await update_contact({
-				id: contact_id,
-				name: formData.get('name') as string,
-				email: (formData.get('email') as string) || undefined,
-				phone: (formData.get('phone') as string) || undefined,
-				company: (formData.get('company') as string) || undefined,
-				title: (formData.get('title') as string) || undefined,
-				github_username:
-					(formData.get('github_username') as string) || undefined,
-				is_vip: formData.get('is_vip') === 'on',
-				birthday: (formData.get('birthday') as string) || undefined,
-				notes: (formData.get('notes') as string) || undefined,
-			});
-
-			goto(`/contacts/${contact_id}`);
+			await fn();
+			error = null;
 		} catch (err: any) {
-			error = err.message || 'Failed to update contact';
+			error = err.message || 'Failed to save';
 		} finally {
-			submitting = false;
+			setTimeout(() => (saving = false), 500);
 		}
+	}
+
+	async function save_field(
+		field: string,
+		value: string | boolean,
+		current_contact: any,
+	) {
+		if (!contact_id) return;
+
+		await save_with_indicator(() =>
+			update_contact({
+				id: contact_id,
+				name: current_contact.name,
+				email: current_contact.email || undefined,
+				phone: current_contact.phone || undefined,
+				company: current_contact.company || undefined,
+				title: current_contact.title || undefined,
+				github_username: current_contact.github_username || undefined,
+				is_vip: current_contact.is_vip === 1,
+				birthday: current_contact.birthday || undefined,
+				notes: current_contact.notes || undefined,
+				[field]: value === '' ? undefined : value,
+			}),
+		);
 	}
 </script>
 
 <div class="mx-auto max-w-6xl">
-	<PageHeaderWithAction title="Edit Contact">
-		<a
-			href="/contacts/{contact_id}"
-			class="tooltip btn gap-2 text-error btn-ghost btn-sm"
-			data-tip="Cancel"
-			aria-label="Cancel editing"
-		>
-			<Cancel size="20px" />
-		</a>
-	</PageHeaderWithAction>
+	<div class="mb-8 flex items-center justify-between">
+		<h1 class="text-3xl font-bold">Edit Contact</h1>
+		<div class="flex items-center gap-2">
+			{#if saving}
+				<span class="badge badge-lg badge-success">Saving...</span>
+			{/if}
+			<a
+				href="/contacts/{contact_id}"
+				class="tooltip btn gap-2 text-error btn-ghost btn-sm"
+				data-tip="Cancel"
+				aria-label="Cancel editing"
+			>
+				<Cancel size="20px" />
+			</a>
+		</div>
+	</div>
 	<PageNav />
 
 	{#if contact_id}
@@ -113,98 +74,190 @@
 			{#await get_contact(contact_id) then contact}
 				<div class="card bg-base-100 shadow-xl">
 					<div class="card-body">
-						<form onsubmit={handle_submit} class="space-y-4">
-							<ContactFormFields
-								name={contact.name}
-								email={contact.email || ''}
-								phone={contact.phone || ''}
-								company={contact.company || ''}
-								title={contact.title || ''}
-								github_username={contact.github_username || ''}
-								is_vip={contact.is_vip === 1}
-								birthday={contact.birthday || ''}
-								notes={contact.notes || ''}
-							/>
-
-							<!-- Social Links Management -->
-							<div class="rounded-box bg-base-200 p-4">
-								<p class="mb-3 text-sm font-medium">Social Links</p>
-
-								<!-- Existing Social Links -->
-								{#if contact.social_links && contact.social_links.length > 0}
-									<div class="mb-4 space-y-2">
-										{#each contact.social_links as link}
-											<div
-												class="flex items-center justify-between gap-2"
-											>
-												<div class="flex items-center gap-2">
-													<SocialLinkIcon platform={link.platform} />
-													<span class="text-sm font-medium">
-														{link.platform}:
-													</span>
-													<a
-														href={link.url}
-														target="_blank"
-														rel="noopener noreferrer"
-														class="link text-sm link-primary"
-													>
-														{link.url}
-													</a>
-												</div>
-												<button
-													type="button"
-													onclick={() =>
-														handle_delete_social_link(link.id)}
-													class="btn btn-ghost btn-xs"
-												>
-													Remove
-												</button>
-											</div>
-										{/each}
-									</div>
-								{/if}
-
-								<!-- Add New Social Link -->
-								<div class="space-y-2">
-									<p class="text-xs opacity-70">
-										Add new social link
-									</p>
-									<div class="flex gap-2">
-										<select
-											bind:value={new_platform}
-											class="select-bordered select select-sm"
-										>
-											<option value="">Select platform</option>
-											<option value="twitter">Twitter/X</option>
-											<option value="bluesky">Bluesky</option>
-											<option value="linkedin">LinkedIn</option>
-											<option value="website">Website</option>
-										</select>
+						<div class="space-y-4">
+							<!-- Name & VIP - Two Column Grid -->
+							<div class="grid items-end gap-4 md:grid-cols-2">
+								<fieldset class="fieldset">
+									<legend class="fieldset-legend">Name *</legend>
+									<label class="validator input w-full">
 										<input
-											type="url"
-											placeholder="URL"
-											bind:value={new_url}
-											class="input-bordered input input-sm flex-1"
+											type="text"
+											value={contact.name}
+											placeholder="John Doe"
+											class="grow"
+											required
+											onblur={(e) =>
+												save_field(
+													'name',
+													e.currentTarget.value,
+													contact,
+												)}
 										/>
-										<button
-											type="button"
-											onclick={handle_add_social_link}
-											disabled={adding_link ||
-												!new_platform ||
-												!new_url}
-											class="btn btn-sm btn-primary"
-										>
-											{#if adding_link}
-												<span
-													class="loading loading-sm loading-spinner"
-												></span>
-											{:else}
-												Add
-											{/if}
-										</button>
-									</div>
+									</label>
+								</fieldset>
+
+								<div class="form-control pb-2">
+									<label
+										class="label cursor-pointer justify-start gap-2"
+									>
+										<input
+											type="checkbox"
+											checked={contact.is_vip === 1}
+											class="checkbox"
+											onchange={(e) =>
+												save_field(
+													'is_vip',
+													e.currentTarget.checked,
+													contact,
+												)}
+										/>
+										<span class="label-text">Mark as VIP</span>
+									</label>
 								</div>
 							</div>
+
+							<!-- Email & Phone - Two Column Grid -->
+							<div class="grid gap-4 md:grid-cols-2">
+								<fieldset class="fieldset">
+									<legend class="fieldset-legend">Email</legend>
+									<label class="validator input w-full">
+										<input
+											type="email"
+											value={contact.email || ''}
+											placeholder="Email"
+											class="grow"
+											onblur={(e) =>
+												save_field(
+													'email',
+													e.currentTarget.value,
+													contact,
+												)}
+										/>
+									</label>
+								</fieldset>
+
+								<fieldset class="fieldset">
+									<legend class="fieldset-legend">Phone</legend>
+									<label class="input w-full">
+										<input
+											type="tel"
+											value={contact.phone || ''}
+											placeholder="+1 (555) 123-4567"
+											class="grow"
+											onblur={(e) =>
+												save_field(
+													'phone',
+													e.currentTarget.value,
+													contact,
+												)}
+										/>
+									</label>
+								</fieldset>
+							</div>
+
+							<!-- Company & Title - Two Column Grid -->
+							<div class="grid gap-4 md:grid-cols-2">
+								<fieldset class="fieldset">
+									<legend class="fieldset-legend">Company</legend>
+									<label class="input w-full">
+										<input
+											type="text"
+											value={contact.company || ''}
+											placeholder="Acme Inc."
+											class="grow"
+											onblur={(e) =>
+												save_field(
+													'company',
+													e.currentTarget.value,
+													contact,
+												)}
+										/>
+									</label>
+								</fieldset>
+
+								<fieldset class="fieldset">
+									<legend class="fieldset-legend">Title</legend>
+									<label class="input w-full">
+										<input
+											type="text"
+											value={contact.title || ''}
+											placeholder="Senior Developer"
+											class="grow"
+											onblur={(e) =>
+												save_field(
+													'title',
+													e.currentTarget.value,
+													contact,
+												)}
+										/>
+									</label>
+								</fieldset>
+							</div>
+
+							<!-- GitHub Username & Birthday - Two Column Grid -->
+							<div class="grid gap-4 md:grid-cols-2">
+								<fieldset class="fieldset">
+									<legend class="fieldset-legend"
+										>GitHub Username</legend
+									>
+									<label class="input w-full">
+										<input
+											type="text"
+											value={contact.github_username || ''}
+											placeholder="octocat"
+											class="grow"
+											onblur={(e) =>
+												save_field(
+													'github_username',
+													e.currentTarget.value,
+													contact,
+												)}
+										/>
+									</label>
+									<p class="label">Enter username without @</p>
+								</fieldset>
+
+								<fieldset class="fieldset">
+									<legend class="fieldset-legend">Birthday</legend>
+									<label class="input w-full">
+										<input
+											type="date"
+											value={contact.birthday || ''}
+											class="grow"
+											onblur={(e) =>
+												save_field(
+													'birthday',
+													e.currentTarget.value,
+													contact,
+												)}
+										/>
+									</label>
+								</fieldset>
+							</div>
+
+							<!-- Notes - Full Width -->
+							<fieldset class="fieldset">
+								<legend class="fieldset-legend">Notes</legend>
+								<textarea
+									class="textarea w-full"
+									rows="4"
+									placeholder="Additional notes about this contact..."
+									value={contact.notes || ''}
+									onblur={(e) =>
+										save_field(
+											'notes',
+											e.currentTarget.value,
+											contact,
+										)}
+								></textarea>
+							</fieldset>
+
+							<!-- Social Links Management -->
+							<SocialLinksManager
+								contact_id={contact.id}
+								social_links={contact.social_links || []}
+								on_change={() => refresh_key++}
+							/>
 
 							<!-- Error Display -->
 							{#if error}
@@ -212,24 +265,7 @@
 									<span>{error}</span>
 								</div>
 							{/if}
-
-							<!-- Submit Button -->
-							<div class="flex gap-4">
-								<button
-									class="btn flex-1 btn-primary"
-									type="submit"
-									disabled={submitting}
-								>
-									{submitting ? 'Saving...' : 'Save Changes'}
-								</button>
-								<a
-									href="/contacts/{contact_id}"
-									class="btn btn-ghost"
-								>
-									Cancel
-								</a>
-							</div>
-						</form>
+						</div>
 					</div>
 				</div>
 			{/await}
