@@ -77,7 +77,7 @@
 								View all
 							</a>
 						</div>
-						<div class="space-y-3">
+						<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
 							{#each activity.overdue_follow_ups as follow_up}
 								<FollowUpCard
 									{follow_up}
