@@ -4,6 +4,7 @@
 	import FilterTabs from '$lib/components/filter-tabs.svelte';
 	import ItemCount from '$lib/components/item-count.svelte';
 	import PageHeaderWithAction from '$lib/components/page-header-with-action.svelte';
+	import PageNav from '$lib/components/page-nav.svelte';
 	import { Edit, Trash } from '$lib/icons';
 	import type { Interaction } from '$lib/types/db';
 	import { format_date } from '$lib/utils/date-helpers';
@@ -95,6 +96,7 @@
 			New Interaction
 		</a>
 	</PageHeaderWithAction>
+	<PageNav />
 
 	<!-- Filter Tabs -->
 	<FilterTabs

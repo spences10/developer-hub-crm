@@ -1,4 +1,5 @@
 <script lang="ts">
+	import PageNav from '$lib/components/page-nav.svelte';
 	import { themes } from '$lib/themes';
 	import { format_date } from '$lib/utils/date-helpers';
 	import {
@@ -124,7 +125,7 @@
 	</div>
 {/snippet}
 
-<div class="mx-auto max-w-2xl">
+<div class="mx-auto max-w-6xl">
 	<div class="mb-8 flex items-center justify-between">
 		<div>
 			<h1 class="text-3xl font-bold">Settings</h1>
@@ -136,13 +137,14 @@
 			<span class="badge badge-lg badge-success">Saving...</span>
 		{/if}
 	</div>
+	<PageNav />
 
 	{#await preferences}
 		<div class="flex justify-center">
 			<span class="loading loading-lg loading-spinner"></span>
 		</div>
 	{:then preferences}
-		<div class="space-y-6">
+		<div class="grid grid-cols-1 gap-6 md:grid-cols-2">
 			<!-- Theme Selector -->
 			<div class="card bg-base-100 shadow-xl">
 				<div class="card-body">

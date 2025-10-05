@@ -2,6 +2,7 @@
 	import EmptyState from '$lib/components/empty-state.svelte';
 	import ItemCount from '$lib/components/item-count.svelte';
 	import PageHeaderWithAction from '$lib/components/page-header-with-action.svelte';
+	import PageNav from '$lib/components/page-nav.svelte';
 	import SortableTableHeader from '$lib/components/sortable-table-header.svelte';
 	import type { Contact } from '$lib/types/db';
 	import { get_user_preferences } from '../settings/settings.remote';
@@ -94,7 +95,7 @@
 	<PageHeaderWithAction title="Contacts">
 		<a href="/contacts/new" class="btn btn-primary">New Contact</a>
 	</PageHeaderWithAction>
-
+	<PageNav />
 	<!-- Search Bar -->
 	<div class="mb-6">
 		<fieldset class="fieldset">

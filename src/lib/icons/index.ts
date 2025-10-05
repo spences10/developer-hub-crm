@@ -1,12 +1,17 @@
 export { default as Arrow } from './arrow.svelte';
 export { default as Bluesky } from './bluesky.svelte';
+export { default as Calendar } from './calendar.svelte';
 export { default as Check } from './check.svelte';
+export { default as Contacts } from './contacts.svelte';
 export { default as Cross } from './cross.svelte';
+export { default as Dashboard } from './dashboard.svelte';
 export { default as Edit } from './edit.svelte';
 export { default as GitHub } from './github.svelte';
 export { default as Globe } from './globe.svelte';
 export { default as Link } from './link.svelte';
 export { default as LinkedIn } from './linkedin.svelte';
+export { default as Message } from './message.svelte';
+export { default as Settings } from './settings.svelte';
 export { default as Trash } from './trash.svelte';
 export { default as Twitter } from './twitter.svelte';
 export { default as Warning } from './warning.svelte';

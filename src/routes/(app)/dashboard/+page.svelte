@@ -2,6 +2,7 @@
 	import EmptyState from '$lib/components/empty-state.svelte';
 	import FollowUpCard from '$lib/components/follow-up-card.svelte';
 	import InteractionCard from '$lib/components/interaction-card.svelte';
+	import PageNav from '$lib/components/page-nav.svelte';
 	import { Cross, Warning } from '$lib/icons';
 	import { get_user_preferences } from '../settings/settings.remote';
 	import {
@@ -29,7 +30,7 @@
 			</a>
 		</div>
 	</div>
-
+	<PageNav />
 	<!-- Stats Bar -->
 	{#await get_dashboard_stats() then stats}
 		<div class="mb-8 flex flex-wrap items-center gap-2 text-sm">
