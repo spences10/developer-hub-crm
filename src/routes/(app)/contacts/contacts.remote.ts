@@ -285,6 +285,8 @@ export const update_contact = guarded_command(
 			data.id,
 			user_id,
 		);
+
+		return { success: true };
 	},
 );
 

@@ -247,6 +247,9 @@ data is fresh.
 
 Use for mutations without forms (like button clicks).
 
+**IMPORTANT:** Commands must return a value for `await` to properly
+complete. Always return `{ success: true }` or an error object.
+
 ```typescript
 // contacts.remote.ts
 import { command } from '$app/server';
@@ -256,6 +259,8 @@ export const delete_contact = command(
 	v.string(), // Validate the contact ID
 	async (id) => {
 		await db.query('DELETE FROM contacts WHERE id = ?', [id]);
+
+		return { success: true }; // ✅ Required for proper async completion
 	},
 );
 ```
@@ -268,10 +273,21 @@ export const delete_contact = command(
 <button onclick={() => delete_contact(contact.id)}> Delete </button>
 ```
 
+**Why return values matter:**
+
+Without a return value, the command may not fully complete before the
+next operation (like incrementing `refresh_key`), causing UI updates
+to fail. Always return either:
+
+- `{ success: true }` for successful operations
+- `{ error: 'message' }` for errors
+
 ## Re-fetching Data After Mutations
 
-After mutations (create/update/delete), trigger data re-fetch using
-`refresh_key` with `{#key}` blocks:
+After mutations (create/update/delete), use `.refresh()` on stored
+query variables to update the UI.
+
+### Single Query Pattern
 
 ```svelte
 <script lang="ts">
@@ -280,45 +296,110 @@ After mutations (create/update/delete), trigger data re-fetch using
 		get_all_contacts,
 	} from './contacts.remote';
 
-	let refresh_key = $state(0);
+	// Store query in a variable for reactivity
+	const contacts = get_all_contacts();
 
 	async function handle_delete(id: string) {
 		await delete_contact(id);
-		refresh_key++; // Triggers re-fetch
+		await contacts.refresh(); // ✅ Refreshes cached query data
 	}
 </script>
 
-{#key refresh_key}
-	{#await get_all_contacts() then contacts}
-		<ul>
-			{#each contacts as contact}
-				<li>
-					{contact.name}
-					<button onclick={() => handle_delete(contact.id)}>
-						Delete
-					</button>
-				</li>
-			{/each}
-		</ul>
-	{/await}
-{/key}
+{#await contacts then contact_list}
+	<ul>
+		{#each contact_list as contact}
+			<li>
+				{contact.name}
+				<button onclick={() => handle_delete(contact.id)}>
+					Delete
+				</button>
+			</li>
+		{/each}
+	</ul>
+{/await}
+```
+
+### Multiple Queries Pattern (Promise.all)
+
+**IMPORTANT:** When using `Promise.all()` with multiple queries, you
+MUST store the queries in variables:
+
+```svelte
+<script lang="ts">
+	import {
+		delete_interaction,
+		get_all_interactions,
+		update_interaction,
+	} from './interactions.remote';
+	import { get_user_preferences } from './settings.remote';
+
+	// ✅ Store queries in variables
+	const all_interactions = get_all_interactions();
+	const preferences = get_user_preferences();
+
+	async function handle_delete(id: string) {
+		await delete_interaction(id);
+		await all_interactions.refresh(); // ✅ Refreshes the cache
+	}
+
+	async function handle_update(id: string, data: any) {
+		await update_interaction({ id, ...data });
+		await all_interactions.refresh(); // ✅ Refreshes the cache
+	}
+</script>
+
+<!-- Use stored variables in Promise.all -->
+{#await Promise.all( [all_interactions, preferences], ) then [interactions_data, preferences_data]}
+	<div>
+		{#each interactions_data as interaction}
+			<div>
+				<p>{interaction.note}</p>
+				<p>
+					{format_date(
+						interaction.created_at,
+						preferences_data.date_format,
+					)}
+				</p>
+				<button onclick={() => handle_delete(interaction.id)}
+					>Delete</button
+				>
+			</div>
+		{/each}
+	</div>
+{/await}
 ```
 
 **Why this works:**
 
-- `{#key}` block destroys and recreates its contents when the key
-  changes
-- Incrementing `refresh_key` triggers a fresh call to
-  `get_all_contacts()`
-- Maintains scroll position and component state outside the `{#key}`
-  block
+- Queries are cached while they're on the page
+- Storing queries in variables allows Svelte to track them reactively
+- Calling `.refresh()` on a stored variable updates the cache AND
+  triggers reactivity
+- The `{#await}` block automatically re-runs with fresh data
 
-**❌ Anti-pattern:** Never use `window.location.reload()`
+**❌ Anti-patterns to avoid:**
 
-- Loses scroll position
-- Clears all component state
-- Provides poor user experience
-- Defeats Svelte's reactivity system
+1. **Don't call queries directly in Promise.all:**
+
+   ```svelte
+   <!-- ❌ BAD - query called inline, .refresh() won't work -->
+   {#await Promise.all([get_all_interactions(), get_user_preferences()]) then ...}
+   ```
+
+2. **Don't use `{#key}` blocks with Promise.all:**
+
+   ```svelte
+   <!-- ❌ BAD - {#key} recreates block but gets cached data -->
+   {#key refresh_key}
+     {#await Promise.all([...]) then ...}
+   {/key}
+   ```
+
+3. **Never use `window.location.reload()`:**
+   - Loses scroll position
+   - Clears all component state
+   - Provides poor user experience
+   - Defeats Svelte's reactivity system
 
 ## Accessing Request Context
 

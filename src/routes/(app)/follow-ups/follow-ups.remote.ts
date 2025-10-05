@@ -219,6 +219,8 @@ export const update_follow_up = guarded_command(
     `);
 
 		stmt.run(data.due_date, data.note || null, Date.now(), data.id);
+
+		return { success: true };
 	},
 );
 
@@ -253,6 +255,8 @@ export const complete_follow_up = guarded_command(
 
 		const now = Date.now();
 		stmt.run(now, now, id);
+
+		return { success: true };
 	},
 );
 
@@ -286,6 +290,8 @@ export const reopen_follow_up = guarded_command(
     `);
 
 		stmt.run(Date.now(), id);
+
+		return { success: true };
 	},
 );
 
@@ -318,6 +324,8 @@ export const delete_follow_up = guarded_command(
     `);
 
 		stmt.run(id);
+
+		return { success: true };
 	},
 );
 

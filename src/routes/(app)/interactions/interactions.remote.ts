@@ -199,6 +199,8 @@ export const update_interaction = guarded_command(
     `);
 
 		stmt.run(data.type, data.note || null, Date.now(), data.id);
+
+		return { success: true };
 	},
 );
 
@@ -231,6 +233,8 @@ export const delete_interaction = guarded_command(
     `);
 
 		stmt.run(id);
+
+		return { success: true };
 	},
 );
 
