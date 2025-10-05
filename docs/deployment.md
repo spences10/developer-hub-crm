@@ -1,7 +1,7 @@
 # Deployment Guide
 
-Guide for deploying Dev Hub CRM to production (Coolify or any
-Node.js host).
+Guide for deploying Dev Hub CRM to production (Coolify or any Node.js
+host).
 
 ## Prerequisites
 

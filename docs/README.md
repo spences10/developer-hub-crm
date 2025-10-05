@@ -1,6 +1,74 @@
-# Dev Hub CRM - Architecture Docs
+# Dev Hub CRM - Documentation
 
-Quick reference for LLMs working on this codebase.
+Complete documentation for developers and LLMs working on this
+project.
+
+## Product Strategy & Vision
+
+### [product-vision.md](./product-vision.md)
+
+**Start here for product direction**
+
+Current state (6/10 → 9/10 roadmap), competitive analysis, target
+users, success metrics, strategic moats.
+
+### [feature-roadmap.md](./feature-roadmap.md)
+
+**Complete feature list & prioritization**
+
+All 37 features numbered and organized by phase. GitHub integration,
+CLI, AI/agents, viral growth, infrastructure.
+
+### [monetization.md](./monetization.md)
+
+**Pricing strategy & business model**
+
+Free vs Pro vs Premium tiers, revenue projections, upgrade triggers,
+freemium vs open core models.
+
+### [github-integration.md](./github-integration.md)
+
+**GitHub automation features**
+
+Activity tracking, auto-create contacts from stars, relationship
+graph, skill auto-tagging, rate limiting strategy.
+
+### [cli-tool.md](./cli-tool.md)
+
+**Command-line tool specification**
+
+All CLI commands, usage examples, terminal dashboard, scripting &
+pipes, integration with main app.
+
+### [ai-features.md](./ai-features.md)
+
+**AI & agent features**
+
+Three tiers (Analysis → Automation → Agents), relationship insights,
+message drafting, daily digest, GitHub activity agent.
+
+### [public-profiles.md](./public-profiles.md)
+
+**Viral growth via public profiles**
+
+Profile system, QR codes, "Add to CRM" viral loop, conference
+strategy, analytics, growth projections.
+
+### [growth-strategy.md](./growth-strategy.md)
+
+**Go-to-market & acquisition**
+
+Viral loops, conference strategy, Product Hunt launch, open source,
+content marketing, metrics to track.
+
+### [technical-architecture.md](./technical-architecture.md)
+
+**System architecture & infrastructure**
+
+Database schema additions, background jobs, GitHub API integration, AI
+stack, CLI architecture, deployment, scaling.
+
+---
 
 ## Core Patterns
 
