@@ -3,5 +3,5 @@
 @plugin 'daisyui';
 
 @plugin "daisyui" {
-  themes: cyberpunk;
+  themes: all;
 };
