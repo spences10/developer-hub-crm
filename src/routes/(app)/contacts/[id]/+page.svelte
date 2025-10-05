@@ -101,9 +101,7 @@
 
 	async function save_edit_follow_up() {
 		if (!edit_follow_up_id) return;
-		const due_date = new Date(
-			edit_follow_up_due_date_str,
-		).getTime();
+		const due_date = new Date(edit_follow_up_due_date_str).getTime();
 		await update_follow_up({
 			id: edit_follow_up_id,
 			due_date,
@@ -429,7 +427,9 @@
 												>
 													<div class="card-body p-4">
 														<div class="space-y-4">
-															<div class="flex items-center justify-between">
+															<div
+																class="flex items-center justify-between"
+															>
 																<span class="text-lg font-semibold">
 																	{contact.name}
 																</span>
@@ -438,18 +438,24 @@
 															<div class="space-y-3">
 																<label class="form-control w-full">
 																	<div class="label">
-																		<span class="label-text">Due Date</span>
+																		<span class="label-text"
+																			>Due Date</span
+																		>
 																	</div>
 																	<input
 																		type="datetime-local"
-																		bind:value={edit_follow_up_due_date_str}
+																		bind:value={
+																			edit_follow_up_due_date_str
+																		}
 																		class="input-bordered input w-full"
 																	/>
 																</label>
 
 																<label class="form-control w-full">
 																	<div class="label">
-																		<span class="label-text">Note</span>
+																		<span class="label-text"
+																			>Note</span
+																		>
 																	</div>
 																	<textarea
 																		bind:value={edit_follow_up_note}
@@ -505,7 +511,9 @@
 														{#if follow_up.completed}
 															<button
 																onclick={() =>
-																	handle_reopen_follow_up(follow_up.id)}
+																	handle_reopen_follow_up(
+																		follow_up.id,
+																	)}
 																class="btn gap-1 btn-ghost btn-xs"
 																aria-label="Reopen follow-up"
 															>
@@ -515,7 +523,9 @@
 														{:else}
 															<button
 																onclick={() =>
-																	handle_complete_follow_up(follow_up.id)}
+																	handle_complete_follow_up(
+																		follow_up.id,
+																	)}
 																class="btn gap-1 text-success btn-ghost btn-xs"
 																aria-label="Complete follow-up"
 															>
@@ -527,7 +537,10 @@
 															class="btn gap-1 btn-ghost btn-xs"
 															aria-label="Edit follow-up"
 															onclick={(e) =>
-																handle_edit_follow_up_click(e, follow_up)}
+																handle_edit_follow_up_click(
+																	e,
+																	follow_up,
+																)}
 														>
 															<Edit size="16px" />
 															Edit
@@ -536,7 +549,10 @@
 															class="btn gap-1 text-error btn-ghost btn-xs"
 															aria-label="Delete follow-up"
 															onclick={(e) =>
-																handle_delete_follow_up_click(e, follow_up.id)}
+																handle_delete_follow_up_click(
+																	e,
+																	follow_up.id,
+																)}
 														>
 															<Trash size="16px" />
 															Delete
@@ -588,7 +604,9 @@
 												>
 													<div class="card-body p-4">
 														<div class="space-y-4">
-															<div class="flex items-center justify-between">
+															<div
+																class="flex items-center justify-between"
+															>
 																<span class="text-lg font-semibold">
 																	{contact.name}
 																</span>
@@ -597,22 +615,32 @@
 															<div class="space-y-3">
 																<label class="form-control w-full">
 																	<div class="label">
-																		<span class="label-text">Type</span>
+																		<span class="label-text"
+																			>Type</span
+																		>
 																	</div>
 																	<select
 																		bind:value={edit_interaction_type}
 																		class="select-bordered select w-full"
 																	>
-																		<option value="meeting">Meeting</option>
+																		<option value="meeting"
+																			>Meeting</option
+																		>
 																		<option value="call">Call</option>
-																		<option value="email">Email</option>
-																		<option value="message">Message</option>
+																		<option value="email"
+																			>Email</option
+																		>
+																		<option value="message"
+																			>Message</option
+																		>
 																	</select>
 																</label>
 
 																<label class="form-control w-full">
 																	<div class="label">
-																		<span class="label-text">Note</span>
+																		<span class="label-text"
+																			>Note</span
+																		>
 																	</div>
 																	<textarea
 																		bind:value={edit_interaction_note}
@@ -643,7 +671,9 @@
 												<!-- View Mode -->
 												<ActivityCard
 													icon={TypeIcon}
-													icon_color_classes={type_colors[interaction.type]}
+													icon_color_classes={type_colors[
+														interaction.type
+													]}
 													contact_id={contact.id}
 													contact_name={contact.name}
 													metadata="<span class='capitalize'>{interaction.type}</span> • {format_date(
@@ -661,7 +691,10 @@
 															class="btn gap-1 btn-ghost btn-xs"
 															aria-label="Edit interaction"
 															onclick={(e) =>
-																handle_edit_interaction_click(e, interaction)}
+																handle_edit_interaction_click(
+																	e,
+																	interaction,
+																)}
 														>
 															<Edit size="16px" />
 															Edit

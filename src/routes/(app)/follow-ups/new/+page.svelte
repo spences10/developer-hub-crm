@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { page } from '$app/state';
-	import PageHeader from '$lib/components/page-header.svelte';
+	import PageHeaderWithAction from '$lib/components/page-header-with-action.svelte';
+	import PageNav from '$lib/components/page-nav.svelte';
 	import { get_contacts } from '../../contacts/contacts.remote';
 	import { get_user_preferences } from '../../settings/settings.remote';
 	import { create_follow_up } from '../follow-ups.remote';
@@ -32,20 +33,18 @@
 	}
 </script>
 
-<div class="mx-auto max-w-2xl">
-	<PageHeader
-		back_href="/follow-ups"
-		back_text="Back to Follow-ups"
-		title="Create New Follow-up"
-	/>
+<div class="mx-auto max-w-6xl">
+	<PageHeaderWithAction title="Create New Follow-up" />
+	<PageNav />
 
 	{#await get_user_preferences() then preferences}
 		{@const default_values = get_default_date(
 			preferences.default_follow_up_days,
 		)}
 		{#if !date_input_value}
-			{(date_input_value = default_values.date_string)}
-			{(timestamp = default_values.timestamp)}
+			{((date_input_value = default_values.date_string),
+			(timestamp = default_values.timestamp),
+			'')}
 		{/if}
 
 		<form {...create_follow_up} class="card bg-base-100 shadow-xl">

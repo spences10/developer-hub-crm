@@ -2,7 +2,8 @@
 	import ContactFormFields from '$lib/components/contact-form-fields.svelte';
 	import FormActions from '$lib/components/form-actions.svelte';
 	import LoadingButton from '$lib/components/loading-button.svelte';
-	import PageHeader from '$lib/components/page-header.svelte';
+	import PageHeaderWithAction from '$lib/components/page-header-with-action.svelte';
+	import PageNav from '$lib/components/page-nav.svelte';
 	import SocialLinksList from '$lib/components/social-links-list.svelte';
 	import {
 		create_contact,
@@ -70,12 +71,9 @@
 	}
 </script>
 
-<div class="mx-auto max-w-2xl">
-	<PageHeader
-		back_href="/contacts"
-		back_text="Back to Contacts"
-		title="New Contact"
-	/>
+<div class="mx-auto max-w-6xl">
+	<PageHeaderWithAction title="New Contact" />
+	<PageNav />
 
 	<!-- GitHub Import Section -->
 	<div class="card mb-6 bg-primary/5 shadow-md">
