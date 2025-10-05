@@ -172,7 +172,7 @@
 					</thead>
 					<tbody>
 						{#each sorted_contacts as contact}
-							<tr class="hover">
+							<tr class="hover:bg-base-100">
 								<td>
 									<a
 										href="/contacts/{contact.id}"
