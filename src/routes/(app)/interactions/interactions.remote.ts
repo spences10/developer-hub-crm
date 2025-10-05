@@ -52,27 +52,46 @@ export const get_interactions = query.batch(
 );
 
 /**
- * Get all interactions across all contacts for the current user
+ * Get all interactions across all contacts for the current user with optional search
  */
-export const get_all_interactions = query(
-	async (): Promise<
-		Array<Interaction & { contact_name: string }>
+export const get_all_interactions = query.batch(
+	v.optional(v.string(), ''),
+	async (
+		searches,
+	): Promise<
+		(search?: string) => Array<Interaction & { contact_name: string }>
 	> => {
 		const user_id = await get_current_user_id();
 
-		const stmt = db.prepare(`
-      SELECT
-        i.*,
-        c.name as contact_name
-      FROM interactions i
-      INNER JOIN contacts c ON i.contact_id = c.id
-      WHERE c.user_id = ?
-      ORDER BY i.created_at DESC
-    `);
+		return (search = '') => {
+			let sql = `
+				SELECT
+					i.*,
+					c.name as contact_name
+				FROM interactions i
+				INNER JOIN contacts c ON i.contact_id = c.id
+				WHERE c.user_id = ?
+			`;
+			const params: any[] = [user_id];
 
-		return stmt.all(user_id) as Array<
-			Interaction & { contact_name: string }
-		>;
+			if (search && search.trim()) {
+				sql += `
+					AND (
+						c.name LIKE ? OR
+						i.note LIKE ?
+					)
+				`;
+				const search_term = `%${search.trim()}%`;
+				params.push(search_term, search_term);
+			}
+
+			sql += ' ORDER BY i.created_at DESC';
+
+			const stmt = db.prepare(sql);
+			return stmt.all(...params) as Array<
+				Interaction & { contact_name: string }
+			>;
+		};
 	},
 );
 

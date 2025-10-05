@@ -5,6 +5,7 @@
 	import ItemCount from '$lib/components/item-count.svelte';
 	import PageHeaderWithAction from '$lib/components/page-header-with-action.svelte';
 	import PageNav from '$lib/components/page-nav.svelte';
+	import SearchBar from '$lib/components/search-bar.svelte';
 	import { Check, CircleBack, Edit, Trash } from '$lib/icons';
 	import type { FollowUp } from '$lib/types/db';
 	import {
@@ -21,6 +22,7 @@
 		update_follow_up,
 	} from './follow-ups.remote';
 
+	let search = $state('');
 	let filter = $state<'all' | 'pending' | 'completed' | 'overdue'>(
 		'all',
 	);
@@ -30,8 +32,8 @@
 	let edit_due_date_str = $state(''); // datetime-local string format
 	let edit_note = $state('');
 
-	// Store queries in variables for reactivity
-	const all_follow_ups = get_all_follow_ups();
+	// Store queries - use $derived for search reactivity
+	const all_follow_ups = $derived(get_all_follow_ups(search));
 	const preferences = get_user_preferences();
 
 	const filter_options = [
@@ -125,6 +127,13 @@
 	</PageHeaderWithAction>
 	<PageNav />
 
+	<!-- Search Bar -->
+	<SearchBar
+		bind:value={search}
+		placeholder="Search by contact name or note"
+		on_change={() => {}}
+	/>
+
 	<!-- Filter Tabs -->
 	<FilterTabs
 		options={filter_options}
@@ -140,11 +149,15 @@
 		)}
 		{#if follow_ups.length === 0}
 			<EmptyState
-				message={filter === 'all'
-					? 'No follow-ups yet.'
-					: `No ${filter} follow-ups found.`}
-				action_href={filter === 'all' ? '/follow-ups/new' : undefined}
-				action_text={filter === 'all'
+				message={search
+					? 'No follow-ups found matching your search.'
+					: filter === 'all'
+						? 'No follow-ups yet.'
+						: `No ${filter} follow-ups found.`}
+				action_href={!search && filter === 'all'
+					? '/follow-ups/new'
+					: undefined}
+				action_text={!search && filter === 'all'
 					? 'Create Your First Follow-up'
 					: undefined}
 			/>

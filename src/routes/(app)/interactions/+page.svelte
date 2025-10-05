@@ -5,6 +5,7 @@
 	import ItemCount from '$lib/components/item-count.svelte';
 	import PageHeaderWithAction from '$lib/components/page-header-with-action.svelte';
 	import PageNav from '$lib/components/page-nav.svelte';
+	import SearchBar from '$lib/components/search-bar.svelte';
 	import { Edit, Trash } from '$lib/icons';
 	import type { Interaction } from '$lib/types/db';
 	import { format_date } from '$lib/utils/date-helpers';
@@ -15,6 +16,7 @@
 		update_interaction,
 	} from './interactions.remote';
 
+	let search = $state('');
 	let filter = $state<
 		'all' | 'meeting' | 'call' | 'email' | 'message'
 	>('all');
@@ -26,8 +28,8 @@
 	);
 	let edit_note = $state('');
 
-	// Store queries in variables for reactivity
-	const all_interactions = get_all_interactions();
+	// Store queries - use $derived for search reactivity
+	const all_interactions = $derived(get_all_interactions(search));
 	const preferences = get_user_preferences();
 
 	const interaction_types = [
@@ -98,6 +100,13 @@
 	</PageHeaderWithAction>
 	<PageNav />
 
+	<!-- Search Bar -->
+	<SearchBar
+		bind:value={search}
+		placeholder="Search by contact name or note"
+		on_change={() => {}}
+	/>
+
 	<!-- Filter Tabs -->
 	<FilterTabs
 		options={interaction_types}
@@ -114,13 +123,15 @@
 
 		{#if interactions.length === 0}
 			<EmptyState
-				message={filter === 'all'
-					? 'No interactions yet.'
-					: `No ${filter} interactions found.`}
-				action_href={filter === 'all'
+				message={search
+					? 'No interactions found matching your search.'
+					: filter === 'all'
+						? 'No interactions yet.'
+						: `No ${filter} interactions found.`}
+				action_href={!search && filter === 'all'
 					? '/interactions/new'
 					: undefined}
-				action_text={filter === 'all'
+				action_text={!search && filter === 'all'
 					? 'Log Your First Interaction'
 					: undefined}
 			/>

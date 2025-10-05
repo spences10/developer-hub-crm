@@ -10,25 +10,48 @@ import { redirect } from '@sveltejs/kit';
 import * as v from 'valibot';
 
 /**
- * Get all follow-ups for the current user
+ * Get all follow-ups for the current user with optional search
  */
-export const get_all_follow_ups = query(async () => {
-	const user_id = await get_current_user_id();
+export const get_all_follow_ups = query.batch(
+	v.optional(v.string(), ''),
+	async (
+		searches,
+	): Promise<
+		(search?: string) => Array<FollowUp & { contact_name: string }>
+	> => {
+		const user_id = await get_current_user_id();
 
-	const stmt = db.prepare(`
-    SELECT
-      f.*,
-      c.name as contact_name
-    FROM follow_ups f
-    INNER JOIN contacts c ON f.contact_id = c.id
-    WHERE c.user_id = ?
-    ORDER BY f.due_date ASC
-  `);
+		return (search = '') => {
+			let sql = `
+				SELECT
+					f.*,
+					c.name as contact_name
+				FROM follow_ups f
+				INNER JOIN contacts c ON f.contact_id = c.id
+				WHERE c.user_id = ?
+			`;
+			const params: any[] = [user_id];
 
-	return stmt.all(user_id) as Array<
-		FollowUp & { contact_name: string }
-	>;
-});
+			if (search && search.trim()) {
+				sql += `
+					AND (
+						c.name LIKE ? OR
+						f.note LIKE ?
+					)
+				`;
+				const search_term = `%${search.trim()}%`;
+				params.push(search_term, search_term);
+			}
+
+			sql += ' ORDER BY f.due_date ASC';
+
+			const stmt = db.prepare(sql);
+			return stmt.all(...params) as Array<
+				FollowUp & { contact_name: string }
+			>;
+		};
+	},
+);
 
 /**
  * Get follow-ups for a specific contact
