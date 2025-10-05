@@ -1,4 +1,4 @@
-# Developer Hub CRM - Architecture Docs
+# Dev Hub CRM - Architecture Docs
 
 Quick reference for LLMs working on this codebase.
 

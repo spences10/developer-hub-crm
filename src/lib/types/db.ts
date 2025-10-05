@@ -1,4 +1,4 @@
-// Database type definitions for Developer Hub CRM
+// Database type definitions for Dev Hub CRM
 
 export interface Contact {
 	id: string;

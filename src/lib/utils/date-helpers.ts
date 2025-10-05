@@ -1,4 +1,4 @@
-// Date utility functions for Developer Hub CRM
+// Date utility functions for Dev Hub CRM
 
 export type DateFormat = 'YYYY-MM-DD' | 'MM/DD/YYYY' | 'DD/MM/YYYY';
 export type TimeFormat = '12h' | '24h';

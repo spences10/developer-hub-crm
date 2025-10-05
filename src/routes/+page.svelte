@@ -4,7 +4,7 @@
 
 <div class="flex min-h-screen flex-col items-center justify-center">
 	<div class="text-center">
-		<h1 class="mb-4 text-5xl font-bold">Developer Hub CRM</h1>
+		<h1 class="mb-4 text-5xl font-bold">Dev Hub CRM</h1>
 		<p class="mb-8 text-xl opacity-70">Connect, Relate, Meet</p>
 
 		{#await get_current_user() then user}

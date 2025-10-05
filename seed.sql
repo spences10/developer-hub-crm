@@ -1,4 +1,4 @@
--- Developer Hub CRM - Seed Data
+-- Dev Hub CRM - Seed Data
 -- Comprehensive sample data for testing and demonstration
 --
 -- USAGE:
