@@ -1,12 +1,18 @@
 <script lang="ts">
-	import ConfirmDialog from '$lib/components/confirm-dialog.svelte';
+	import ActivityCard from '$lib/components/activity-card.svelte';
 	import EmptyState from '$lib/components/empty-state.svelte';
 	import FilterTabs from '$lib/components/filter-tabs.svelte';
 	import ItemCount from '$lib/components/item-count.svelte';
 	import PageHeaderWithAction from '$lib/components/page-header-with-action.svelte';
 	import PageNav from '$lib/components/page-nav.svelte';
 	import SearchBar from '$lib/components/search-bar.svelte';
-	import { Check, CircleBack, Edit, Trash } from '$lib/icons';
+	import {
+		Calendar,
+		Check,
+		CircleBack,
+		Edit,
+		Trash,
+	} from '$lib/icons';
 	import type { FollowUp } from '$lib/types/db';
 	import {
 		format_date,
@@ -162,14 +168,26 @@
 					: undefined}
 			/>
 		{:else}
-			<div class="space-y-4">
+			<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
 				{#each follow_ups as follow_up}
 					{@const overdue =
 						!follow_up.completed && is_overdue(follow_up.due_date)}
-					<div class="card bg-base-100 shadow-md">
-						<div class="card-body">
-							{#if edit_follow_up_id === follow_up.id}
-								<!-- Edit Mode -->
+					{@const icon_color =
+						overdue && !follow_up.completed
+							? 'bg-error text-error-content'
+							: follow_up.completed
+								? 'bg-success text-success-content'
+								: 'bg-base-200'}
+					{@const metadata_classes =
+						overdue && !follow_up.completed
+							? 'opacity-60 text-error'
+							: 'opacity-60'}
+					{#if edit_follow_up_id === follow_up.id}
+						<!-- Edit Mode -->
+						<div
+							class="card bg-base-100 shadow-md transition-shadow hover:shadow-lg"
+						>
+							<div class="card-body p-4">
 								<div class="space-y-4">
 									<div class="flex items-center justify-between">
 										<a
@@ -219,112 +237,73 @@
 										</button>
 									</div>
 								</div>
-							{:else}
-								<!-- View Mode -->
-								<div class="flex items-start justify-between gap-4">
-									<div class="flex-1">
-										<div class="mb-2 flex items-center gap-3">
-											<a
-												href="/contacts/{follow_up.contact_id}"
-												class="link text-lg font-semibold link-hover"
-											>
-												{follow_up.contact_name}
-											</a>
-											{#if follow_up.completed}
-												<span class="badge badge-success">
-													Completed
-												</span>
-											{:else if overdue}
-												<span class="badge badge-error">Overdue</span>
-											{:else}
-												<span class="badge badge-warning">
-													Pending
-												</span>
-											{/if}
-										</div>
-
-										<div class="mb-2">
-											<span
-												class="text-sm font-medium"
-												class:text-error={overdue &&
-													!follow_up.completed}
-											>
-												Due: {format_due_date(
-													follow_up.due_date,
-													preferences_data.date_format,
-												)}
-											</span>
-										</div>
-
-										{#if follow_up.note}
-											<p class="whitespace-pre-wrap opacity-80">
-												{follow_up.note}
-											</p>
-										{/if}
-
-										{#if follow_up.completed && follow_up.completed_at}
-											<p class="mt-2 text-sm opacity-60">
-												Completed: {format_date(
-													new Date(follow_up.completed_at),
-													preferences_data.date_format,
-												)}
-											</p>
-										{/if}
-									</div>
-
-									<div class="flex flex-col gap-2">
-										{#if delete_confirmation_id === follow_up.id}
-											<ConfirmDialog
-												is_inline={true}
-												message="Delete?"
-												on_confirm={confirm_delete}
-												on_cancel={cancel_delete}
-											/>
-										{:else}
-											{#if follow_up.completed}
-												<button
-													onclick={() => handle_reopen(follow_up.id)}
-													class="tooltip btn btn-ghost btn-sm"
-													data-tip="Reopen"
-													aria-label="Reopen follow-up"
-												>
-													<CircleBack size="20px" />
-												</button>
-											{:else}
-												<button
-													onclick={() =>
-														handle_complete(follow_up.id)}
-													class="tooltip btn text-success btn-ghost btn-sm"
-													data-tip="Complete"
-													aria-label="Complete follow-up"
-												>
-													<Check size="20px" />
-												</button>
-											{/if}
-											<button
-												class="tooltip btn text-info btn-ghost btn-sm"
-												data-tip="Edit"
-												aria-label="Edit follow-up"
-												onclick={(e) =>
-													handle_edit_click(e, follow_up)}
-											>
-												<Edit size="20px" />
-											</button>
-											<button
-												class="tooltip btn text-error btn-ghost btn-sm"
-												data-tip="Delete"
-												aria-label="Delete follow-up"
-												onclick={(e) =>
-													handle_delete_click(e, follow_up.id)}
-											>
-												<Trash size="20px" />
-											</button>
-										{/if}
-									</div>
-								</div>
-							{/if}
+							</div>
 						</div>
-					</div>
+					{:else}
+						<!-- View Mode -->
+						<ActivityCard
+							icon={Calendar}
+							icon_color_classes={icon_color}
+							contact_id={follow_up.contact_id}
+							contact_name={follow_up.contact_name}
+							metadata="Due: {format_due_date(
+								follow_up.due_date,
+								preferences_data.date_format,
+							)}"
+							{metadata_classes}
+							note={follow_up.note}
+							footer_text={follow_up.completed &&
+							follow_up.completed_at
+								? `Completed: ${format_date(
+										new Date(follow_up.completed_at),
+										preferences_data.date_format,
+									)}`
+								: undefined}
+							show_delete_confirmation={delete_confirmation_id ===
+								follow_up.id}
+							on_confirm_delete={confirm_delete}
+							on_cancel_delete={cancel_delete}
+						>
+							{#snippet action_buttons()}
+								{#if follow_up.completed}
+									<button
+										onclick={() => handle_reopen(follow_up.id)}
+										class="btn gap-1 btn-ghost btn-xs"
+										aria-label="Reopen follow-up"
+									>
+										<CircleBack size="16px" />
+										Reopen
+									</button>
+								{:else}
+									<button
+										onclick={() => handle_complete(follow_up.id)}
+										class="btn gap-1 text-success btn-ghost btn-xs"
+										aria-label="Complete follow-up"
+									>
+										<Check size="16px" />
+										Complete
+									</button>
+								{/if}
+								<button
+									class="btn gap-1 btn-ghost btn-xs"
+									aria-label="Edit follow-up"
+									onclick={(e) => handle_edit_click(e, follow_up)}
+								>
+									<Edit size="16px" />
+									Edit
+								</button>
+								<button
+									class="btn gap-1 text-error btn-ghost btn-xs"
+									aria-label="Delete follow-up"
+									onclick={(e) =>
+										handle_delete_click(e, follow_up.id)}
+								>
+									<Trash size="16px" />
+									Delete
+								</button>
+							{/snippet}
+						</ActivityCard>
+					{/if}
 				{/each}
 			</div>
 

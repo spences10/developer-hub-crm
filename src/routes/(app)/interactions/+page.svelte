@@ -1,12 +1,19 @@
 <script lang="ts">
-	import ConfirmDialog from '$lib/components/confirm-dialog.svelte';
+	import ActivityCard from '$lib/components/activity-card.svelte';
 	import EmptyState from '$lib/components/empty-state.svelte';
 	import FilterTabs from '$lib/components/filter-tabs.svelte';
 	import ItemCount from '$lib/components/item-count.svelte';
 	import PageHeaderWithAction from '$lib/components/page-header-with-action.svelte';
 	import PageNav from '$lib/components/page-nav.svelte';
 	import SearchBar from '$lib/components/search-bar.svelte';
-	import { Edit, Trash } from '$lib/icons';
+	import {
+		Calendar,
+		Call,
+		Edit,
+		Email,
+		Message,
+		Trash,
+	} from '$lib/icons';
 	import type { Interaction } from '$lib/types/db';
 	import { format_date } from '$lib/utils/date-helpers';
 	import { get_user_preferences } from '../settings/settings.remote';
@@ -40,11 +47,21 @@
 		'message',
 	] as const;
 
-	const type_badges: Record<string, string> = {
-		meeting: 'badge-primary',
-		call: 'badge-secondary',
-		email: 'badge-accent',
-		message: 'badge-info',
+	const type_icons: Record<
+		string,
+		typeof Calendar | typeof Call | typeof Email | typeof Message
+	> = {
+		meeting: Calendar,
+		call: Call,
+		email: Email,
+		message: Message,
+	};
+
+	const type_colors: Record<string, string> = {
+		meeting: 'bg-primary text-primary-content',
+		call: 'bg-secondary text-secondary-content',
+		email: 'bg-accent text-accent-content',
+		message: 'bg-info text-info-content',
 	};
 
 	function handle_edit_click(
@@ -136,12 +153,15 @@
 					: undefined}
 			/>
 		{:else}
-			<div class="space-y-4">
+			<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
 				{#each interactions as interaction}
-					<div class="card bg-base-100 shadow-md">
-						<div class="card-body">
-							{#if edit_interaction_id === interaction.id}
-								<!-- Edit Mode -->
+					{@const TypeIcon = type_icons[interaction.type]}
+					{#if edit_interaction_id === interaction.id}
+						<!-- Edit Mode -->
+						<div
+							class="card bg-base-100 shadow-md transition-shadow hover:shadow-lg"
+						>
+							<div class="card-body p-4">
 								<div class="space-y-4">
 									<div class="flex items-center justify-between">
 										<a
@@ -195,68 +215,46 @@
 										</button>
 									</div>
 								</div>
-							{:else}
-								<!-- View Mode -->
-								<div class="flex items-start justify-between gap-4">
-									<div class="flex-1">
-										<div class="mb-2 flex items-center gap-3">
-											<a
-												href="/contacts/{interaction.contact_id}"
-												class="link text-lg font-semibold link-hover"
-											>
-												{interaction.contact_name}
-											</a>
-											<span
-												class="badge {type_badges[interaction.type]}"
-											>
-												{interaction.type}
-											</span>
-										</div>
-										{#if interaction.note}
-											<p class="whitespace-pre-wrap opacity-80">
-												{interaction.note}
-											</p>
-										{/if}
-										<p class="mt-2 text-sm opacity-60">
-											{format_date(
-												new Date(interaction.created_at),
-												preferences_data.date_format,
-											)}
-										</p>
-									</div>
-									<div class="flex flex-col gap-2">
-										{#if delete_confirmation_id === interaction.id}
-											<ConfirmDialog
-												is_inline={true}
-												message="Delete?"
-												on_confirm={confirm_delete}
-												on_cancel={cancel_delete}
-											/>
-										{:else}
-											<button
-												class="tooltip btn text-info btn-ghost btn-sm"
-												data-tip="Edit"
-												aria-label="Edit interaction"
-												onclick={(e) =>
-													handle_edit_click(e, interaction)}
-											>
-												<Edit size="20px" />
-											</button>
-											<button
-												class="tooltip btn text-error btn-ghost btn-sm"
-												data-tip="Delete"
-												aria-label="Delete interaction"
-												onclick={(e) =>
-													handle_delete_click(e, interaction.id)}
-											>
-												<Trash size="20px" />
-											</button>
-										{/if}
-									</div>
-								</div>
-							{/if}
+							</div>
 						</div>
-					</div>
+					{:else}
+						<!-- View Mode -->
+						<ActivityCard
+							icon={TypeIcon}
+							icon_color_classes={type_colors[interaction.type]}
+							contact_id={interaction.contact_id}
+							contact_name={interaction.contact_name}
+							metadata="<span class='capitalize'>{interaction.type}</span> • {format_date(
+								new Date(interaction.created_at),
+								preferences_data.date_format,
+							)}"
+							note={interaction.note}
+							show_delete_confirmation={delete_confirmation_id ===
+								interaction.id}
+							on_confirm_delete={confirm_delete}
+							on_cancel_delete={cancel_delete}
+						>
+							{#snippet action_buttons()}
+								<button
+									class="btn gap-1 btn-ghost btn-xs"
+									aria-label="Edit interaction"
+									onclick={(e) => handle_edit_click(e, interaction)}
+								>
+									<Edit size="16px" />
+									Edit
+								</button>
+								<button
+									class="btn gap-1 text-error btn-ghost btn-xs"
+									aria-label="Delete interaction"
+									onclick={(e) =>
+										handle_delete_click(e, interaction.id)}
+								>
+									<Trash size="16px" />
+									Delete
+								</button>
+							{/snippet}
+						</ActivityCard>
+					{/if}
 				{/each}
 			</div>
 
