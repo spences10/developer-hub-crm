@@ -2,8 +2,7 @@
 	import EmptyState from '$lib/components/empty-state.svelte';
 	import FollowUpCard from '$lib/components/follow-up-card.svelte';
 	import InteractionCard from '$lib/components/interaction-card.svelte';
-	import StatCard from '$lib/components/stat-card.svelte';
-	import { Warning } from '$lib/icons';
+	import { Cross, Warning } from '$lib/icons';
 	import { get_user_preferences } from '../settings/settings.remote';
 	import {
 		get_dashboard_activity,
@@ -17,47 +16,42 @@
 
 		<div class="flex gap-2">
 			<a href="/contacts/new" class="btn btn-sm btn-primary">
-				+ Contact
+				<Cross size="10px" type="add" class_names="-mr-1" />
+				Contact
 			</a>
 			<a href="/interactions/new" class="btn btn-sm btn-secondary">
-				+ Interaction
+				<Cross size="10px" type="add" class_names="-mr-1" />
+				Interaction
 			</a>
 			<a href="/follow-ups/new" class="btn btn-sm btn-accent">
-				+ Follow-up
+				<Cross size="10px" type="add" class_names="-mr-1" />
+				Follow-up
 			</a>
 		</div>
 	</div>
 
-	<!-- Stats Cards -->
+	<!-- Stats Bar -->
 	{#await get_dashboard_stats() then stats}
-		<div class="mb-8 grid gap-6 md:grid-cols-3">
-			<StatCard
-				title="Contacts"
-				value={stats.contacts}
-				link="/contacts"
-				link_text="View all →"
-			/>
-
-			<StatCard
-				title="Interactions"
-				value={stats.interactions}
-				link="/interactions"
-				link_text="View all →"
-			/>
-
-			<StatCard
-				title="Follow-ups"
-				value={stats.follow_ups.pending}
-				subtitle="pending"
-				badge={stats.follow_ups.overdue > 0
-					? {
-							text: `${stats.follow_ups.overdue} overdue`,
-							class: 'badge-error',
-						}
-					: undefined}
-				link="/follow-ups"
-				link_text="View all →"
-			/>
+		<div class="mb-8 flex flex-wrap items-center gap-2 text-sm">
+			<a href="/contacts" class="link link-hover">
+				<span class="font-semibold">{stats.contacts}</span>
+				contact{stats.contacts !== 1 ? 's' : ''}
+			</a>
+			<span class="opacity-50">•</span>
+			<a href="/interactions" class="link link-hover">
+				<span class="font-semibold">{stats.interactions}</span>
+				interaction{stats.interactions !== 1 ? 's' : ''}
+			</a>
+			<span class="opacity-50">•</span>
+			<a href="/follow-ups" class="link link-hover">
+				<span class="font-semibold">{stats.follow_ups.pending}</span>
+				pending follow-up{stats.follow_ups.pending !== 1 ? 's' : ''}
+			</a>
+			{#if stats.follow_ups.overdue > 0}
+				<span class="badge badge-sm badge-error">
+					{stats.follow_ups.overdue} overdue
+				</span>
+			{/if}
 		</div>
 	{/await}
 

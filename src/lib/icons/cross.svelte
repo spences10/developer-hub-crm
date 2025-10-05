@@ -1,14 +1,12 @@
 <script lang="ts">
 	interface Props {
-		height?: string;
-		width?: string;
+		size?: string;
 		class_names?: string;
 		type?: 'add' | 'close';
 	}
 
 	let {
-		height = '24px',
-		width = '24px',
+		size = '24px',
 		class_names,
 		type = 'close',
 	}: Props = $props();
@@ -20,8 +18,8 @@
 	fill="none"
 	viewBox="0 0 24 24"
 	stroke="currentColor"
-	{height}
-	{width}
+	height={size}
+	width={size}
 >
 	<path
 		stroke-linecap="round"
