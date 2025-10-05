@@ -276,6 +276,11 @@ For code used across multiple components:
 User preferences are stored per-user and automatically applied
 throughout the app:
 
+**Appearance:**
+
+- `theme` - Application color theme (stored in localStorage and
+  cookie, 37 daisyUI themes available)
+
 **Date & Time:**
 
 - `date_format` - How dates are displayed (YYYY-MM-DD, MM/DD/YYYY,
@@ -292,6 +297,30 @@ throughout the app:
   interactions (meeting, call, email, message, or none)
 
 Access via `get_user_preferences()` from `settings.remote.ts`.
+
+### Theming
+
+The application supports 37 daisyUI themes that can be selected from
+the Settings page:
+
+**Implementation:**
+
+- Theme selection is stored in `localStorage` (client-side
+  persistence)
+- Theme is also stored in a cookie (server-side rendering support)
+- Theme is applied via `data-theme` attribute on `<html>` element
+- Available themes are defined in `$lib/themes/index.ts`
+
+**How it works:**
+
+1. User selects theme from Settings page
+2. Theme is saved to `localStorage` and cookie (1 year expiry)
+3. `data-theme` attribute is set on document root
+4. daisyUI CSS variables update automatically
+5. On page load, theme is restored from `localStorage` via `$effect()`
+
+**Location:** Theme selector is in `/settings` page, integrated with
+other user preferences.
 
 ### Add a feature with list/detail/create pages (like interactions)
 

@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { themes } from '$lib/themes';
 	import { format_date } from '$lib/utils/date-helpers';
 	import {
 		get_user_preferences,
@@ -13,11 +14,34 @@
 	const preferences = get_user_preferences();
 
 	let saving = $state(false);
+	let current_theme = $state('');
+
+	$effect(() => {
+		if (typeof window !== 'undefined') {
+			const theme = window.localStorage.getItem('theme');
+			if (theme && themes.includes(theme)) {
+				document.documentElement.setAttribute('data-theme', theme);
+				current_theme = theme;
+			}
+		}
+	});
 
 	async function save_with_indicator(fn: () => Promise<void>) {
 		saving = true;
 		await fn();
 		setTimeout(() => (saving = false), 500); // Show "Saved" briefly
+	}
+
+	function set_theme(event: Event) {
+		const select = event.target as HTMLSelectElement;
+		const theme = select.value;
+		if (themes.includes(theme)) {
+			const one_year = 60 * 60 * 24 * 365;
+			window.localStorage.setItem('theme', theme);
+			document.cookie = `theme=${theme}; max-age=${one_year}; path=/; SameSite=Lax`;
+			document.documentElement.setAttribute('data-theme', theme);
+			current_theme = theme;
+		}
 	}
 
 	// Define options
@@ -119,6 +143,33 @@
 		</div>
 	{:then preferences}
 		<div class="space-y-6">
+			<!-- Theme Selector -->
+			<div class="card bg-base-100 shadow-xl">
+				<div class="card-body">
+					<h2 class="card-title">Theme</h2>
+					<p class="text-sm opacity-70">
+						Choose a color theme for the application
+					</p>
+
+					<label class="label mt-4">
+						<select
+							bind:value={current_theme}
+							class="select-bordered select w-full max-w-xs capitalize"
+							onchange={set_theme}
+						>
+							<option value="" disabled={current_theme !== ''}>
+								Choose a theme
+							</option>
+							{#each themes as theme}
+								<option value={theme} class="capitalize"
+									>{theme}</option
+								>
+							{/each}
+						</select>
+					</label>
+				</div>
+			</div>
+
 			{@render radio_group(
 				'Date Format',
 				'Choose how dates are displayed throughout the application',
