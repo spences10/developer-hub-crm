@@ -1,4 +1,6 @@
 <script lang="ts" generics="T extends string">
+	import { Arrow } from '$lib/icons';
+
 	interface Props {
 		label: string;
 		column: T;
@@ -23,11 +25,10 @@
 	>
 		{label}
 		{#if current_sort === column}
-			{#if sort_direction === 'asc'}
-				↑
-			{:else}
-				↓
-			{/if}
+			<Arrow
+				size="16px"
+				direction={sort_direction === 'asc' ? 'up' : 'down'}
+			/>
 		{/if}
 	</button>
 </th>

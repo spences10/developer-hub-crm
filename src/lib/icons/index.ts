@@ -1,3 +1,4 @@
+export { default as Arrow } from './arrow.svelte';
 export { default as Bluesky } from './bluesky.svelte';
 export { default as Cross } from './cross.svelte';
 export { default as GitHub } from './github.svelte';

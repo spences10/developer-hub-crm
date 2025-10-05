@@ -5,6 +5,7 @@
 	import FollowUpCard from '$lib/components/follow-up-card.svelte';
 	import InteractionCard from '$lib/components/interaction-card.svelte';
 	import SocialLinkIcon from '$lib/components/social-link.svelte';
+	import { Arrow } from '$lib/icons';
 	import { format_date } from '$lib/utils/date-helpers';
 	import {
 		complete_follow_up,
@@ -49,8 +50,12 @@
 
 <div class="mx-auto max-w-4xl">
 	<div class="mb-8">
-		<a href="/contacts" class="link link-hover">
-			&larr; Back to Contacts
+		<a
+			href="/contacts"
+			class="flex link items-center gap-1 link-hover"
+		>
+			<Arrow size="20px" direction="left" />
+			Back to Contacts
 		</a>
 	</div>
 
