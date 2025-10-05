@@ -2,8 +2,10 @@
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
 	import ContactFormFields from '$lib/components/contact-form-fields.svelte';
-	import PageHeader from '$lib/components/page-header.svelte';
+	import PageHeaderWithAction from '$lib/components/page-header-with-action.svelte';
+	import PageNav from '$lib/components/page-nav.svelte';
 	import SocialLinkIcon from '$lib/components/social-link.svelte';
+	import { Cancel } from '$lib/icons';
 	import {
 		add_social_link,
 		delete_social_link,
@@ -93,12 +95,18 @@
 	}
 </script>
 
-<div class="mx-auto max-w-2xl">
-	<PageHeader
-		back_href="/contacts/{contact_id}"
-		back_text="Back to Contact"
-		title="Edit Contact"
-	/>
+<div class="mx-auto max-w-6xl">
+	<PageHeaderWithAction title="Edit Contact">
+		<a
+			href="/contacts/{contact_id}"
+			class="tooltip btn gap-2 text-error btn-ghost btn-sm"
+			data-tip="Cancel"
+			aria-label="Cancel editing"
+		>
+			<Cancel size="20px" />
+		</a>
+	</PageHeaderWithAction>
+	<PageNav />
 
 	{#if contact_id}
 		{#key refresh_key}

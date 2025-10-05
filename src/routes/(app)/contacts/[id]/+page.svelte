@@ -5,8 +5,10 @@
 	import EmptyState from '$lib/components/empty-state.svelte';
 	import FollowUpCard from '$lib/components/follow-up-card.svelte';
 	import InteractionCard from '$lib/components/interaction-card.svelte';
+	import PageHeaderWithAction from '$lib/components/page-header-with-action.svelte';
+	import PageNav from '$lib/components/page-nav.svelte';
 	import SocialLinkIcon from '$lib/components/social-link.svelte';
-	import { Arrow, Edit, Trash } from '$lib/icons';
+	import { Edit, Trash } from '$lib/icons';
 	import { format_date } from '$lib/utils/date-helpers';
 	import {
 		complete_follow_up,
@@ -56,29 +58,11 @@
 	}
 </script>
 
-<div class="mx-auto max-w-4xl">
-	<div class="mb-8">
-		<a
-			href="/contacts"
-			class="flex link items-center gap-1 link-hover"
-		>
-			<Arrow size="20px" direction="left" />
-			Back to Contacts
-		</a>
-	</div>
-
+<div class="mx-auto max-w-6xl">
 	{#if contact_id}
 		{#key refresh_key}
 			{#await Promise.all( [get_contact(contact_id), get_user_preferences()], ) then [contact, preferences]}
-				<div class="mb-6 flex items-start justify-between">
-					<div>
-						<h1 class="text-3xl font-bold">
-							{contact.name}
-							{#if contact.is_vip}
-								<span class="ml-2 badge badge-primary">VIP</span>
-							{/if}
-						</h1>
-					</div>
+				<PageHeaderWithAction title={contact.name}>
 					<div class="flex gap-2">
 						<a
 							href="/contacts/{contact.id}/edit"
@@ -106,70 +90,51 @@
 							</button>
 						{/if}
 					</div>
-				</div>
+				</PageHeaderWithAction>
+				<PageNav />
 
-				<div class="grid gap-6 md:grid-cols-2">
-					<!-- Contact Info Card -->
-					<div class="card bg-base-100 shadow-xl">
-						<div class="card-body">
-							<h2 class="card-title">Contact Information</h2>
+				<!-- Compact Contact Info Panel -->
+				<div class="card mb-6 bg-base-100 shadow-xl">
+					<div class="card-body">
+						<div class="grid gap-6 md:grid-cols-3">
+							<!-- Contact Details Column -->
 							<div class="space-y-3">
+								<h3
+									class="text-sm font-semibold uppercase opacity-70"
+								>
+									Contact Info
+								</h3>
+								{#if contact.is_vip}
+									<div>
+										<span class="badge badge-primary">VIP</span>
+									</div>
+								{/if}
 								{#if contact.email}
 									<div>
-										<p class="text-sm opacity-70">Email</p>
+										<p class="text-xs opacity-70">Email</p>
 										<a
 											href="mailto:{contact.email}"
-											class="link link-primary"
+											class="link text-sm link-primary"
 										>
 											{contact.email}
 										</a>
 									</div>
 								{/if}
-
 								{#if contact.phone}
 									<div>
-										<p class="text-sm opacity-70">Phone</p>
+										<p class="text-xs opacity-70">Phone</p>
 										<a
 											href="tel:{contact.phone}"
-											class="link link-primary"
+											class="link text-sm link-primary"
 										>
 											{contact.phone}
 										</a>
 									</div>
 								{/if}
-
-								{#if contact.company}
-									<div>
-										<p class="text-sm opacity-70">Company</p>
-										<p>{contact.company}</p>
-									</div>
-								{/if}
-
-								{#if contact.title}
-									<div>
-										<p class="text-sm opacity-70">Title</p>
-										<p>{contact.title}</p>
-									</div>
-								{/if}
-
-								{#if contact.github_username}
-									<div>
-										<p class="text-sm opacity-70">GitHub</p>
-										<a
-											href="https://github.com/{contact.github_username}"
-											target="_blank"
-											rel="noopener noreferrer"
-											class="link link-primary"
-										>
-											@{contact.github_username}
-										</a>
-									</div>
-								{/if}
-
 								{#if contact.birthday}
 									<div>
-										<p class="text-sm opacity-70">Birthday</p>
-										<p>
+										<p class="text-xs opacity-70">Birthday</p>
+										<p class="text-sm">
 											{format_date(
 												new Date(contact.birthday),
 												preferences.date_format,
@@ -177,19 +142,50 @@
 										</p>
 									</div>
 								{/if}
+							</div>
 
+							<!-- Work Details Column -->
+							<div class="space-y-3">
+								<h3
+									class="text-sm font-semibold uppercase opacity-70"
+								>
+									Work Info
+								</h3>
+								{#if contact.company}
+									<div>
+										<p class="text-xs opacity-70">Company</p>
+										<p class="text-sm">{contact.company}</p>
+									</div>
+								{/if}
+								{#if contact.title}
+									<div>
+										<p class="text-xs opacity-70">Title</p>
+										<p class="text-sm">{contact.title}</p>
+									</div>
+								{/if}
+								{#if contact.github_username}
+									<div>
+										<p class="text-xs opacity-70">GitHub</p>
+										<a
+											href="https://github.com/{contact.github_username}"
+											target="_blank"
+											rel="noopener noreferrer"
+											class="link text-sm link-primary"
+										>
+											@{contact.github_username}
+										</a>
+									</div>
+								{/if}
 								{#if contact.social_links && contact.social_links.length > 0}
 									<div>
-										<p class="mb-2 text-sm opacity-70">
-											Social Links
-										</p>
-										<div class="flex flex-wrap gap-2">
+										<p class="mb-1 text-xs opacity-70">Social</p>
+										<div class="flex flex-wrap gap-1">
 											{#each contact.social_links as link}
 												<a
 													href={link.url}
 													target="_blank"
 													rel="noopener noreferrer"
-													class="badge gap-1 badge-outline badge-lg"
+													class="badge gap-1 badge-outline badge-sm"
 												>
 													<SocialLinkIcon platform={link.platform} />
 													{link.platform}
@@ -199,25 +195,30 @@
 									</div>
 								{/if}
 							</div>
-						</div>
-					</div>
 
-					<!-- Stats Card -->
-					<div class="card bg-base-100 shadow-xl">
-						<div class="card-body">
-							<h2 class="card-title">Activity</h2>
+							<!-- Activity Stats Column -->
 							<div class="space-y-3">
+								<h3
+									class="text-sm font-semibold uppercase opacity-70"
+								>
+									Activity
+								</h3>
 								<div>
-									<p class="text-sm opacity-70">Total Interactions</p>
+									<p class="text-xs opacity-70">Total Interactions</p>
 									<p class="text-2xl font-bold">
 										{contact.interaction_count}
 									</p>
 								</div>
-
+								<div>
+									<p class="text-xs opacity-70">Pending Follow-ups</p>
+									<p class="text-2xl font-bold">
+										{contact.pending_follow_ups}
+									</p>
+								</div>
 								{#if contact.last_interaction_at}
 									<div>
-										<p class="text-sm opacity-70">Last Contact</p>
-										<p>
+										<p class="text-xs opacity-70">Last Contact</p>
+										<p class="text-sm">
 											{format_date(
 												new Date(contact.last_interaction_at),
 												preferences.date_format,
@@ -225,18 +226,10 @@
 										</p>
 									</div>
 								{/if}
-
-								<div>
-									<p class="text-sm opacity-70">Pending Follow-ups</p>
-									<p class="text-2xl font-bold">
-										{contact.pending_follow_ups}
-									</p>
-								</div>
-
 								{#if contact.last_contacted_at}
 									<div>
-										<p class="text-sm opacity-70">Last Contacted</p>
-										<p>
+										<p class="text-xs opacity-70">Last Contacted</p>
+										<p class="text-sm">
 											{format_date(
 												new Date(contact.last_contacted_at),
 												preferences.date_format,
@@ -347,18 +340,6 @@
 							{/await}
 						{/if}
 					</div>
-				</div>
-
-				<!-- Metadata -->
-				<div class="mt-6 text-sm opacity-50">
-					<p>
-						Created: {new Date(contact.created_at).toLocaleString()}
-					</p>
-					<p>
-						Last updated: {new Date(
-							contact.updated_at,
-						).toLocaleString()}
-					</p>
 				</div>
 			{/await}
 		{/key}

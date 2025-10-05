@@ -1,4 +1,6 @@
 <script lang="ts">
+	import type { Snippet } from 'svelte';
+
 	interface Props {
 		loading: boolean;
 		disabled?: boolean;
@@ -6,7 +8,7 @@
 		class_names?: string;
 		loading_text?: string;
 		onclick?: () => void;
-		children: import('svelte').Snippet;
+		children: Snippet;
 	}
 
 	let {

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { Component } from 'svelte';
+	import type { Component, Snippet } from 'svelte';
 	import ConfirmDialog from './confirm-dialog.svelte';
 
 	interface Props {
@@ -20,7 +20,7 @@
 		on_confirm_delete: () => void;
 		on_cancel_delete: () => void;
 		// Action buttons (via snippet)
-		action_buttons: import('svelte').Snippet;
+		action_buttons: Snippet;
 	}
 
 	let {

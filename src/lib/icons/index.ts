@@ -2,6 +2,7 @@ export { default as Arrow } from './arrow.svelte';
 export { default as Bluesky } from './bluesky.svelte';
 export { default as Calendar } from './calendar.svelte';
 export { default as Call } from './call.svelte';
+export { default as Cancel } from './cancel.svelte';
 export { default as Check } from './check.svelte';
 export { default as CircleBack } from './circle-back.svelte';
 export { default as Contacts } from './contacts.svelte';
