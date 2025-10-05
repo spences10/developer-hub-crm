@@ -1,11 +1,12 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
+	import ConfirmDialog from '$lib/components/confirm-dialog.svelte';
 	import EmptyState from '$lib/components/empty-state.svelte';
 	import FollowUpCard from '$lib/components/follow-up-card.svelte';
 	import InteractionCard from '$lib/components/interaction-card.svelte';
 	import SocialLinkIcon from '$lib/components/social-link.svelte';
-	import { Arrow } from '$lib/icons';
+	import { Arrow, Edit, Trash } from '$lib/icons';
 	import { format_date } from '$lib/utils/date-helpers';
 	import {
 		complete_follow_up,
@@ -21,15 +22,22 @@
 
 	// Reactive key to trigger re-fetches after mutations
 	let refresh_key = $state(0);
-	let deleting = $state(false);
+	let show_delete_confirmation = $state(false);
 
-	async function handle_delete() {
-		deleting = true;
+	function handle_delete_click() {
+		show_delete_confirmation = true;
+	}
+
+	async function confirm_delete() {
 		const result = await delete_contact(contact_id);
 		if (result && 'success' in result) {
 			goto('/contacts');
 		}
-		deleting = false;
+		show_delete_confirmation = false;
+	}
+
+	function cancel_delete() {
+		show_delete_confirmation = false;
 	}
 
 	async function handle_complete_follow_up(id: string) {
@@ -74,23 +82,25 @@
 					<div class="flex gap-2">
 						<a
 							href="/contacts/{contact.id}/edit"
-							class="btn btn-outline"
+							class="btn text-info btn-ghost btn-sm"
 						>
-							Edit
+							<Edit size="20px" />
 						</a>
-						<button
-							onclick={handle_delete}
-							disabled={deleting}
-							class="btn btn-outline btn-error"
-						>
-							{#if deleting}
-								<span class="loading loading-sm loading-spinner"
-								></span>
-								Deleting...
-							{:else}
-								Delete
-							{/if}
-						</button>
+						{#if show_delete_confirmation}
+							<ConfirmDialog
+								is_inline={true}
+								message="Delete contact?"
+								on_confirm={confirm_delete}
+								on_cancel={cancel_delete}
+							/>
+						{:else}
+							<button
+								onclick={handle_delete_click}
+								class="btn text-error btn-ghost btn-sm"
+							>
+								<Trash size="20px" />
+							</button>
+						{/if}
 					</div>
 				</div>
 
