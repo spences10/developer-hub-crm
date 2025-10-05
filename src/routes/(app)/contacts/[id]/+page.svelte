@@ -82,7 +82,9 @@
 					<div class="flex gap-2">
 						<a
 							href="/contacts/{contact.id}/edit"
-							class="btn text-info btn-ghost btn-sm"
+							class="tooltip btn text-info btn-ghost btn-sm"
+							data-tip="Edit"
+							aria-label="Edit contact"
 						>
 							<Edit size="20px" />
 						</a>
@@ -96,7 +98,9 @@
 						{:else}
 							<button
 								onclick={handle_delete_click}
-								class="btn text-error btn-ghost btn-sm"
+								class="tooltip btn text-error btn-ghost btn-sm"
+								data-tip="Delete"
+								aria-label="Delete contact"
 							>
 								<Trash size="20px" />
 							</button>

@@ -223,7 +223,8 @@
 											/>
 										{:else}
 											<button
-												class="btn text-info btn-ghost btn-sm"
+												class="tooltip btn text-info btn-ghost btn-sm"
+												data-tip="Edit"
 												aria-label="Edit interaction"
 												onclick={(e) =>
 													handle_edit_click(e, interaction)}
@@ -231,7 +232,8 @@
 												<Edit size="20px" />
 											</button>
 											<button
-												class="btn text-error btn-ghost btn-sm"
+												class="tooltip btn text-error btn-ghost btn-sm"
+												data-tip="Delete"
 												aria-label="Delete interaction"
 												onclick={(e) =>
 													handle_delete_click(e, interaction.id)}
