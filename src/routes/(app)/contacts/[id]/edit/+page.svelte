@@ -118,7 +118,7 @@
 							/>
 
 							<!-- Social Links Management -->
-							<div class="rounded-lg bg-base-200 p-4">
+							<div class="rounded-box bg-base-200 p-4">
 								<p class="mb-3 text-sm font-medium">Social Links</p>
 
 								<!-- Existing Social Links -->

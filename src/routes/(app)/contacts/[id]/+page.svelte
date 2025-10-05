@@ -285,7 +285,7 @@
 											{@const overdue = is_overdue(
 												follow_up.due_date,
 											)}
-											<div class="rounded-lg bg-base-200 p-4">
+											<div class="rounded-box bg-base-200 p-4">
 												<div
 													class="mb-2 flex items-center justify-between"
 												>
@@ -370,7 +370,7 @@
 								{:else}
 									<div class="space-y-3">
 										{#each interactions as interaction}
-											<div class="rounded-lg bg-base-200 p-4">
+											<div class="rounded-box bg-base-200 p-4">
 												<div class="mb-2 flex items-center gap-2">
 													<span
 														class="badge {type_badges[

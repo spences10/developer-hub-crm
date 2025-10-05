@@ -139,7 +139,7 @@
 
 				<!-- Social Links from GitHub Import -->
 				{#if pending_social_links.length > 0}
-					<div class="rounded-lg bg-base-200 p-4">
+					<div class="rounded-box bg-base-200 p-4">
 						<p class="mb-3 text-sm font-medium">
 							Social Links (from GitHub)
 						</p>

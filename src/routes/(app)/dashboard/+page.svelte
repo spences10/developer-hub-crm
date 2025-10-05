@@ -108,7 +108,7 @@
 						</div>
 						<div class="space-y-3">
 							{#each activity.overdue_follow_ups as follow_up}
-								<div class="rounded-lg bg-base-100 p-4">
+								<div class="rounded-box bg-base-100 p-4">
 									<div class="flex items-center justify-between">
 										<div class="flex-1">
 											<a
@@ -161,7 +161,7 @@
 							{#each activity.upcoming_follow_ups as follow_up}
 								<a
 									href="/contacts/{follow_up.contact_id}"
-									class="block rounded-lg bg-base-200 p-3 transition hover:bg-base-300"
+									class="block rounded-box bg-base-200 p-3 transition hover:bg-base-300"
 								>
 									<p class="font-semibold">
 										{follow_up.contact_name}
@@ -205,7 +205,7 @@
 							{#each activity.recent_interactions as interaction}
 								<a
 									href="/contacts/{interaction.contact_id}"
-									class="block rounded-lg bg-base-200 p-3 transition hover:bg-base-300"
+									class="block rounded-box bg-base-200 p-3 transition hover:bg-base-300"
 								>
 									<div class="mb-1 flex items-center gap-2">
 										<p class="font-semibold">
