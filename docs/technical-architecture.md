@@ -156,7 +156,7 @@ auth
 `/api/profiles/@username` → JSON API, custom domains → CNAME
 
 **QR code:** Use `qrcode` npm package, generate on profile
-create/update, store as data URL or upload to R2/S3
+create/update, store as data URL or upload to Bunny Storage
 
 **SEO:** Server-side render, Open Graph meta tags, Schema.org Person
 markup, sitemap for all profiles
@@ -173,25 +173,169 @@ signature
 **Auth:** JWT tokens, API keys for CLI, rate limiting (100 req/min
 free, 1000 req/min paid)
 
+## Email Service (Required)
+
+Transactional emails for verification, follow-up notifications, daily
+digests.
+
+**Recommended:** Resend
+
+- Free: 3,000 emails/month, 100/day limit
+- Pro: $20/month for 50,000 emails (no daily limit)
+- Clean API, React email templates
+- SDKs for all languages
+
+**Alternative:** Plunk
+
+- $0.001/email (5x cheaper)
+- Unified marketing + transactional
+- Open source, self-hostable
+
+**Alternative:** SendGrid
+
+- Free: 100 emails/day
+- Paid: $19.95/month for 50,000 emails
+- Enterprise-grade, established
+
+**Implementation:** All require manual double opt-in implementation
+(none provide automatic double opt-in). See Double Opt-In section
+below.
+
+| Service  | Free Tier      | Paid Tier           | Key Feature             |
+| -------- | -------------- | ------------------- | ----------------------- |
+| Resend   | 3K/mo, 100/day | $20/mo (50K emails) | Developer-first API     |
+| Plunk    | Pay-as-you-go  | $0.001/email        | Cheapest, self-hostable |
+| SendGrid | 100/day        | $20/mo (50K emails) | Enterprise features     |
+
+**Environment variables:** `EMAIL_API_KEY`, `EMAIL_FROM_ADDRESS`
+
+## Double Opt-In (Required)
+
+Email verification flow to prevent spam, ensure valid addresses.
+
+**Database schema additions:**
+
+```sql
+ALTER TABLE user ADD COLUMN email_verified INTEGER DEFAULT 0;
+ALTER TABLE user ADD COLUMN verification_token TEXT;
+ALTER TABLE user ADD COLUMN verification_sent_at INTEGER;
+```
+
+**Verification flow:**
+
+1. User signs up → Generate unique verification token
+2. Send verification email with link containing token
+3. User clicks link → Verify token, mark `email_verified = 1`
+4. Only send emails to verified addresses
+
+**Token generation:** Use `crypto.randomUUID()` or similar
+
+**Token expiry:** Store timestamp, expire after 24-48 hours
+
+**Resend verification:** Allow user to request new verification email
+
+**Email template requirements:**
+
+- Clear subject line: "Verify your DevHub email address"
+- Prominent verification button/link
+- Token as URL parameter: `/verify-email?token=xxx`
+- Expiration notice: "This link expires in 24 hours"
+
+**Security:** Hash tokens before storing in database, validate on
+verification route
+
 ## Deployment
 
-**Current:**
+Two deployment options with different trade-offs.
+
+### Option 1: Coolify (Self-Hosted)
+
+**Current architecture:**
 
 ```
-Coolify → Node.js (SvelteKit) → SQLite (local file)
+VPS/Server → Coolify → SvelteKit (Node.js) → SQLite (local file)
 ```
 
-**Future scale:**
+**Stack:**
+
+- Database: SQLite (better-sqlite3)
+- Storage: Local filesystem
+- Email: Resend/Plunk/SendGrid API
+- Hosting: Self-hosted VPS
+
+**Scaling path:**
 
 ```
-Load Balancer → App Servers (SvelteKit) → PostgreSQL + Redis + S3/R2
+Load Balancer → Multiple SvelteKit instances → PostgreSQL + Redis + Bunny Storage/CDN
 ```
 
 **When to migrate:**
 
 - SQLite → PostgreSQL: >10,000 active users
-- Monolith → Services: >50,000 users
-- Self-host → Cloud: When revenue supports it
+- Single server → Multi-instance: >5,000 concurrent users
+- Local storage → Bunny Storage: When serving global users
+
+**Pros:** Lower cost, full control, familiar deployment, good for MVP
+
+**Cons:** Single region, manual scaling, self-managed backups
+
+### Option 2: Bunny.net (Edge Platform)
+
+**Architecture:**
+
+```
+Magic Containers (Docker) → SvelteKit (Node.js)
+  ├─ Turso Embedded Replica (local libSQL/SQLite)
+  └─ Syncs to → Turso Cloud Database (global replication)
+
+Bunny Storage/CDN → QR codes, profile images, uploads
+Email → Resend/Plunk API
+```
+
+**Stack:**
+
+- Database: Turso (libSQL with embedded replicas)
+- Storage: Bunny Storage + CDN
+- Email: Resend/Plunk/SendGrid API
+- Hosting: Magic Containers (41+ global regions)
+
+**Database change:** Replace `better-sqlite3` with `@libsql/client`
+
+**Key features:**
+
+- Embedded replicas: Local SQLite file in each container
+- Reads: Zero latency (local file, no network)
+- Writes: Sync to Turso cloud, replicate globally
+- Auto-scaling across 41+ regions
+
+**Pros:** Global edge deployment, auto-scaling, zero-latency reads,
+managed backups
+
+**Cons:** Higher cost at scale, requires Turso migration, newer
+platform
+
+**Cost estimate (at scale):**
+
+- Magic Containers: $10-50/month
+- Turso: Free tier or $29/month
+- Bunny Storage/CDN: $5-10/month
+- Email: Free tier or $20/month
+- **Total: $15-110/month**
+
+### Deployment Comparison
+
+| Aspect       | Coolify                  | Bunny.net                        |
+| ------------ | ------------------------ | -------------------------------- |
+| Cost         | $5-20/mo (VPS)           | $15-110/mo (pay-as-you-go)       |
+| Regions      | Single                   | 41+ global edge                  |
+| Database     | SQLite (local)           | Turso (global libSQL)            |
+| Read Latency | Local (fast)             | Local (zero latency via replica) |
+| Scaling      | Vertical (bigger server) | Horizontal (auto-scale globally) |
+| Setup        | Simpler                  | More complex (Turso migration)   |
+| Best For     | MVP, small-medium apps   | Global users, edge performance   |
+
+**Recommendation:** Start with Coolify for MVP, migrate to Bunny.net
+when scaling globally or need edge performance.
 
 ## Database Migrations
 
