@@ -1,26 +1,17 @@
 # Technical Architecture
 
-## High-Level Overview
-
-**Current Stack:**
+## Current Stack
 
 - Frontend: SvelteKit + Svelte 5
 - Database: SQLite (better-sqlite3)
 - Auth: Better Auth
 - Hosting: Coolify (self-hosted)
 
-**Architecture Philosophy:**
+**Philosophy:** Start simple, scale later. SQLite until we need
+PostgreSQL. Monolith until we need microservices. Self-hosted until we
+need cloud scale.
 
-- Start simple, scale later
-- SQLite until we need PostgreSQL
-- Monolith until we need microservices
-- Self-hosted until we need cloud scale
-
----
-
-## Database Schema Additions
-
-### New Tables for Features
+## New Database Tables
 
 **Public Profiles:**
 
@@ -41,11 +32,7 @@ CREATE TABLE public_profiles (
   updated_at INTEGER NOT NULL,
   FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE
 );
-```
 
-**Profile Analytics:**
-
-```sql
 CREATE TABLE profile_views (
   id TEXT PRIMARY KEY,
   profile_id TEXT NOT NULL,
@@ -109,458 +96,162 @@ CREATE TABLE contact_tags (
 );
 ```
 
----
-
-## Background Job System
-
-**Why We Need It:**
-
-- GitHub activity sync (nightly)
-- AI agent runs (daily digest)
-- Email notifications
-- Webhook retries
-- Data cleanup
+## Background Jobs
 
 **Options:**
 
-**Option A: Simple Cron (Start Here)**
+- Start: Node-cron for scheduled tasks (simple, good for low-scale)
+- Scale: BullMQ at 1,000+ users (Redis-based, retry logic, priority
+  queues)
 
-- Node-cron for scheduled tasks
-- Works for low-scale
-- Easy to implement
-- Migrate later if needed
-
-**Option B: BullMQ (Scale Later)**
-
-- Redis-based job queue
-- Retry logic, priority queues
-- Web UI for monitoring
-- Better for high-scale
-
-**Recommendation:** Start with cron, migrate to BullMQ at 1,000+ users
-
-**Job Types:**
+**Job types:**
 
 1. `sync-github-activity` - Nightly for all contacts
 2. `run-daily-agent` - Morning digest generation
 3. `send-notifications` - Email/webhook delivery
 4. `cleanup-old-data` - Archive/delete old records
 
----
-
 ## GitHub API Integration
 
-**Rate Limits:**
-
-- Authenticated: 5,000 req/hour
-- Unauthenticated: 60 req/hour
+**Rate limits:** Authenticated: 5,000 req/hour, Unauthenticated: 60
+req/hour
 
 **Strategy:**
 
-**1. Use User OAuth Tokens**
-
-- Each user's token = separate limit
-- Spreads load across users
-- Users get 5,000/hour for their syncs
-
-**2. Aggressive Caching**
-
-- Profile: 1 hour TTL
-- Repos: 6 hours TTL
-- Activity: 30 min TTL
-- Social links: 24 hours TTL
-
-**3. Batch & Throttle**
-
-- Sync 100 contacts/hour (not all at once)
-- Spread across 24 hours
-- Prioritize VIPs and active contacts
-
-**4. Tiered Sync Frequency**
-
-- Free: 10 contacts/day
-- Pro: All contacts daily
-- Premium: Real-time webhooks
-
----
+1. Use user OAuth tokens (each user = separate 5,000/hour limit)
+2. Aggressive caching (Profile: 1h, Repos: 6h, Activity: 30min,
+   Social: 24h)
+3. Batch & throttle (sync 100 contacts/hour, spread across 24 hours)
+4. Tiered sync (Free: 10/day, Pro: all daily, Premium: real-time
+   webhooks)
 
 ## AI Integration
 
-**Model Options:**
+**Model options:**
 
-**Claude/GPT API (Start Here):**
+- Start: Claude 3.5 Sonnet or GPT-4 ($0.01-0.05 per operation, best
+  quality)
+- Future: Self-hosted OSS (Llama 3.1, Mistral - infrastructure cost
+  only, lower quality)
+- Long-term: Hybrid (Free tier: OSS, Paid tier: Claude/GPT)
 
-- Use Claude 3.5 Sonnet or GPT-4
-- Cost: $0.01-0.05 per operation
-- Best quality, easy integration
-- Send only necessary context (privacy)
+**Data minimization:** Only send name, company, interactions summary.
+Never send email, phone, private notes.
 
-**Self-Hosted OSS (Future):**
+## CLI Tool
 
-- Llama 3.1, Mistral, etc.
-- Infrastructure cost only
-- Privacy-first
-- Lower quality
+**Tech stack:** Clack, Chalk, Ora
 
-**Hybrid (Long-term):**
+**Distribution:** NPM package `@devhub/cli`, global install
 
-- Free tier: OSS models
-- Paid tier: Claude/GPT
+**Auth:** OAuth via browser popup or API token, store in
+`~/.devhub/config.json`
 
-**Data Minimization:**
-
-- Only send: name, company, interactions summary
-- Never send: email, phone, private notes
-- Anonymize when possible
-
----
-
-## CLI Tool Architecture
-
-**Tech Stack:**
-
-- Commander.js (command framework)
-- Inquirer (interactive prompts)
-- Chalk (colors)
-- Ora (spinners)
-- Axios (API client)
-
-**Distribution:**
-
-- NPM package: `@devhub/cli`
-- Global install: `npm i -g @devhub/cli`
-
-**Authentication:**
-
-- OAuth via browser popup
-- Or API token (manual)
-- Store token in `~/.devhub/config.json`
-
-**API Client:**
-
-- REST API calls to main app
-- Same endpoints as web UI
-- JWT auth header
-
----
+**API client:** REST calls to main app, same endpoints as web UI, JWT
+auth
 
 ## Public Profile System
 
-**URL Routing:**
+**URL routing:** `/@username` → public profile,
+`/api/profiles/@username` → JSON API, custom domains → CNAME
 
-- `/@username` → Public profile page
-- `/api/profiles/@username` → JSON API
-- Custom domains → CNAME → profile
+**QR code:** Use `qrcode` npm package, generate on profile
+create/update, store as data URL or upload to R2/S3
 
-**QR Code Generation:**
-
-- Use `qrcode` npm package
-- Generate on profile create/update
-- Store as data URL or upload to R2/S3
-
-**SEO Optimization:**
-
-- Server-side render (SSR)
-- Open Graph meta tags
-- Schema.org Person markup
-- Sitemap for all public profiles
-
----
+**SEO:** Server-side render, Open Graph meta tags, Schema.org Person
+markup, sitemap for all profiles
 
 ## Webhooks & API
 
-**Outgoing Webhooks:**
+**Outgoing webhooks:** User configures URLs, trigger events (follow-up
+due, contact added), retry logic (3 attempts with backoff), HMAC
+signature
 
-- User configures webhook URLs
-- Trigger events: follow-up due, contact added, etc.
-- Retry logic: 3 attempts with backoff
-- Signature verification (HMAC)
+**REST API:** `/api/contacts`, `/api/interactions`, `/api/follow-ups`,
+`/api/sync`
 
-**REST API:**
+**Auth:** JWT tokens, API keys for CLI, rate limiting (100 req/min
+free, 1000 req/min paid)
 
-- `/api/contacts` - CRUD contacts
-- `/api/interactions` - Log interactions
-- `/api/follow-ups` - Manage follow-ups
-- `/api/sync` - Trigger GitHub sync
+## Deployment
 
-**Authentication:**
-
-- JWT tokens (Better Auth)
-- API keys for CLI/integrations
-- Rate limiting: 100 req/min (free), 1000 req/min (paid)
-
----
-
-## Deployment Architecture
-
-**Current (Self-Hosted):**
+**Current:**
 
 ```
-Coolify
-  └── Node.js (SvelteKit)
-      └── SQLite (local file)
+Coolify → Node.js (SvelteKit) → SQLite (local file)
 ```
 
-**Scale Plan (Future):**
+**Future scale:**
 
 ```
-Load Balancer
-  ├── App Server 1 (SvelteKit)
-  ├── App Server 2 (SvelteKit)
-  └── App Server N (SvelteKit)
-       └── PostgreSQL (shared)
-       └── Redis (jobs, cache)
-       └── S3/R2 (QR codes, assets)
+Load Balancer → App Servers (SvelteKit) → PostgreSQL + Redis + S3/R2
 ```
 
-**When to Migrate:**
+**When to migrate:**
 
 - SQLite → PostgreSQL: >10,000 active users
 - Monolith → Services: >50,000 users
 - Self-host → Cloud: When revenue supports it
 
----
-
 ## Database Migrations
 
 **Current:** `schema.sql` (manual)
 
-**Needed:** Proper migration system
+**Needed:** Migration files `migrations/001_add_tags.sql`, version
+tracking in `migrations` table, run on app startup
 
-**Options:**
+## Monitoring
 
-- Drizzle ORM (migrations + type safety)
-- Kysely (SQL builder + migrations)
-- Custom (simple SQL files + version tracking)
+**Application:** Sentry for errors, built-in performance tracking,
+stdout logs
 
-**Recommendation:** Start simple
+**Business metrics:** User signups, feature adoption, conversion,
+churn, MRR/ARR (store in SQLite analytics tables, later
+PostHog/Mixpanel)
 
-- Migration files: `migrations/001_add_tags.sql`
-- Version tracking: `migrations` table
-- Run on app startup
-- Manual for now, automate later
+## Security
 
----
+**Auth:** Better Auth handles sessions, API keys for CLI, rate
+limiting, CSRF protection (SvelteKit built-in)
 
-## Monitoring & Analytics
+**Data:** Passwords hashed, API tokens encrypted, GitHub tokens
+encrypted, no PII in logs
 
-**Application Monitoring:**
+**AI privacy:** Minimal data to AI APIs, no PII in prompts, option to
+disable, self-hosted models for privacy mode
 
-- Error tracking: Sentry
-- Performance: (built-in, later New Relic/DataDog)
-- Logs: stdout (later Loki/CloudWatch)
+## Performance
 
-**Business Metrics:**
+**Database:** Indexes on frequent queries, pagination, batch queries,
+SQLite WAL mode
 
-- User signups (by source)
-- Feature adoption (CLI, profiles, AI)
-- Conversion (free → paid)
-- Churn rate
-- Revenue (MRR, ARR)
+**Caching:** GitHub API responses (aggressive), rendered profiles (SSR
+cache), AI responses, Redis for session/cache (when scale)
 
-**Store in:**
-
-- SQLite analytics tables (start)
-- PostHog/Mixpanel (if budget allows)
-
----
-
-## Security Considerations
-
-**Auth & Access:**
-
-- Better Auth handles sessions
-- API keys for CLI/integrations
-- Rate limiting per user
-- CSRF protection (SvelteKit built-in)
-
-**Data Protection:**
-
-- Passwords hashed (Better Auth)
-- API tokens encrypted
-- GitHub tokens encrypted
-- No PII in logs
-
-**GitHub API:**
-
-- Never store GitHub access tokens in plaintext
-- Refresh tokens when needed
-- Respect rate limits (avoid bans)
-
-**AI Privacy:**
-
-- Minimal data sent to AI APIs
-- No PII (email, phone) in prompts
-- Option to disable AI features
-- Self-hosted models for privacy mode
-
----
-
-## Performance Optimization
-
-**Database:**
-
-- Indexes on frequently queried fields
-- Pagination (limit/offset)
-- Batch queries where possible
-- SQLite WAL mode (already enabled)
-
-**Caching:**
-
-- GitHub API responses (aggressive)
-- Rendered profiles (SSR cache)
-- AI responses (same prompt = same result)
-- Redis for session/cache (when scale)
-
-**Frontend:**
-
-- Code splitting (SvelteKit automatic)
-- Lazy load components
-- Image optimization
-- Bundle size monitoring
-
----
+**Frontend:** Code splitting (SvelteKit automatic), lazy load, image
+optimization, bundle size monitoring
 
 ## Scalability Checkpoints
 
-**100 users:**
+- **100 users:** Current architecture works, SQLite sufficient, cron
+  jobs adequate
+- **1,000 users:** Consider BullMQ, monitor SQLite, add Redis for
+  caching
+- **10,000 users:** Migrate to PostgreSQL, multiple app instances,
+  dedicated job workers, CDN
+- **100,000 users:** Microservices (if needed), database sharding,
+  Kubernetes, full monitoring
 
-- Current architecture works fine
-- SQLite sufficient
-- Cron jobs adequate
+## Key Decisions
 
-**1,000 users:**
+**Why SQLite?** Simple, fast, reliable, perfect for <10k users, local
+file = easy backups, migrate later if needed
 
-- Consider BullMQ for jobs
-- Monitor SQLite performance
-- Add Redis for caching
+**Why Monolith?** Simpler to develop & deploy, SvelteKit handles it
+all, split later if performance demands
 
-**10,000 users:**
+**Why Self-Hosted?** Lower cost initially, full control, good for MVP,
+migrate to cloud when revenue justifies
 
-- Migrate to PostgreSQL
-- Multiple app instances
-- Dedicated job workers
-- CDN for assets
-
-**100,000 users:**
-
-- Microservices (if needed)
-- Database sharding
-- Kubernetes/cloud-native
-- Full monitoring stack
-
----
-
-## Tech Debt to Address
-
-**Now:**
-
-- [x] Basic CRM (done)
-- [ ] Proper migrations system
-- [ ] Background job system
-- [ ] Error tracking (Sentry)
-
-**Soon:**
-
-- [ ] Redis for caching
-- [ ] BullMQ for jobs
-- [ ] Automated tests (E2E)
-- [ ] Performance monitoring
-
-**Later:**
-
-- [ ] PostgreSQL migration
-- [ ] Multi-region deployment
-- [ ] Real-time features (WebSockets)
-- [ ] Mobile app (React Native?)
-
----
-
-## Development Workflow
-
-**Local Setup:**
-
-```bash
-git clone repo
-pnpm install
-cp .env.example .env
-pnpm run dev
-```
-
-**Database:**
-
-- SQLite file: `local.db`
-- Seed data: `pnpm run seed`
-- Reset: delete `local.db`, restart
-
-**Testing:**
-
-- Unit: Vitest
-- E2E: Playwright
-- Run: `pnpm test`
-
-**Deployment:**
-
-- Push to main → Coolify auto-deploy
-- Migrations run on startup
-- Zero-downtime (eventually)
-
----
-
-## Key Architectural Decisions
-
-**Why SQLite?**
-
-- Simple, fast, reliable
-- Perfect for <10k users
-- Local file = easy backups
-- Migrate to Postgres later if needed
-
-**Why Monolith?**
-
-- Simpler to develop & deploy
-- SvelteKit handles it all
-- Split later if performance demands
-- Premature optimization = waste
-
-**Why Self-Hosted (Coolify)?**
-
-- Lower cost initially
-- Full control
-- Good for MVP
-- Migrate to cloud when revenue justifies
-
-**Why Better Auth?**
-
-- Modern, well-maintained
-- Built for SvelteKit
-- OAuth support (GitHub login)
-- Less work than custom auth
-
----
-
-## Future Considerations
-
-**Real-Time Features:**
-
-- WebSockets for live updates
-- Collaborative editing (team tier)
-- Live notifications
-
-**Mobile App:**
-
-- React Native or Flutter
-- Same API, different UI
-- QR scanner built-in
-
-**Offline-First:**
-
-- Service workers
-- IndexedDB sync
-- Works without internet
-
-**GraphQL API:**
-
-- For complex queries
-- Better than REST for mobile
-- Consider if needed
+**Why Better Auth?** Modern, well-maintained, built for SvelteKit,
+OAuth support, less work than custom
