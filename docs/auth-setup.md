@@ -6,36 +6,76 @@ needed.
 ## Installation
 
 ```bash
-pnpm add better-auth better-sqlite3
+pnpm add better-auth better-sqlite3 resend
 pnpm rebuild better-sqlite3
 ```
 
 ## Configure Better Auth
 
-Create auth instance with database and cookies:
+Create auth instance with database, cookies, and email verification:
 
 ```typescript
 // lib/server/auth.ts
-import { betterAuth } from 'better-auth';
-import Database from 'better-sqlite3';
-import { sveltekitCookies } from 'better-auth/svelte-kit';
 import { getRequestEvent } from '$app/server';
+import { env } from '$env/dynamic/private';
+import { betterAuth } from 'better-auth';
+import { sveltekitCookies } from 'better-auth/svelte-kit';
+import Database from 'better-sqlite3';
+import { resend } from './resend';
 
 // Create database instance for Better Auth
 const auth_db = new Database('local.db');
 
+// Enable WAL mode for better concurrency
+auth_db.pragma('journal_mode = WAL');
+auth_db.pragma('busy_timeout = 5000');
+auth_db.pragma('synchronous = NORMAL');
+
 export const auth = betterAuth({
-	database: auth_db, // Pass database instance directly
+	database: auth_db,
 	emailAndPassword: {
 		enabled: true,
+		requireEmailVerification: true,
+		autoSignInAfterVerification: true,
+		sendVerificationEmail: async ({ user, url }) => {
+			await resend.emails.send({
+				from: 'Your App <notifications@yourdomain.com>',
+				to: user.email,
+				subject: 'Verify your email address',
+				html: `
+					<div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
+						<h2>Welcome!</h2>
+						<p>Hi ${user.name},</p>
+						<p>Please verify your email address to get started.</p>
+						<p>
+							<a href="${url}" style="background-color: #0066cc; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; display: inline-block;">
+								Verify Email Address
+							</a>
+						</p>
+						<p>Or copy this link: ${url}</p>
+					</div>
+				`,
+			});
+		},
 	},
-	secret:
-		process.env.AUTH_SECRET || 'dev-secret-change-in-production',
-	baseURL: process.env.AUTH_BASE_URL || 'http://localhost:5173',
-	plugins: [
-		sveltekitCookies(getRequestEvent), // Automatically handles cookies
-	],
+	emailVerification: {
+		sendOnSignUp: true,
+		autoSignInAfterVerification: true,
+	},
+	secret: env.AUTH_SECRET || 'dev-secret-change-in-production',
+	baseURL: env.AUTH_BASE_URL || 'http://localhost:5173',
+	plugins: [sveltekitCookies(getRequestEvent)],
 });
+```
+
+Create Resend helper:
+
+```typescript
+// lib/server/resend.ts
+import { env } from '$env/dynamic/private';
+import { Resend } from 'resend';
+
+export const resend = new Resend(env.RESEND_API_KEY);
 ```
 
 ## Generate Database Schema
@@ -73,6 +113,7 @@ kit: {
 ```env
 AUTH_SECRET=your-random-secret-here
 AUTH_BASE_URL=http://localhost:5173
+RESEND_API_KEY=your-resend-api-key
 ```
 
 ### Production
@@ -81,10 +122,15 @@ AUTH_BASE_URL=http://localhost:5173
 AUTH_SECRET=your-production-secret
 AUTH_BASE_URL=https://yourdomain.com
 ORIGIN=https://yourdomain.com  # Critical for CSRF protection
+RESEND_API_KEY=your-production-resend-api-key
 ```
 
-**Critical:** The `ORIGIN` environment variable MUST be set in
-production to avoid CSRF 403 errors on form submissions.
+**Critical:**
+
+- The `ORIGIN` environment variable MUST be set in production to avoid
+  CSRF 403 errors
+- Get your Resend API key from https://resend.com
+- Configure your domain in Resend for sending emails
 
 ## Authentication Helper Functions
 

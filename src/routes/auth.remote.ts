@@ -16,18 +16,19 @@ export const register = form(
 		const event = getRequestEvent();
 
 		try {
-			// sveltekitCookies plugin handles cookies automatically
 			await auth.api.signUpEmail({
 				body: { name, email, password },
 				headers: event.request.headers,
 			});
 		} catch (error: any) {
+			console.error('Registration error:', error);
 			return {
 				error: error.message || 'Registration failed',
 			};
 		}
 
-		redirect(303, '/dashboard');
+		// Redirect MUST be outside try/catch because it throws an error
+		redirect(303, '/register/success');
 	},
 );
 
@@ -49,6 +50,18 @@ export const login = form(
 				headers: event.request.headers,
 			});
 		} catch (error: any) {
+			// Check if error is due to unverified email
+			if (
+				error.message?.includes('verify') ||
+				error.message?.includes('verification')
+			) {
+				return {
+					error:
+						'Please verify your email address before logging in.',
+					unverified: true,
+					email,
+				};
+			}
 			return {
 				error: error.message || 'Invalid email or password',
 			};
@@ -77,3 +90,26 @@ export const get_current_user = query(async () => {
 
 	return session?.user ?? null;
 });
+
+export const resend_verification_email = command(
+	v.pipe(v.string(), v.email('Invalid email address')),
+	async (email: string) => {
+		const event = getRequestEvent();
+
+		try {
+			await auth.api.sendVerificationEmail({
+				body: { email, callbackURL: '/dashboard' },
+				headers: event.request.headers,
+			});
+
+			return {
+				success: true,
+				message: 'Verification email sent! Please check your inbox.',
+			};
+		} catch (error: any) {
+			return {
+				error: error.message || 'Failed to send verification email',
+			};
+		}
+	},
+);

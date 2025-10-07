@@ -7,11 +7,9 @@ configuration.
 
 ## Registration and Login
 
-### Cookie Handling (Critical)
+### Registration and Login Forms
 
-Better Auth returns cookies in the Response when using
-`asResponse: true`. You must manually transfer these cookies to the
-user.
+The `sveltekitCookies` plugin handles cookies automatically - no manual cookie transfer needed.
 
 ```typescript
 // routes/(auth)/auth.remote.ts
@@ -33,47 +31,19 @@ export const register = form(
 		const event = getRequestEvent();
 
 		try {
-			const response = await auth.api.signUpEmail({
+			await auth.api.signUpEmail({
 				body: { name, email, password },
-				asResponse: true,
 				headers: event.request.headers,
 			});
-
-			// Transfer cookies from Better Auth response
-			const cookies = response.headers.get('set-cookie');
-			if (cookies) {
-				const all_cookies = response.headers.getSetCookie?.() || [
-					cookies,
-				];
-
-				for (const cookie_str of all_cookies) {
-					const [name_value, ...options] = cookie_str.split(';');
-					const [name, value] = name_value.trim().split('=');
-
-					const cookie_options: any = { path: '/' };
-					for (const option of options) {
-						const [key, val] = option.trim().split('=');
-						const lower_key = key.toLowerCase();
-						if (lower_key === 'max-age') {
-							cookie_options.maxAge = parseInt(val);
-						} else if (lower_key === 'httponly') {
-							cookie_options.httpOnly = true;
-						} else if (lower_key === 'secure') {
-							cookie_options.secure = true;
-						} else if (lower_key === 'samesite') {
-							cookie_options.sameSite = val.toLowerCase();
-						}
-					}
-
-					event.cookies.set(name, value, cookie_options);
-				}
-			}
 		} catch (error: any) {
-			return { error: error.message || 'Registration failed' };
+			console.error('Registration error:', error);
+			return {
+				error: error.message || 'Registration failed',
+			};
 		}
 
-		// Redirect MUST be outside try/catch
-		redirect(303, '/dashboard');
+		// Redirect MUST be outside try/catch because it throws an error
+		redirect(303, '/register/success');
 	},
 );
 
@@ -89,42 +59,27 @@ export const login = form(
 		const event = getRequestEvent();
 
 		try {
-			const response = await auth.api.signInEmail({
+			// sveltekitCookies plugin handles cookies automatically
+			await auth.api.signInEmail({
 				body: { email, password },
-				asResponse: true,
 				headers: event.request.headers,
 			});
-
-			// Transfer cookies (same as register)
-			const cookies = response.headers.get('set-cookie');
-			if (cookies) {
-				const all_cookies = response.headers.getSetCookie?.() || [
-					cookies,
-				];
-				for (const cookie_str of all_cookies) {
-					const [name_value, ...options] = cookie_str.split(';');
-					const [name, value] = name_value.trim().split('=');
-
-					const cookie_options: any = { path: '/' };
-					for (const option of options) {
-						const [key, val] = option.trim().split('=');
-						const lower_key = key.toLowerCase();
-						if (lower_key === 'max-age') {
-							cookie_options.maxAge = parseInt(val);
-						} else if (lower_key === 'httponly') {
-							cookie_options.httpOnly = true;
-						} else if (lower_key === 'secure') {
-							cookie_options.secure = true;
-						} else if (lower_key === 'samesite') {
-							cookie_options.sameSite = val.toLowerCase();
-						}
-					}
-
-					event.cookies.set(name, value, cookie_options);
-				}
-			}
 		} catch (error: any) {
-			return { error: error.message || 'Invalid email or password' };
+			// Check if error is due to unverified email
+			if (
+				error.message?.includes('verify') ||
+				error.message?.includes('verification')
+			) {
+				return {
+					error:
+						'Please verify your email address before logging in.',
+					unverified: true,
+					email,
+				};
+			}
+			return {
+				error: error.message || 'Invalid email or password',
+			};
 		}
 
 		redirect(303, '/dashboard');
@@ -366,12 +321,91 @@ export const verify_auth = guarded_query(() => {
 </svelte:boundary>
 ```
 
+## Email Verification
+
+### Resend Verification Email
+
+```typescript
+// auth.remote.ts
+export const resend_verification_email = command(
+	v.pipe(v.string(), v.email('Invalid email address')),
+	async (email: string) => {
+		const event = getRequestEvent();
+
+		try {
+			await auth.api.sendVerificationEmail({
+				body: { email, callbackURL: '/dashboard' },
+				headers: event.request.headers,
+			});
+
+			return {
+				success: true,
+				message: 'Verification email sent! Please check your inbox.',
+			};
+		} catch (error: any) {
+			return {
+				error: error.message || 'Failed to send verification email',
+			};
+		}
+	},
+);
+```
+
+### Handle Unverified Users in Login
+
+Show a resend button when users try to login without verifying:
+
+```svelte
+<!-- routes/(auth)/login/+page.svelte -->
+<script lang="ts">
+	import { login, resend_verification_email } from '../auth.remote';
+</script>
+
+<form {...login}>
+	<!-- email and password fields -->
+
+	{#if login.error}
+		<div class="alert alert-error">
+			<span>{login.error}</span>
+		</div>
+
+		{#if login.unverified}
+			<button
+				class="btn btn-sm"
+				onclick={(e) => {
+					e.preventDefault();
+					resend_verification_email(login.email);
+				}}
+			>
+				Resend Verification Email
+			</button>
+		{/if}
+	{/if}
+
+	<button class="btn btn-primary" type="submit">Login</button>
+</form>
+```
+
+### Registration Success Page
+
+Redirect to a success page after registration:
+
+```svelte
+<!-- routes/(auth)/register/success/+page.svelte -->
+<div class="card">
+	<h1>Check Your Email</h1>
+	<p>We've sent a verification link to your email address.</p>
+	<p>Please click the link to verify your account and get started.</p>
+	<a href="/login" class="btn btn-primary">Go to Login</a>
+</div>
+```
+
 ## Key Points
 
-1. **Redirect outside try/catch** - SvelteKit's `redirect()` throws an
-   error
-2. **Commands cannot redirect** - Use `goto()` client-side for logout
-3. **Cookie transfer required** - Must manually transfer Better Auth
-   cookies
-4. **Use guarded helpers** - Simplifies protected route implementation
-5. **Layout guards** - Protect entire route groups efficiently
+1. **Remote Functions** - SvelteKit's recommended approach for server-side logic
+2. **Automatic Cookies** - `sveltekitCookies` plugin handles session cookies automatically
+3. **Redirect outside try/catch** - SvelteKit's `redirect()` throws an error
+4. **Commands cannot redirect** - Use `goto()` client-side for logout
+5. **Use guarded helpers** - Simplifies protected route implementation
+6. **Layout guards** - Protect entire route groups efficiently
+7. **Email verification** - Users must verify email before accessing the app

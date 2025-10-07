@@ -1,7 +1,9 @@
 import { getRequestEvent } from '$app/server';
+import { env } from '$env/dynamic/private';
 import { betterAuth } from 'better-auth';
 import { sveltekitCookies } from 'better-auth/svelte-kit';
 import Database from 'better-sqlite3';
+import { resend } from './resend';
 
 // Create separate database instance for Better Auth
 const auth_db = new Database('local.db');
@@ -15,10 +17,53 @@ export const auth = betterAuth({
 	database: auth_db,
 	emailAndPassword: {
 		enabled: true,
+		requireEmailVerification: true,
 	},
-	secret:
-		process.env.AUTH_SECRET || 'dev-secret-change-in-production',
-	baseURL: process.env.AUTH_BASE_URL || 'http://localhost:5173',
+	emailVerification: {
+		sendOnSignUp: true,
+		autoSignInAfterVerification: true,
+		sendVerificationEmail: async ({
+			user,
+			url,
+		}: {
+			user: any;
+			url: string;
+		}) => {
+			try {
+				console.log('Sending verification email to:', user.email);
+				console.log('Resend API Key exists:', !!env.RESEND_API_KEY);
+
+				const result = await resend.emails.send({
+					from: 'Devhub <notifications@notifications.devhubcrm.com>',
+					to: user.email,
+					subject: 'Verify your email address',
+					html: `
+						<div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
+							<h2>Welcome to Devhub!</h2>
+							<p>Hi ${user.name},</p>
+							<p>Thanks for signing up. Please verify your email address to get started.</p>
+							<p>
+								<a href="${url}" style="background-color: #0066cc; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; display: inline-block;">
+									Verify Email Address
+								</a>
+							</p>
+							<p>Or copy and paste this link into your browser:</p>
+							<p style="color: #666; font-size: 14px;">${url}</p>
+							<p>This link will expire in 24 hours.</p>
+							<p>If you didn't create an account, you can safely ignore this email.</p>
+						</div>
+					`,
+				});
+
+				console.log('Email sent successfully:', result);
+			} catch (error) {
+				console.error('Failed to send verification email:', error);
+				throw error;
+			}
+		},
+	},
+	secret: env.AUTH_SECRET || 'dev-secret-change-in-production',
+	baseURL: env.AUTH_BASE_URL || 'http://localhost:5173',
 	plugins: [
 		sveltekitCookies(getRequestEvent), // Automatically handles cookies
 	],
