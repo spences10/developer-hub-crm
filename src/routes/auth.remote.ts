@@ -113,3 +113,57 @@ export const resend_verification_email = command(
 		}
 	},
 );
+
+export const forgot_password = form(
+	v.object({
+		email: v.pipe(v.string(), v.email('Invalid email address')),
+	}),
+	async ({ email }) => {
+		const event = getRequestEvent();
+
+		try {
+			await auth.api.forgetPassword({
+				body: {
+					email,
+					redirectTo: '/reset-password',
+				},
+				headers: event.request.headers,
+			});
+		} catch (error: any) {
+			console.error('Forgot password error:', error);
+			// Don't reveal if email exists - still redirect to success page
+		}
+
+		// Always redirect to success page for security (don't reveal if email exists)
+		redirect(303, '/forgot-password/sent');
+	},
+);
+
+export const reset_password = form(
+	v.object({
+		password: v.pipe(
+			v.string(),
+			v.minLength(8, 'Password must be at least 8 characters'),
+		),
+		token: v.pipe(v.string(), v.minLength(1, 'Token is required')),
+	}),
+	async ({ password, token }) => {
+		const event = getRequestEvent();
+
+		try {
+			await auth.api.resetPassword({
+				body: { newPassword: password, token },
+				headers: event.request.headers,
+			});
+		} catch (error: any) {
+			console.error('Reset password error:', error);
+			return {
+				error:
+					error.message ||
+					'Failed to reset password. The link may have expired.',
+			};
+		}
+
+		redirect(303, '/login?reset=success');
+	},
+);

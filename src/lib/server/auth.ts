@@ -18,6 +18,47 @@ export const auth = betterAuth({
 	emailAndPassword: {
 		enabled: true,
 		requireEmailVerification: true,
+		sendResetPassword: async ({
+			user,
+			url,
+		}: {
+			user: any;
+			url: string;
+		}) => {
+			try {
+				console.log('Sending password reset email to:', user.email);
+
+				const result = await resend.emails.send({
+					from: 'Devhub <notifications@notifications.devhubcrm.com>',
+					to: user.email,
+					subject: 'Reset your password',
+					html: `
+						<div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
+							<h2>Reset your password</h2>
+							<p>Hi ${user.name},</p>
+							<p>We received a request to reset your password. Click the link below to create a new password:</p>
+							<p>
+								<a href="${url}" style="background-color: #0066cc; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; display: inline-block;">
+									Reset Password
+								</a>
+							</p>
+							<p>Or copy and paste this link into your browser:</p>
+							<p style="color: #666; font-size: 14px;">${url}</p>
+							<p>This link will expire in 1 hour.</p>
+							<p>If you didn't request a password reset, you can safely ignore this email.</p>
+						</div>
+					`,
+				});
+
+				console.log(
+					'Password reset email sent successfully:',
+					result,
+				);
+			} catch (error) {
+				console.error('Failed to send password reset email:', error);
+				throw error;
+			}
+		},
 	},
 	emailVerification: {
 		sendOnSignUp: true,
