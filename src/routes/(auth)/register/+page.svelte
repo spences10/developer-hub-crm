@@ -1,108 +1,68 @@
 <script lang="ts">
+	import { CheckCircleFill } from '$lib/icons';
+	import AuthFeatureCard from '$lib/components/auth-feature-card.svelte';
+	import AuthHeroPanel from '$lib/components/auth-hero-panel.svelte';
 	import Logo from '$lib/logo.svelte';
 	import { register } from '../../auth.remote';
+
+	const features = [
+		{
+			title: 'Unlimited contacts',
+			description:
+				'Manage all your developer relationships in one place',
+			stagger: '3',
+		},
+		{
+			title: 'Track interactions',
+			description:
+				'Log meetings, calls, and conversations effortlessly',
+			stagger: '4',
+		},
+		{
+			title: 'Never miss follow-ups',
+			description: 'Automated reminders keep you connected',
+			stagger: '4',
+		},
+		{
+			title: 'GitHub integration',
+			description:
+				'Import contacts directly from your GitHub network',
+			stagger: '4',
+		},
+	];
 </script>
 
 <div class="fixed inset-0 flex min-h-screen">
 	<!-- Left Panel - Branding -->
-	<div
-		class="to-primary-focus hidden w-1/2 flex-col justify-center bg-gradient-to-br from-primary p-12 lg:flex"
-	>
-		<div class="mx-auto max-w-lg">
-			<Logo size="90px" class_names="mb-8 -ml-4" />
-
-			<h1 class="mb-4 text-4xl font-bold text-primary-content">
-				Create your free account
-			</h1>
-
-			<p class="mb-8 text-lg text-primary-content/90">
-				Explore Devhub CRM's core features for managing your developer
-				relationships.
-			</p>
-
-			<div class="space-y-4 text-primary-content/90">
-				<div class="flex items-start gap-3">
-					<svg
-						class="mt-1 h-5 w-5 flex-shrink-0"
-						fill="currentColor"
-						viewBox="0 0 20 20"
-					>
-						<path
-							fill-rule="evenodd"
-							d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-							clip-rule="evenodd"
-						/>
-					</svg>
-					<div>
-						<h3 class="font-semibold">Unlimited contacts</h3>
-						<p class="text-sm text-primary-content/75">
-							Manage all your developer relationships in one place
-						</p>
-					</div>
-				</div>
-
-				<div class="flex items-start gap-3">
-					<svg
-						class="mt-1 h-5 w-5 flex-shrink-0"
-						fill="currentColor"
-						viewBox="0 0 20 20"
-					>
-						<path
-							fill-rule="evenodd"
-							d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-							clip-rule="evenodd"
-						/>
-					</svg>
-					<div>
-						<h3 class="font-semibold">Track interactions</h3>
-						<p class="text-sm text-primary-content/75">
-							Log meetings, calls, and conversations effortlessly
-						</p>
-					</div>
-				</div>
-
-				<div class="flex items-start gap-3">
-					<svg
-						class="mt-1 h-5 w-5 flex-shrink-0"
-						fill="currentColor"
-						viewBox="0 0 20 20"
-					>
-						<path
-							fill-rule="evenodd"
-							d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-							clip-rule="evenodd"
-						/>
-					</svg>
-					<div>
-						<h3 class="font-semibold">Never miss follow-ups</h3>
-						<p class="text-sm text-primary-content/75">
-							Automated reminders keep you connected
-						</p>
-					</div>
-				</div>
-
-				<div class="flex items-start gap-3">
-					<svg
-						class="mt-1 h-5 w-5 flex-shrink-0"
-						fill="currentColor"
-						viewBox="0 0 20 20"
-					>
-						<path
-							fill-rule="evenodd"
-							d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-							clip-rule="evenodd"
-						/>
-					</svg>
-					<div>
-						<h3 class="font-semibold">GitHub integration</h3>
-						<p class="text-sm text-primary-content/75">
-							Import contacts directly from your GitHub network
-						</p>
-					</div>
-				</div>
-			</div>
+	<AuthHeroPanel>
+		<div class="animate-fade-in mb-10 opacity-0">
+			<Logo size="90px" class_names="-ml-4 drop-shadow-lg" />
 		</div>
-	</div>
+
+		<h1
+			class="animate-fade-in-up stagger-1 mb-6 text-5xl leading-tight font-extrabold text-primary-content opacity-0 drop-shadow-md"
+		>
+			Create your free account
+		</h1>
+
+		<p
+			class="animate-fade-in-up stagger-2 mb-12 text-xl leading-relaxed font-medium text-primary-content opacity-0 drop-shadow"
+		>
+			Explore Devhub CRM's core features for managing your developer
+			relationships.
+		</p>
+
+		<div class="space-y-5">
+			{#each features as feature}
+				<AuthFeatureCard
+					icon={CheckCircleFill}
+					title={feature.title}
+					description={feature.description}
+					stagger={feature.stagger}
+				/>
+			{/each}
+		</div>
+	</AuthHeroPanel>
 
 	<!-- Right Panel - Form -->
 	<div
@@ -110,64 +70,90 @@
 	>
 		<div class="w-full max-w-md">
 			<!-- Mobile logo -->
-			<div class="mb-8 lg:hidden">
+			<div class="animate-fade-in mb-8 opacity-0 lg:hidden">
 				<Logo size="60px" class_names="mx-auto" />
 			</div>
 
-			<h2 class="mb-6 text-2xl font-bold">Register</h2>
+			<div class="animate-fade-in-up stagger-1 mb-8 opacity-0">
+				<h2 class="mb-2 text-3xl font-bold text-base-content">
+					Get started
+				</h2>
+				<p class="text-base-content/60">
+					Create your account to begin
+				</p>
+			</div>
 
-			<form {...register} class="space-y-4">
+			{#snippet formField(
+				label: string,
+				type: string,
+				name: string,
+				placeholder: string,
+				hint?: string,
+			)}
 				<fieldset class="fieldset">
-					<legend class="fieldset-legend">Name</legend>
-					<label class="validator input w-full">
+					<legend class="fieldset-legend font-semibold"
+						>{label}</legend
+					>
+					<label
+						class="input-bordered validator input w-full shadow-sm transition-all duration-300 focus-within:scale-[1.02] focus-within:shadow-md focus-within:ring-2 focus-within:ring-primary/20"
+					>
 						<input
-							type="text"
-							name="name"
-							placeholder="Name"
+							{type}
+							{name}
+							{placeholder}
 							class="grow"
 							required
+							minlength={type === 'password' ? 8 : undefined}
 						/>
 					</label>
+					{#if hint}
+						<p class="label text-base-content/60">{hint}</p>
+					{/if}
 				</fieldset>
+			{/snippet}
 
-				<fieldset class="fieldset">
-					<legend class="fieldset-legend">Email</legend>
-					<label class="validator input w-full">
-						<input
-							type="email"
-							name="email"
-							placeholder="Email"
-							class="grow"
-							required
-						/>
-					</label>
-				</fieldset>
+			<form
+				{...register}
+				class="animate-fade-in-up stagger-2 space-y-5 opacity-0"
+			>
+				{@render formField('Name', 'text', 'name', 'Enter your name')}
+				{@render formField(
+					'Email',
+					'email',
+					'email',
+					'you@example.com',
+				)}
+				{@render formField(
+					'Password',
+					'password',
+					'password',
+					'Create a secure password',
+					'Must be at least 8 characters',
+				)}
 
-				<fieldset class="fieldset">
-					<legend class="fieldset-legend">Password</legend>
-					<label class="validator input w-full">
-						<input
-							type="password"
-							name="password"
-							placeholder="Password"
-							class="grow"
-							required
-							minlength="8"
-						/>
-					</label>
-					<p class="label">Must be at least 8 characters</p>
-				</fieldset>
-
-				<button class="btn mt-6 btn-block btn-primary" type="submit">
-					Register
+				<button
+					class="btn mt-8 btn-block shadow-lg transition-all duration-300 btn-lg btn-primary hover:scale-105 hover:shadow-xl active:scale-95"
+					type="submit"
+				>
+					Create Account
 				</button>
 			</form>
 
-			<div class="divider">or</div>
+			<div
+				class="animate-fade-in stagger-3 divider text-base-content/40 opacity-0"
+			>
+				or
+			</div>
 
-			<p class="text-center">
+			<p
+				class="animate-fade-in stagger-4 text-center text-base-content/70 opacity-0"
+			>
 				Already have an account?
-				<a href="/login" class="link link-primary">Login</a>
+				<a
+					href="/login"
+					class="inline-block link font-semibold link-primary transition-transform duration-200 hover:scale-105"
+					>Sign in</a
+				>
 			</p>
 		</div>
 	</div>
