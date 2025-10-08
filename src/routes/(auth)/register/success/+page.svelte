@@ -27,8 +27,8 @@
 			>
 				<div class="animate-float">
 					<Email
-						size="110px"
-						class_names="text-primary-content drop-shadow-lg"
+						size="80px"
+						class_names="text-success drop-shadow-lg"
 					/>
 				</div>
 			</div>
