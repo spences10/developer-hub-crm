@@ -1,8 +1,15 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import Logo from '$lib/logo.svelte';
+	import { generate_qr_code_data_url } from '$lib/utils/qr-code';
+	import { onMount } from 'svelte';
 	import { get_current_user, logout } from '../auth.remote';
 	import { ensure_profile } from './layout.remote';
+	import {
+		get_profile_qr_url,
+		get_user_qr_code,
+		save_qr_code,
+	} from './settings/settings.remote';
 
 	let { children } = $props();
 
@@ -10,6 +17,25 @@
 		await logout();
 		goto('/login');
 	}
+
+	// Auto-generate QR code if user doesn't have one
+	onMount(async () => {
+		try {
+			// Wait for profile to be ensured first
+			await ensure_profile();
+
+			const qr_url = await get_user_qr_code();
+			if (!qr_url) {
+				// Generate QR code silently in background
+				const profile_url = await get_profile_qr_url();
+				const data_url = await generate_qr_code_data_url(profile_url);
+				await save_qr_code({ qr_code_url: data_url });
+			}
+		} catch (error) {
+			// Silent fail - users can generate manually in settings
+			console.error('Failed to auto-generate QR code:', error);
+		}
+	});
 </script>
 
 <!-- svelte-ignore a11y_no_noninteractive_tabindex -->

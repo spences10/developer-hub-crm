@@ -5,6 +5,7 @@
 	import { format_date } from '$lib/utils/date-helpers';
 	import { generate_qr_code_data_url } from '$lib/utils/qr-code';
 	import { Head } from 'svead';
+	import { onMount } from 'svelte';
 	import {
 		get_profile_qr_url,
 		get_user_preferences,
@@ -26,26 +27,17 @@
 	let generating_qr = $state(false);
 	let qr_code_url = $state<string | null>(null);
 
-	// Auto-generate QR code if user doesn't have one
-	$effect(() => {
-		user_qr.then(async (url) => {
-			qr_code_url = url;
-
-			// If no QR code exists, generate it automatically
-			if (!url && !generating_qr) {
-				await handle_generate_qr();
-			}
-		});
-	});
-
-	$effect(() => {
-		if (typeof window !== 'undefined') {
-			const theme = window.localStorage.getItem('theme');
-			if (theme && themes.includes(theme)) {
-				document.documentElement.setAttribute('data-theme', theme);
-				current_theme = theme;
-			}
+	onMount(async () => {
+		// Load theme from localStorage
+		const theme = window.localStorage.getItem('theme');
+		if (theme && themes.includes(theme)) {
+			document.documentElement.setAttribute('data-theme', theme);
+			current_theme = theme;
 		}
+
+		// Load current QR code
+		const url = await user_qr;
+		qr_code_url = url;
 	});
 
 	async function save_with_indicator(fn: () => Promise<void>) {
