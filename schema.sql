@@ -115,6 +115,48 @@ CREATE TABLE IF NOT EXISTS user_preferences (
   FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE
 );
 
+-- User profiles table (for public developer profiles)
+CREATE TABLE IF NOT EXISTS user_profiles (
+  id TEXT PRIMARY KEY,
+  user_id TEXT NOT NULL UNIQUE,
+  username TEXT NOT NULL UNIQUE,
+  github_username TEXT,
+  bio TEXT,
+  tagline TEXT,
+  location TEXT,
+  website TEXT,
+  is_public INTEGER DEFAULT 1,
+  visibility TEXT NOT NULL DEFAULT 'public',
+  custom_slug TEXT UNIQUE,
+  qr_settings TEXT,
+  github_synced_at INTEGER,
+  created_at INTEGER NOT NULL,
+  updated_at INTEGER NOT NULL,
+  FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE
+);
+
+-- User social links table (separate from contact social links)
+CREATE TABLE IF NOT EXISTS user_social_links (
+  id TEXT PRIMARY KEY,
+  user_id TEXT NOT NULL,
+  platform TEXT NOT NULL,
+  url TEXT NOT NULL,
+  created_at INTEGER NOT NULL,
+  FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE
+);
+
+-- Profile views table (for analytics - Pro feature)
+CREATE TABLE IF NOT EXISTS profile_views (
+  id TEXT PRIMARY KEY,
+  user_id TEXT NOT NULL,
+  viewer_id TEXT,
+  qr_scan INTEGER DEFAULT 0,
+  referrer TEXT,
+  created_at INTEGER NOT NULL,
+  FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE,
+  FOREIGN KEY (viewer_id) REFERENCES user(id) ON DELETE SET NULL
+);
+
 -- Indexes for performance
 CREATE INDEX IF NOT EXISTS idx_contacts_user_id ON contacts(user_id);
 CREATE INDEX IF NOT EXISTS idx_contacts_email ON contacts(email);
@@ -128,3 +170,12 @@ CREATE INDEX IF NOT EXISTS idx_follow_ups_due_date ON follow_ups(due_date);
 CREATE INDEX IF NOT EXISTS idx_follow_ups_completed ON follow_ups(completed);
 
 CREATE INDEX IF NOT EXISTS idx_social_links_contact_id ON social_links(contact_id);
+
+CREATE INDEX IF NOT EXISTS idx_user_profiles_username ON user_profiles(username);
+CREATE INDEX IF NOT EXISTS idx_user_profiles_user_id ON user_profiles(user_id);
+CREATE INDEX IF NOT EXISTS idx_user_profiles_custom_slug ON user_profiles(custom_slug);
+
+CREATE INDEX IF NOT EXISTS idx_user_social_links_user_id ON user_social_links(user_id);
+
+CREATE INDEX IF NOT EXISTS idx_profile_views_user_id ON profile_views(user_id);
+CREATE INDEX IF NOT EXISTS idx_profile_views_created_at ON profile_views(created_at);

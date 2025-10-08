@@ -62,6 +62,12 @@ export const auth = betterAuth({
 		sendOnSignUp: true,
 		autoSignInAfterVerification: true,
 	},
+	socialProviders: {
+		github: {
+			clientId: env.GITHUB_CLIENT_ID as string,
+			clientSecret: env.GITHUB_CLIENT_SECRET as string,
+		},
+	},
 	secret: env.AUTH_SECRET || 'dev-secret-change-in-production',
 	baseURL: env.AUTH_BASE_URL || 'http://localhost:5173',
 	plugins: [sveltekitCookies(getRequestEvent)],
@@ -114,6 +120,10 @@ kit: {
 AUTH_SECRET=your-random-secret-here
 AUTH_BASE_URL=http://localhost:5173
 RESEND_API_KEY=your-resend-api-key
+
+# GitHub OAuth (Dev)
+GITHUB_CLIENT_ID=your_dev_github_client_id
+GITHUB_CLIENT_SECRET=your_dev_github_client_secret
 ```
 
 ### Production
@@ -123,6 +133,10 @@ AUTH_SECRET=your-production-secret
 AUTH_BASE_URL=https://yourdomain.com
 ORIGIN=https://yourdomain.com  # Critical for CSRF protection
 RESEND_API_KEY=your-production-resend-api-key
+
+# GitHub OAuth (Prod)
+GITHUB_CLIENT_ID=your_prod_github_client_id
+GITHUB_CLIENT_SECRET=your_prod_github_client_secret
 ```
 
 **Critical:**
@@ -131,6 +145,76 @@ RESEND_API_KEY=your-production-resend-api-key
   CSRF 403 errors
 - Get your Resend API key from https://resend.com
 - Configure your domain in Resend for sending emails
+- You need **separate GitHub OAuth apps** for dev and production
+  (different callback URLs)
+
+## GitHub OAuth Configuration
+
+### Create GitHub OAuth Apps
+
+You need two separate GitHub OAuth applications - one for development
+and one for production.
+
+**Development App:**
+
+1. Go to GitHub Settings → Developer settings → OAuth Apps → New OAuth
+   App
+2. Fill in the details:
+   - Application name: `Your App (Dev)`
+   - Homepage URL: `http://localhost:5173`
+   - Authorization callback URL:
+     `http://localhost:5173/api/auth/callback/github`
+3. Click "Register application"
+4. Copy the `Client ID` and generate a new `Client Secret`
+5. Add to your `.env` file:
+   ```env
+   GITHUB_CLIENT_ID=your_dev_client_id
+   GITHUB_CLIENT_SECRET=your_dev_client_secret
+   ```
+
+**Production App:**
+
+1. Create another OAuth App
+2. Fill in the details:
+   - Application name: `Your App`
+   - Homepage URL: `https://yourdomain.com`
+   - Authorization callback URL:
+     `https://yourdomain.com/api/auth/callback/github`
+3. Use different credentials in production environment
+
+### What Data GitHub Provides
+
+When users authenticate with GitHub, you'll receive:
+
+- `id` - GitHub user ID
+- `login` - GitHub username (used for `@username` profiles)
+- `name` - Display name
+- `email` - Primary email address
+- `avatar_url` - Profile photo URL
+- `bio` - Profile bio
+- `location` - User's location
+- `blog` - Website URL
+- `company` - Company name
+- `twitter_username` - X/Twitter handle
+
+This data can be used to auto-populate user profiles and sync GitHub
+information.
+
+### Profile Creation on GitHub OAuth
+
+When a user signs in with GitHub for the first time:
+
+1. Better Auth creates a `user` record with GitHub data
+2. Your app should create a `user_profiles` record:
+   - Set `username` = GitHub `login`
+   - Set `github_username` = GitHub `login`
+   - Sync `bio`, `location`, `website` from GitHub
+   - Generate default QR code
+3. Optionally create `user_social_links` entries for GitHub, Twitter,
+   etc.
+
+See [database-pattern.md](./database-pattern.md) for examples of
+profile creation queries.
 
 ## Authentication Helper Functions
 

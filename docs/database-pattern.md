@@ -256,6 +256,186 @@ export function migrate() {
 }
 ```
 
+## User Profiles Pattern
+
+User profiles enable public developer profiles with QR codes for viral
+growth.
+
+### Create Profile on Signup
+
+When a user signs up (especially via GitHub OAuth), create their
+profile:
+
+```typescript
+import { db } from '$lib/server/db';
+import type { UserProfile } from '$lib/types/db';
+
+export const create_user_profile = (
+	user_id: string,
+	github_data?: {
+		login: string;
+		bio?: string;
+		location?: string;
+		blog?: string;
+	},
+) => {
+	const create_profile = db.prepare(`
+    INSERT INTO user_profiles (
+      id, user_id, username, github_username,
+      bio, location, website, github_synced_at,
+      created_at, updated_at
+    )
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `);
+
+	const profile_id = crypto.randomUUID();
+	const now = Date.now();
+
+	// Use GitHub username or generate from email
+	const username =
+		github_data?.login || `user_${user_id.slice(0, 8)}`;
+
+	create_profile.run(
+		profile_id,
+		user_id,
+		username,
+		github_data?.login || null,
+		github_data?.bio || null,
+		github_data?.location || null,
+		github_data?.blog || null,
+		github_data ? now : null,
+		now,
+		now,
+	);
+
+	return { profile_id, username };
+};
+```
+
+### Get Profile by Username
+
+Fetch profile for public display:
+
+```typescript
+export const get_profile_by_username = query(
+	(username: string): UserProfile | undefined => {
+		const stmt = db.prepare(`
+      SELECT * FROM user_profiles
+      WHERE username = ? AND is_public = 1
+    `);
+
+		return stmt.get(username) as UserProfile | undefined;
+	},
+);
+```
+
+### Get Profile with Social Links
+
+Fetch profile with associated social links:
+
+```typescript
+import type { UserProfile, UserSocialLink } from '$lib/types/db';
+
+interface ProfileWithSocials extends UserProfile {
+	social_links: UserSocialLink[];
+}
+
+export const get_profile_with_socials = query(
+	(username: string): ProfileWithSocials | null => {
+		const profile_stmt = db.prepare(`
+      SELECT * FROM user_profiles
+      WHERE username = ? AND is_public = 1
+    `);
+
+		const profile = profile_stmt.get(username) as
+			| UserProfile
+			| undefined;
+
+		if (!profile) return null;
+
+		const socials_stmt = db.prepare(`
+      SELECT * FROM user_social_links
+      WHERE user_id = ?
+      ORDER BY platform
+    `);
+
+		const social_links = socials_stmt.all(
+			profile.user_id,
+		) as UserSocialLink[];
+
+		return { ...profile, social_links };
+	},
+);
+```
+
+### Sync GitHub Data
+
+Refresh profile with latest GitHub data:
+
+```typescript
+export const sync_github_profile = command(
+	v.object({
+		user_id: v.string(),
+		github_data: v.object({
+			bio: v.optional(v.string()),
+			location: v.optional(v.string()),
+			blog: v.optional(v.string()),
+		}),
+	}),
+	({ user_id, github_data }) => {
+		const stmt = db.prepare(`
+      UPDATE user_profiles
+      SET bio = ?, location = ?, website = ?,
+          github_synced_at = ?, updated_at = ?
+      WHERE user_id = ?
+    `);
+
+		const now = Date.now();
+
+		stmt.run(
+			github_data.bio || null,
+			github_data.location || null,
+			github_data.blog || null,
+			now,
+			now,
+			user_id,
+		);
+	},
+);
+```
+
+### Track Profile View
+
+Record analytics when someone views a profile:
+
+```typescript
+export const track_profile_view = command(
+	v.object({
+		user_id: v.string(), // Profile owner
+		viewer_id: v.optional(v.string()), // Null if not logged in
+		qr_scan: v.optional(v.boolean()),
+		referrer: v.optional(v.string()),
+	}),
+	({ user_id, viewer_id, qr_scan, referrer }) => {
+		const stmt = db.prepare(`
+      INSERT INTO profile_views (
+        id, user_id, viewer_id, qr_scan, referrer, created_at
+      )
+      VALUES (?, ?, ?, ?, ?, ?)
+    `);
+
+		stmt.run(
+			crypto.randomUUID(),
+			user_id,
+			viewer_id || null,
+			qr_scan ? 1 : 0,
+			referrer || null,
+			Date.now(),
+		);
+	},
+);
+```
+
 ## Best Practices
 
 1. **Always use prepared statements** - Prevents SQL injection

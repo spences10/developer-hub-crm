@@ -65,3 +65,38 @@ export interface UserPreferences {
 	created_at: number;
 	updated_at: number;
 }
+
+export interface UserProfile {
+	id: string;
+	user_id: string;
+	username: string;
+	github_username: string | null;
+	bio: string | null;
+	tagline: string | null;
+	location: string | null;
+	website: string | null;
+	is_public: number; // 0 or 1 (SQLite boolean)
+	visibility: 'public' | 'unlisted' | 'users_only' | 'disabled';
+	custom_slug: string | null; // Pro feature
+	qr_settings: string | null; // JSON string for QR customization
+	github_synced_at: number | null;
+	created_at: number;
+	updated_at: number;
+}
+
+export interface UserSocialLink {
+	id: string;
+	user_id: string;
+	platform: string; // 'github', 'twitter', 'linkedin', 'bluesky', 'mastodon', etc.
+	url: string;
+	created_at: number;
+}
+
+export interface ProfileView {
+	id: string;
+	user_id: string;
+	viewer_id: string | null; // NULL if not logged in
+	qr_scan: number; // 0 or 1 (SQLite boolean)
+	referrer: string | null;
+	created_at: number;
+}

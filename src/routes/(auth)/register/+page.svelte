@@ -1,11 +1,20 @@
 <script lang="ts">
-	import { Head } from 'svead';
-	import { CheckCircleFill } from '$lib/icons';
+	import { auth_client } from '$lib/client/auth';
 	import AuthFeatureCard from '$lib/components/auth-feature-card.svelte';
 	import AuthHeroPanel from '$lib/components/auth-hero-panel.svelte';
+	import { CheckCircleFill } from '$lib/icons';
+	import Github from '$lib/icons/github.svelte';
 	import Logo from '$lib/logo.svelte';
-	import { register } from '../../auth.remote';
 	import { seo_configs } from '$lib/seo';
+	import { Head } from 'svead';
+	import { register } from '../../auth.remote';
+
+	async function handle_github_signin() {
+		await auth_client.signIn.social({
+			provider: 'github',
+			callbackURL: '/dashboard',
+		});
+	}
 
 	const features = [
 		{
@@ -149,15 +158,29 @@
 				or
 			</div>
 
+			<button
+				onclick={handle_github_signin}
+				type="button"
+				class="animate-fade-in-up stagger-3 btn btn-block gap-2 opacity-0 transition-all duration-300 btn-outline hover:scale-105 hover:shadow-lg active:scale-95"
+			>
+				<Github size="20px" />
+				Continue with GitHub
+			</button>
+
+			<div
+				class="animate-fade-in stagger-4 divider text-base-content/40 opacity-0"
+			></div>
+
 			<p
-				class="animate-fade-in stagger-4 text-center text-base-content/70 opacity-0"
+				class="animate-fade-in stagger-5 text-center text-base-content/70 opacity-0"
 			>
 				Already have an account?
 				<a
 					href="/login"
-					class="inline-block link font-semibold link-primary transition-transform duration-200 hover:scale-105"
-					>Sign in</a
+					class="inline-block link font-semibold link-info transition-transform duration-200 hover:scale-105"
 				>
+					Sign in
+				</a>
 			</p>
 		</div>
 	</div>

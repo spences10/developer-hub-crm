@@ -1,13 +1,22 @@
 <script lang="ts">
 	import { Head } from 'svead';
 	import Logo from '$lib/logo.svelte';
+	import Github from '$lib/icons/github.svelte';
 	import { login } from '../../auth.remote';
+	import { auth_client } from '$lib/client/auth';
 	import { page } from '$app/state';
 	import { seo_configs } from '$lib/seo';
 
 	const reset_success = $derived(
 		page.url.searchParams.get('reset') === 'success',
 	);
+
+	async function handle_github_signin() {
+		await auth_client.signIn.social({
+			provider: 'github',
+			callbackURL: '/dashboard',
+		});
+	}
 </script>
 
 <Head seo_config={seo_configs.login} />
@@ -62,14 +71,25 @@
 
 <div class="divider">or</div>
 
+<button
+	onclick={handle_github_signin}
+	class="btn btn-block gap-2 btn-outline"
+	type="button"
+>
+	<Github size="20px" />
+	Continue with GitHub
+</button>
+
+<div class="divider"></div>
+
 <p class="mb-2 text-center">
 	Don't have an account?
-	<a href="/register" class="link link-primary">Register</a>
+	<a href="/register" class="link link-info">Register</a>
 </p>
 
 <p class="text-center">
 	Forgot your password?
-	<a href="/forgot-password" class="link link-primary">
+	<a href="/forgot-password" class="link link-info">
 		Reset it here
 	</a>
 </p>

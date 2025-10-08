@@ -26,6 +26,13 @@ CLI, AI/agents, viral growth, infrastructure.
 Free vs Pro vs Premium tiers, revenue projections, upgrade triggers,
 freemium vs open core models.
 
+### [public-profiles.md](./public-profiles.md)
+
+**Viral growth via public profiles**
+
+Profile system (`@username`), QR codes for conferences, "Add to CRM"
+viral loop, analytics, growth strategy, privacy controls.
+
 ### [github-integration.md](./github-integration.md)
 
 **GitHub automation features**
@@ -65,8 +72,9 @@ content marketing, metrics to track.
 
 **System architecture & infrastructure**
 
-Database schema additions, background jobs, GitHub API integration, AI
-stack, CLI architecture, deployment, scaling.
+Database schema additions, background jobs, GitHub OAuth, profile
+system, GitHub API integration, AI stack, CLI architecture,
+deployment, scaling.
 
 ---
 

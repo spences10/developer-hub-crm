@@ -103,6 +103,12 @@ export const auth = betterAuth({
 			}
 		},
 	},
+	socialProviders: {
+		github: {
+			clientId: env.GITHUB_CLIENT_ID as string,
+			clientSecret: env.GITHUB_CLIENT_SECRET as string,
+		},
+	},
 	secret: env.AUTH_SECRET || 'dev-secret-change-in-production',
 	baseURL: env.AUTH_BASE_URL || 'http://localhost:5173',
 	plugins: [
