@@ -91,37 +91,47 @@
 	{/if}
 
 	<!-- Add New Social Link -->
-	<div class="space-y-2">
-		<p class="text-xs opacity-70">Add new social link</p>
-		<div class="flex gap-2">
-			<select
-				bind:value={new_platform}
-				class="select-bordered select select-sm"
-			>
-				<option value="">Select platform</option>
-				<option value="twitter">Twitter/X</option>
-				<option value="bluesky">Bluesky</option>
-				<option value="linkedin">LinkedIn</option>
-				<option value="website">Website</option>
-			</select>
-			<input
-				type="url"
-				placeholder="URL"
-				bind:value={new_url}
-				class="input-bordered input input-sm flex-1"
-			/>
-			<button
-				type="button"
-				onclick={handle_add_social_link}
-				disabled={adding_link || !new_platform || !new_url}
-				class="btn btn-sm btn-primary"
-			>
-				{#if adding_link}
-					<span class="loading loading-sm loading-spinner"></span>
-				{:else}
-					Add
-				{/if}
-			</button>
+	<div class="space-y-3">
+		<p class="text-xs font-medium opacity-70">Add new social link</p>
+		<div class="grid grid-cols-1 gap-3 md:grid-cols-2">
+			<fieldset class="fieldset">
+				<legend class="fieldset-legend">Platform</legend>
+				<select
+					bind:value={new_platform}
+					class="select w-full"
+				>
+					<option value="">Select platform</option>
+					<option value="github">GitHub</option>
+					<option value="twitter">Twitter/X</option>
+					<option value="bluesky">Bluesky</option>
+					<option value="linkedin">LinkedIn</option>
+					<option value="mastodon">Mastodon</option>
+					<option value="website">Website</option>
+				</select>
+			</fieldset>
+			<fieldset class="fieldset">
+				<legend class="fieldset-legend">URL</legend>
+				<label class="input w-full">
+					<input
+						type="url"
+						placeholder="https://example.com"
+						bind:value={new_url}
+						class="grow"
+					/>
+				</label>
+			</fieldset>
 		</div>
+		<button
+			type="button"
+			onclick={handle_add_social_link}
+			disabled={adding_link || !new_platform || !new_url}
+			class="btn btn-primary btn-block"
+		>
+			{#if adding_link}
+				<span class="loading loading-sm loading-spinner"></span>
+			{:else}
+				Add
+			{/if}
+		</button>
 	</div>
 </div>

@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { page } from '$app/state';
 	import {
+		ContactBook,
 		GitHub,
 		Globe,
 		LocationPin,
@@ -125,7 +126,8 @@
 													<span>Scanned from QR code</span>
 												</div>
 												<button class="btn btn-lg btn-primary">
-													📇 Add {profile.username} to My Contacts
+													<ContactBook size="24px" />
+													Add {profile.username} to My Contacts
 												</button>
 											{:else}
 												<div class="mb-4 alert alert-success">

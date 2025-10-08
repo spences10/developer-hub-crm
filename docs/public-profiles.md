@@ -7,7 +7,7 @@ profile.
 
 **Mechanic:**
 
-1. User signs up → gets public profile (`devhub.app/@username`)
+1. User signs up → gets public profile (`devhubcrm.com/@username`)
 2. Profile includes QR code for easy sharing
 3. At conferences/meetups → shows QR code instead of business card
 4. Someone scans → sees profile + "Add to Your Devhub CRM" button
@@ -19,8 +19,8 @@ profile.
 
 **URL Structure:**
 
-- Primary: `devhub.app/@username`
-- Alt: `devhub.app/scott` (vanity, Pro feature)
+- Primary: `devhubcrm.com/@username`
+- Alt: `devhubcrm.com/scott` (vanity, Pro feature)
 - Custom domain: `scott.dev` (Premium feature)
 
 **Profile Contents:**
@@ -35,7 +35,7 @@ profile.
 
 **QR Code System:**
 
-- **URL Format:** `devhub.app/@username?qr=1` (param enables scan
+- **URL Format:** `devhubcrm.com/@username?qr=1` (param enables scan
   tracking + enhanced CTAs)
 - **Free tier:** Basic QR (black/white), links to profile,
   downloadable PNG

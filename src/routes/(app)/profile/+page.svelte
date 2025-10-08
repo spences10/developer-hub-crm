@@ -1,5 +1,6 @@
 <script lang="ts">
 	import PageNav from '$lib/components/page-nav.svelte';
+	import SocialLinkIcon from '$lib/components/social-link.svelte';
 	import { seo_configs } from '$lib/seo';
 	import { generate_qr_code_data_url } from '$lib/utils/qr-code';
 	import { Head } from 'svead';
@@ -187,7 +188,7 @@
 							<legend class="fieldset-legend">
 								Username
 								<span class="text-xs opacity-60">
-									(devhub.app/@{profile_data.username})
+									(devhubcrm.com/@{profile_data.username})
 								</span>
 							</legend>
 							<label class="input w-full">
@@ -271,7 +272,7 @@
 			<!-- Social Links -->
 			{#key refresh_key}
 				{#await social_links then links}
-					<div class="card bg-base-100 shadow-xl md:col-span-2">
+					<div class="card bg-base-100 shadow-xl">
 						<div class="card-body">
 							<h2 class="card-title">Social Links</h2>
 							<p class="text-sm opacity-70">
@@ -285,9 +286,10 @@
 										<div
 											class="flex items-center justify-between gap-2 rounded-lg bg-base-200 p-3"
 										>
-											<div class="flex items-center gap-2">
-												<span class="badge capitalize badge-primary">
-													{link.platform}
+											<div class="flex items-center gap-3">
+												<SocialLinkIcon platform={link.platform} />
+												<span class="text-sm font-medium capitalize">
+													{link.platform}:
 												</span>
 												<a
 													href={link.url}
@@ -312,43 +314,51 @@
 							{/if}
 
 							<!-- Add New Link -->
-							<div class="mt-4 space-y-2">
-								<p class="text-xs font-medium">Add new social link</p>
-								<div class="flex gap-2">
-									<select
-										bind:value={new_platform}
-										class="select-bordered select select-sm"
-									>
-										<option value="">Select platform</option>
-										<option value="github">GitHub</option>
-										<option value="twitter">Twitter/X</option>
-										<option value="bluesky">Bluesky</option>
-										<option value="linkedin">LinkedIn</option>
-										<option value="mastodon">Mastodon</option>
-										<option value="website">Website</option>
-									</select>
-									<input
-										type="url"
-										placeholder="URL"
-										bind:value={new_url}
-										class="input-bordered input input-sm flex-1"
-									/>
-									<button
-										type="button"
-										onclick={handle_add_social_link}
-										disabled={adding_link ||
-											!new_platform ||
-											!new_url}
-										class="btn btn-sm btn-primary"
-									>
-										{#if adding_link}
-											<span class="loading loading-sm loading-spinner"
-											></span>
-										{:else}
-											Add
-										{/if}
-									</button>
+							<div class="mt-4 space-y-3">
+								<p class="text-xs font-medium opacity-70">
+									Add new social link
+								</p>
+								<div class="grid grid-cols-1 gap-3 md:grid-cols-2">
+									<fieldset class="fieldset">
+										<legend class="fieldset-legend">Platform</legend>
+										<select
+											bind:value={new_platform}
+											class="select w-full"
+										>
+											<option value="">Select platform</option>
+											<option value="github">GitHub</option>
+											<option value="twitter">Twitter/X</option>
+											<option value="bluesky">Bluesky</option>
+											<option value="linkedin">LinkedIn</option>
+											<option value="mastodon">Mastodon</option>
+											<option value="website">Website</option>
+										</select>
+									</fieldset>
+									<fieldset class="fieldset">
+										<legend class="fieldset-legend">URL</legend>
+										<label class="input w-full">
+											<input
+												type="url"
+												placeholder="https://example.com"
+												bind:value={new_url}
+												class="grow"
+											/>
+										</label>
+									</fieldset>
 								</div>
+								<button
+									type="button"
+									onclick={handle_add_social_link}
+									disabled={adding_link || !new_platform || !new_url}
+									class="btn btn-block btn-primary"
+								>
+									{#if adding_link}
+										<span class="loading loading-sm loading-spinner"
+										></span>
+									{:else}
+										Add
+									{/if}
+								</button>
 							</div>
 						</div>
 					</div>
@@ -469,7 +479,7 @@
 			{/await}
 
 			<!-- QR Code -->
-			<div class="card bg-base-100 shadow-xl md:col-span-2">
+			<div class="card bg-base-100 shadow-xl">
 				<div class="card-body">
 					<h2 class="card-title">Profile QR Code</h2>
 					<p class="text-sm opacity-70">

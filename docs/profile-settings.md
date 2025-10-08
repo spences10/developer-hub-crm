@@ -36,7 +36,7 @@ Users can update their basic account details:
 ### Public Profile
 
 Information displayed on the user's public developer profile
-(`devhub.app/@username`):
+(`devhubcrm.com/@username`):
 
 - **Username** - Unique handle (3-30 characters, alphanumeric,
   hyphens, underscores)
@@ -67,7 +67,7 @@ Each user gets a unique QR code that links to their public profile:
 - Auto-generates on page load if not already created
 - Can be regenerated at any time
 - Stored as data URL in database
-- Links to `devhub.app/@username?qr=1` for tracking
+- Links to `devhubcrm.com/@username?qr=1` for tracking
 - Intended for business cards, conference badges, email signatures
 
 **Use cases:**
@@ -267,7 +267,7 @@ Profile settings are accessible via:
   component
 - **Profile Preview** - Live preview of public profile
 - **Custom Domains** - Premium feature for `user.com` instead of
-  `devhub.app/@user`
+  `devhubcrm.com/@user`
 
 ### Potential Improvements
 

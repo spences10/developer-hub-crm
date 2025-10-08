@@ -6,6 +6,7 @@ export { default as Cancel } from './cancel.svelte';
 export { default as CheckCircleFill } from './check-circle-fill.svelte';
 export { default as Check } from './check.svelte';
 export { default as CircleBack } from './circle-back.svelte';
+export { default as ContactBook } from './contact-book.svelte';
 export { default as Contacts } from './contacts.svelte';
 export { default as Cross } from './cross.svelte';
 export { default as Dashboard } from './dashboard.svelte';
