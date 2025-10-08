@@ -45,7 +45,7 @@ export async function generate_qr_code_data_url(
 	if (svg_data instanceof Blob) {
 		svg_string = await svg_data.text();
 	} else {
-		svg_string = svg_data as string;
+		svg_string = svg_data as unknown as string;
 	}
 
 	// Convert to data URL

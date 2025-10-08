@@ -9,7 +9,7 @@
 		get_profile_qr_url,
 		get_user_qr_code,
 		save_qr_code,
-	} from './settings/settings.remote';
+	} from './profile/profile.remote';
 
 	let { children } = $props();
 

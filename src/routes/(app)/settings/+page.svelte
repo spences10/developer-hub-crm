@@ -3,14 +3,10 @@
 	import { seo_configs } from '$lib/seo';
 	import { themes } from '$lib/themes';
 	import { format_date } from '$lib/utils/date-helpers';
-	import { generate_qr_code_data_url } from '$lib/utils/qr-code';
 	import { Head } from 'svead';
 	import { onMount } from 'svelte';
 	import {
-		get_profile_qr_url,
 		get_user_preferences,
-		get_user_qr_code,
-		save_qr_code,
 		update_date_format,
 		update_default_contact_sort,
 		update_default_follow_up_days,
@@ -20,12 +16,9 @@
 
 	const today = new Date();
 	const preferences = get_user_preferences();
-	const user_qr = get_user_qr_code();
 
 	let saving = $state(false);
 	let current_theme = $state('');
-	let generating_qr = $state(false);
-	let qr_code_url = $state<string | null>(null);
 
 	onMount(async () => {
 		// Load theme from localStorage
@@ -34,10 +27,6 @@
 			document.documentElement.setAttribute('data-theme', theme);
 			current_theme = theme;
 		}
-
-		// Load current QR code
-		const url = await user_qr;
-		qr_code_url = url;
 	});
 
 	async function save_with_indicator(fn: () => Promise<void>) {
@@ -56,27 +45,6 @@
 			document.cookie = `theme=${theme}; max-age=${one_year}; path=/; SameSite=Lax`;
 			document.documentElement.setAttribute('data-theme', theme);
 			current_theme = theme;
-		}
-	}
-
-	async function handle_generate_qr() {
-		generating_qr = true;
-		try {
-			// Get the profile URL from server
-			const profile_url = await get_profile_qr_url();
-
-			// Generate QR code on client
-			const data_url = await generate_qr_code_data_url(profile_url);
-
-			// Save to server
-			await save_qr_code({ qr_code_url: data_url });
-
-			// Update local state
-			qr_code_url = data_url;
-		} catch (error) {
-			console.error('Failed to generate QR code:', error);
-		} finally {
-			generating_qr = false;
 		}
 	}
 
@@ -315,63 +283,6 @@
 							<option value="message">Message</option>
 						</select>
 					</label>
-				</div>
-			</div>
-
-			<!-- QR Code Generator -->
-			<div class="card bg-base-100 shadow-xl md:col-span-2">
-				<div class="card-body">
-					<h2 class="card-title">Profile QR Code</h2>
-					<p class="text-sm opacity-70">
-						Your unique QR code that links to your public profile
-					</p>
-
-					<div
-						class="mt-4 flex flex-col items-center gap-4 md:flex-row"
-					>
-						{#if generating_qr}
-							<div
-								class="flex h-64 w-64 items-center justify-center rounded-lg border-2 border-dashed border-base-300"
-							>
-								<span class="loading loading-lg loading-spinner"
-								></span>
-							</div>
-						{:else if qr_code_url}
-							<div class="flex flex-col items-center gap-4">
-								<img
-									src={qr_code_url}
-									alt="Profile QR Code"
-									class="w-64 rounded-lg border-2 border-base-300"
-								/>
-								<button
-									class="btn btn-outline btn-sm"
-									onclick={handle_generate_qr}
-								>
-									Regenerate
-								</button>
-							</div>
-						{:else}
-							<div
-								class="flex h-64 w-64 items-center justify-center rounded-lg border-2 border-dashed border-base-300"
-							>
-								<span class="text-base-content/40"
-									>Generating QR code...</span
-								>
-							</div>
-						{/if}
-
-						<div class="flex-1">
-							<h3 class="mb-2 font-semibold">How to use:</h3>
-							<ul class="list-inside list-disc space-y-1 text-sm">
-								<li>Download and add it to your business card</li>
-								<li>
-									People can scan it to instantly view and save your
-									contact info
-								</li>
-								<li>Track scans in your analytics (coming soon)</li>
-							</ul>
-						</div>
-					</div>
 				</div>
 			</div>
 		</div>

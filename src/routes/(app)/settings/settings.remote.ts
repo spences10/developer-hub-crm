@@ -1,4 +1,4 @@
-import { getRequestEvent, query } from '$app/server';
+import { query } from '$app/server';
 import {
 	get_current_user_id,
 	guarded_command,
@@ -62,24 +62,6 @@ export const get_user_preferences = query(
 		}
 
 		return preferences;
-	},
-);
-
-/**
- * Get user's QR code URL
- */
-export const get_user_qr_code = query(
-	async (): Promise<string | null> => {
-		const user_id = await get_current_user_id();
-
-		const stmt = db.prepare(
-			'SELECT qr_code_url FROM user_profiles WHERE user_id = ?',
-		);
-		const result = stmt.get(user_id) as
-			| { qr_code_url: string | null }
-			| undefined;
-
-		return result?.qr_code_url || null;
 	},
 );
 
@@ -174,44 +156,3 @@ export const update_default_interaction_type = guarded_command(
 		return { success: true };
 	},
 );
-
-/**
- * Save QR code data URL for user profile
- */
-export const save_qr_code = guarded_command(
-	v.object({
-		qr_code_url: v.string(),
-	}),
-	async ({ qr_code_url }) => {
-		const user_id = await get_current_user_id();
-
-		// Save to database
-		db.prepare(
-			'UPDATE user_profiles SET qr_code_url = ?, updated_at = ? WHERE user_id = ?',
-		).run(qr_code_url, Date.now(), user_id);
-
-		return { success: true };
-	},
-);
-
-/**
- * Get profile URL for QR code generation
- */
-export const get_profile_qr_url = query(async (): Promise<string> => {
-	const user_id = await get_current_user_id();
-	const event = getRequestEvent();
-
-	// Get user's profile username
-	const profile_stmt = db.prepare(
-		'SELECT username FROM user_profiles WHERE user_id = ?',
-	);
-	const profile = profile_stmt.get(user_id) as
-		| { username: string }
-		| undefined;
-
-	if (!profile) {
-		throw new Error('Profile not found');
-	}
-
-	return `${event.url.origin}/@${profile.username}?qr=1`;
-});

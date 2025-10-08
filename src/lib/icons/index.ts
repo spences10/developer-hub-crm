@@ -23,4 +23,5 @@ export { default as Phone } from './phone.svelte';
 export { default as Settings } from './settings.svelte';
 export { default as Trash } from './trash.svelte';
 export { default as Twitter } from './twitter.svelte';
+export { default as User } from './user.svelte';
 export { default as Warning } from './warning.svelte';

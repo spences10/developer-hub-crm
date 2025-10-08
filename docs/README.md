@@ -134,6 +134,13 @@ variables, helpers.
 Registration, login, logout, protected routes, component patterns,
 layout guards.
 
+#### [profile-settings.md](./profile-settings.md)
+
+**User profile management**
+
+Personal information, public profile, social links, QR codes, privacy
+controls, GitHub integration.
+
 ### Forms
 
 #### [forms-daisy-ui-v5.md](./forms-daisy-ui-v5.md)

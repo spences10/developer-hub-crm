@@ -6,6 +6,7 @@
 		Dashboard,
 		Message,
 		Settings,
+		User,
 	} from '$lib/icons';
 
 	const nav_items = [
@@ -13,6 +14,7 @@
 		{ href: '/contacts', label: 'Contacts', icon: Contacts },
 		{ href: '/interactions', label: 'Interactions', icon: Message },
 		{ href: '/follow-ups', label: 'Follow-ups', icon: Calendar },
+		{ href: '/profile', label: 'Profile', icon: User },
 		{ href: '/settings', label: 'Settings', icon: Settings },
 	];
 
