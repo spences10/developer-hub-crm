@@ -119,9 +119,6 @@
 	<div class="mb-8 flex items-center justify-between">
 		<div>
 			<h1 class="text-3xl font-bold">Profile Settings</h1>
-			<p class="mt-2 text-sm opacity-70">
-				Manage your personal information and public profile
-			</p>
 		</div>
 		{#if saving}
 			<span class="badge badge-lg badge-success">Saving...</span>
