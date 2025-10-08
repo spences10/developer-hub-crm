@@ -1,4 +1,5 @@
-import { query } from '$app/server';
+import { command, getRequestEvent, query } from '$app/server';
+import { auth } from '$lib/server/auth';
 import { db } from '$lib/server/db';
 import type { UserProfile, UserSocialLink } from '$lib/types/db';
 import * as v from 'valibot';
@@ -60,5 +61,63 @@ export const get_profile = query.batch(
 
 			return { ...profile, social_links };
 		};
+	},
+);
+
+/**
+ * Track profile view for analytics
+ */
+export const track_profile_view = command(
+	v.object({
+		username: v.pipe(v.string(), v.minLength(1)),
+		qr_scan: v.boolean(),
+		referrer: v.nullable(v.string()),
+	}),
+	async ({ username, qr_scan, referrer }) => {
+		const event = getRequestEvent();
+
+		// Get current user if logged in
+		const session = await auth.api.getSession({
+			headers: event.request.headers,
+		});
+
+		const viewer_id = session?.user?.id || null;
+
+		// Get the profile owner's user_id
+		const profile_stmt = db.prepare(`
+      SELECT user_id FROM user_profiles WHERE username = ?
+    `);
+
+		const profile = profile_stmt.get(username) as
+			| { user_id: string }
+			| undefined;
+
+		if (!profile) {
+			return { success: false, error: 'Profile not found' };
+		}
+
+		// Don't track own profile views
+		if (viewer_id === profile.user_id) {
+			return { success: true, self_view: true };
+		}
+
+		// Insert profile view
+		const insert_stmt = db.prepare(`
+      INSERT INTO profile_views (
+        id, user_id, viewer_id, qr_scan, referrer, created_at
+      )
+      VALUES (?, ?, ?, ?, ?, ?)
+    `);
+
+		insert_stmt.run(
+			crypto.randomUUID(),
+			profile.user_id,
+			viewer_id,
+			qr_scan ? 1 : 0,
+			referrer,
+			Date.now(),
+		);
+
+		return { success: true };
 	},
 );

@@ -35,12 +35,23 @@ profile.
 
 **QR Code System:**
 
-- Free: Basic QR (black/white), links to profile, downloadable PNG
-- Pro: Custom colors/branding, logo in center, high-res, multiple
-  formats (PNG, SVG, PDF)
+- **URL Format:** `devhub.app/@username?qr=1` (param enables scan
+  tracking + enhanced CTAs)
+- **Free tier:** Basic QR (black/white), links to profile,
+  downloadable PNG
+- **Pro tier:** Custom colors/branding, logo in center, high-res,
+  multiple formats (PNG, SVG, PDF)
 
 **Use cases:** Conference badge, laptop sticker, GitHub README, email
 signature, business cards
+
+**QR Scan Flow:**
+
+1. QR code contains `?qr=1` parameter
+2. Profile page detects param → shows enhanced UI
+3. **If logged in:** Big "Add to My Contacts" button
+4. **If not logged in:** "Sign up to save this contact" CTA
+5. Scan tracked in `profile_views` table with `qr_scan = 1`
 
 ## User Flows
 
@@ -86,15 +97,33 @@ signature, business cards
 - White-label
 - Connection requests/messaging (if we add social features)
 
-## Profile Analytics
+## Profile Analytics (Premium Feature)
 
-**Tracked metrics:**
+**LinkedIn-Style Upsell:**
 
-- Total views
-- QR scans
-- Referrer sources (Twitter, conference, etc.)
-- Conversion to signup
-- Geographic data (conferences)
+- **Free users:** "12 people viewed your profile this week. Upgrade to
+  Pro to see who's looking at your profile"
+- **Pro users:** Full analytics dashboard with viewer details, QR scan
+  breakdown, conversion tracking
+
+**Tracked metrics (Free tier - aggregated only):**
+
+- Total views (number only)
+- QR scans (number only)
+- View trend graph (last 30 days)
+
+**Tracked metrics (Pro tier - detailed breakdown):**
+
+- Who viewed your profile (name, company, when)
+- QR scan details (location, timestamp, device)
+- Referrer sources (Twitter, conference, direct link, etc.)
+- Conversion to signup tracking
+- Geographic heatmap (conferences, cities)
+- Most engaged viewers
+
+**Database schema:** All data stored in `profile_views` table from
+day 1. Free users just can't see details until they upgrade (no data
+loss).
 
 ## Growth Projections
 
@@ -131,6 +160,29 @@ connections
 - Can hide email, phone, location
 - Can disable QR code
 - Can turn off analytics
+
+## TODO: Improvements Needed
+
+### Social Links UX
+
+**Current state:** Clunky social links implementation on profile page
+
+**Issues:**
+
+- Manual platform detection with if/else blocks
+- Not scalable for adding new platforms
+- Hard-coded icons and labels
+- No consistent styling pattern
+
+**Proposed solution:**
+
+- Create `SocialLinkButton.svelte` component
+- Icon mapping object (platform → icon component)
+- Automatic icon selection based on platform
+- Consistent styling with DaisyUI classes
+- Support for unknown platforms (show generic link icon)
+
+**Priority:** Medium (works but needs refactoring)
 
 ## Success Metrics
 

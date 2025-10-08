@@ -1,9 +1,17 @@
 <script lang="ts">
 	import { page } from '$app/state';
-	import Github from '$lib/icons/github.svelte';
+	import {
+		GitHub,
+		Globe,
+		LocationPin,
+		Phone,
+		Twitter,
+	} from '$lib/icons';
+	import { get_current_user } from '../auth.remote';
 	import { get_profile } from './profile.remote';
 
 	const username = $derived(page.params.username);
+	const is_qr_scan = $derived(page.url.searchParams.has('qr'));
 </script>
 
 <svelte:boundary>
@@ -56,25 +64,7 @@
 										>
 											{#if profile.location}
 												<div class="flex items-center gap-2">
-													<svg
-														class="h-5 w-5"
-														fill="none"
-														stroke="currentColor"
-														viewBox="0 0 24 24"
-													>
-														<path
-															stroke-linecap="round"
-															stroke-linejoin="round"
-															stroke-width="2"
-															d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-														/>
-														<path
-															stroke-linecap="round"
-															stroke-linejoin="round"
-															stroke-width="2"
-															d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-														/>
-													</svg>
+													<LocationPin size="20px" />
 													<span>{profile.location}</span>
 												</div>
 											{/if}
@@ -86,19 +76,7 @@
 													rel="noopener noreferrer"
 													class="flex link items-center gap-2 link-primary"
 												>
-													<svg
-														class="h-5 w-5"
-														fill="none"
-														stroke="currentColor"
-														viewBox="0 0 24 24"
-													>
-														<path
-															stroke-linecap="round"
-															stroke-linejoin="round"
-															stroke-width="2"
-															d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"
-														/>
-													</svg>
+													<Globe size="20px" />
 													{profile.website.replace(
 														/^https?:\/\//,
 														'',
@@ -123,24 +101,53 @@
 												class="btn gap-2 btn-outline btn-sm"
 											>
 												{#if link.platform === 'github'}
-													<Github size="16px" />
+													<GitHub size="16px" />
 													GitHub
 												{:else if link.platform === 'twitter'}
-													<svg
-														class="h-4 w-4"
-														fill="currentColor"
-														viewBox="0 0 24 24"
-													>
-														<path
-															d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"
-														/>
-													</svg>
+													<Twitter size="16px" />
 													Twitter
 												{:else}
 													{link.platform}
 												{/if}
 											</a>
 										{/each}
+									</div>
+								{/if}
+
+								<!-- QR Scan CTA -->
+								{#if is_qr_scan}
+									<div class="divider"></div>
+									<div class="text-center">
+										{#await get_current_user() then current_user}
+											{#if current_user}
+												<div class="mb-4 alert alert-info">
+													<Phone size="24px" />
+													<span>Scanned from QR code</span>
+												</div>
+												<button class="btn btn-lg btn-primary">
+													📇 Add {profile.username} to My Contacts
+												</button>
+											{:else}
+												<div class="mb-4 alert alert-success">
+													<Phone size="24px" />
+													<span
+														>📱 QR Code scanned! Save this contact to
+														your CRM</span
+													>
+												</div>
+												<a
+													href="/register"
+													class="btn btn-lg btn-primary"
+												>
+													🚀 Sign up to save {profile.username}'s
+													contact
+												</a>
+												<p class="mt-4 text-sm text-base-content/60">
+													Create your free account and get your own QR
+													profile
+												</p>
+											{/if}
+										{/await}
 									</div>
 								{/if}
 
