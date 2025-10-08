@@ -151,20 +151,35 @@
 									</div>
 								{/if}
 
-								<!-- QR Code Placeholder -->
+								<!-- QR Code -->
 								<div class="divider"></div>
 								<div class="text-center">
 									<h2 class="mb-4 text-2xl font-bold">QR Code</h2>
-									<div
-										class="mx-auto flex h-64 w-64 items-center justify-center rounded-lg bg-base-200"
-									>
-										<span class="text-base-content/40"
-											>QR Code Coming Soon</span
+									{#if profile.qr_code_url}
+										<div class="mx-auto w-64">
+											<img
+												src={profile.qr_code_url}
+												alt="QR Code for {profile.username}"
+												class="rounded-lg border-2 border-base-300"
+											/>
+										</div>
+										<p class="mt-4 text-sm text-base-content/60">
+											Scan to add {profile.username} to your Devhub CRM
+										</p>
+									{:else}
+										<div
+											class="mx-auto flex h-64 w-64 items-center justify-center rounded-lg bg-base-200"
 										>
-									</div>
-									<p class="mt-4 text-sm text-base-content/60">
-										Scan to add {profile.username} to your Devhub CRM
-									</p>
+											<div class="text-center">
+												<p class="text-base-content/40">
+													No QR Code yet
+												</p>
+												<p class="mt-2 text-sm text-base-content/30">
+													Generate one in Settings
+												</p>
+											</div>
+										</div>
+									{/if}
 								</div>
 							</div>
 						</div>

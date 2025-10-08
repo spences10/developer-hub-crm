@@ -7,6 +7,7 @@ import * as v from 'valibot';
 export interface ProfileWithSocials extends UserProfile {
 	image: string | null;
 	social_links: UserSocialLink[];
+	qr_code_url: string | null;
 }
 
 /**
@@ -28,7 +29,10 @@ export const get_profile = query.batch(
 
 		const profiles = profile_stmt.all(
 			...usernames,
-		) as (UserProfile & { image: string | null })[];
+		) as (UserProfile & {
+			image: string | null;
+			qr_code_url: string | null;
+		})[];
 
 		// Fetch social links for all profiles
 		const user_ids = profiles.map((p) => p.user_id);

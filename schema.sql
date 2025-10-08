@@ -128,6 +128,7 @@ CREATE TABLE IF NOT EXISTS user_profiles (
   is_public INTEGER DEFAULT 1,
   visibility TEXT NOT NULL DEFAULT 'public',
   custom_slug TEXT UNIQUE,
+  qr_code_url TEXT,
   qr_settings TEXT,
   github_synced_at INTEGER,
   created_at INTEGER NOT NULL,

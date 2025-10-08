@@ -78,6 +78,7 @@ export interface UserProfile {
 	is_public: number; // 0 or 1 (SQLite boolean)
 	visibility: 'public' | 'unlisted' | 'users_only' | 'disabled';
 	custom_slug: string | null; // Pro feature
+	qr_code_url: string | null; // Data URL for QR code SVG
 	qr_settings: string | null; // JSON string for QR customization
 	github_synced_at: number | null;
 	created_at: number;
