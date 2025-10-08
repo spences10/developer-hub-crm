@@ -236,7 +236,7 @@ ALTER TABLE user ADD COLUMN verification_sent_at INTEGER;
 
 **Email template requirements:**
 
-- Clear subject line: "Verify your DevHub email address"
+- Clear subject line: "Verify your Devhub email address"
 - Prominent verification button/link
 - Token as URL parameter: `/verify-email?token=xxx`
 - Expiration notice: "This link expires in 24 hours"

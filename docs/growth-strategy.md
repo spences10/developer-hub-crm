@@ -74,7 +74,7 @@ YouTube
   networking tips"
 - Product updates: "We shipped [feature]", "Behind the scenes:
   building [feature]", weekly changelog
-- Case studies: "How [Developer] uses DevHub", "Managing 500+
+- Case studies: "How [Developer] uses Devhub", "Managing 500+
   contacts"
 
 **SEO keywords:** "developer CRM", "GitHub CRM", "conference
@@ -95,7 +95,7 @@ beta testing program
 **Partner with:** Conference organizers, developer communities (DEV,
 Hashnode), dev tools (Zapier, n8n)
 
-**Integrations:** Zapier ("DevHub + Slack"), Discord bot, Notion
+**Integrations:** Zapier ("Devhub + Slack"), Discord bot, Notion
 import/export, Linear linking
 
 ## Growth Tactics Timeline

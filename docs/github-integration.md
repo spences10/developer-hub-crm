@@ -2,7 +2,7 @@
 
 ## Overview
 
-GitHub integration is the **primary differentiator** that makes DevHub
+GitHub integration is the **primary differentiator** that makes Devhub
 unique. Instead of manually tracking developer relationships, we
 automatically sync GitHub activity to surface insights and suggest
 actions.
@@ -106,7 +106,7 @@ CREATE INDEX idx_github_insights_acknowledged ON github_insights(acknowledged);
 
 ```
 1. User connects their GitHub account (OAuth)
-2. DevHub watches their repos for stars
+2. Devhub watches their repos for stars
 3. New star → auto-creates contact
 4. User gets notification: "Alex Kumar starred sveltekit-starter"
 5. Contact pre-filled with GitHub data
@@ -205,7 +205,7 @@ export async function POST({ request }) {
 
 ```
 1. User works with Sarah on a PR
-2. DevHub detects collaboration
+2. Devhub detects collaboration
 3. Auto-logs interaction: "Collaborated on PR #123 in sveltekit-starter"
 4. Interaction appears in Sarah's timeline
 ```

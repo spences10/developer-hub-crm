@@ -2,7 +2,7 @@
 
 ## Overview
 
-DevHub CLI brings CRM functionality to the terminal. No context
+Devhub CLI brings CRM functionality to the terminal. No context
 switching, no browser tabs - fast, keyboard-driven relationship
 management.
 

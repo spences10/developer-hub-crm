@@ -12,7 +12,7 @@
 	<Logo size="70px" />
 </div>
 
-<h2 class="mb-6 text-center text-2xl font-bold">Sign in to DevHub</h2>
+<h2 class="mb-6 text-center text-2xl font-bold">Sign in to Devhub</h2>
 
 {#if reset_success}
 	<div class="mb-4 alert alert-success">

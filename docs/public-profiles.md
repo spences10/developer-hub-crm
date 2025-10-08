@@ -10,7 +10,7 @@ profile.
 1. User signs up → gets public profile (`devhub.app/@username`)
 2. Profile includes QR code for easy sharing
 3. At conferences/meetups → shows QR code instead of business card
-4. Someone scans → sees profile + "Add to Your DevHub CRM" button
+4. Someone scans → sees profile + "Add to Your Devhub CRM" button
 5. They sign up → get their own profile → repeat
 
 **Result:** Exponential growth through network effects
@@ -31,7 +31,7 @@ profile.
 - Social links: GitHub, Twitter, LinkedIn, website, Bluesky, Mastodon
 - Public projects: Featured repos from GitHub, pin specific projects
   (Pro), auto-shows top 3 by stars
-- CTA: "📇 Add [Name] to Your DevHub CRM" with sign-up button
+- CTA: "📇 Add [Name] to Your Devhub CRM" with sign-up button
 
 **QR Code System:**
 
@@ -48,7 +48,7 @@ signature, business cards
 
 1. Scan QR → land on profile
 2. See profile (GitHub, projects, links)
-3. Click "Add to Your DevHub CRM"
+3. Click "Add to Your Devhub CRM"
 4. OAuth flow → account created
 5. Contact auto-added, profile created, QR code generated
 6. Onboarding: "Share your profile at your next meetup!"
@@ -67,7 +67,7 @@ signature, business cards
 - GitHub auto-sync (bio, repos, socials)
 - Basic QR code (black/white)
 - Social links
-- "Powered by DevHub" footer
+- "Powered by Devhub" footer
 
 **Pro ($15-20/mo):**
 
@@ -75,7 +75,7 @@ signature, business cards
 - Profile analytics (views, scans)
 - Custom bio (override GitHub)
 - Featured projects (pin specific repos)
-- Remove DevHub branding
+- Remove Devhub branding
 - Vanity slug (`/scott` instead of `/@spences10`)
 
 **Premium ($30-40/mo):**
@@ -122,7 +122,7 @@ connections
 
 - Fully public (default)
 - Public but unlisted (need direct link)
-- Private (DevHub users only)
+- Private (Devhub users only)
 - Disabled (don't want public profile)
 
 **What's shown:**

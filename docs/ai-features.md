@@ -2,7 +2,7 @@
 
 ## Overview
 
-Transform DevHub from passive data storage into active relationship
+Transform Devhub from passive data storage into active relationship
 intelligence platform. AI suggests, never decides - drafts messages
 for review, suggests follow-ups for approval, surfaces insights for
 action.

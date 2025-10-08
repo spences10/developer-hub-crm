@@ -14,7 +14,7 @@ time savings.
 - Manual GitHub import (Quick Connect, 10 contacts/day sync limit)
 - Full CLI access
 - Basic public profile + basic QR code
-- "Powered by DevHub" footer
+- "Powered by Devhub" footer
 - Self-hosted option (Docker, SQLite)
 
 ### Pro - $15-20/month
@@ -26,7 +26,7 @@ time savings.
 - AI features (5 summaries/day, 10 message drafts/day)
 - Custom QR code (colors, logo)
 - Profile analytics
-- Remove DevHub branding
+- Remove Devhub branding
 - Full API access + webhooks
 
 **Upgrade triggers:**
@@ -78,7 +78,7 @@ time savings.
 | Bulk import (CSV)   | ❌        | ✅           | ✅               |
 | Webhooks/API        | Read-only | Full         | Full             |
 | Public profile      | Basic     | Custom QR    | Custom domain    |
-| Branding            | DevHub    | Optional     | White-label      |
+| Branding            | Devhub    | Optional     | White-label      |
 
 ## Revenue Projections
 
