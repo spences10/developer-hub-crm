@@ -1,15 +1,19 @@
 <script lang="ts">
+	import { Head } from 'svead';
 	import EmptyState from '$lib/components/empty-state.svelte';
 	import FollowUpCard from '$lib/components/follow-up-card.svelte';
 	import InteractionCard from '$lib/components/interaction-card.svelte';
 	import PageNav from '$lib/components/page-nav.svelte';
 	import { Cross, Warning } from '$lib/icons';
+	import { seo_configs } from '$lib/seo';
 	import { get_user_preferences } from '../settings/settings.remote';
 	import {
 		get_dashboard_activity,
 		get_dashboard_stats,
 	} from './dashboard.remote';
 </script>
+
+<Head seo_config={seo_configs.dashboard} />
 
 <div class="mx-auto max-w-6xl">
 	<div class="mb-8 flex flex-wrap items-center justify-between gap-4">

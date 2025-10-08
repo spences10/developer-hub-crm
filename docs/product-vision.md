@@ -1,4 +1,4 @@
-# Product Vision: Dev Hub CRM
+# Product Vision: Devhub CRM
 
 ## Current State (October 2025)
 

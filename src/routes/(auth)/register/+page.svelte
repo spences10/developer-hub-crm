@@ -1,9 +1,11 @@
 <script lang="ts">
+	import { Head } from 'svead';
 	import { CheckCircleFill } from '$lib/icons';
 	import AuthFeatureCard from '$lib/components/auth-feature-card.svelte';
 	import AuthHeroPanel from '$lib/components/auth-hero-panel.svelte';
 	import Logo from '$lib/logo.svelte';
 	import { register } from '../../auth.remote';
+	import { seo_configs } from '$lib/seo';
 
 	const features = [
 		{
@@ -31,6 +33,8 @@
 		},
 	];
 </script>
+
+<Head seo_config={seo_configs.register} />
 
 <div class="fixed inset-0 flex min-h-screen">
 	<!-- Left Panel - Branding -->

@@ -1,5 +1,7 @@
 <script lang="ts">
+	import { Head } from 'svead';
 	import PageNav from '$lib/components/page-nav.svelte';
+	import { seo_configs } from '$lib/seo';
 	import { themes } from '$lib/themes';
 	import { format_date } from '$lib/utils/date-helpers';
 	import {
@@ -87,6 +89,8 @@
 		{ class: 'bg-base-100', label: 'Background' },
 	];
 </script>
+
+<Head seo_config={seo_configs.settings} />
 
 {#snippet radio_group(
 	title: string,

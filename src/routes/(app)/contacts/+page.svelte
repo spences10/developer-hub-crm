@@ -1,10 +1,12 @@
 <script lang="ts">
+	import { Head } from 'svead';
 	import EmptyState from '$lib/components/empty-state.svelte';
 	import ItemCount from '$lib/components/item-count.svelte';
 	import PageHeaderWithAction from '$lib/components/page-header-with-action.svelte';
 	import PageNav from '$lib/components/page-nav.svelte';
 	import SortableTableHeader from '$lib/components/sortable-table-header.svelte';
 	import type { Contact } from '$lib/types/db';
+	import { seo_configs } from '$lib/seo';
 	import { get_user_preferences } from '../settings/settings.remote';
 	import { get_contacts } from './contacts.remote';
 
@@ -90,6 +92,8 @@
 		}
 	}
 </script>
+
+<Head seo_config={seo_configs.contacts} />
 
 <div class="mx-auto max-w-6xl">
 	<PageHeaderWithAction title="Contacts">

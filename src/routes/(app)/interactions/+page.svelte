@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { Head } from 'svead';
 	import ActivityCard from '$lib/components/activity-card.svelte';
 	import EmptyState from '$lib/components/empty-state.svelte';
 	import FilterTabs from '$lib/components/filter-tabs.svelte';
@@ -15,6 +16,7 @@
 		Trash,
 	} from '$lib/icons';
 	import type { Interaction } from '$lib/types/db';
+	import { seo_configs } from '$lib/seo';
 	import { format_date } from '$lib/utils/date-helpers';
 	import { get_user_preferences } from '../settings/settings.remote';
 	import {
@@ -108,6 +110,8 @@
 		delete_confirmation_id = null;
 	}
 </script>
+
+<Head seo_config={seo_configs.interactions} />
 
 <div class="mx-auto max-w-6xl">
 	<PageHeaderWithAction title="Interactions">

@@ -1,4 +1,4 @@
-# Dev Hub CRM - Documentation
+# Devhub CRM - Documentation
 
 Complete documentation for developers and LLMs working on this
 project.

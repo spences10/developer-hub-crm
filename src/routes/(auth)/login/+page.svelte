@@ -1,12 +1,16 @@
 <script lang="ts">
+	import { Head } from 'svead';
 	import Logo from '$lib/logo.svelte';
 	import { login } from '../../auth.remote';
 	import { page } from '$app/state';
+	import { seo_configs } from '$lib/seo';
 
 	const reset_success = $derived(
 		page.url.searchParams.get('reset') === 'success',
 	);
 </script>
+
+<Head seo_config={seo_configs.login} />
 
 <div class="mb-8 flex justify-center">
 	<Logo size="70px" />

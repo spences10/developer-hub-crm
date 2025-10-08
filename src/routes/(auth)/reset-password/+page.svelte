@@ -1,11 +1,15 @@
 <script lang="ts">
 	import { page } from '$app/state';
+	import { Head } from 'svead';
 	import Logo from '$lib/logo.svelte';
+	import { seo_configs } from '$lib/seo';
 	import { reset_password } from '../../auth.remote';
 
 	// Get token from URL query parameter
 	const token = $derived(page.url.searchParams.get('token') || '');
 </script>
+
+<Head seo_config={seo_configs.resetPassword} />
 
 <div class="mb-8 flex justify-center">
 	<Logo size="70px" />

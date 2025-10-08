@@ -1,4 +1,4 @@
--- Dev Hub CRM Schema
+-- Devhub CRM Schema
 -- SQLite schema for contacts, interactions, and follow-ups
 
 -- Better Auth tables
