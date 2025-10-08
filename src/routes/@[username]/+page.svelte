@@ -8,6 +8,7 @@
 		LinkedIn,
 		LocationPin,
 		Phone,
+		Rocket,
 		Twitter,
 		YouTube,
 	} from '$lib/icons';
@@ -159,16 +160,16 @@
 												<div class="mb-4 alert alert-success">
 													<Phone size="24px" />
 													<span>
-														📱 QR Code scanned! Save this contact to
-														your CRM
+														QR Code scanned! Save this contact to your
+														CRM
 													</span>
 												</div>
 												<a
 													href="/register"
 													class="btn btn-lg btn-primary"
 												>
-													🚀 Sign up to save {profile.username}'s
-													contact
+													<Rocket size="24px" />
+													Sign up to save {profile.username}'s contact
 												</a>
 												<p class="mt-4 text-sm text-base-content/60">
 													Create your free account and get your own QR

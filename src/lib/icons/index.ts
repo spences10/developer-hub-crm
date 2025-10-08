@@ -21,6 +21,7 @@ export { default as LocationPin } from './location-pin.svelte';
 export { default as Mastodon } from './mastodon.svelte';
 export { default as Message } from './message.svelte';
 export { default as Phone } from './phone.svelte';
+export { default as Rocket } from './rocket.svelte';
 export { default as Settings } from './settings.svelte';
 export { default as Trash } from './trash.svelte';
 export { default as Twitter } from './twitter.svelte';
