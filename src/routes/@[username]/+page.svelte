@@ -1,18 +1,50 @@
 <script lang="ts">
 	import { page } from '$app/state';
 	import {
+		Bluesky,
 		ContactBook,
 		GitHub,
 		Globe,
+		LinkedIn,
 		LocationPin,
 		Phone,
 		Twitter,
+		YouTube,
 	} from '$lib/icons';
 	import { get_current_user } from '../auth.remote';
 	import { get_profile } from './profile.remote';
 
 	const username = $derived(page.params.username);
 	const is_qr_scan = $derived(page.url.searchParams.has('qr'));
+
+	// Icon mapping for social platforms
+	const platform_icons: Record<string, any> = {
+		github: GitHub,
+		twitter: Twitter,
+		linkedin: LinkedIn,
+		youtube: YouTube,
+		bluesky: Bluesky,
+	};
+
+	// Label mapping for social platforms
+	const platform_labels: Record<string, string> = {
+		github: 'GitHub',
+		twitter: 'Twitter',
+		linkedin: 'LinkedIn',
+		youtube: 'YouTube',
+		bluesky: 'Bluesky',
+	};
+
+	function get_platform_icon(platform: string) {
+		return platform_icons[platform.toLowerCase()] || Globe;
+	}
+
+	function get_platform_label(platform: string) {
+		return (
+			platform_labels[platform.toLowerCase()] ||
+			platform.charAt(0).toUpperCase() + platform.slice(1)
+		);
+	}
 </script>
 
 <svelte:boundary>
@@ -95,21 +127,15 @@
 										class="flex flex-wrap justify-center gap-4 md:justify-start"
 									>
 										{#each profile.social_links as link}
+											{@const Icon = get_platform_icon(link.platform)}
 											<a
 												href={link.url}
 												target="_blank"
 												rel="noopener noreferrer"
 												class="btn gap-2 btn-outline btn-sm"
 											>
-												{#if link.platform === 'github'}
-													<GitHub size="16px" />
-													GitHub
-												{:else if link.platform === 'twitter'}
-													<Twitter size="16px" />
-													Twitter
-												{:else}
-													{link.platform}
-												{/if}
+												<Icon size="16px" />
+												{get_platform_label(link.platform)}
 											</a>
 										{/each}
 									</div>
@@ -132,10 +158,10 @@
 											{:else}
 												<div class="mb-4 alert alert-success">
 													<Phone size="24px" />
-													<span
-														>📱 QR Code scanned! Save this contact to
-														your CRM</span
-													>
+													<span>
+														📱 QR Code scanned! Save this contact to
+														your CRM
+													</span>
 												</div>
 												<a
 													href="/register"

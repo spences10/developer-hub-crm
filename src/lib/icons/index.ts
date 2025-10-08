@@ -26,3 +26,4 @@ export { default as Trash } from './trash.svelte';
 export { default as Twitter } from './twitter.svelte';
 export { default as User } from './user.svelte';
 export { default as Warning } from './warning.svelte';
+export { default as YouTube } from './youtube.svelte';

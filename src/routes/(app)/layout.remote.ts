@@ -46,8 +46,12 @@ export const ensure_profile = query(async () => {
 					github_account.accessToken,
 				);
 
-				// Create profile from GitHub data
-				await create_user_profile_from_github(user_id, github_data);
+				// Create profile from GitHub data with access token for social accounts
+				await create_user_profile_from_github(
+					user_id,
+					github_data,
+					github_account.accessToken,
+				);
 
 				console.log('✅ Created user profile from GitHub data');
 			} catch (error) {
