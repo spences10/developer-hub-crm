@@ -23,7 +23,7 @@
 			</div>
 
 			<div
-				class="animate-scale-in stagger-1 flex-shrink-0 rounded-3xl border border-primary-content/25 bg-primary-content/15 p-6 text-center opacity-0 shadow-2xl backdrop-blur-sm"
+				class="animate-scale-in stagger-1 flex-shrink-0 rounded-box border border-primary-content/25 bg-primary-content/15 p-6 text-center opacity-0 shadow-2xl backdrop-blur-sm"
 			>
 				<div class="animate-float">
 					<Email

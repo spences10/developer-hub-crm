@@ -216,7 +216,7 @@
 				<!-- Fun stats or Easter egg message -->
 				<div class="animate-fade-in stagger-4 mt-12 opacity-0">
 					<div
-						class="inline-block rounded-2xl border border-base-300 bg-base-100/80 px-8 py-4 shadow-xl backdrop-blur-sm"
+						class="inline-block rounded-box border border-base-300 bg-base-100/80 px-8 py-4 shadow-xl backdrop-blur-sm"
 					>
 						<p class="text-sm font-semibold text-base-content/70">
 							You found the secret welcome screen! 🎊
@@ -327,7 +327,7 @@
 						{#each features as feature, i}
 							<div
 								class="animate-fade-in-up stagger-{i +
-									1} group rounded-2xl border border-base-300 bg-base-200 p-8 opacity-0 shadow-lg transition-all duration-300 hover:scale-[1.02] hover:border-primary/40 hover:shadow-2xl"
+									1} group rounded-box border border-base-300 bg-base-200 p-8 opacity-0 shadow-lg transition-all duration-300 hover:scale-[1.02] hover:border-primary/40 hover:shadow-2xl"
 							>
 								<div
 									class="mb-4 inline-block rounded-box bg-primary/10 p-4 transition-all duration-300 group-hover:bg-primary/20"
@@ -389,7 +389,7 @@
 						</div>
 
 						<div
-							class="rounded-2xl border border-base-300 bg-base-100 p-8 shadow-2xl lg:p-12"
+							class="rounded-box border border-base-300 bg-base-100 p-8 shadow-2xl lg:p-12"
 						>
 							<div class="space-y-6">
 								<div
@@ -448,11 +448,11 @@
 			<!-- Final CTA Section -->
 			<section class="px-6 py-20">
 				<div
-					class="mx-auto max-w-4xl rounded-3xl border border-primary/20 bg-gradient-to-br from-primary to-primary/80 p-12 text-center shadow-2xl lg:p-16"
+					class="mx-auto max-w-4xl rounded-box border border-primary/20 bg-gradient-to-br from-primary to-primary/80 p-12 text-center shadow-2xl lg:p-16"
 				>
 					<!-- Decorative background -->
 					<div
-						class="absolute inset-0 rounded-3xl bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.08),transparent_70%)]"
+						class="absolute inset-0 rounded-box bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.08),transparent_70%)]"
 					></div>
 
 					<div class="relative z-10">
