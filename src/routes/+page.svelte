@@ -151,8 +151,7 @@
 				<div
 					class="absolute {element.position} {element.opacity} {element.animation}"
 				>
-					<svelte:component
-						this={element.icon}
+					<element.icon
 						size={element.size}
 						class_names="text-base-content/50"
 					/>
@@ -331,10 +330,9 @@
 									1} group rounded-2xl border border-base-300 bg-base-200 p-8 opacity-0 shadow-lg transition-all duration-300 hover:scale-[1.02] hover:border-primary/40 hover:shadow-2xl"
 							>
 								<div
-									class="mb-4 inline-block rounded-xl bg-primary/10 p-4 transition-all duration-300 group-hover:bg-primary/20"
+									class="mb-4 inline-block rounded-box bg-primary/10 p-4 transition-all duration-300 group-hover:bg-primary/20"
 								>
-									<svelte:component
-										this={feature.icon}
+									<feature.icon
 										size="32px"
 										class_names="text-primary"
 									/>
@@ -395,7 +393,7 @@
 						>
 							<div class="space-y-6">
 								<div
-									class="rounded-xl border border-base-300 bg-base-200/50 p-6"
+									class="rounded-box border border-base-300 bg-base-200/50 p-6"
 								>
 									<div class="mb-3 flex items-center gap-3">
 										<GitHub
@@ -414,7 +412,7 @@
 								</div>
 
 								<div
-									class="rounded-xl border border-base-300 bg-base-200/50 p-6"
+									class="rounded-box border border-base-300 bg-base-200/50 p-6"
 								>
 									<h3
 										class="mb-3 text-xl font-bold text-base-content"
@@ -429,7 +427,7 @@
 								</div>
 
 								<div
-									class="rounded-xl border border-base-300 bg-base-200/50 p-6"
+									class="rounded-box border border-base-300 bg-base-200/50 p-6"
 								>
 									<h3
 										class="mb-3 text-xl font-bold text-base-content"

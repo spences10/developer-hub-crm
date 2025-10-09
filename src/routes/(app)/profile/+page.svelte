@@ -266,7 +266,7 @@
 					>
 						{#if generating_qr}
 							<div
-								class="flex h-64 w-64 items-center justify-center rounded-lg border-2 border-dashed border-base-300"
+								class="flex h-64 w-64 items-center justify-center rounded-box border-2 border-dashed border-base-300"
 							>
 								<span class="loading loading-lg loading-spinner"
 								></span>
@@ -276,7 +276,7 @@
 								<img
 									src={qr_code_url}
 									alt="Profile QR Code"
-									class="w-64 rounded-lg border-2 border-base-300"
+									class="w-64 rounded-box border-2 border-base-300"
 								/>
 								<button
 									class="btn btn-outline btn-sm"
@@ -287,7 +287,7 @@
 							</div>
 						{:else}
 							<div
-								class="flex h-64 w-64 items-center justify-center rounded-lg border-2 border-dashed border-base-300"
+								class="flex h-64 w-64 items-center justify-center rounded-box border-2 border-dashed border-base-300"
 							>
 								<button
 									class="btn btn-primary"

@@ -1,10 +1,10 @@
 <script lang="ts">
+	import AuthHeroPanel from '$lib/components/auth-hero-panel.svelte';
 	import {
 		CheckCircleFill,
 		Email,
 		InformationCircle,
 	} from '$lib/icons';
-	import AuthHeroPanel from '$lib/components/auth-hero-panel.svelte';
 	import Logo from '$lib/logo.svelte';
 
 	const steps = [
@@ -50,7 +50,7 @@
 		<div class="space-y-4">
 			{#each steps as step}
 				<div
-					class="animate-fade-in-up stagger-{step.stagger} flex items-center gap-4 rounded-xl border border-primary-content/20 bg-primary-content/10 p-4 opacity-0 shadow-lg backdrop-blur-sm transition-transform duration-300 hover:scale-105"
+					class="animate-fade-in-up stagger-{step.stagger} flex items-center gap-4 rounded-box border border-primary-content/20 bg-primary-content/10 p-4 opacity-0 shadow-lg backdrop-blur-sm transition-transform duration-300 hover:scale-105"
 				>
 					<CheckCircleFill
 						size="24px"
@@ -95,7 +95,7 @@
 				</p>
 
 				<div
-					class="animate-fade-in-up stagger-4 mb-8 rounded-xl border border-info/20 bg-info/10 p-5 text-left opacity-0 shadow-sm transition-shadow duration-300 hover:shadow-md"
+					class="animate-fade-in-up stagger-4 mb-8 rounded-box border border-info/20 bg-info/10 p-5 text-left opacity-0 shadow-sm transition-shadow duration-300 hover:shadow-md"
 				>
 					<div class="flex gap-4">
 						<InformationCircle

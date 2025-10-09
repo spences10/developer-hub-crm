@@ -94,7 +94,9 @@
 										</p>
 
 										{#if profile.tagline}
-											<p class="mb-3 text-lg font-medium text-base-content/90">
+											<p
+												class="mb-3 text-lg font-medium text-base-content/90"
+											>
 												{profile.tagline}
 											</p>
 										{/if}
@@ -201,7 +203,7 @@
 											<img
 												src={profile.qr_code_url}
 												alt="QR Code for {profile.username}"
-												class="rounded-lg border-2 border-base-300"
+												class="rounded-box border-2 border-base-300"
 											/>
 										</div>
 										<p class="mt-4 text-sm text-base-content/60">
@@ -209,7 +211,7 @@
 										</p>
 									{:else}
 										<div
-											class="mx-auto flex h-64 w-64 items-center justify-center rounded-lg bg-base-200"
+											class="mx-auto flex h-64 w-64 items-center justify-center rounded-box bg-base-200"
 										>
 											<div class="text-center">
 												<p class="text-base-content/40">

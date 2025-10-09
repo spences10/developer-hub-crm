@@ -48,7 +48,7 @@
 			<div class="mb-3 flex items-start gap-3">
 				<div class="flex-shrink-0">
 					<div
-						class="flex h-10 w-10 items-center justify-center rounded-lg {icon_color_classes}"
+						class="flex h-10 w-10 items-center justify-center rounded-box {icon_color_classes}"
 					>
 						<Icon size="20px" />
 					</div>

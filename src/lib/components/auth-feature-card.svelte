@@ -15,7 +15,7 @@
 </script>
 
 <div
-	class="animate-fade-in-up stagger-{stagger} flex items-start gap-4 rounded-xl border border-primary-content/20 bg-primary-content/10 p-4 opacity-0 shadow-lg backdrop-blur-sm transition-all duration-300 hover:scale-105 hover:shadow-2xl"
+	class="animate-fade-in-up stagger-{stagger} flex items-start gap-4 rounded-box border border-primary-content/20 bg-primary-content/10 p-4 opacity-0 shadow-lg backdrop-blur-sm transition-all duration-300 hover:scale-105 hover:shadow-2xl"
 >
 	{#if Icon}
 		<Icon

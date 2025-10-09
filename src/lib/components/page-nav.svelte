@@ -37,7 +37,7 @@
 				? 'font-semibold text-primary'
 				: 'link link-hover'}"
 		>
-			<svelte:component this={item.icon} size="16px" />
+			<item.icon size="16px" />
 			{item.label}
 		</a>
 	{/each}
