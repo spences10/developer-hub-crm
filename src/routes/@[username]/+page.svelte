@@ -7,6 +7,7 @@
 		Globe,
 		LinkedIn,
 		LocationPin,
+		Mastodon,
 		Phone,
 		Rocket,
 		Twitter,
@@ -25,6 +26,7 @@
 		linkedin: LinkedIn,
 		youtube: YouTube,
 		bluesky: Bluesky,
+		mastodon: Mastodon,
 	};
 
 	// Label mapping for social platforms
@@ -34,6 +36,7 @@
 		linkedin: 'LinkedIn',
 		youtube: 'YouTube',
 		bluesky: 'Bluesky',
+		mastodon: 'Mastodon',
 	};
 
 	function get_platform_icon(platform: string) {
@@ -83,9 +86,18 @@
 
 									<!-- Info Section -->
 									<div class="flex-1 text-center md:text-left">
-										<h1 class="mb-2 text-4xl font-bold">
-											@{profile.username}
+										<h1 class="mb-1 text-4xl font-bold">
+											{profile.name}
 										</h1>
+										<p class="mb-3 text-xl text-base-content/60">
+											@{profile.username}
+										</p>
+
+										{#if profile.tagline}
+											<p class="mb-3 text-lg font-medium text-base-content/90">
+												{profile.tagline}
+											</p>
+										{/if}
 
 										{#if profile.bio}
 											<p class="mb-4 text-lg text-base-content/80">

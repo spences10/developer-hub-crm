@@ -15,8 +15,8 @@
 		hub_text_color = 'var(--color-primary-content)',
 	}: Props = $props();
 
-	// Aspect ratio from viewBox: 200:60 = 10:3
-	const ratio = 200 / 60;
+	// Aspect ratio from viewBox: 120:60 = 2:1
+	const ratio = 120 / 60;
 	const height = size;
 	const width = `calc(${size} * ${ratio})`;
 </script>
@@ -24,7 +24,7 @@
 <svg
 	{width}
 	{height}
-	viewBox="0 0 200 60"
+	viewBox="0 0 120 60"
 	xmlns="http://www.w3.org/2000/svg"
 	class={class_names}
 >

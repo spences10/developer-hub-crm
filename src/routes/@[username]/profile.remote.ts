@@ -5,6 +5,7 @@ import type { UserProfile, UserSocialLink } from '$lib/types/db';
 import * as v from 'valibot';
 
 export interface ProfileWithSocials extends UserProfile {
+	name: string;
 	image: string | null;
 	social_links: UserSocialLink[];
 	qr_code_url: string | null;
@@ -16,10 +17,11 @@ export interface ProfileWithSocials extends UserProfile {
 export const get_profile = query.batch(
 	v.pipe(v.string(), v.minLength(1)),
 	async (usernames) => {
-		// Fetch all profiles with user image in a single query
+		// Fetch all profiles with user image and name in a single query
 		const profile_stmt = db.prepare(`
       SELECT
         up.*,
+        u.name,
         u.image
       FROM user_profiles up
       JOIN user u ON up.user_id = u.id
@@ -30,6 +32,7 @@ export const get_profile = query.batch(
 		const profiles = profile_stmt.all(
 			...usernames,
 		) as (UserProfile & {
+			name: string;
 			image: string | null;
 			qr_code_url: string | null;
 		})[];

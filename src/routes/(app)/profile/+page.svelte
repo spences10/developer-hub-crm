@@ -1,6 +1,6 @@
 <script lang="ts">
 	import PageNav from '$lib/components/page-nav.svelte';
-	import SocialLinkIcon from '$lib/components/social-link.svelte';
+	import SocialLinksManager from '$lib/components/social-links-manager.svelte';
 	import { seo_configs } from '$lib/seo';
 	import { generate_qr_code_data_url } from '$lib/utils/qr-code';
 	import { Head } from 'svead';
@@ -33,12 +33,6 @@
 	let saving = $state(false);
 	let generating_qr = $state(false);
 	let qr_code_url = $state<string | null>(null);
-	let refresh_key = $state(0);
-
-	// Social link form state
-	let new_platform = $state('');
-	let new_url = $state('');
-	let adding_link = $state(false);
 
 	onMount(async () => {
 		const url = await user_qr;
@@ -63,36 +57,6 @@
 			console.error('Failed to generate QR code:', error);
 		} finally {
 			generating_qr = false;
-		}
-	}
-
-	async function handle_add_social_link() {
-		if (!new_platform || !new_url) return;
-
-		adding_link = true;
-		try {
-			await add_user_social_link({
-				platform: new_platform,
-				url: new_url,
-			});
-			new_platform = '';
-			new_url = '';
-			refresh_key++;
-		} catch (err) {
-			console.error('Failed to add social link:', err);
-		} finally {
-			adding_link = false;
-		}
-	}
-
-	async function handle_delete_social_link(link_id: string) {
-		if (!confirm('Remove this social link?')) return;
-
-		try {
-			await delete_user_social_link(link_id);
-			refresh_key++;
-		} catch (err) {
-			console.error('Failed to delete social link:', err);
 		}
 	}
 
@@ -270,100 +234,126 @@
 			</div>
 
 			<!-- Social Links -->
-			{#key refresh_key}
-				{#await social_links then links}
-					<div class="card bg-base-100 shadow-xl">
-						<div class="card-body">
-							<h2 class="card-title">Social Links</h2>
-							<p class="text-sm opacity-70">
-								Add links to your social media profiles
-							</p>
+			<div class="card bg-base-100 shadow-xl">
+				<div class="card-body">
+					<h2 class="card-title">Social Links</h2>
+					<p class="text-sm opacity-70">
+						Add links to your social media profiles
+					</p>
 
-							<!-- Existing Links -->
-							{#if links && links.length > 0}
-								<div class="mt-4 space-y-2">
-									{#each links as link}
-										<div
-											class="flex items-center justify-between gap-2 rounded-lg bg-base-200 p-3"
-										>
-											<div class="flex items-center gap-3">
-												<SocialLinkIcon platform={link.platform} />
-												<span class="text-sm font-medium capitalize">
-													{link.platform}:
-												</span>
-												<a
-													href={link.url}
-													target="_blank"
-													rel="noopener noreferrer"
-													class="link text-sm link-primary"
-												>
-													{link.url}
-												</a>
-											</div>
-											<button
-												type="button"
-												onclick={() =>
-													handle_delete_social_link(link.id)}
-												class="btn btn-ghost btn-xs"
-											>
-												Remove
-											</button>
-										</div>
-									{/each}
-								</div>
-							{/if}
+					{#await social_links then links}
+						<SocialLinksManager
+							social_links={links || []}
+							on_add={(platform, url) =>
+								add_user_social_link({ platform, url })}
+							on_delete={delete_user_social_link}
+							on_change={() => social_links.refresh()}
+						/>
+					{/await}
+				</div>
+			</div>
 
-							<!-- Add New Link -->
-							<div class="mt-4 space-y-3">
-								<p class="text-xs font-medium opacity-70">
-									Add new social link
-								</p>
-								<div class="grid grid-cols-1 gap-3 md:grid-cols-2">
-									<fieldset class="fieldset">
-										<legend class="fieldset-legend">Platform</legend>
-										<select
-											bind:value={new_platform}
-											class="select w-full"
-										>
-											<option value="">Select platform</option>
-											<option value="github">GitHub</option>
-											<option value="twitter">Twitter/X</option>
-											<option value="bluesky">Bluesky</option>
-											<option value="linkedin">LinkedIn</option>
-											<option value="mastodon">Mastodon</option>
-											<option value="website">Website</option>
-										</select>
-									</fieldset>
-									<fieldset class="fieldset">
-										<legend class="fieldset-legend">URL</legend>
-										<label class="input w-full">
-											<input
-												type="url"
-												placeholder="https://example.com"
-												bind:value={new_url}
-												class="grow"
-											/>
-										</label>
-									</fieldset>
-								</div>
+			<!-- QR Code -->
+			<div class="card bg-base-100 shadow-xl">
+				<div class="card-body">
+					<h2 class="card-title">Profile QR Code</h2>
+					<p class="text-sm opacity-70">
+						Your unique QR code that links to your public profile
+					</p>
+
+					<div
+						class="mt-4 flex flex-col items-center gap-4 md:flex-row"
+					>
+						{#if generating_qr}
+							<div
+								class="flex h-64 w-64 items-center justify-center rounded-lg border-2 border-dashed border-base-300"
+							>
+								<span class="loading loading-lg loading-spinner"
+								></span>
+							</div>
+						{:else if qr_code_url}
+							<div class="flex flex-col items-center gap-4">
+								<img
+									src={qr_code_url}
+									alt="Profile QR Code"
+									class="w-64 rounded-lg border-2 border-base-300"
+								/>
 								<button
-									type="button"
-									onclick={handle_add_social_link}
-									disabled={adding_link || !new_platform || !new_url}
-									class="btn btn-block btn-primary"
+									class="btn btn-outline btn-sm"
+									onclick={handle_generate_qr}
 								>
-									{#if adding_link}
-										<span class="loading loading-sm loading-spinner"
-										></span>
-									{:else}
-										Add
-									{/if}
+									Regenerate
 								</button>
 							</div>
+						{:else}
+							<div
+								class="flex h-64 w-64 items-center justify-center rounded-lg border-2 border-dashed border-base-300"
+							>
+								<button
+									class="btn btn-primary"
+									onclick={handle_generate_qr}
+								>
+									Generate QR Code
+								</button>
+							</div>
+						{/if}
+
+						<div class="flex-1">
+							<h3 class="mb-2 font-semibold">How to use:</h3>
+							<ul class="list-inside list-disc space-y-1 text-sm">
+								<li>Download and add it to your business card</li>
+								<li>
+									People can scan it to instantly view and save your
+									contact info
+								</li>
+								<li>Share it at conferences and networking events</li>
+								<li>Track scans in your analytics (coming soon)</li>
+							</ul>
 						</div>
 					</div>
-				{/await}
-			{/key}
+				</div>
+			</div>
+
+			<!-- GitHub Integration -->
+			{#await github_status then status}
+				<div class="card bg-base-100 shadow-xl">
+					<div class="card-body">
+						<h2 class="card-title">GitHub Integration</h2>
+						<p class="text-sm opacity-70">
+							Connect your GitHub account for enhanced features
+						</p>
+
+						<div class="mt-4">
+							{#if status.is_connected}
+								<div class="space-y-3">
+									<div class="alert alert-success">
+										<span>
+											Connected as
+											<strong>{status.github_username}</strong>
+										</span>
+									</div>
+									<button
+										onclick={handle_disconnect_github}
+										class="btn btn-outline btn-sm btn-error"
+									>
+										Disconnect GitHub
+									</button>
+								</div>
+							{:else}
+								<div class="alert alert-info">
+									<span>No GitHub account connected</span>
+								</div>
+								<a
+									href="/api/auth/signin/github"
+									class="btn mt-3 btn-sm btn-primary"
+								>
+									Connect GitHub
+								</a>
+							{/if}
+						</div>
+					</div>
+				</div>
+			{/await}
 
 			<!-- Privacy Settings -->
 			<div class="card bg-base-100 shadow-xl">
@@ -433,108 +423,6 @@
 								</span>
 							</div>
 						</label>
-					</div>
-				</div>
-			</div>
-
-			<!-- GitHub Integration -->
-			{#await github_status then status}
-				<div class="card bg-base-100 shadow-xl">
-					<div class="card-body">
-						<h2 class="card-title">GitHub Integration</h2>
-						<p class="text-sm opacity-70">
-							Connect your GitHub account for enhanced features
-						</p>
-
-						<div class="mt-4">
-							{#if status.is_connected}
-								<div class="space-y-3">
-									<div class="alert alert-success">
-										<span>
-											Connected as
-											<strong>{status.github_username}</strong>
-										</span>
-									</div>
-									<button
-										onclick={handle_disconnect_github}
-										class="btn btn-outline btn-sm btn-error"
-									>
-										Disconnect GitHub
-									</button>
-								</div>
-							{:else}
-								<div class="alert alert-info">
-									<span>No GitHub account connected</span>
-								</div>
-								<a
-									href="/api/auth/signin/github"
-									class="btn mt-3 btn-sm btn-primary"
-								>
-									Connect GitHub
-								</a>
-							{/if}
-						</div>
-					</div>
-				</div>
-			{/await}
-
-			<!-- QR Code -->
-			<div class="card bg-base-100 shadow-xl">
-				<div class="card-body">
-					<h2 class="card-title">Profile QR Code</h2>
-					<p class="text-sm opacity-70">
-						Your unique QR code that links to your public profile
-					</p>
-
-					<div
-						class="mt-4 flex flex-col items-center gap-4 md:flex-row"
-					>
-						{#if generating_qr}
-							<div
-								class="flex h-64 w-64 items-center justify-center rounded-lg border-2 border-dashed border-base-300"
-							>
-								<span class="loading loading-lg loading-spinner"
-								></span>
-							</div>
-						{:else if qr_code_url}
-							<div class="flex flex-col items-center gap-4">
-								<img
-									src={qr_code_url}
-									alt="Profile QR Code"
-									class="w-64 rounded-lg border-2 border-base-300"
-								/>
-								<button
-									class="btn btn-outline btn-sm"
-									onclick={handle_generate_qr}
-								>
-									Regenerate
-								</button>
-							</div>
-						{:else}
-							<div
-								class="flex h-64 w-64 items-center justify-center rounded-lg border-2 border-dashed border-base-300"
-							>
-								<button
-									class="btn btn-primary"
-									onclick={handle_generate_qr}
-								>
-									Generate QR Code
-								</button>
-							</div>
-						{/if}
-
-						<div class="flex-1">
-							<h3 class="mb-2 font-semibold">How to use:</h3>
-							<ul class="list-inside list-disc space-y-1 text-sm">
-								<li>Download and add it to your business card</li>
-								<li>
-									People can scan it to instantly view and save your
-									contact info
-								</li>
-								<li>Share it at conferences and networking events</li>
-								<li>Track scans in your analytics (coming soon)</li>
-							</ul>
-						</div>
 					</div>
 				</div>
 			</div>
