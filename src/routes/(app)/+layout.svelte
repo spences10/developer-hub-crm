@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
+	import { Sparkles } from '$lib/icons';
 	import Logo from '$lib/logo.svelte';
 	import { generate_qr_code_data_url } from '$lib/utils/qr-code';
 	import { onMount } from 'svelte';
@@ -102,10 +103,10 @@
 				{#if user?.email === 'demo@devhubcrm.com'}
 					<div class="border-y border-info/30 bg-info/20 px-8 py-4">
 						<div
-							class="mx-auto flex max-w-4xl items-center justify-between gap-4"
+							class="mx-auto flex max-w-6xl items-center justify-between gap-4"
 						>
 							<div class="flex items-center gap-3">
-								<span class="text-2xl">✨</span>
+								<Sparkles size="24px" class_names="text-success" />
 								<div>
 									<p class="font-semibold text-info-content">
 										You're in demo mode
