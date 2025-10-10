@@ -61,5 +61,9 @@
 			"better-sqlite3",
 			"esbuild"
 		]
+	},
+	"engines": {
+		"node": ">=20.19.0",
+		"pnpm": ">=9.0.0"
 	}
 }
