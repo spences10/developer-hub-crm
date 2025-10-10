@@ -1,54 +1,21 @@
 <script lang="ts">
 	import { page } from '$app/state';
 	import {
-		Bluesky,
 		ContactBook,
-		GitHub,
 		Globe,
-		LinkedIn,
 		LocationPin,
-		Mastodon,
 		Phone,
 		Rocket,
-		Twitter,
-		YouTube,
 	} from '$lib/icons';
+	import {
+		get_platform_icon,
+		get_platform_label,
+	} from '$lib/utils/social-icons';
 	import { get_current_user } from '../auth.remote';
 	import { get_profile } from './profile.remote';
 
 	const username = $derived(page.params.username);
 	const is_qr_scan = $derived(page.url.searchParams.has('qr'));
-
-	// Icon mapping for social platforms
-	const platform_icons: Record<string, any> = {
-		github: GitHub,
-		twitter: Twitter,
-		linkedin: LinkedIn,
-		youtube: YouTube,
-		bluesky: Bluesky,
-		mastodon: Mastodon,
-	};
-
-	// Label mapping for social platforms
-	const platform_labels: Record<string, string> = {
-		github: 'GitHub',
-		twitter: 'Twitter',
-		linkedin: 'LinkedIn',
-		youtube: 'YouTube',
-		bluesky: 'Bluesky',
-		mastodon: 'Mastodon',
-	};
-
-	function get_platform_icon(platform: string) {
-		return platform_icons[platform.toLowerCase()] || Globe;
-	}
-
-	function get_platform_label(platform: string) {
-		return (
-			platform_labels[platform.toLowerCase()] ||
-			platform.charAt(0).toUpperCase() + platform.slice(1)
-		);
-	}
 </script>
 
 <svelte:boundary>
