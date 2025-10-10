@@ -97,6 +97,36 @@
 				</div>
 			</div>
 
+			<!-- Demo mode banner -->
+			{#await get_current_user() then user}
+				{#if user?.email === 'demo@devhubcrm.com'}
+					<div class="border-y border-info/30 bg-info/20 px-8 py-4">
+						<div
+							class="mx-auto flex max-w-4xl items-center justify-between gap-4"
+						>
+							<div class="flex items-center gap-3">
+								<span class="text-2xl">✨</span>
+								<div>
+									<p class="font-semibold text-info-content">
+										You're in demo mode
+									</p>
+									<p class="text-sm text-info-content/80">
+										Data resets every 6 hours. Create an account to
+										keep your data.
+									</p>
+								</div>
+							</div>
+							<a
+								href="/register"
+								class="btn gap-2 btn-sm btn-primary hover:scale-105"
+							>
+								Sign Up Free
+							</a>
+						</div>
+					</div>
+				{/if}
+			{/await}
+
 			<main class="p-8">
 				{@render children()}
 			</main>

@@ -1,0 +1,15 @@
+name: Reset Demo Account
+on:
+  schedule:
+    - cron: '0 */6 * * *' # Every 6 hours
+  workflow_dispatch: # Manual trigger
+
+jobs:
+  reset-demo:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Reset demo account data
+        run: |
+          curl -X POST https://devhubcrm.com/api/ingest \
+            -H "Content-Type: application/json" \
+            -d '{"task": "seed_demo", "token": "${{ secrets.INGEST_TOKEN }}"}'

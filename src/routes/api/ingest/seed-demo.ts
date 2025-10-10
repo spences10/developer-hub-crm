@@ -1,0 +1,79 @@
+import { auth } from '$lib/server/auth';
+import { db } from '$lib/server/db';
+import fs from 'node:fs';
+import path from 'node:path';
+
+const DEMO_USER_EMAIL = 'demo@devhubcrm.com';
+const DEMO_USER_NAME = 'Demo User';
+const DEMO_PASSWORD = 'demo1234567890';
+
+export const seed_demo = async () => {
+	try {
+		// Check if demo user exists
+		let demo_user = db
+			.prepare('SELECT id FROM user WHERE email = ?')
+			.get(DEMO_USER_EMAIL) as { id: string } | undefined;
+
+		// Create demo user if doesn't exist using better-auth's signup
+		if (!demo_user) {
+			try {
+				await auth.api.signUpEmail({
+					body: {
+						email: DEMO_USER_EMAIL,
+						password: DEMO_PASSWORD,
+						name: DEMO_USER_NAME,
+					},
+				});
+
+				// Get the newly created user
+				demo_user = db
+					.prepare('SELECT id FROM user WHERE email = ?')
+					.get(DEMO_USER_EMAIL) as { id: string };
+
+				// Mark email as verified
+				db.prepare(
+					'UPDATE user SET emailVerified = 1 WHERE email = ?',
+				).run(DEMO_USER_EMAIL);
+			} catch (error) {
+				console.error('Error creating demo user:', error);
+				throw error;
+			}
+		}
+
+		// Clear existing demo data
+		db.prepare(
+			'DELETE FROM social_links WHERE contact_id IN (SELECT id FROM contacts WHERE user_id = ?)',
+		).run(demo_user.id);
+		db.prepare(
+			'DELETE FROM follow_ups WHERE contact_id IN (SELECT id FROM contacts WHERE user_id = ?)',
+		).run(demo_user.id);
+		db.prepare(
+			'DELETE FROM interactions WHERE contact_id IN (SELECT id FROM contacts WHERE user_id = ?)',
+		).run(demo_user.id);
+		db.prepare('DELETE FROM contacts WHERE user_id = ?').run(
+			demo_user.id,
+		);
+
+		// Read and execute seed.sql, but replace the user_id selector
+		const seed_path = path.join(process.cwd(), 'seed.sql');
+		const seed_sql = fs.readFileSync(seed_path, 'utf-8');
+
+		// Replace (SELECT id FROM user LIMIT 1) with the actual demo user ID
+		const modified_sql = seed_sql.replace(
+			/\(SELECT id FROM user LIMIT 1\)/g,
+			`'${demo_user.id}'`,
+		);
+
+		// Execute the SQL
+		db.exec(modified_sql);
+
+		return {
+			message: 'Demo account seeded successfully',
+			demo_email: DEMO_USER_EMAIL,
+			user_id: demo_user.id,
+		};
+	} catch (error) {
+		console.error('Error seeding demo account:', error);
+		throw error;
+	}
+};

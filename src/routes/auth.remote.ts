@@ -1,7 +1,7 @@
-import { form, command, query, getRequestEvent } from '$app/server';
+import { command, form, getRequestEvent, query } from '$app/server';
+import { auth } from '$lib/server/auth';
 import { redirect } from '@sveltejs/kit';
 import * as v from 'valibot';
-import { auth } from '$lib/server/auth';
 
 export const register = form(
 	v.object({
@@ -89,6 +89,28 @@ export const get_current_user = query(async () => {
 	});
 
 	return session?.user ?? null;
+});
+
+export const demo_login = command(async () => {
+	const event = getRequestEvent();
+
+	try {
+		await auth.api.signInEmail({
+			body: {
+				email: 'demo@devhubcrm.com',
+				password: 'demo1234567890',
+			},
+			headers: event.request.headers,
+		});
+
+		return { success: true };
+	} catch (error: any) {
+		console.error('Demo login error:', error);
+		return {
+			success: false,
+			error: error.message || 'Demo login failed',
+		};
+	}
 });
 
 export const resend_verification_email = command(
