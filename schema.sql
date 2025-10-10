@@ -58,6 +58,7 @@ CREATE TABLE IF NOT EXISTS contacts (
   company TEXT,
   title TEXT,
   github_username TEXT,
+  avatar_url TEXT,
   is_vip INTEGER DEFAULT 0,
   birthday TEXT,
   notes TEXT,

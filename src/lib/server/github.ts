@@ -27,6 +27,7 @@ interface ContactFromGitHub {
 	email: string | null;
 	company: string | null;
 	github_username: string;
+	avatar_url: string;
 	notes: string;
 	social_links: Array<{
 		platform: string;
@@ -174,6 +175,7 @@ export function github_profile_to_contact(
 		email: profile.email,
 		company: profile.company,
 		github_username: profile.login,
+		avatar_url: profile.avatar_url,
 		notes: notes_parts.join('\n'),
 		social_links,
 	};

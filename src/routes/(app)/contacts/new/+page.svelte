@@ -17,6 +17,7 @@
 	let company = $state('');
 	let title = $state('');
 	let github_username = $state('');
+	let avatar_url = $state('');
 	let is_vip = $state(false);
 	let birthday = $state('');
 	let notes = $state('');
@@ -49,6 +50,7 @@
 				email = data.email || email;
 				company = data.company || company;
 				github_username = data.github_username || github_username;
+				avatar_url = data.avatar_url || avatar_url;
 				notes = data.notes || notes;
 
 				// Store social links temporarily
@@ -122,6 +124,8 @@
 					name="social_links"
 					value={JSON.stringify(pending_social_links)}
 				/>
+				<!-- Hidden field for avatar URL -->
+				<input type="hidden" name="avatar_url" value={avatar_url} />
 
 				<ContactFormFields
 					{name}

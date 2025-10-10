@@ -155,6 +155,7 @@ export const create_contact = guarded_form(
 		company: v.optional(v.string()),
 		title: v.optional(v.string()),
 		github_username: v.optional(v.string()),
+		avatar_url: v.optional(v.string()),
 		is_vip: v.optional(v.boolean()),
 		birthday: v.optional(v.string()), // YYYY-MM-DD format
 		notes: v.optional(v.string()),
@@ -166,10 +167,10 @@ export const create_contact = guarded_form(
 		const stmt = db.prepare(`
       INSERT INTO contacts (
         id, user_id, name, email, phone, company, title,
-        github_username, is_vip, birthday, notes,
+        github_username, avatar_url, is_vip, birthday, notes,
         last_contacted_at, created_at, updated_at
       )
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `);
 
 		const id = crypto.randomUUID();
@@ -184,6 +185,7 @@ export const create_contact = guarded_form(
 			data.company || null,
 			data.title || null,
 			data.github_username || null,
+			data.avatar_url || null,
 			data.is_vip ? 1 : 0,
 			data.birthday || null,
 			data.notes || null,
@@ -242,6 +244,7 @@ const update_contact_schema = v.object({
 	company: v.optional(v.string()),
 	title: v.optional(v.string()),
 	github_username: v.optional(v.string()),
+	avatar_url: v.optional(v.string()),
 	is_vip: v.optional(v.boolean()),
 	birthday: v.optional(v.string()),
 	notes: v.optional(v.string()),
@@ -264,6 +267,7 @@ export const update_contact = guarded_command(
         company = ?,
         title = ?,
         github_username = ?,
+        avatar_url = ?,
         is_vip = ?,
         birthday = ?,
         notes = ?,
@@ -278,6 +282,7 @@ export const update_contact = guarded_command(
 			data.company || null,
 			data.title || null,
 			data.github_username || null,
+			data.avatar_url || null,
 			data.is_vip ? 1 : 0,
 			data.birthday || null,
 			data.notes || null,

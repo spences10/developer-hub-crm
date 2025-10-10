@@ -9,6 +9,7 @@ export interface Contact {
 	company: string | null;
 	title: string | null;
 	github_username: string | null;
+	avatar_url: string | null; // GitHub avatar or user-uploaded image
 	is_vip: number; // 0 or 1 (SQLite boolean)
 	birthday: string | null; // YYYY-MM-DD format
 	notes: string | null;

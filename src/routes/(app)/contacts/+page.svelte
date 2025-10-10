@@ -91,6 +91,16 @@
 			sort_direction = 'asc';
 		}
 	}
+
+	// Helper to get initials from name
+	function get_initials(name: string): string {
+		return name
+			.split(' ')
+			.map((n) => n[0])
+			.join('')
+			.toUpperCase()
+			.slice(0, 2);
+	}
 </script>
 
 <Head seo_config={seo_configs.contacts} />
@@ -138,6 +148,7 @@
 				<table class="table">
 					<thead>
 						<tr>
+							<th></th>
 							<SortableTableHeader
 								label="Name"
 								column="name"
@@ -178,6 +189,21 @@
 					<tbody>
 						{#each sorted_contacts as contact}
 							<tr class="hover:bg-base-100">
+								<td>
+									{#if contact.avatar_url}
+										<img
+											src={contact.avatar_url}
+											alt="{contact.name} avatar"
+											class="size-10 rounded-full object-cover"
+										/>
+									{:else}
+										<div
+											class="flex size-10 items-center justify-center rounded-full bg-gradient-to-br from-primary to-secondary text-sm font-bold text-primary-content"
+										>
+											{get_initials(contact.name)}
+										</div>
+									{/if}
+								</td>
 								<td>
 									<a
 										href="/contacts/{contact.id}"

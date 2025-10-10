@@ -7,6 +7,140 @@
 		scroll-behavior: smooth;
 		word-break: break-word;
 	}
+
+	/* Animation Keyframes */
+	@keyframes fadeInUp {
+		from {
+			opacity: 0;
+			transform: translateY(20px);
+		}
+		to {
+			opacity: 1;
+			transform: translateY(0);
+		}
+	}
+
+	@keyframes fadeIn {
+		from {
+			opacity: 0;
+		}
+		to {
+			opacity: 1;
+		}
+	}
+
+	@keyframes floatSlow {
+		0%,
+		100% {
+			transform: translate(0, 0) scale(1);
+		}
+		33% {
+			transform: translate(30px, -30px) scale(1.1);
+		}
+		66% {
+			transform: translate(-20px, 20px) scale(0.9);
+		}
+	}
+
+	@keyframes floatMedium {
+		0%,
+		100% {
+			transform: translate(0, 0) rotate(0deg);
+		}
+		50% {
+			transform: translate(-40px, -40px) rotate(180deg);
+		}
+	}
+
+	@keyframes floatFast {
+		0%,
+		100% {
+			transform: translate(0, 0) scale(1);
+		}
+		25% {
+			transform: translate(-25px, 25px) scale(1.2);
+		}
+		50% {
+			transform: translate(25px, -15px) scale(0.8);
+		}
+		75% {
+			transform: translate(15px, 30px) scale(1.1);
+		}
+	}
+
+	@keyframes pulseGentle {
+		0%,
+		100% {
+			transform: scale(1);
+			opacity: 1;
+		}
+		50% {
+			transform: scale(1.05);
+			opacity: 0.9;
+		}
+	}
+
+	@keyframes scaleIn {
+		from {
+			opacity: 0;
+			transform: scale(0.5);
+		}
+		to {
+			opacity: 1;
+			transform: scale(1);
+		}
+	}
+
+	/* Animation Classes */
+	.animate-pulse-gentle {
+		animation: pulseGentle 3s ease-in-out infinite;
+	}
+
+	.animate-float-slow {
+		animation: floatSlow 20s ease-in-out infinite;
+	}
+
+	.animate-float-medium {
+		animation: floatMedium 15s ease-in-out infinite;
+	}
+
+	.animate-float-fast {
+		animation: floatFast 12s ease-in-out infinite;
+	}
+
+	.animate-fade-in-up {
+		animation: fadeInUp 0.6s ease-out forwards;
+	}
+
+	.animate-fade-in {
+		animation: fadeIn 0.8s ease-out forwards;
+	}
+
+	.animate-scale-in {
+		animation: scaleIn 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55)
+			forwards;
+	}
+
+	/* Stagger Delays */
+	.stagger-1 {
+		animation-delay: 0.1s;
+	}
+
+	.stagger-2 {
+		animation-delay: 0.2s;
+	}
+
+	.stagger-3 {
+		animation-delay: 0.3s;
+	}
+
+	.stagger-4 {
+		animation-delay: 0.4s;
+	}
+
+	.stagger-5 {
+		animation-delay: 0.5s;
+	}
 }
 
 @plugin "daisyui" {

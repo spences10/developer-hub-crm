@@ -46,6 +46,7 @@
 				company: current_contact.company || undefined,
 				title: current_contact.title || undefined,
 				github_username: current_contact.github_username || undefined,
+				avatar_url: current_contact.avatar_url || undefined,
 				is_vip: current_contact.is_vip === 1,
 				birthday: current_contact.birthday || undefined,
 				notes: current_contact.notes || undefined,
