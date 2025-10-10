@@ -3,10 +3,11 @@ import { env } from '$env/dynamic/private';
 import { betterAuth } from 'better-auth';
 import { sveltekitCookies } from 'better-auth/svelte-kit';
 import Database from 'better-sqlite3';
+import { get_database_path } from './db-path';
 import { resend } from './resend';
 
 // Create separate database instance for Better Auth
-const auth_db = new Database('local.db');
+const auth_db = new Database(get_database_path());
 
 // Enable WAL mode for better concurrency
 auth_db.pragma('journal_mode = WAL');

@@ -25,3 +25,6 @@ vite.config.ts.timestamp-*
 
 # db shit
 *.db*
+data/*
+!data/.gitkeep
+backups/

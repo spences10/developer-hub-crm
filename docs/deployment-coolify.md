@@ -29,6 +29,8 @@ export default defineConfig({
 | `ORIGIN`        | ✅       | `https://your-domain.com`           |
 | `AUTH_SECRET`   | ✅       | Generate: `openssl rand -base64 32` |
 | `AUTH_BASE_URL` | Optional | `https://your-domain.com`           |
+| `INGEST_TOKEN`  | ✅       | For backup tasks (any secure token) |
+| `DATABASE_PATH` | Optional | `/app/local.db` (production only)   |
 | `NODE_ENV`      | Optional | `production`                        |
 
 ## Coolify Setup
@@ -37,7 +39,78 @@ export default defineConfig({
 
 **Start:** `node ./build/index.js`
 
-**Persistent Volume:** Mount to `/app/local.db`
+### Persistent Storage
+
+⚠️ **CRITICAL**: Set this up before production use or you'll lose data
+on every deployment!
+
+In Coolify → Your Application → **Storage**:
+
+1. **Database file:**
+   - **Type**: File Mount
+   - **Mount Path**: `/app/local.db`
+
+2. **Backups directory:**
+   - **Type**: Directory Mount
+   - **Mount Path**: `/app/backups`
+
+**Environment Variable:** Add `DATABASE_PATH=/app/local.db` to ensure
+the app uses the correct path in production.
+
+**Local Development:** The database will be stored in `data/local.db`
+(gitignored) and backups in `data/backups/`.
+
+### Database Backups
+
+Set up automated backups via cron job or GitHub Actions:
+
+**Manual backup:**
+
+```bash
+curl -X POST https://devhubcrm.com/api/ingest \
+  -H "Content-Type: application/json" \
+  -d '{"task": "backup_database", "token": "your-ingest-token"}'
+```
+
+**Response:**
+
+```json
+{
+	"message": "Database exported successfully",
+	"backup_file": "local-2025-10-10-1800.db",
+	"backup_size": "5MB",
+	"backups_kept": 28,
+	"files_deleted": 0
+}
+```
+
+**Automatic backup with GitHub Actions:**
+
+Create `.github/workflows/backup.yml`:
+
+```yaml
+name: Database Backup
+on:
+  schedule:
+    - cron: '0 */6 * * *' # Every 6 hours
+  workflow_dispatch: # Manual trigger
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger backup
+        run: |
+          curl -X POST https://devhubcrm.com/api/ingest \
+            -H "Content-Type: application/json" \
+            -d '{"task": "backup_database", "token": "${{ secrets.INGEST_TOKEN }}"}'
+```
+
+**Backup retention:**
+
+- Keeps 28 most recent backups (7 days × 4 backups/day)
+- Automatically deletes older backups
+- Uses SQLite's native backup API (safe with WAL mode)
 
 ## Docker (Alternative)
 
@@ -68,12 +141,31 @@ docker run -p 3000:3000 \
 | `__filename not defined` | better-sqlite3 not external | Add to ssr.external             |
 | Database lost on restart | Not in persistent storage   | Mount local.db to volume        |
 
+## Health Check
+
+Coolify health check endpoint: `/api/health`
+
+Returns:
+
+```json
+{
+	"status": "ok",
+	"timestamp": "2025-10-10T18:00:00.000Z",
+	"uptime": 3600
+}
+```
+
 ## Checklist
 
 - [ ] ORIGIN set
 - [ ] AUTH_SECRET generated
+- [ ] INGEST_TOKEN set
+- [ ] DATABASE_PATH set to `/app/local.db`
 - [ ] better-sqlite3 in dependencies
 - [ ] ssr.external configured
-- [ ] local.db in persistent storage
+- [ ] File mount for `/app/local.db`
+- [ ] Directory mount for `/app/backups`
+- [ ] Health check configured: `/api/health`
 - [ ] Build succeeds
 - [ ] Login/register work
+- [ ] Automated backups scheduled

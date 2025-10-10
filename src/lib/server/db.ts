@@ -1,6 +1,7 @@
 import Database from 'better-sqlite3';
+import { get_database_path } from './db-path';
 
-const db = new Database('local.db');
+const db = new Database(get_database_path());
 
 // Enable foreign keys
 db.pragma('foreign_keys = ON');
