@@ -31,37 +31,37 @@
 	const features = [
 		{
 			icon: Contacts,
-			title: 'Build Your Network',
+			title: 'Unlimited Contacts',
 			description:
-				'Turn GitHub connections into real relationships. Import contacts and track every interaction that could lead to your next opportunity.',
+				'Manage all your developer relationships in one place. Import directly from GitHub.',
 		},
 		{
 			icon: Dashboard,
-			title: 'Stay Top of Mind',
+			title: 'Track Interactions',
 			description:
-				'Log coffees, conference chats, and DMs. When hiring managers think of candidates, make sure they think of you.',
+				'Log meetings, calls, and conversations. Never forget a conversation again.',
 		},
 		{
 			icon: Calendar,
-			title: 'Never Ghost Again',
+			title: 'Smart Follow-ups',
 			description:
-				'Smart reminders ensure you follow up on time. That "let\'s grab coffee" becomes an actual coffee—and maybe a referral.',
+				'Automated reminders keep you connected. Never miss an important follow-up.',
 		},
 		{
 			icon: GitHub,
-			title: 'GitHub-First CRM',
+			title: 'GitHub Integration',
 			description:
-				'Import your GitHub network instantly. See who works where, track contributions, and identify warm introductions to companies you want.',
+				'Import contacts from your GitHub network. Auto-sync activity and relationships.',
 		},
 	];
 
 	const benefits = [
-		'Turn GitHub followers into job referrals',
-		'Track who works where and when to reach out',
-		'Never miss a follow-up with hiring managers',
-		'Build relationships before you need them',
-		'CLI tool for quick logging between commits',
-		'QR code profiles for conference networking',
+		'GitHub-native relationship management',
+		'CLI tool for terminal-first workflows',
+		'Your data stays yours (SQLite, full export)',
+		'Self-hostable and privacy-first',
+		'AI-powered insights (coming soon)',
+		'Public profiles with QR codes for conferences',
 	];
 
 	// Floating party elements for logged-in view
@@ -276,16 +276,16 @@
 					<h1
 						class="animate-fade-in-up stagger-1 mb-6 text-5xl leading-tight font-extrabold opacity-0 drop-shadow-md lg:text-7xl"
 					>
-						Network Your Way to Your Next Role
+						The CRM Built for Developers
 					</h1>
 
 					<p
 						class="animate-fade-in-up stagger-2 mx-auto mb-12 max-w-3xl text-xl leading-relaxed font-medium opacity-0 drop-shadow lg:text-2xl"
 					>
-						Land your next developer job by nurturing authentic
-						relationships. Track every conversation, stay top-of-mind
-						with key contacts, and turn your GitHub network into real
-						opportunities.
+						Stop losing track of your network. Devhub CRM helps you
+						manage developer relationships with GitHub integration,
+						smart follow-ups, and tools that actually fit your
+						workflow.
 					</p>
 
 					<div
@@ -316,8 +316,8 @@
 					<p
 						class="animate-fade-in stagger-4 mt-6 text-sm text-primary-content/80 opacity-0"
 					>
-						No credit card required. Try the demo instantly or create
-						a free account.
+						No credit card required. Start managing your network in
+						minutes.
 					</p>
 				</div>
 			</section>
@@ -379,14 +379,13 @@
 							<h2
 								class="mb-6 text-4xl font-extrabold text-base-content lg:text-5xl"
 							>
-								The Best Jobs Come From People, Not Job Boards
+								Why Developers Love Devhub
 							</h2>
 							<p
 								class="mb-8 text-xl leading-relaxed text-base-content/70"
 							>
-								Most developer jobs are filled through referrals.
-								Devhub helps you build and maintain the relationships
-								that land you those opportunities.
+								Traditional CRMs weren't built for how developers
+								network. We are.
 							</p>
 
 							<div class="space-y-4">
@@ -475,14 +474,13 @@
 						<h2
 							class="mb-6 text-4xl leading-tight font-extrabold text-primary-content drop-shadow-md lg:text-5xl"
 						>
-							Your Next Job Starts With Better Relationships
+							Ready to Level Up Your Network?
 						</h2>
 						<p
 							class="mb-10 text-xl leading-relaxed font-medium text-primary-content/90 drop-shadow"
 						>
-							Stop mass-applying on job boards. Build genuine
-							connections that lead to referrals, introductions, and
-							opportunities you won't find anywhere else.
+							Join developers who are building better relationships
+							without the busy work.
 						</p>
 
 						<div
