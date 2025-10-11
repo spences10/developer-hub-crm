@@ -1,12 +1,14 @@
 <script lang="ts">
-	import { Head } from 'svead';
+	import { goto } from '$app/navigation';
 	import EmptyState from '$lib/components/empty-state.svelte';
 	import ItemCount from '$lib/components/item-count.svelte';
 	import PageHeaderWithAction from '$lib/components/page-header-with-action.svelte';
 	import PageNav from '$lib/components/page-nav.svelte';
 	import SortableTableHeader from '$lib/components/sortable-table-header.svelte';
-	import type { Contact } from '$lib/types/db';
+	import { StarFill } from '$lib/icons';
 	import { seo_configs } from '$lib/seo';
+	import type { Contact } from '$lib/types/db';
+	import { Head } from 'svead';
 	import { get_user_preferences } from '../settings/settings.remote';
 	import { get_contacts } from './contacts.remote';
 
@@ -148,9 +150,8 @@
 				<table class="table">
 					<thead>
 						<tr>
-							<th></th>
 							<SortableTableHeader
-								label="Name"
+								label="Contact"
 								column="name"
 								{current_sort}
 								{sort_direction}
@@ -162,6 +163,7 @@
 								{current_sort}
 								{sort_direction}
 								on_toggle={toggle_sort}
+								class_names="hidden md:table-cell"
 							/>
 							<SortableTableHeader
 								label="Company"
@@ -169,13 +171,7 @@
 								{current_sort}
 								{sort_direction}
 								on_toggle={toggle_sort}
-							/>
-							<SortableTableHeader
-								label="GitHub"
-								column="github"
-								{current_sort}
-								{sort_direction}
-								on_toggle={toggle_sort}
+								class_names="hidden lg:table-cell"
 							/>
 							<SortableTableHeader
 								label="Status"
@@ -183,54 +179,69 @@
 								{current_sort}
 								{sort_direction}
 								on_toggle={toggle_sort}
+								center={true}
+								class_names="hidden md:table-cell"
 							/>
 						</tr>
 					</thead>
 					<tbody>
 						{#each sorted_contacts as contact}
-							<tr class="hover:bg-base-100">
+							<tr
+								class="cursor-pointer hover:bg-base-100"
+								onclick={() => goto(`/contacts/${contact.id}`)}
+							>
 								<td>
-									{#if contact.avatar_url}
-										<img
-											src={contact.avatar_url}
-											alt="{contact.name} avatar"
-											class="size-10 rounded-full object-cover"
-										/>
-									{:else}
-										<div
-											class="flex size-10 items-center justify-center rounded-full bg-gradient-to-br from-primary to-secondary text-sm font-bold text-primary-content"
-										>
-											{get_initials(contact.name)}
+									<div class="flex items-center gap-3">
+										{#if contact.avatar_url}
+											<img
+												src={contact.avatar_url}
+												alt="{contact.name} avatar"
+												class="size-10 rounded-full object-cover"
+											/>
+										{:else}
+											<div
+												class="flex size-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary to-secondary text-sm font-bold text-primary-content"
+											>
+												{get_initials(contact.name)}
+											</div>
+										{/if}
+										<div class="flex flex-col">
+											<span class="font-medium">
+												{contact.name}
+											</span>
+											{#if contact.github_username}
+												<a
+													href="https://github.com/{contact.github_username}"
+													target="_blank"
+													rel="noopener noreferrer"
+													class="link text-xs link-primary"
+													onclick={(e) => e.stopPropagation()}
+												>
+													@{contact.github_username}
+												</a>
+											{/if}
+											<div
+												class="mt-1 text-xs text-base-content/70 md:hidden"
+											>
+												{contact.email || 'No email'}
+											</div>
 										</div>
-									{/if}
+									</div>
 								</td>
-								<td>
-									<a
-										href="/contacts/{contact.id}"
-										class="link font-medium link-hover"
-									>
-										{contact.name}
-									</a>
+								<td class="hidden md:table-cell">
+									{contact.email || '-'}
 								</td>
-								<td>{contact.email || '-'}</td>
-								<td>{contact.company || '-'}</td>
-								<td>
-									{#if contact.github_username}
-										<a
-											href="https://github.com/{contact.github_username}"
-											target="_blank"
-											rel="noopener noreferrer"
-											class="link link-primary"
-										>
-											@{contact.github_username}
-										</a>
-									{:else}
-										-
-									{/if}
+								<td class="hidden lg:table-cell">
+									{contact.company || '-'}
 								</td>
-								<td>
+								<td class="hidden text-center md:table-cell">
 									{#if contact.is_vip}
-										<span class="badge badge-primary">VIP</span>
+										<div class="inline-block" title="VIP">
+											<StarFill
+												size="48px"
+												class_names="h-4 w-4 text-warning"
+											/>
+										</div>
 									{/if}
 								</td>
 							</tr>

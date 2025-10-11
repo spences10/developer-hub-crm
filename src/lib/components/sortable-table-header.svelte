@@ -7,6 +7,8 @@
 		current_sort: T;
 		sort_direction: 'asc' | 'desc';
 		on_toggle: (column: T) => void;
+		center?: boolean;
+		class_names?: string;
 	}
 
 	let {
@@ -15,13 +17,17 @@
 		current_sort,
 		sort_direction,
 		on_toggle,
+		center = false,
+		class_names = '',
 	}: Props = $props();
 </script>
 
-<th>
+<th class="p-0 {center ? 'text-center' : ''} {class_names}">
 	<button
 		onclick={() => on_toggle(column)}
-		class="flex items-center gap-1 hover:underline"
+		class="flex w-full items-center gap-1 px-4 py-3 hover:underline {center
+			? 'justify-center'
+			: ''}"
 	>
 		{label}
 		{#if current_sort === column}
