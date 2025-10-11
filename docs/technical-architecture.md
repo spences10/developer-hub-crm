@@ -5,11 +5,16 @@
 - Frontend: SvelteKit + Svelte 5
 - Database: SQLite (better-sqlite3)
 - Auth: Better Auth
+- Payments: Polar.sh (Merchant of Record)
 - Hosting: Coolify (self-hosted)
 
 **Philosophy:** Start simple, scale later. SQLite until we need
 PostgreSQL. Monolith until we need microservices. Self-hosted until we
 need cloud scale.
+
+**Payment Infrastructure:** Polar.sh handles billing, subscriptions,
+and global tax compliance. See
+[payments-polar.md](./payments-polar.md) for details.
 
 ## New Database Tables
 
@@ -96,6 +101,57 @@ CREATE TABLE contact_tags (
 );
 ```
 
+**Payments & Subscriptions (Polar.sh):**
+
+```sql
+-- Subscriptions
+CREATE TABLE subscriptions (
+  id TEXT PRIMARY KEY,
+  user_id TEXT NOT NULL UNIQUE,
+  polar_customer_id TEXT NOT NULL,
+  polar_subscription_id TEXT,
+  tier TEXT NOT NULL CHECK (tier IN ('free', 'pro', 'premium')),
+  status TEXT NOT NULL CHECK (status IN ('active', 'cancelled', 'past_due', 'paused')),
+  current_period_start INTEGER NOT NULL,
+  current_period_end INTEGER NOT NULL,
+  cancel_at_period_end INTEGER DEFAULT 0,
+  created_at INTEGER NOT NULL,
+  updated_at INTEGER NOT NULL,
+  FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE
+);
+
+-- Polar customer mapping
+CREATE TABLE polar_customers (
+  id TEXT PRIMARY KEY,
+  user_id TEXT NOT NULL UNIQUE,
+  polar_customer_id TEXT NOT NULL UNIQUE,
+  created_at INTEGER NOT NULL,
+  FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE
+);
+
+-- Webhook events (for debugging)
+CREATE TABLE polar_webhook_events (
+  id TEXT PRIMARY KEY,
+  event_type TEXT NOT NULL,
+  polar_event_id TEXT UNIQUE,
+  payload TEXT NOT NULL,
+  processed INTEGER DEFAULT 0,
+  error TEXT,
+  created_at INTEGER NOT NULL
+);
+
+-- Usage tracking (for AI features)
+CREATE TABLE usage_events (
+  id TEXT PRIMARY KEY,
+  user_id TEXT NOT NULL,
+  feature TEXT NOT NULL,
+  quantity INTEGER DEFAULT 1,
+  metadata TEXT,
+  created_at INTEGER NOT NULL,
+  FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE
+);
+```
+
 ## Background Jobs
 
 **Options:**
@@ -167,8 +223,11 @@ markup, sitemap for all profiles
 due, contact added), retry logic (3 attempts with backoff), HMAC
 signature
 
+**Incoming webhooks (Polar):** `/api/webhooks/polar` endpoint for
+subscription events (created, updated, cancelled, expired)
+
 **REST API:** `/api/contacts`, `/api/interactions`, `/api/follow-ups`,
-`/api/sync`
+`/api/sync`, `/api/checkout`, `/api/portal`
 
 **Auth:** JWT tokens, API keys for CLI, rate limiting (100 req/min
 free, 1000 req/min paid)
@@ -208,6 +267,36 @@ below.
 | SendGrid | 100/day        | $20/mo (50K emails) | Enterprise features     |
 
 **Environment variables:** `EMAIL_API_KEY`, `EMAIL_FROM_ADDRESS`
+
+## Payment Integration (Polar.sh)
+
+**Provider:** Polar.sh - Merchant of Record platform
+
+**Key features:**
+
+- Automatic customer creation on signup
+- Subscription management
+- Usage-based billing tracking
+- Global tax compliance (VAT, sales tax)
+- Webhook-based lifecycle management
+
+**Environment variables:**
+
+```bash
+POLAR_ACCESS_TOKEN=polar_xxx        # API access token
+POLAR_SERVER=sandbox                # 'sandbox' or 'production'
+POLAR_WEBHOOK_SECRET=whsec_xxx      # Webhook signature verification
+PUBLIC_BASE_URL=https://app.com     # For checkout redirects
+```
+
+**Packages:**
+
+- `@polar-sh/better-auth` - Better Auth plugin
+- `@polar-sh/sveltekit` - SvelteKit integration
+- `@polar-sh/sdk` - TypeScript SDK
+
+**See [payments-polar.md](./payments-polar.md) for complete
+integration guide.**
 
 ## Double Opt-In (Required)
 
@@ -399,3 +488,7 @@ migrate to cloud when revenue justifies
 
 **Why Better Auth?** Modern, well-maintained, built for SvelteKit,
 OAuth support, less work than custom
+
+**Why Polar.sh?** Handles global tax compliance (VAT, sales tax), 20%
+cheaper than alternatives, native Better Auth integration, no dealing
+with complex tax regulations

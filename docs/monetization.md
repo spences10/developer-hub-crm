@@ -5,6 +5,23 @@
 Make free tier genuinely useful. Charge for automation, scale, and
 time savings.
 
+## Payment Infrastructure
+
+**Provider:** [Polar.sh](https://polar.sh) - Open-source Merchant of
+Record
+
+**Why Polar:**
+
+- Handles all global tax compliance automatically (VAT, sales tax,
+  etc.)
+- 4% + 40¢ per transaction (~20% cheaper than alternatives)
+- Native Better Auth integration (`@polar-sh/better-auth`)
+- Developer-first APIs and excellent SvelteKit support
+- No monthly fees or setup costs
+
+**See [payments-polar.md](./payments-polar.md) for complete
+integration details.**
+
 ## Pricing Tiers
 
 ### Free (Forever)
@@ -85,16 +102,23 @@ time savings.
 **Conservative (Month 12):**
 
 - 10,000 total users
-- 1,600 Pro (16% @ $18/mo) = $28,800 MRR
-- 400 Premium (4% @ $35/mo) = $14,000 MRR
-- **Total: $42,800 MRR (~$514k ARR)**
+- 1,600 Pro (16% @ $18/mo) = $28,800 gross MRR
+- 400 Premium (4% @ $35/mo) = $14,000 gross MRR
+- **Gross: $42,800 MRR (~$514k ARR)**
+- Polar fees (~6%): -$2,512/mo
+- **Net: $40,288 MRR (~$483k ARR)**
 
 **Optimistic (Month 12):**
 
 - 25,000 total users
-- 4,000 Pro = $72,000 MRR
-- 1,000 Premium = $35,000 MRR
-- **Total: $107,000 MRR (~$1.28M ARR)**
+- 4,000 Pro @ $18/mo = $72,000 gross MRR
+- 1,000 Premium @ $35/mo = $35,000 gross MRR
+- **Gross: $107,000 MRR (~$1.28M ARR)**
+- Polar fees (~6%): -$6,288/mo
+- **Net: $100,712 MRR (~$1.21M ARR)**
+
+_Note: Polar fees include payment processing + global tax compliance.
+DIY tax compliance would cost more in time and accounting fees._
 
 ## Pricing Psychology
 
@@ -141,9 +165,12 @@ time savings.
 
 **Path:**
 
-1. Months 1-6: Freemium SaaS, validate pricing
+1. Months 1-6: Freemium SaaS, integrate Polar, validate pricing
 2. Months 7-12: Add annual plans, optimize conversion
 3. Year 2: Open source core, keep cloud paid
 4. Year 3: Add Team tier, enterprise features
+
+**Payment Infrastructure:** Polar.sh handles all billing and tax
+compliance (see [payments-polar.md](./payments-polar.md))
 
 **Success metric:** $50k MRR by month 12
