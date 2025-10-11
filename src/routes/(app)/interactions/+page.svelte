@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { Head } from 'svead';
 	import ActivityCard from '$lib/components/activity-card.svelte';
 	import EmptyState from '$lib/components/empty-state.svelte';
 	import FilterTabs from '$lib/components/filter-tabs.svelte';
@@ -15,13 +14,15 @@
 		Message,
 		Trash,
 	} from '$lib/icons';
-	import type { Interaction } from '$lib/types/db';
 	import { seo_configs } from '$lib/seo';
+	import type { Interaction } from '$lib/types/db';
 	import { format_date } from '$lib/utils/date-helpers';
+	import { Head } from 'svead';
 	import { get_user_preferences } from '../settings/settings.remote';
 	import {
 		delete_interaction,
 		get_all_interactions,
+		get_interactions,
 		update_interaction,
 	} from './interactions.remote';
 
@@ -31,7 +32,9 @@
 	>('all');
 
 	let delete_confirmation_id = $state<string | null>(null);
+	let delete_contact_id = $state<string | null>(null);
 	let edit_interaction_id = $state<string | null>(null);
+	let edit_contact_id = $state<string | null>(null);
 	let edit_type = $state<'meeting' | 'call' | 'email' | 'message'>(
 		'meeting',
 	);
@@ -72,19 +75,27 @@
 	) {
 		event.stopPropagation();
 		edit_interaction_id = interaction.id;
+		edit_contact_id = interaction.contact_id;
 		edit_type = interaction.type;
 		edit_note = interaction.note || '';
 	}
 
 	async function save_edit() {
-		if (!edit_interaction_id) return;
+		if (!edit_interaction_id || !edit_contact_id) return;
+
+		// Use .updates() to refresh both the list query and contact-specific query
+		// This ensures the contact detail page shows fresh data
 		await update_interaction({
 			id: edit_interaction_id,
 			type: edit_type,
 			note: edit_note,
-		});
+		}).updates(
+			get_all_interactions(search),
+			get_interactions(edit_contact_id),
+		);
+
 		edit_interaction_id = null;
-		await all_interactions.refresh();
+		edit_contact_id = null;
 	}
 
 	function cancel_edit() {
@@ -93,17 +104,24 @@
 
 	function handle_delete_click(
 		event: MouseEvent,
-		interaction_id: string,
+		interaction: Interaction & { contact_name: string },
 	) {
 		event.stopPropagation();
-		delete_confirmation_id = interaction_id;
+		delete_confirmation_id = interaction.id;
+		delete_contact_id = interaction.contact_id;
 	}
 
 	async function confirm_delete() {
-		if (!delete_confirmation_id) return;
-		await delete_interaction(delete_confirmation_id);
+		if (!delete_confirmation_id || !delete_contact_id) return;
+
+		// Use .updates() to refresh both the list query and contact-specific query
+		await delete_interaction(delete_confirmation_id).updates(
+			get_all_interactions(search),
+			get_interactions(delete_contact_id),
+		);
+
 		delete_confirmation_id = null;
-		await all_interactions.refresh();
+		delete_contact_id = null;
 	}
 
 	function cancel_delete() {
@@ -250,8 +268,7 @@
 								<button
 									class="btn gap-1 text-error btn-ghost btn-xs"
 									aria-label="Delete interaction"
-									onclick={(e) =>
-										handle_delete_click(e, interaction.id)}
+									onclick={(e) => handle_delete_click(e, interaction)}
 								>
 									<Trash size="16px" />
 									Delete

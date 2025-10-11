@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { Head } from 'svead';
 	import ActivityCard from '$lib/components/activity-card.svelte';
 	import EmptyState from '$lib/components/empty-state.svelte';
 	import FilterTabs from '$lib/components/filter-tabs.svelte';
@@ -14,18 +13,20 @@
 		Edit,
 		Trash,
 	} from '$lib/icons';
-	import type { FollowUp } from '$lib/types/db';
 	import { seo_configs } from '$lib/seo';
+	import type { FollowUp } from '$lib/types/db';
 	import {
 		format_date,
 		format_due_date,
 		is_overdue,
 	} from '$lib/utils/date-helpers';
+	import { Head } from 'svead';
 	import { get_user_preferences } from '../settings/settings.remote';
 	import {
 		complete_follow_up,
 		delete_follow_up,
 		get_all_follow_ups,
+		get_contact_follow_ups,
 		reopen_follow_up,
 		update_follow_up,
 	} from './follow-ups.remote';
@@ -36,7 +37,9 @@
 	);
 
 	let delete_confirmation_id = $state<string | null>(null);
+	let delete_contact_id = $state<string | null>(null);
 	let edit_follow_up_id = $state<string | null>(null);
+	let edit_contact_id = $state<string | null>(null);
 	let edit_due_date_str = $state(''); // datetime-local string format
 	let edit_note = $state('');
 
@@ -74,6 +77,7 @@
 	) {
 		event.stopPropagation();
 		edit_follow_up_id = follow_up.id;
+		edit_contact_id = follow_up.contact_id;
 		// Convert timestamp to datetime-local string format
 		const date = new Date(follow_up.due_date);
 		edit_due_date_str = date.toISOString().slice(0, 16); // YYYY-MM-DDTHH:mm
@@ -81,45 +85,69 @@
 	}
 
 	async function save_edit() {
-		if (!edit_follow_up_id) return;
+		if (!edit_follow_up_id || !edit_contact_id) return;
+
 		// Convert datetime-local string to timestamp
 		const due_date = new Date(edit_due_date_str).getTime();
+
+		// Use .updates() to refresh both the list query and contact-specific query
 		await update_follow_up({
 			id: edit_follow_up_id,
 			due_date,
 			note: edit_note,
-		});
+		}).updates(
+			get_all_follow_ups(search),
+			get_contact_follow_ups(edit_contact_id),
+		);
+
 		edit_follow_up_id = null;
-		await all_follow_ups.refresh();
+		edit_contact_id = null;
 	}
 
 	function cancel_edit() {
 		edit_follow_up_id = null;
 	}
 
-	async function handle_complete(id: string) {
-		await complete_follow_up(id);
-		await all_follow_ups.refresh();
+	async function handle_complete(
+		follow_up: FollowUp & { contact_name: string },
+	) {
+		// Use .updates() to refresh both queries
+		await complete_follow_up(follow_up.id).updates(
+			get_all_follow_ups(search),
+			get_contact_follow_ups(follow_up.contact_id),
+		);
 	}
 
-	async function handle_reopen(id: string) {
-		await reopen_follow_up(id);
-		await all_follow_ups.refresh();
+	async function handle_reopen(
+		follow_up: FollowUp & { contact_name: string },
+	) {
+		// Use .updates() to refresh both queries
+		await reopen_follow_up(follow_up.id).updates(
+			get_all_follow_ups(search),
+			get_contact_follow_ups(follow_up.contact_id),
+		);
 	}
 
 	function handle_delete_click(
 		event: MouseEvent,
-		follow_up_id: string,
+		follow_up: FollowUp & { contact_name: string },
 	) {
 		event.stopPropagation();
-		delete_confirmation_id = follow_up_id;
+		delete_confirmation_id = follow_up.id;
+		delete_contact_id = follow_up.contact_id;
 	}
 
 	async function confirm_delete() {
-		if (!delete_confirmation_id) return;
-		await delete_follow_up(delete_confirmation_id);
+		if (!delete_confirmation_id || !delete_contact_id) return;
+
+		// Use .updates() to refresh both queries
+		await delete_follow_up(delete_confirmation_id).updates(
+			get_all_follow_ups(search),
+			get_contact_follow_ups(delete_contact_id),
+		);
+
 		delete_confirmation_id = null;
-		await all_follow_ups.refresh();
+		delete_contact_id = null;
 	}
 
 	function cancel_delete() {
@@ -271,7 +299,7 @@
 							{#snippet action_buttons()}
 								{#if follow_up.completed}
 									<button
-										onclick={() => handle_reopen(follow_up.id)}
+										onclick={() => handle_reopen(follow_up)}
 										class="btn gap-1 btn-ghost btn-xs"
 										aria-label="Reopen follow-up"
 									>
@@ -280,7 +308,7 @@
 									</button>
 								{:else}
 									<button
-										onclick={() => handle_complete(follow_up.id)}
+										onclick={() => handle_complete(follow_up)}
 										class="btn gap-1 text-success btn-ghost btn-xs"
 										aria-label="Complete follow-up"
 									>
@@ -299,8 +327,7 @@
 								<button
 									class="btn gap-1 text-error btn-ghost btn-xs"
 									aria-label="Delete follow-up"
-									onclick={(e) =>
-										handle_delete_click(e, follow_up.id)}
+									onclick={(e) => handle_delete_click(e, follow_up)}
 								>
 									<Trash size="16px" />
 									Delete

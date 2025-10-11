@@ -18,6 +18,9 @@
 	let error = $state<string | null>(null);
 	let saving = $state(false);
 
+	// Track current field values to avoid stale data
+	let contact_state = $state<Record<string, any>>({});
+
 	async function save_with_indicator(fn: () => Promise<void>) {
 		saving = true;
 		try {
@@ -37,21 +40,42 @@
 	) {
 		if (!contact_id) return;
 
+		// Update the local state with the new value
+		contact_state[field] = value === '' ? undefined : value;
+
+		// Build the update object using the tracked state, falling back to current_contact
+		const update_data = {
+			id: contact_id,
+			name: contact_state.name ?? current_contact.name,
+			email:
+				contact_state.email ?? current_contact.email ?? undefined,
+			phone:
+				contact_state.phone ?? current_contact.phone ?? undefined,
+			company:
+				contact_state.company ?? current_contact.company ?? undefined,
+			title:
+				contact_state.title ?? current_contact.title ?? undefined,
+			github_username:
+				contact_state.github_username ??
+				current_contact.github_username ??
+				undefined,
+			avatar_url:
+				contact_state.avatar_url ??
+				current_contact.avatar_url ??
+				undefined,
+			is_vip: contact_state.is_vip ?? current_contact.is_vip === 1,
+			birthday:
+				contact_state.birthday ??
+				current_contact.birthday ??
+				undefined,
+			notes:
+				contact_state.notes ?? current_contact.notes ?? undefined,
+		};
+
+		// Use .updates() to refresh the get_contact query globally after mutation
+		// This ensures the contact detail page shows fresh data when navigating back
 		await save_with_indicator(() =>
-			update_contact({
-				id: contact_id,
-				name: current_contact.name,
-				email: current_contact.email || undefined,
-				phone: current_contact.phone || undefined,
-				company: current_contact.company || undefined,
-				title: current_contact.title || undefined,
-				github_username: current_contact.github_username || undefined,
-				avatar_url: current_contact.avatar_url || undefined,
-				is_vip: current_contact.is_vip === 1,
-				birthday: current_contact.birthday || undefined,
-				notes: current_contact.notes || undefined,
-				[field]: value === '' ? undefined : value,
-			}),
+			update_contact(update_data).updates(get_contact(contact_id)),
 		);
 	}
 </script>
@@ -77,204 +101,210 @@
 
 	{#if contact_query}
 		{#await contact_query then contact}
-			<div class="card bg-base-100 shadow-xl">
-				<div class="card-body">
-					<div class="space-y-4">
-						<!-- Name & VIP - Two Column Grid -->
-						<div class="grid items-end gap-4 md:grid-cols-2">
-							<fieldset class="fieldset">
-								<legend class="fieldset-legend">Name *</legend>
-								<label class="validator input w-full">
-									<input
-										type="text"
-										value={contact.name}
-										placeholder="John Doe"
-										class="grow"
-										required
-										onblur={(e) =>
-											save_field(
-												'name',
-												e.currentTarget.value,
-												contact,
-											)}
-									/>
-								</label>
-							</fieldset>
+			{#key contact_id}
+				<div class="card bg-base-100 shadow-xl">
+					<div class="card-body">
+						<div class="space-y-4">
+							<!-- Name & VIP - Two Column Grid -->
+							<div class="grid items-end gap-4 md:grid-cols-2">
+								<fieldset class="fieldset">
+									<legend class="fieldset-legend">Name *</legend>
+									<label class="validator input w-full">
+										<input
+											type="text"
+											value={contact.name}
+											placeholder="John Doe"
+											class="grow"
+											required
+											onblur={(e) =>
+												save_field(
+													'name',
+													e.currentTarget.value,
+													contact,
+												)}
+										/>
+									</label>
+								</fieldset>
 
-							<div class="form-control pb-2">
-								<label
-									class="label cursor-pointer justify-start gap-2"
-								>
-									<input
-										type="checkbox"
-										checked={contact.is_vip === 1}
-										class="checkbox"
-										onchange={(e) =>
-											save_field(
-												'is_vip',
-												e.currentTarget.checked,
-												contact,
-											)}
-									/>
-									<span class="label-text">Mark as VIP</span>
-								</label>
+								<div class="form-control pb-2">
+									<label
+										class="label cursor-pointer justify-start gap-2"
+									>
+										<input
+											type="checkbox"
+											checked={contact.is_vip === 1}
+											class="checkbox"
+											onchange={(e) =>
+												save_field(
+													'is_vip',
+													e.currentTarget.checked,
+													contact,
+												)}
+										/>
+										<span class="label-text">Mark as VIP</span>
+									</label>
+								</div>
 							</div>
-						</div>
 
-						<!-- Email & Phone - Two Column Grid -->
-						<div class="grid gap-4 md:grid-cols-2">
-							<fieldset class="fieldset">
-								<legend class="fieldset-legend">Email</legend>
-								<label class="validator input w-full">
-									<input
-										type="email"
-										value={contact.email || ''}
-										placeholder="Email"
-										class="grow"
-										onblur={(e) =>
-											save_field(
-												'email',
-												e.currentTarget.value,
-												contact,
-											)}
-									/>
-								</label>
-							</fieldset>
+							<!-- Email & Phone - Two Column Grid -->
+							<div class="grid gap-4 md:grid-cols-2">
+								<fieldset class="fieldset">
+									<legend class="fieldset-legend">Email</legend>
+									<label class="validator input w-full">
+										<input
+											type="email"
+											value={contact.email || ''}
+											placeholder="Email"
+											class="grow"
+											onblur={(e) =>
+												save_field(
+													'email',
+													e.currentTarget.value,
+													contact,
+												)}
+										/>
+									</label>
+								</fieldset>
 
-							<fieldset class="fieldset">
-								<legend class="fieldset-legend">Phone</legend>
-								<label class="input w-full">
-									<input
-										type="tel"
-										value={contact.phone || ''}
-										placeholder="+1 (555) 123-4567"
-										class="grow"
-										onblur={(e) =>
-											save_field(
-												'phone',
-												e.currentTarget.value,
-												contact,
-											)}
-									/>
-								</label>
-							</fieldset>
-						</div>
-
-						<!-- Company & Title - Two Column Grid -->
-						<div class="grid gap-4 md:grid-cols-2">
-							<fieldset class="fieldset">
-								<legend class="fieldset-legend">Company</legend>
-								<label class="input w-full">
-									<input
-										type="text"
-										value={contact.company || ''}
-										placeholder="Acme Inc."
-										class="grow"
-										onblur={(e) =>
-											save_field(
-												'company',
-												e.currentTarget.value,
-												contact,
-											)}
-									/>
-								</label>
-							</fieldset>
-
-							<fieldset class="fieldset">
-								<legend class="fieldset-legend">Title</legend>
-								<label class="input w-full">
-									<input
-										type="text"
-										value={contact.title || ''}
-										placeholder="Senior Developer"
-										class="grow"
-										onblur={(e) =>
-											save_field(
-												'title',
-												e.currentTarget.value,
-												contact,
-											)}
-									/>
-								</label>
-							</fieldset>
-						</div>
-
-						<!-- GitHub Username & Birthday - Two Column Grid -->
-						<div class="grid gap-4 md:grid-cols-2">
-							<fieldset class="fieldset">
-								<legend class="fieldset-legend"
-									>GitHub Username</legend
-								>
-								<label class="input w-full">
-									<input
-										type="text"
-										value={contact.github_username || ''}
-										placeholder="octocat"
-										class="grow"
-										onblur={(e) =>
-											save_field(
-												'github_username',
-												e.currentTarget.value,
-												contact,
-											)}
-									/>
-								</label>
-								<p class="label">Enter username without @</p>
-							</fieldset>
-
-							<fieldset class="fieldset">
-								<legend class="fieldset-legend">Birthday</legend>
-								<label class="input w-full">
-									<input
-										type="date"
-										value={contact.birthday || ''}
-										class="grow"
-										onblur={(e) =>
-											save_field(
-												'birthday',
-												e.currentTarget.value,
-												contact,
-											)}
-									/>
-								</label>
-							</fieldset>
-						</div>
-
-						<!-- Notes - Full Width -->
-						<fieldset class="fieldset">
-							<legend class="fieldset-legend">Notes</legend>
-							<textarea
-								class="textarea w-full"
-								rows="4"
-								placeholder="Additional notes about this contact..."
-								value={contact.notes || ''}
-								onblur={(e) =>
-									save_field('notes', e.currentTarget.value, contact)}
-							></textarea>
-						</fieldset>
-
-						<!-- Social Links Management -->
-						<SocialLinksManager
-							social_links={contact.social_links || []}
-							on_add={(platform, url) =>
-								add_social_link({
-									contact_id: contact.id,
-									platform,
-									url,
-								})}
-							on_delete={delete_social_link}
-							on_change={() => contact_query?.refresh()}
-						/>
-
-						<!-- Error Display -->
-						{#if error}
-							<div class="alert alert-error">
-								<span>{error}</span>
+								<fieldset class="fieldset">
+									<legend class="fieldset-legend">Phone</legend>
+									<label class="input w-full">
+										<input
+											type="tel"
+											value={contact.phone || ''}
+											placeholder="+1 (555) 123-4567"
+											class="grow"
+											onblur={(e) =>
+												save_field(
+													'phone',
+													e.currentTarget.value,
+													contact,
+												)}
+										/>
+									</label>
+								</fieldset>
 							</div>
-						{/if}
+
+							<!-- Company & Title - Two Column Grid -->
+							<div class="grid gap-4 md:grid-cols-2">
+								<fieldset class="fieldset">
+									<legend class="fieldset-legend">Company</legend>
+									<label class="input w-full">
+										<input
+											type="text"
+											value={contact.company || ''}
+											placeholder="Acme Inc."
+											class="grow"
+											onblur={(e) =>
+												save_field(
+													'company',
+													e.currentTarget.value,
+													contact,
+												)}
+										/>
+									</label>
+								</fieldset>
+
+								<fieldset class="fieldset">
+									<legend class="fieldset-legend">Title</legend>
+									<label class="input w-full">
+										<input
+											type="text"
+											value={contact.title || ''}
+											placeholder="Senior Developer"
+											class="grow"
+											onblur={(e) =>
+												save_field(
+													'title',
+													e.currentTarget.value,
+													contact,
+												)}
+										/>
+									</label>
+								</fieldset>
+							</div>
+
+							<!-- GitHub Username & Birthday - Two Column Grid -->
+							<div class="grid gap-4 md:grid-cols-2">
+								<fieldset class="fieldset">
+									<legend class="fieldset-legend"
+										>GitHub Username</legend
+									>
+									<label class="input w-full">
+										<input
+											type="text"
+											value={contact.github_username || ''}
+											placeholder="octocat"
+											class="grow"
+											onblur={(e) =>
+												save_field(
+													'github_username',
+													e.currentTarget.value,
+													contact,
+												)}
+										/>
+									</label>
+									<p class="label">Enter username without @</p>
+								</fieldset>
+
+								<fieldset class="fieldset">
+									<legend class="fieldset-legend">Birthday</legend>
+									<label class="input w-full">
+										<input
+											type="date"
+											value={contact.birthday || ''}
+											class="grow"
+											onblur={(e) =>
+												save_field(
+													'birthday',
+													e.currentTarget.value,
+													contact,
+												)}
+										/>
+									</label>
+								</fieldset>
+							</div>
+
+							<!-- Notes - Full Width -->
+							<fieldset class="fieldset">
+								<legend class="fieldset-legend">Notes</legend>
+								<textarea
+									class="textarea w-full"
+									rows="4"
+									placeholder="Additional notes about this contact..."
+									value={contact.notes || ''}
+									onblur={(e) =>
+										save_field(
+											'notes',
+											e.currentTarget.value,
+											contact,
+										)}
+								></textarea>
+							</fieldset>
+
+							<!-- Social Links Management -->
+							<SocialLinksManager
+								social_links={contact.social_links || []}
+								on_add={(platform, url) =>
+									add_social_link({
+										contact_id: contact.id,
+										platform,
+										url,
+									})}
+								on_delete={delete_social_link}
+								on_change={() => contact_query?.refresh()}
+							/>
+
+							<!-- Error Display -->
+							{#if error}
+								<div class="alert alert-error">
+									<span>{error}</span>
+								</div>
+							{/if}
+						</div>
 					</div>
 				</div>
-			</div>
+			{/key}
 		{/await}
 	{/if}
 </div>

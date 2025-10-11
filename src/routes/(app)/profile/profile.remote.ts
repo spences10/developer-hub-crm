@@ -149,11 +149,27 @@ export const update_email = guarded_command(
 	async (email) => {
 		const user_id = await get_current_user_id();
 
-		db.prepare(
-			'UPDATE user SET email = ?, updatedAt = ? WHERE id = ?',
-		).run(email, new Date().toISOString(), user_id);
+		console.log('[update_email] Starting update', {
+			user_id,
+			email,
+			timestamp: new Date().toISOString(),
+		});
 
-		return { success: true };
+		try {
+			db.prepare(
+				'UPDATE user SET email = ?, updatedAt = ? WHERE id = ?',
+			).run(email, new Date().toISOString(), user_id);
+
+			console.log('[update_email] Successfully updated', { user_id });
+
+			return { success: true };
+		} catch (error) {
+			console.error('[update_email] Failed to update', {
+				user_id,
+				error,
+			});
+			throw error;
+		}
 	},
 );
 
