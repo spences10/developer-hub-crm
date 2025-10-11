@@ -1,150 +1,168 @@
-# Product Vision: Devhub CRM
+# Product Vision
 
-## Current State (October 2025)
+## Current State (v0.1)
 
-**Database:** 17 contacts, 32 interactions, 17 follow-ups, 3 VIPs
+Works but generic. Has GitHub import (nice), but everything else is
+manual.
 
-**What we've built:**
+**Rating:** 6/10
 
-- ✅ Solid CRM foundation (contacts, interactions, follow-ups)
-- ✅ Clean tech stack (Svelte 5, SQLite, Better Auth)
-- ✅ GitHub Quick Connect
-- ✅ Polish (themes, preferences, search, VIP tracking)
-- ✅ Quality code (validation, auth)
+## The Problem
 
-**Current rating:** 6/10 - Competent CRM but functionally generic with
-one dev feature
+Developers suck at relationship management because:
 
-**Why developers won't care yet:**
+- They hate manual data entry
+- They live in specific tools (not CRMs)
+- Their networks are unique (conferences, open source, GitHub)
+- They value privacy and data ownership
 
-- Everything is manual (every interaction logged by hand)
-- GitHub import is cool once, then what?
-- No integration with developer workflows
-- No automation or intelligence
+## Our Solution
 
-## Vision: 9/10 Developer CRM
+**"The CRM that works like a developer"**
 
-**Core problem:** Developers are terrible at relationship management
-because they hate manual data entry, live in specific tools (terminal,
-GitHub, IDE), have unique networks based on code, value privacy, and
-network differently (open source, conferences).
+Not another CRM with a GitHub button. A relationship intelligence
+platform that:
 
-**UVP:** "The CRM that works like a developer"
+- Uses vector search for semantic understanding
+- Automates data entry with AI
+- Provides LinkedIn-style profile analytics
+- Respects privacy (SQLite, self-hosted, full export)
 
-**Free tier:** CRM that speaks developer (GitHub, CLI, self-hosted),
-zero lock-in (SQLite, full export, own data), works offline,
-privacy-first
+## What Makes Us Different
 
-**Paid tier:** Automates relationship management (90% less manual
-work), provides unique insights (GitHub activity intelligence), meets
-developers where they are (terminal, webhooks, API)
+**Free Tier:**
 
-**Differentiation:** Not another CRM with GitHub integration. A
-relationship intelligence platform for developers that auto-tracks
-GitHub activity, auto-suggests actions, auto-enriches contacts from
-public activity, is CLI-first, AI-powered, and has network effects via
-public profiles.
+- Semantic search (find "rust developers" matches "systems
+  programming")
+- SQLite + self-hosted = you own your data
+- Manual GitHub import (one-time)
+- Profile views (number only)
+
+**Pro Tier ($15/mo):**
+
+- AI summarization (paste email → get key points)
+- AI suggested topics (conversation starters)
+- Profile analytics (see who viewed)
+- Enhanced relationship health
+
+**Premium Tier ($40/mo):**
+
+- Daily AI digest (email at 7am: "these 3 people need your attention")
+- Relationship insights agent
+- GitHub activity tracking (10 VIP contacts)
 
 ## Target Users
 
-**Primary: Individual Developers**
+**Primary:**
 
-1. Conference Networker - Attends 5-10 events/year, meets 100+ devs
-2. Open Source Maintainer - Manages contributor relationships
-3. Developer Advocate - Tracks community relationships
-4. Freelance Dev - Manages client relationships + dev network
-5. Job Seeker - Networking for opportunities, referrals
+- Conference networkers (5-10 events/year, meet 100+ devs)
+- Open source maintainers (manage contributor relationships)
+- Developer advocates (track community relationships)
+- Freelancers (manage client + dev network)
 
-**Secondary: Developer Teams**
+**Not for:**
 
-1. Dev Relations Teams
-2. Startup Founders
-3. Engineering Managers
+- Sales teams (they have Salesforce)
+- Enterprises (not yet - maybe later)
 
-## Success Metrics
+## Success = Time Saved
 
-**Month 1-3:** 100 signups (friends, Twitter, Product Hunt) **Month
-4-6:** 1,000 signups (viral growth from public profiles) **Month
-7-12:** 10,000 signups (conference season, word of mouth)
-
-**Engagement:**
-
-- 40% weekly active
-- 60% use CLI tool weekly
-- 30% share public profile QR at events
-
-**Monetization:**
-
-- 10% convert to paid within 30 days
-- Average LTV: $200 (12 months × $15-20)
-- Churn <5% monthly
-
-**Viral coefficient:** Each user shares profile → 2-3 signups, QR
-scans at conferences → 60% conversion
-
-## Competitive Differentiation
-
-- **vs. Traditional CRMs:** They're for sales teams. We're CLI-first,
-  GitHub-native, self-hosted
-- **vs. Notion/Airtable:** They're generic, require manual work. We
-  auto-sync GitHub, suggest actions, AI agents
-- **vs. LinkedIn:** LinkedIn is passive. We're active relationship
-  management with developer context
-- **vs. Spreadsheets:** Spreadsheets are manual. We automate data
-  entry, provide insights, track activity
-
-## Strategic Moats
-
-1. GitHub Integration Depth - Deepest GitHub CRM integration in market
-2. Developer-First Design - CLI, self-hosted, API-first (not an
-   afterthought)
-3. Network Effects - Every user's public profile drives growth
-4. Data Ownership - SQLite + full export = trust from
-   privacy-conscious devs
-5. AI Agents - Proactive relationship management (not just storage)
-
-## Roadmap Philosophy
-
-**Phase 1: Build Trust (Months 1-3)**
-
-- Deliver core CRM excellence
-- Perfect GitHub integration
-- Launch CLI tool
-- Open source core
-- **Goal:** 100 daily active users who love it
-
-**Phase 2: Add Intelligence (Months 4-6)**
-
-- AI features (summarization, enrichment)
-- Auto-sync GitHub activity
-- Daily digest & suggestions
-- **Goal:** 10% paid conversion, retention >90%
-
-**Phase 3: Go Viral (Months 7-9)**
-
-- Public profiles + QR codes
-- Conference marketing
-- Network effects kick in
-- **Goal:** 10,000 users, viral coefficient >1.5
-
-**Phase 4: Scale (Months 10-12)**
-
-- AI agents (premium tier)
-- Team features
-- Advanced analytics
-- **Goal:** $50k MRR, sustainable growth
-
-## North Star Metric
-
-**"Time saved through automation"**
-
-Success = Developers spend <5 min/week managing relationships but
-maintain stronger networks than ever.
+**North Star:** Developers spend <5 min/week managing relationships
+but maintain stronger networks.
 
 Every feature should either:
 
-1. Reduce manual work (automation)
-2. Increase insight (intelligence)
-3. Drive growth (viral mechanics)
+1. Reduce manual work (AI summarization, semantic search)
+2. Increase insight (relationship health, AI digest)
+3. Drive growth (profile analytics, QR codes)
 
 If it doesn't do one of these, cut it.
+
+## What We're NOT Building
+
+❌ CLI tool (nice-to-have, app first) ❌ Unlimited GitHub syncing
+(rate limits) ❌ Auto-create from stars (complex, low value) ❌
+Webhooks (maintenance nightmare) ❌ Generic CRM features (we're not
+Salesforce)
+
+## Competitive Position
+
+**vs Traditional CRMs:** They're for sales teams. We're for
+developers. **vs Notion/Airtable:** They're manual. We automate with
+AI. **vs LinkedIn:** They're passive. We're active relationship
+management. **vs Spreadsheets:** They're dumb. We have semantic
+search + AI.
+
+## Strategic Moats
+
+1. **Vector Search** - Semantic understanding of your network
+2. **AI Agents** - Proactive relationship management
+3. **Profile Analytics** - LinkedIn-style viral growth
+4. **Data Ownership** - SQLite, self-hosted, full export
+5. **Developer-First** - Built by devs, for devs
+
+## Roadmap Philosophy
+
+**Phase 1 (Months 1-2):** Foundation
+
+- Tags, vector search, profile analytics UI
+- Make free tier compelling
+
+**Phase 2 (Months 3-4):** AI Features
+
+- Summarization, suggested topics, contact enrichment
+- Launch Pro tier ($15/mo)
+
+**Phase 3 (Months 5-6):** Premium Tier
+
+- Daily digest, relationship insights, GitHub tracking
+- Launch Premium ($40/mo)
+
+**Phase 4 (Months 7+):** Growth
+
+- Viral mechanics (profile analytics upsell)
+- Conference season marketing
+- Network effects
+
+## Success Metrics
+
+**Month 3:** 100 users (friends, Twitter) **Month 6:** 1,000 users
+(profile viral growth) **Month 12:** 10,000 users (conference season,
+word of mouth)
+
+**Conversion:**
+
+- 10% upgrade to Pro within 30 days
+- 2% upgrade to Premium
+- <5% monthly churn
+
+**Viral:**
+
+- Each user shares profile → 2-3 signups over 6 months
+- QR codes at conferences → 60% scan-to-signup conversion
+
+## Revenue Model
+
+**Target (Month 6):**
+
+- 1,000 total users
+- 200 Pro ($15/mo) = $3,000/mo
+- 50 Premium ($40/mo) = $2,000/mo
+- **Total: $5,000/mo revenue**
+- **Costs: ~$2,850/mo (AI + infrastructure)**
+- **Profit: ~$2,150/mo**
+
+**Target (Month 12):**
+
+- 10,000 total users
+- 2,000 Pro = $30,000/mo
+- 500 Premium = $20,000/mo
+- **Total: $50,000/mo revenue**
+- **Profit: ~$25,000/mo**
+
+## Resources
+
+- [feature-roadmap.md](./feature-roadmap.md) - What we're building
+- [ai-features.md](./ai-features.md) - AI implementation
+- [monetization.md](./monetization.md) - Pricing strategy
+- [vector-search.md](./vector-search.md) - Technical foundation

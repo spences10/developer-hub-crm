@@ -2,192 +2,412 @@
 
 ## Overview
 
-Transform Devhub from passive data storage into active relationship
-intelligence platform. AI suggests, never decides - drafts messages
-for review, suggests follow-ups for approval, surfaces insights for
-action.
+AI transforms Devhub from passive storage into active relationship
+intelligence. The foundation is vector search (essentially free), with
+LLM calls for premium features (expensive, so paid tier only).
+
+**Philosophy:** AI suggests, never decides. All outputs are reviewed
+by user before action.
+
+## Foundation: Vector Search (Free Tier)
+
+See [vector-search.md](./vector-search.md) for technical details.
+
+**What it enables:**
+
+- Semantic contact search ("find rust developers" matches "systems
+  programming")
+- Smart context for AI features (only send relevant data to LLM)
+- Similar contact discovery
+- Topic clustering
+
+**Cost:** ~$0.0001/user/month (Voyage AI embeddings)
 
 ## AI Feature Tiers
 
-**Tier 1: AI Analysis (Passive Intelligence)**
+### Free Tier - Vector Search Only
 
-- What: AI reads and analyzes, surfaces insights
-- User control: High (review insights, ignore if not useful)
-- Cost: Lower (one-time analysis)
-- Tier: Pro ($15-20/mo)
+No LLM calls, just semantic search powered by embeddings:
 
-**Tier 2: AI Automation (Active Assistance)**
+- Semantic contact search
+- Relationship health score (rule-based algorithm)
+- Basic suggestions (time-based reminders)
 
-- What: AI generates content, performs actions (with approval)
-- User control: Medium (review before sending/saving)
-- Cost: Medium (real-time generation)
-- Tier: Pro ($15-20/mo)
+**Cost:** $0.001/user/month | **Revenue:** $0 (acquisition/retention
+tool)
 
-**Tier 3: AI Agents (Proactive Automation)**
+### Pro Tier ($15/mo) - AI Analysis
 
-- What: AI runs continuously, creates tasks, drafts messages
-  proactively
-- User control: Configurable (set preferences, AI acts within bounds)
-- Cost: Higher (continuous processing)
-- Tier: Premium ($30-40/mo)
+Limited LLM calls for one-off tasks:
 
-## Tier 1: AI Analysis Features
+- AI interaction summarization (100/month)
+- AI suggested topics for follow-ups
+- AI contact enrichment (on-demand)
+- Enhanced relationship health (pattern analysis)
 
-**19. AI Relationship Insights**
+**Cost:** ~$8/user/month | **Revenue:** $15/mo | **Margin:**
+$7/user/month
 
-- Analyzes interaction history + GitHub activity
-- Scores relationship health (1-100)
-- Identifies patterns (e.g., "every 3 months")
-- Suggests optimal engagement frequency
-- Shows relationship strength: STRONG/MODERATE/WEAK
+### Premium Tier ($40/mo) - AI Agents
 
-**20. AI Contact Prioritization**
+Continuous AI processing with daily reports:
 
-- Ranks contacts by priority each day
-- Considers: GitHub activity, time since last contact, relationship
-  strength, VIP status
-- Suggests top 3-5 contacts to engage with
-- Shows priority reasons and suggested actions
+- Daily AI digest (automated)
+- Relationship insights agent
+- GitHub activity agent (if tracking enabled)
+- Unlimited AI operations
 
-**21. AI Follow-up Suggestions**
+**Cost:** ~$25/user/month | **Revenue:** $40/mo | **Margin:**
+$15/user/month
 
-- Reads interaction context
-- Suggests relevant follow-up tasks
-- Auto-drafts follow-up note based on last interaction
+## Free Tier Features
 
-**22. AI Meeting/Note Summarization**
+### 1. Semantic Contact Search
 
-- Takes long interaction notes
-- Extracts key points, action items, topics
-- Suggests follow-ups based on content
-- Auto-tags topics
+Find contacts by meaning, not keywords.
 
-## Tier 2: AI Automation Features
+**Example queries:**
 
-**23. AI Message Composition**
+- "machine learning" → finds "neural networks", "AI research", "LLM
+  development"
+- "rust developers" → finds "systems programming", "performance
+  optimization"
+- "conference speakers" → finds mentions of "talk", "presentation",
+  "keynote"
 
-- Drafts personalized messages based on relationship context
-- User specifies intent, AI writes message
-- References specific shared context
-- 3-5 sentences, warm, professional, concise
+**How:** Pure vector similarity search, no LLM needed.
 
-**24. AI Contact Enrichment**
+**UX:** Toggle between "Keyword" and "Semantic" search modes on
+contacts page.
 
-- Automatically fills missing contact data
-- Searches public sources (GitHub, LinkedIn, personal sites)
-- Suggests updates when data changes
-- Shows confidence score for suggestions
+### 2. Relationship Health Score
 
-**25. AI Smart Deduplication**
+**Current:** Basic rule-based algorithm (time since contact,
+interaction count, VIP status)
 
-- Finds potential duplicate contacts intelligently
-- Shows confidence score (e.g., 95% match)
-- Suggests merge with field-level resolution
-- Matches by GitHub username, email patterns, company
+**Enhanced (Pro tier):** Pattern analysis detects typical cadence
+("You contact Sarah every 6 weeks")
 
-**26. AI Interaction Parsing**
+### 3. Time-Based Suggestions
 
-- Paste email/message, AI extracts structured data
-- Creates interaction automatically
-- Identifies action items → creates follow-ups
-- Detects contact, type, date, summary
+Simple rule-based suggestions:
 
-## Tier 3: AI Agents (Proactive)
+- "Haven't contacted in 90+ days"
+- "Overdue follow-up"
+- "VIP not contacted in 30 days"
 
-**27. Daily Agent Digest**
+## Pro Tier Features ($15/mo)
 
-- AI agent runs overnight
-- Analyzes entire network
-- Generates personalized morning report
-- Email sent at 7:00 AM with top priorities (3), overdue (list),
-  GitHub activity (last 24h)
-- Includes drafted messages and suggested actions
+### 1. AI Interaction Summarization
 
-**28. GitHub Activity Agent**
+**Use case:** Paste long email thread or meeting notes → get
+structured summary.
 
-- Monitors all contact GitHub activity 24/7
-- Generates immediate action items
-- Drafts context-aware responses
-- Real-time notifications for significant events (releases, new
-  projects)
+**Input:** Raw text (up to 4k tokens)
 
-**29. Relationship Health Agent**
+**Output:**
 
-- Tracks relationship decay (time since contact)
-- Proactively flags contacts going cold
-- Generates re-engagement messages
-- Weekly report: "⚠️ 5 relationships need attention"
+- Key points (3-5 bullets)
+- Action items extracted
+- Suggested follow-up tasks
+- Topics discussed
 
-**30. Event/Conference Agent**
+**Limit:** 100/month
 
-- Post-conference analysis
-- Prioritizes who to follow up with (based on GitHub data, role,
-  influence)
-- Auto-drafts personalized follow-ups
-- Shows top 10 to follow up with + reasons
+**UX:** Button on "Log Interaction" form: "✨ Summarize with AI"
 
-## Technical Implementation
+### 2. AI Suggested Topics
 
-**AI Stack Options:**
+**Use case:** Opening follow-up reminder → see suggested talking
+points.
 
-**Option A: OpenAI/Claude API** (Recommended for MVP)
+**How it works:**
 
-- Use Claude 3.5 Sonnet or GPT-4
-- Cost: ~$0.01-0.05 per operation
-- Pros: Best quality, fast, reliable
-- Cons: Recurring API costs, data sent to third-party
+1. Vector search finds most relevant past interactions
+2. LLM analyzes context + time since last contact
+3. Generates 3-5 suggested topics
 
-**Option B: Open Source Models** (Long-term)
+**Example:**
 
-- Self-hosted Llama 3.1, Mistral, etc.
-- Cost: Infrastructure only
-- Pros: Privacy, no per-use cost
-- Cons: Complex setup, lower quality
+_"You last spoke with Sarah 3 months ago about:"_
 
-**Option C: Hybrid** (Best of Both)
+- Svelte 5 migration project
+- Her new role at Vercel
+- Conference speaking
 
-- Cheap tasks → OSS models (summarization)
-- Premium tasks → Claude/GPT (agents, drafting)
-- Free tier → OSS only
-- Paid tier → Claude/GPT
+_"Suggested topics:"_
 
-**Privacy & Data Handling:**
+- Ask how the Svelte 5 launch went
+- Congratulate on her recent blog post
+- Check if she's speaking at upcoming conferences
 
-- Only send necessary context: name, company, recent_interactions,
-  github_activity
-- Never send: email, phone, address, private notes
-- User controls: enabled, daily_digest, message_drafting,
-  auto_suggestions, data_sharing (none/anonymized/full)
+**UX:** Auto-shown on follow-up reminder when >30 days since last
+contact
 
-## Pricing Strategy
+### 3. AI Contact Enrichment
 
-| Feature                   | Free | Pro    | Premium   |
-| ------------------------- | ---- | ------ | --------- |
-| AI summarization          | ❌   | 5/day  | Unlimited |
-| AI message drafting       | ❌   | 10/day | Unlimited |
-| AI contact enrichment     | ❌   | ✅     | ✅        |
-| Daily agent digest        | ❌   | ❌     | ✅        |
-| GitHub activity agent     | ❌   | ❌     | ✅        |
-| Relationship health agent | ❌   | ❌     | ✅        |
+**Use case:** You have partial contact info, AI finds missing data.
 
-**Why Premium for Agents?** Continuous processing = higher cost,
-creates clear upgrade path
+**Input:** Name, company (optional), GitHub username (optional)
+
+**Output:**
+
+- Suggested company (if missing)
+- Potential social links
+- Bio/background summary
+- Tech stack/interests
+
+**How it works:**
+
+1. Vector search similar contacts in your network
+2. LLM analyzes patterns + public data hints
+3. Returns suggestions with confidence scores
+
+**UX:** Button on contact detail page: "✨ Enrich with AI"
+
+### 4. Enhanced Relationship Health
+
+**Analysis:**
+
+- "You typically contact Sarah every 6 weeks"
+- "Relationship strength: STRONG (consistent engagement)"
+- "Suggested frequency: Every 4-6 weeks"
+
+**How:** LLM analyzes interaction gaps to detect patterns.
+
+## Premium Tier Features ($40/mo)
+
+### 1. Daily AI Digest
+
+**What it is:** Overnight AI agent analyzes entire network, generates
+morning report.
+
+**Delivered:** Email at 7:00 AM
+
+**Content:**
+
+- Top 3 people to reach out to (with reasons)
+- Overdue follow-ups (prioritized by importance)
+- Recent GitHub activity (if tracking enabled)
+- Relationships needing attention
+- Drafted talking points for each
+
+**Example:**
+
+```
+Good morning! Here's your daily relationship digest:
+
+🎯 TOP PRIORITIES
+
+1. Sarah Chen (Vercel)
+   - Last contact: 47 days ago (typical: 42 days)
+   - Recent activity: Released Svelte 5 project
+   - Suggested: Congratulate on launch, ask about adoption
+
+2. Marcus Johnson (Independent)
+   - Last contact: 89 days ago (relationship cooling)
+   - VIP contact
+   - Suggested: Quick check-in, ask about consulting work
+
+3. Alex Kumar (Google)
+   - Follow-up overdue by 5 days
+   - Action: Send proposal for collaboration
+
+⚠️ RELATIONSHIPS NEEDING ATTENTION (3)
+- Jessica Lee: 120 days since contact
+- David Park: 95 days since contact
+- Rachel Green: 180 days since contact
+
+📊 NETWORK HEALTH
+- Total contacts: 127
+- Active relationships: 45
+- Pending follow-ups: 12 (3 overdue)
+```
+
+**Cost:** ~$0.50-1.00/day = ~$15-30/user/month
+
+### 2. Relationship Insights Agent
+
+**What it does:** Weekly analysis of conversation patterns, sentiment,
+topics.
+
+**Insights provided:**
+
+**Pattern Analysis:**
+
+- "You discuss technical topics 80% of the time with Sarah"
+- "Conversations with Marcus are 50% career advice, 30% projects, 20%
+  personal"
+
+**Sentiment Tracking:**
+
+- Analyze tone of interaction notes
+- Flag relationships that feel "cold" or "distant"
+- Celebrate strong, positive relationships
+
+**Reciprocity:**
+
+- "You initiated last 5 interactions with David - consider if this is
+  one-sided"
+
+**How:** Weekly report using vector clustering + LLM analysis.
+
+**Cost:** ~$8-12/month per user
+
+### 3. GitHub Activity Agent (Optional)
+
+**Prerequisite:** User enables GitHub tracking for specific contacts
+(max 10).
+
+**What it does:**
+
+- Checks tracked contacts' GitHub daily
+- Identifies significant events (releases, new projects, major
+  contributions)
+- Auto-drafts congratulations/follow-up suggestions
+
+**Example alert:**
+
+```
+🚀 Sarah Chen released v2.0 of sveltekit-superforms
+
+Suggested action:
+- Congratulate her on the release
+- Ask about new features
+- Share if you've used it
+
+Draft message:
+"Hey Sarah! Saw you launched v2.0 of superforms - congrats!
+The new features look great. Have you seen much adoption so far?"
+```
+
+**Cost:** ~$3-6/month per user
+
+## AI Model Strategy
+
+**Embedding model (all tiers):**
+
+- **Voyage AI `voyage-3`** for embeddings
+- 1024 dimensions
+- $0.10 per 1M tokens
+- Superior quality for semantic search
+
+**LLM models:**
+
+**Pro tier (cheap operations):**
+
+- Summarization, topic suggestions, enrichment
+- Model: `gpt-4o-mini` or similar
+- ~$0.01-0.05 per operation
+
+**Premium tier (complex analysis):**
+
+- Daily digest, relationship insights, pattern detection
+- Model: `gpt-4o` or similar
+- ~$0.50-1.00 per digest
+
+### Cost Control
+
+**Pro tier limits:**
+
+- 100 summarizations/month
+- Unlimited topic suggestions (cheap operation)
+- On-demand enrichment
+
+**Premium tier:**
+
+- Unlimited operations
+- Daily digest (most expensive feature)
+- Weekly insights report
+
+## Privacy & Data Handling
+
+**What gets sent to LLM:**
+
+- Contact names, companies, titles
+- Interaction notes (context only)
+- Aggregated stats
+
+**What doesn't:**
+
+- Email addresses, phone numbers
+- Full contact database
+- Sensitive personal data
+
+**User controls:**
+
+- Opt-out of AI features entirely
+- Per-contact AI disable
+- Data sharing preferences: none / anonymized / full
 
 ## Success Metrics
 
 **Adoption:**
 
-- 30% of Pro users try AI features
-- 15% of users upgrade to Premium for agents
-- 80% satisfaction with AI suggestions
+- % of Pro users who use AI features weekly
+- % who upgrade to Premium for digest
+- Feature usage breakdown
 
-**Accuracy:**
+**Quality:**
 
-- 90%+ of AI drafts used with minimal edits
-- 70%+ of AI suggestions acted upon
-- <5% "this is wrong" feedback
+- Suggested topics acceptance rate (target: 70%+)
+- Digest action rate (target: 50%+ act on top 3)
+- User satisfaction (target: 4.5/5 stars)
 
 **Retention:**
 
-- AI users churn 60% less
-- Agent users (Premium) churn 80% less
+- AI users churn 60% less than non-AI users
+- Premium users (with digest) churn 80% less
+
+## Implementation Phases
+
+### Phase 1: Foundation (Week 1-2)
+
+- Vector search infrastructure (Voyage AI embeddings + sqlite-vec)
+- Semantic search UI
+- LLM integration setup
+
+### Phase 2: Pro Tier (Week 3-4)
+
+- AI interaction summarization
+- AI suggested topics
+- Payment integration (Stripe/Polar)
+
+### Phase 3: Premium Tier (Week 5-8)
+
+- Daily digest agent
+- Relationship insights
+- Email delivery system
+
+### Phase 4: Advanced (Month 3+)
+
+- GitHub activity agent
+- Connection graph visualization
+- Network analytics dashboard
+
+## Future Enhancements
+
+**Local AI Models:**
+
+- Replace cloud LLMs with Ollama + Llama for privacy
+- Keep Voyage AI for embeddings (better quality)
+- Zero API costs for LLM calls
+- Trade-off: Slightly lower quality
+
+**Multi-Language Support:**
+
+- Detect interaction language
+- Generate suggestions in user's language
+- Support non-English contacts
+
+**Integration with Communication Tools:**
+
+- Gmail plugin: Auto-log emails as interactions
+- Slack integration: Track DM conversations
+- Calendar integration: Auto-log meetings
+
+## Resources
+
+- [OpenAI API pricing](https://openai.com/api/pricing/)
+- [Voyage AI embeddings](https://docs.voyageai.com/docs/embeddings)
+- [Vector search implementation](./vector-search.md)
