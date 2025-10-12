@@ -148,7 +148,6 @@ CREATE TABLE IF NOT EXISTS user_profiles (
   tagline TEXT,
   location TEXT,
   website TEXT,
-  is_public INTEGER DEFAULT 1,
   visibility TEXT NOT NULL DEFAULT 'public',
   custom_slug TEXT UNIQUE,
   qr_code_url TEXT,

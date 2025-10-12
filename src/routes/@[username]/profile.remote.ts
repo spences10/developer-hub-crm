@@ -1,8 +1,11 @@
 import { command, getRequestEvent, query } from '$app/server';
+import { env } from '$env/dynamic/private';
 import { auth } from '$lib/server/auth';
 import { db } from '$lib/server/db';
 import type { UserProfile, UserSocialLink } from '$lib/types/db';
 import * as v from 'valibot';
+
+const DEMO_USER_EMAIL = env.DEMO_USER_EMAIL || 'demo@devhubcrm.com';
 
 export interface ProfileWithSocials extends UserProfile {
 	name: string;
@@ -13,11 +16,24 @@ export interface ProfileWithSocials extends UserProfile {
 
 /**
  * Get public profile by username
+ * Respects visibility settings: public, unlisted, and private
+ * Note: Demo users are treated as unauthenticated for privacy purposes
  */
 export const get_profile = query.batch(
 	v.pipe(v.string(), v.minLength(1)),
 	async (usernames) => {
+		const event = getRequestEvent();
+
+		// Check if viewer is authenticated (excluding demo user)
+		const session = await auth.api.getSession({
+			headers: event.request.headers,
+		});
+		const is_demo_user = session?.user?.email === DEMO_USER_EMAIL;
+		const is_authenticated = !!session?.user && !is_demo_user;
+
 		// Fetch all profiles with user image and name in a single query
+		// Note: We fetch all profiles first, then filter by visibility in code
+		// to handle authentication-dependent access
 		const profile_stmt = db.prepare(`
       SELECT
         up.*,
@@ -26,10 +42,9 @@ export const get_profile = query.batch(
       FROM user_profiles up
       JOIN user u ON up.user_id = u.id
       WHERE up.username IN (${usernames.map(() => '?').join(',')})
-      AND up.is_public = 1
     `);
 
-		const profiles = profile_stmt.all(
+		const all_profiles = profile_stmt.all(
 			...usernames,
 		) as (UserProfile & {
 			name: string;
@@ -37,7 +52,15 @@ export const get_profile = query.batch(
 			qr_code_url: string | null;
 		})[];
 
-		// Fetch social links for all profiles
+		// Filter profiles based on visibility and authentication
+		const profiles = all_profiles.filter((profile) => {
+			if (profile.visibility === 'public') return true;
+			if (profile.visibility === 'unlisted') return true;
+			if (profile.visibility === 'private') return is_authenticated;
+			return false; // Unknown visibility values are hidden
+		});
+
+		// Fetch social links for all visible profiles
 		const user_ids = profiles.map((p) => p.user_id);
 
 		if (user_ids.length === 0) {
