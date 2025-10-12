@@ -1,5 +1,6 @@
 import { env } from '$env/dynamic/private';
 import { db } from '$lib/server/db';
+import { run_migrations } from '$lib/server/migrate';
 import { themes } from '$lib/themes';
 import type { Handle } from '@sveltejs/kit';
 import { sequence } from '@sveltejs/kit/hooks';
@@ -11,6 +12,9 @@ const DEMO_USER_EMAIL = env.DEMO_USER_EMAIL || 'demo@devhubcrm.com';
 // Initialize schema on startup
 const schema = readFileSync('schema.sql', 'utf-8');
 db.exec(schema);
+
+// Run any pending migrations
+run_migrations();
 
 // Auto-seed demo account in development if it doesn't exist
 if (process.env.NODE_ENV !== 'production') {

@@ -118,8 +118,14 @@ team.
 
 **Database operations**
 
-Raw SQL queries, parameterized queries, transactions, type safety,
-migrations.
+Raw SQL queries, parameterized queries, transactions, type safety.
+
+#### [migrations.md](./migrations.md)
+
+**Database migrations**
+
+Migration system, creating migrations, tracking, best practices,
+workflow.
 
 #### [error-handling.md](./error-handling.md)
 
