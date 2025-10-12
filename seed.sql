@@ -2,18 +2,17 @@
 -- Comprehensive sample data for testing and demonstration
 --
 -- USAGE:
--- 1. Register a user account through the UI first
--- 2. Then run: sqlite3 local.db < seed.sql
+-- This file is used by seed_demo.ts to populate the demo account.
+-- The seed_demo.ts script handles deletion of existing demo data.
+-- For manual seeding: Register a user account first, then run this.
 --
--- This will add sample contacts, interactions, and follow-ups to your account
-
--- Clear only CRM data (keeps user/auth data)
-DELETE FROM contact_tags;
-DELETE FROM tags;
-DELETE FROM social_links;
-DELETE FROM follow_ups;
-DELETE FROM interactions;
-DELETE FROM contacts;
+-- NOTE: If manually seeding for a new user, you may want to clear data first:
+-- DELETE FROM contact_tags WHERE contact_id IN (SELECT id FROM contacts WHERE user_id = 'YOUR_USER_ID');
+-- DELETE FROM tags WHERE user_id = 'YOUR_USER_ID';
+-- DELETE FROM social_links WHERE contact_id IN (SELECT id FROM contacts WHERE user_id = 'YOUR_USER_ID');
+-- DELETE FROM follow_ups WHERE contact_id IN (SELECT id FROM contacts WHERE user_id = 'YOUR_USER_ID');
+-- DELETE FROM interactions WHERE contact_id IN (SELECT id FROM contacts WHERE user_id = 'YOUR_USER_ID');
+-- DELETE FROM contacts WHERE user_id = 'YOUR_USER_ID';
 
 -- Create contacts (using first user in database)
 INSERT INTO contacts (id, user_id, name, email, phone, company, title, github_username, is_vip, birthday, notes, last_contacted_at, created_at, updated_at) VALUES

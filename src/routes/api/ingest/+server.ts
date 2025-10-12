@@ -8,17 +8,17 @@ import { seed_demo } from './seed-demo';
  *
  * Trigger a database backup:
  *
- * curl -X POST https://devhubcrm.com/api/ingest \
- *   -H "Content-Type: application/json" \
- *   -d '{"task": "backup_database", "token": "your-secret-token"}'
+ curl -X POST https://devhubcrm.com/api/ingest \
+   -H "Content-Type: application/json" \
+   -d '{"task": "backup_database", "token": "your-secret-token"}'
  *
  * === SEED DEMO ===
  *
  * Reset demo account with seed data:
  *
- * curl -X POST https://devhubcrm.com/api/ingest \
- *   -H "Content-Type: application/json" \
- *   -d '{"task": "seed_demo", "token": "your-secret-token"}'
+ curl -X POST https://devhubcrm.com/api/ingest \
+   -H "Content-Type: application/json" \
+   -d '{"task": "seed_demo", "token": "your-secret-token"}'
  */
 
 type TaskFunction<TArgs = any, TResult = any> = (

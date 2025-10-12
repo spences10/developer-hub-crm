@@ -99,7 +99,10 @@ export const seed_demo = async () => {
 			}
 		}
 
-		// Clear existing demo data
+		// Clear existing demo data (in correct order due to foreign key constraints)
+		db.prepare(
+			'DELETE FROM contact_tags WHERE contact_id IN (SELECT id FROM contacts WHERE user_id = ?)',
+		).run(demo_user.id);
 		db.prepare(
 			'DELETE FROM social_links WHERE contact_id IN (SELECT id FROM contacts WHERE user_id = ?)',
 		).run(demo_user.id);
@@ -109,6 +112,9 @@ export const seed_demo = async () => {
 		db.prepare(
 			'DELETE FROM interactions WHERE contact_id IN (SELECT id FROM contacts WHERE user_id = ?)',
 		).run(demo_user.id);
+		db.prepare('DELETE FROM tags WHERE user_id = ?').run(
+			demo_user.id,
+		);
 		db.prepare('DELETE FROM contacts WHERE user_id = ?').run(
 			demo_user.id,
 		);
