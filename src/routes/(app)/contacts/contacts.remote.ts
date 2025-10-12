@@ -13,44 +13,34 @@ import * as v from 'valibot';
 /**
  * Get all contacts for the current user with optional search
  */
-export const get_contacts = query.batch(
+export const get_contacts = query(
 	v.optional(v.string(), ''),
-	async (searches): Promise<(search?: string) => Contact[]> => {
+	async (search = ''): Promise<Contact[]> => {
 		const user_id = await get_current_user_id();
 
-		// For search queries, we can't really batch them efficiently
-		// since each search term is different. Return a function that
-		// executes the query for the specific search term.
-		return (search = '') => {
-			let sql = `
-        SELECT * FROM contacts
-        WHERE user_id = ?
+		let sql = `
+      SELECT * FROM contacts
+      WHERE user_id = ?
+    `;
+		const params: any[] = [user_id];
+
+		if (search && search.trim()) {
+			sql += `
+        AND (
+          name LIKE ? OR
+          email LIKE ? OR
+          company LIKE ? OR
+          github_username LIKE ?
+        )
       `;
-			const params: any[] = [user_id];
+			const search_term = `%${search.trim()}%`;
+			params.push(search_term, search_term, search_term, search_term);
+		}
 
-			if (search && search.trim()) {
-				sql += `
-          AND (
-            name LIKE ? OR
-            email LIKE ? OR
-            company LIKE ? OR
-            github_username LIKE ?
-          )
-        `;
-				const search_term = `%${search.trim()}%`;
-				params.push(
-					search_term,
-					search_term,
-					search_term,
-					search_term,
-				);
-			}
+		sql += ' ORDER BY name ASC';
 
-			sql += ' ORDER BY name ASC';
-
-			const stmt = db.prepare(sql);
-			return stmt.all(...params) as Contact[];
-		};
+		const stmt = db.prepare(sql);
+		return stmt.all(...params) as Contact[];
 	},
 );
 
@@ -291,6 +281,10 @@ export const update_contact = guarded_command(
 			user_id,
 		);
 
+		// Single-flight mutation: refresh related queries
+		await get_contact(data.id).refresh();
+		await get_contacts('').refresh();
+
 		return { success: true };
 	},
 );
@@ -313,6 +307,9 @@ export const delete_contact = guarded_command(
 		if (result.changes === 0) {
 			return { error: 'Contact not found' };
 		}
+
+		// Single-flight mutation: refresh contact list
+		await get_contacts('').refresh();
 
 		return { success: true };
 	},
@@ -339,7 +336,11 @@ export const get_vip_contacts = query(
  * Get recently added contacts (last 7 days)
  */
 export const get_recent_contacts = query(
-	async (limit: number = 5): Promise<Contact[]> => {
+	v.optional(
+		v.pipe(v.number(), v.integer(), v.minValue(1), v.maxValue(100)),
+		5,
+	),
+	async (limit = 5): Promise<Contact[]> => {
 		const user_id = await get_current_user_id();
 
 		const stmt = db.prepare(`
@@ -469,6 +470,10 @@ export const add_social_link = guarded_command(
 
 		stmt.run(id, data.contact_id, data.platform, data.url, now);
 
+		// Single-flight mutation: refresh contact and social links
+		await get_contact(data.contact_id).refresh();
+		await get_social_links(data.contact_id).refresh();
+
 		return { success: true, id };
 	},
 );
@@ -483,11 +488,13 @@ export const delete_social_link = guarded_command(
 
 		// Verify the social link belongs to a contact owned by the user
 		const check_stmt = db.prepare(`
-      SELECT sl.id FROM social_links sl
+      SELECT sl.id, sl.contact_id FROM social_links sl
       INNER JOIN contacts c ON sl.contact_id = c.id
       WHERE sl.id = ? AND c.user_id = ?
     `);
-		const social_link = check_stmt.get(id, user_id);
+		const social_link = check_stmt.get(id, user_id) as
+			| { id: string; contact_id: string }
+			| undefined;
 
 		if (!social_link) {
 			throw new Error('Social link not found');
@@ -495,6 +502,10 @@ export const delete_social_link = guarded_command(
 
 		const stmt = db.prepare('DELETE FROM social_links WHERE id = ?');
 		stmt.run(id);
+
+		// Single-flight mutation: refresh contact and social links
+		await get_contact(social_link.contact_id).refresh();
+		await get_social_links(social_link.contact_id).refresh();
 
 		return { success: true };
 	},

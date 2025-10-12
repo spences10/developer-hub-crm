@@ -54,44 +54,40 @@ export const get_interactions = query.batch(
 /**
  * Get all interactions across all contacts for the current user with optional search
  */
-export const get_all_interactions = query.batch(
+export const get_all_interactions = query(
 	v.optional(v.string(), ''),
 	async (
-		searches,
-	): Promise<
-		(search?: string) => Array<Interaction & { contact_name: string }>
-	> => {
+		search = '',
+	): Promise<Array<Interaction & { contact_name: string }>> => {
 		const user_id = await get_current_user_id();
 
-		return (search = '') => {
-			let sql = `
-				SELECT
-					i.*,
-					c.name as contact_name
-				FROM interactions i
-				INNER JOIN contacts c ON i.contact_id = c.id
-				WHERE c.user_id = ?
+		let sql = `
+			SELECT
+				i.*,
+				c.name as contact_name
+			FROM interactions i
+			INNER JOIN contacts c ON i.contact_id = c.id
+			WHERE c.user_id = ?
+		`;
+		const params: any[] = [user_id];
+
+		if (search && search.trim()) {
+			sql += `
+				AND (
+					c.name LIKE ? OR
+					i.note LIKE ?
+				)
 			`;
-			const params: any[] = [user_id];
+			const search_term = `%${search.trim()}%`;
+			params.push(search_term, search_term);
+		}
 
-			if (search && search.trim()) {
-				sql += `
-					AND (
-						c.name LIKE ? OR
-						i.note LIKE ?
-					)
-				`;
-				const search_term = `%${search.trim()}%`;
-				params.push(search_term, search_term);
-			}
+		sql += ' ORDER BY i.created_at DESC';
 
-			sql += ' ORDER BY i.created_at DESC';
-
-			const stmt = db.prepare(sql);
-			return stmt.all(...params) as Array<
-				Interaction & { contact_name: string }
-			>;
-		};
+		const stmt = db.prepare(sql);
+		return stmt.all(...params) as Array<
+			Interaction & { contact_name: string }
+		>;
 	},
 );
 
@@ -198,12 +194,14 @@ export const update_interaction = guarded_command(
 
 		// Verify the interaction belongs to a contact owned by the current user
 		const check_stmt = db.prepare(`
-      SELECT i.id
+      SELECT i.id, i.contact_id
       FROM interactions i
       INNER JOIN contacts c ON i.contact_id = c.id
       WHERE i.id = ? AND c.user_id = ?
     `);
-		const interaction = check_stmt.get(data.id, user_id);
+		const interaction = check_stmt.get(data.id, user_id) as
+			| { id: string; contact_id: string }
+			| undefined;
 
 		if (!interaction) {
 			return {
@@ -219,6 +217,11 @@ export const update_interaction = guarded_command(
 
 		stmt.run(data.type, data.note || null, Date.now(), data.id);
 
+		// Single-flight mutation: refresh related queries
+		await get_interactions(interaction.contact_id).refresh();
+		await get_all_interactions('').refresh();
+		await get_recent_interactions().refresh();
+
 		return { success: true };
 	},
 );
@@ -233,12 +236,14 @@ export const delete_interaction = guarded_command(
 
 		// Verify the interaction belongs to a contact owned by the current user
 		const check_stmt = db.prepare(`
-      SELECT i.id
+      SELECT i.id, i.contact_id
       FROM interactions i
       INNER JOIN contacts c ON i.contact_id = c.id
       WHERE i.id = ? AND c.user_id = ?
     `);
-		const interaction = check_stmt.get(id, user_id);
+		const interaction = check_stmt.get(id, user_id) as
+			| { id: string; contact_id: string }
+			| undefined;
 
 		if (!interaction) {
 			return {
@@ -252,6 +257,11 @@ export const delete_interaction = guarded_command(
     `);
 
 		stmt.run(id);
+
+		// Single-flight mutation: refresh related queries
+		await get_interactions(interaction.contact_id).refresh();
+		await get_all_interactions('').refresh();
+		await get_recent_interactions().refresh();
 
 		return { success: true };
 	},

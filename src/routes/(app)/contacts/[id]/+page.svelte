@@ -47,8 +47,6 @@
 
 	const contact_id = $derived(page.params.id);
 
-	// Reactive key to trigger re-fetches after mutations
-	let refresh_key = $state(0);
 	let show_delete_confirmation = $state(false);
 
 	// Follow-up state
@@ -123,7 +121,6 @@
 			note: edit_follow_up_note,
 		});
 		edit_follow_up_id = null;
-		refresh_key++;
 	}
 
 	function cancel_edit_follow_up() {
@@ -132,12 +129,10 @@
 
 	async function handle_complete_follow_up(id: string) {
 		await complete_follow_up(id);
-		refresh_key++;
 	}
 
 	async function handle_reopen_follow_up(id: string) {
 		await reopen_follow_up(id);
-		refresh_key++;
 	}
 
 	function handle_delete_follow_up_click(
@@ -152,7 +147,6 @@
 		if (!delete_follow_up_id) return;
 		await delete_follow_up(delete_follow_up_id);
 		delete_follow_up_id = null;
-		refresh_key++;
 	}
 
 	function cancel_delete_follow_up() {
@@ -178,7 +172,6 @@
 			note: edit_interaction_note,
 		});
 		edit_interaction_id = null;
-		refresh_key++;
 	}
 
 	function cancel_edit_interaction() {
@@ -197,7 +190,6 @@
 		if (!delete_interaction_id) return;
 		await delete_interaction(delete_interaction_id);
 		delete_interaction_id = null;
-		refresh_key++;
 	}
 
 	function cancel_delete_interaction() {
@@ -393,8 +385,7 @@
 {/snippet}
 
 {#if contact_id}
-	{#key refresh_key}
-		{#await Promise.all( [get_contact(contact_id), get_user_preferences(), get_interactions(contact_id), get_contact_follow_ups(contact_id), get_contact_tags(contact_id)], ) then [contact, preferences, interactions, follow_ups, contact_tags]}
+	{#await Promise.all( [get_contact(contact_id), get_user_preferences(), get_interactions(contact_id), get_contact_follow_ups(contact_id), get_contact_tags(contact_id)], ) then [contact, preferences, interactions, follow_ups, contact_tags]}
 			{@const health_score = calculate_health_score(contact)}
 			{@const health_status = get_health_status(health_score)}
 			{@const pending_follow_ups = follow_ups.filter(
@@ -1077,5 +1068,4 @@
 				</div>
 			</div>
 		{/await}
-	{/key}
 {/if}

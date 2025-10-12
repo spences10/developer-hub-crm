@@ -106,6 +106,9 @@ export const create_tag = guarded_command(
 
 		stmt.run(id, user_id, data.name, data.color, now, now);
 
+		// Single-flight mutation: refresh tag list
+		await get_tags().refresh();
+
 		return { success: true, id };
 	},
 );
@@ -154,6 +157,9 @@ export const update_tag = guarded_command(
 			throw new Error('Tag not found');
 		}
 
+		// Single-flight mutation: refresh tag list
+		await get_tags().refresh();
+
 		return { success: true };
 	},
 );
@@ -174,6 +180,9 @@ export const delete_tag = guarded_command(
 		if (result.changes === 0) {
 			return { error: 'Tag not found' };
 		}
+
+		// Single-flight mutation: refresh tag list
+		await get_tags().refresh();
 
 		return { success: true };
 	},
@@ -230,6 +239,11 @@ export const add_tag_to_contact = guarded_command(
 
 		stmt.run(id, data.contact_id, data.tag_id, now);
 
+		// Single-flight mutation: refresh related queries
+		await get_contact_tags(data.contact_id).refresh();
+		await get_tag_contacts(data.tag_id).refresh();
+		await get_tags().refresh();
+
 		return { success: true };
 	},
 );
@@ -264,6 +278,11 @@ export const remove_tag_from_contact = guarded_command(
 		if (result.changes === 0) {
 			return { error: 'Tag assignment not found' };
 		}
+
+		// Single-flight mutation: refresh related queries
+		await get_contact_tags(data.contact_id).refresh();
+		await get_tag_contacts(data.tag_id).refresh();
+		await get_tags().refresh();
 
 		return { success: true };
 	},

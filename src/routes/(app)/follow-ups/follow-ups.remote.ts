@@ -12,44 +12,40 @@ import * as v from 'valibot';
 /**
  * Get all follow-ups for the current user with optional search
  */
-export const get_all_follow_ups = query.batch(
+export const get_all_follow_ups = query(
 	v.optional(v.string(), ''),
 	async (
-		searches,
-	): Promise<
-		(search?: string) => Array<FollowUp & { contact_name: string }>
-	> => {
+		search = '',
+	): Promise<Array<FollowUp & { contact_name: string }>> => {
 		const user_id = await get_current_user_id();
 
-		return (search = '') => {
-			let sql = `
-				SELECT
-					f.*,
-					c.name as contact_name
-				FROM follow_ups f
-				INNER JOIN contacts c ON f.contact_id = c.id
-				WHERE c.user_id = ?
+		let sql = `
+			SELECT
+				f.*,
+				c.name as contact_name
+			FROM follow_ups f
+			INNER JOIN contacts c ON f.contact_id = c.id
+			WHERE c.user_id = ?
+		`;
+		const params: any[] = [user_id];
+
+		if (search && search.trim()) {
+			sql += `
+				AND (
+					c.name LIKE ? OR
+					f.note LIKE ?
+				)
 			`;
-			const params: any[] = [user_id];
+			const search_term = `%${search.trim()}%`;
+			params.push(search_term, search_term);
+		}
 
-			if (search && search.trim()) {
-				sql += `
-					AND (
-						c.name LIKE ? OR
-						f.note LIKE ?
-					)
-				`;
-				const search_term = `%${search.trim()}%`;
-				params.push(search_term, search_term);
-			}
+		sql += ' ORDER BY f.due_date ASC';
 
-			sql += ' ORDER BY f.due_date ASC';
-
-			const stmt = db.prepare(sql);
-			return stmt.all(...params) as Array<
-				FollowUp & { contact_name: string }
-			>;
-		};
+		const stmt = db.prepare(sql);
+		return stmt.all(...params) as Array<
+			FollowUp & { contact_name: string }
+		>;
 	},
 );
 
@@ -99,7 +95,11 @@ export const get_contact_follow_ups = query.batch(
  * Get upcoming follow-ups (due within next 7 days)
  */
 export const get_upcoming_follow_ups = query(
-	async (days: number = 7) => {
+	v.optional(
+		v.pipe(v.number(), v.integer(), v.minValue(1), v.maxValue(365)),
+		7,
+	),
+	async (days = 7) => {
 		const user_id = await get_current_user_id();
 
 		const now = Date.now();
@@ -222,12 +222,14 @@ export const update_follow_up = guarded_command(
 
 		// Verify the follow-up belongs to a contact owned by the current user
 		const check_stmt = db.prepare(`
-      SELECT f.id
+      SELECT f.id, f.contact_id
       FROM follow_ups f
       INNER JOIN contacts c ON f.contact_id = c.id
       WHERE f.id = ? AND c.user_id = ?
     `);
-		const follow_up = check_stmt.get(data.id, user_id);
+		const follow_up = check_stmt.get(data.id, user_id) as
+			| { id: string; contact_id: string }
+			| undefined;
 
 		if (!follow_up) {
 			return {
@@ -243,6 +245,12 @@ export const update_follow_up = guarded_command(
 
 		stmt.run(data.due_date, data.note || null, Date.now(), data.id);
 
+		// Single-flight mutation: refresh related queries
+		await get_contact_follow_ups(follow_up.contact_id).refresh();
+		await get_all_follow_ups('').refresh();
+		await get_upcoming_follow_ups(7).refresh();
+		await get_overdue_follow_ups().refresh();
+
 		return { success: true };
 	},
 );
@@ -257,12 +265,14 @@ export const complete_follow_up = guarded_command(
 
 		// Verify the follow-up belongs to a contact owned by the current user
 		const check_stmt = db.prepare(`
-      SELECT f.id
+      SELECT f.id, f.contact_id
       FROM follow_ups f
       INNER JOIN contacts c ON f.contact_id = c.id
       WHERE f.id = ? AND c.user_id = ?
     `);
-		const follow_up = check_stmt.get(id, user_id);
+		const follow_up = check_stmt.get(id, user_id) as
+			| { id: string; contact_id: string }
+			| undefined;
 
 		if (!follow_up) {
 			return {
@@ -279,6 +289,12 @@ export const complete_follow_up = guarded_command(
 		const now = Date.now();
 		stmt.run(now, now, id);
 
+		// Single-flight mutation: refresh related queries
+		await get_contact_follow_ups(follow_up.contact_id).refresh();
+		await get_all_follow_ups('').refresh();
+		await get_upcoming_follow_ups(7).refresh();
+		await get_overdue_follow_ups().refresh();
+
 		return { success: true };
 	},
 );
@@ -293,12 +309,14 @@ export const reopen_follow_up = guarded_command(
 
 		// Verify the follow-up belongs to a contact owned by the current user
 		const check_stmt = db.prepare(`
-      SELECT f.id
+      SELECT f.id, f.contact_id
       FROM follow_ups f
       INNER JOIN contacts c ON f.contact_id = c.id
       WHERE f.id = ? AND c.user_id = ?
     `);
-		const follow_up = check_stmt.get(id, user_id);
+		const follow_up = check_stmt.get(id, user_id) as
+			| { id: string; contact_id: string }
+			| undefined;
 
 		if (!follow_up) {
 			return {
@@ -314,6 +332,12 @@ export const reopen_follow_up = guarded_command(
 
 		stmt.run(Date.now(), id);
 
+		// Single-flight mutation: refresh related queries
+		await get_contact_follow_ups(follow_up.contact_id).refresh();
+		await get_all_follow_ups('').refresh();
+		await get_upcoming_follow_ups(7).refresh();
+		await get_overdue_follow_ups().refresh();
+
 		return { success: true };
 	},
 );
@@ -328,12 +352,14 @@ export const delete_follow_up = guarded_command(
 
 		// Verify the follow-up belongs to a contact owned by the current user
 		const check_stmt = db.prepare(`
-      SELECT f.id
+      SELECT f.id, f.contact_id
       FROM follow_ups f
       INNER JOIN contacts c ON f.contact_id = c.id
       WHERE f.id = ? AND c.user_id = ?
     `);
-		const follow_up = check_stmt.get(id, user_id);
+		const follow_up = check_stmt.get(id, user_id) as
+			| { id: string; contact_id: string }
+			| undefined;
 
 		if (!follow_up) {
 			return {
@@ -347,6 +373,12 @@ export const delete_follow_up = guarded_command(
     `);
 
 		stmt.run(id);
+
+		// Single-flight mutation: refresh related queries
+		await get_contact_follow_ups(follow_up.contact_id).refresh();
+		await get_all_follow_ups('').refresh();
+		await get_upcoming_follow_ups(7).refresh();
+		await get_overdue_follow_ups().refresh();
 
 		return { success: true };
 	},
