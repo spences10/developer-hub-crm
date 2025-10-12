@@ -157,188 +157,182 @@
 
 <Head seo_config={seo_configs.followUps} />
 
-<div class="mx-auto max-w-6xl">
-	<PageHeaderWithAction title="Follow-ups">
-		<a href="/follow-ups/new" class="btn btn-primary">
-			New Follow-up
-		</a>
-	</PageHeaderWithAction>
-	<PageNav />
+<PageHeaderWithAction title="Follow-ups">
+	<a href="/follow-ups/new" class="btn btn-primary">
+		New Follow-up
+	</a>
+</PageHeaderWithAction>
+<PageNav />
 
-	<!-- Search Bar -->
-	<SearchBar
-		bind:value={search}
-		placeholder="Search by contact name or note"
-		on_change={() => {}}
-	/>
+<!-- Search Bar -->
+<SearchBar
+	bind:value={search}
+	placeholder="Search by contact name or note"
+	on_change={() => {}}
+/>
 
-	<!-- Filter Tabs -->
-	<FilterTabs
-		options={filter_options}
-		active_filter={filter}
-		on_filter_change={(f) => (filter = f)}
-	/>
+<!-- Filter Tabs -->
+<FilterTabs
+	options={filter_options}
+	active_filter={filter}
+	on_filter_change={(f) => (filter = f)}
+/>
 
-	<!-- Follow-ups List -->
-	{#await Promise.all( [all_follow_ups, preferences], ) then [all_follow_ups_data, preferences_data]}
-		{@const follow_ups = filter_follow_ups(
-			all_follow_ups_data,
-			filter,
-		)}
-		{#if follow_ups.length === 0}
-			<EmptyState
-				message={search
-					? 'No follow-ups found matching your search.'
-					: filter === 'all'
-						? 'No follow-ups yet.'
-						: `No ${filter} follow-ups found.`}
-				action_href={!search && filter === 'all'
-					? '/follow-ups/new'
-					: undefined}
-				action_text={!search && filter === 'all'
-					? 'Create Your First Follow-up'
-					: undefined}
-			/>
-		{:else}
-			<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-				{#each follow_ups as follow_up}
-					{@const overdue =
-						!follow_up.completed && is_overdue(follow_up.due_date)}
-					{@const icon_color =
-						overdue && !follow_up.completed
-							? 'bg-error text-error-content'
-							: follow_up.completed
-								? 'bg-success text-success-content'
-								: 'bg-base-200'}
-					{@const metadata_classes =
-						overdue && !follow_up.completed
-							? 'opacity-60 text-error'
-							: 'opacity-60'}
-					{#if edit_follow_up_id === follow_up.id}
-						<!-- Edit Mode -->
-						<div
-							class="card bg-base-100 shadow-md transition-shadow hover:shadow-lg"
-						>
-							<div class="card-body p-4">
-								<div class="space-y-4">
-									<div class="flex items-center justify-between">
-										<a
-											href="/contacts/{follow_up.contact_id}"
-											class="link text-lg font-semibold link-hover"
-										>
-											{follow_up.contact_name}
-										</a>
-									</div>
+<!-- Follow-ups List -->
+{#await Promise.all( [all_follow_ups, preferences], ) then [all_follow_ups_data, preferences_data]}
+	{@const follow_ups = filter_follow_ups(all_follow_ups_data, filter)}
+	{#if follow_ups.length === 0}
+		<EmptyState
+			message={search
+				? 'No follow-ups found matching your search.'
+				: filter === 'all'
+					? 'No follow-ups yet.'
+					: `No ${filter} follow-ups found.`}
+			action_href={!search && filter === 'all'
+				? '/follow-ups/new'
+				: undefined}
+			action_text={!search && filter === 'all'
+				? 'Create Your First Follow-up'
+				: undefined}
+		/>
+	{:else}
+		<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+			{#each follow_ups as follow_up}
+				{@const overdue =
+					!follow_up.completed && is_overdue(follow_up.due_date)}
+				{@const icon_color =
+					overdue && !follow_up.completed
+						? 'bg-error text-error-content'
+						: follow_up.completed
+							? 'bg-success text-success-content'
+							: 'bg-base-200'}
+				{@const metadata_classes =
+					overdue && !follow_up.completed
+						? 'opacity-60 text-error'
+						: 'opacity-60'}
+				{#if edit_follow_up_id === follow_up.id}
+					<!-- Edit Mode -->
+					<div
+						class="card bg-base-100 shadow-md transition-shadow hover:shadow-lg"
+					>
+						<div class="card-body p-4">
+							<div class="space-y-4">
+								<div class="flex items-center justify-between">
+									<a
+										href="/contacts/{follow_up.contact_id}"
+										class="link text-lg font-semibold link-hover"
+									>
+										{follow_up.contact_name}
+									</a>
+								</div>
 
-									<div class="space-y-3">
-										<label class="form-control w-full">
-											<div class="label">
-												<span class="label-text">Due Date</span>
-											</div>
-											<input
-												type="datetime-local"
-												bind:value={edit_due_date_str}
-												class="input-bordered input w-full"
-											/>
-										</label>
+								<div class="space-y-3">
+									<label class="form-control w-full">
+										<div class="label">
+											<span class="label-text">Due Date</span>
+										</div>
+										<input
+											type="datetime-local"
+											bind:value={edit_due_date_str}
+											class="input-bordered input w-full"
+										/>
+									</label>
 
-										<label class="form-control w-full">
-											<div class="label">
-												<span class="label-text">Note</span>
-											</div>
-											<textarea
-												bind:value={edit_note}
-												class="textarea-bordered textarea h-24 w-full"
-												placeholder="Add a note..."
-											></textarea>
-										</label>
-									</div>
+									<label class="form-control w-full">
+										<div class="label">
+											<span class="label-text">Note</span>
+										</div>
+										<textarea
+											bind:value={edit_note}
+											class="textarea-bordered textarea h-24 w-full"
+											placeholder="Add a note..."
+										></textarea>
+									</label>
+								</div>
 
-									<div class="flex justify-end gap-2">
-										<button
-											class="btn btn-ghost btn-sm"
-											onclick={cancel_edit}
-										>
-											Cancel
-										</button>
-										<button
-											class="btn btn-sm btn-primary"
-											onclick={save_edit}
-										>
-											Save
-										</button>
-									</div>
+								<div class="flex justify-end gap-2">
+									<button
+										class="btn btn-ghost btn-sm"
+										onclick={cancel_edit}
+									>
+										Cancel
+									</button>
+									<button
+										class="btn btn-sm btn-primary"
+										onclick={save_edit}
+									>
+										Save
+									</button>
 								</div>
 							</div>
 						</div>
-					{:else}
-						<!-- View Mode -->
-						<ActivityCard
-							icon={Calendar}
-							icon_color_classes={icon_color}
-							contact_id={follow_up.contact_id}
-							contact_name={follow_up.contact_name}
-							metadata="Due: {format_due_date(
-								follow_up.due_date,
-								preferences_data.date_format,
-							)}"
-							{metadata_classes}
-							note={follow_up.note}
-							footer_text={follow_up.completed &&
-							follow_up.completed_at
-								? `Completed: ${format_date(
-										new Date(follow_up.completed_at),
-										preferences_data.date_format,
-									)}`
-								: undefined}
-							show_delete_confirmation={delete_confirmation_id ===
-								follow_up.id}
-							on_confirm_delete={confirm_delete}
-							on_cancel_delete={cancel_delete}
-						>
-							{#snippet action_buttons()}
-								{#if follow_up.completed}
-									<button
-										onclick={() => handle_reopen(follow_up)}
-										class="btn gap-1 btn-ghost btn-xs"
-										aria-label="Reopen follow-up"
-									>
-										<CircleBack size="16px" />
-										Reopen
-									</button>
-								{:else}
-									<button
-										onclick={() => handle_complete(follow_up)}
-										class="btn gap-1 text-success btn-ghost btn-xs"
-										aria-label="Complete follow-up"
-									>
-										<Check size="16px" />
-										Complete
-									</button>
-								{/if}
+					</div>
+				{:else}
+					<!-- View Mode -->
+					<ActivityCard
+						icon={Calendar}
+						icon_color_classes={icon_color}
+						contact_id={follow_up.contact_id}
+						contact_name={follow_up.contact_name}
+						metadata="Due: {format_due_date(
+							follow_up.due_date,
+							preferences_data.date_format,
+						)}"
+						{metadata_classes}
+						note={follow_up.note}
+						footer_text={follow_up.completed && follow_up.completed_at
+							? `Completed: ${format_date(
+									new Date(follow_up.completed_at),
+									preferences_data.date_format,
+								)}`
+							: undefined}
+						show_delete_confirmation={delete_confirmation_id ===
+							follow_up.id}
+						on_confirm_delete={confirm_delete}
+						on_cancel_delete={cancel_delete}
+					>
+						{#snippet action_buttons()}
+							{#if follow_up.completed}
 								<button
+									onclick={() => handle_reopen(follow_up)}
 									class="btn gap-1 btn-ghost btn-xs"
-									aria-label="Edit follow-up"
-									onclick={(e) => handle_edit_click(e, follow_up)}
+									aria-label="Reopen follow-up"
 								>
-									<Edit size="16px" />
-									Edit
+									<CircleBack size="16px" />
+									Reopen
 								</button>
+							{:else}
 								<button
-									class="btn gap-1 text-error btn-ghost btn-xs"
-									aria-label="Delete follow-up"
-									onclick={(e) => handle_delete_click(e, follow_up)}
+									onclick={() => handle_complete(follow_up)}
+									class="btn gap-1 text-success btn-ghost btn-xs"
+									aria-label="Complete follow-up"
 								>
-									<Trash size="16px" />
-									Delete
+									<Check size="16px" />
+									Complete
 								</button>
-							{/snippet}
-						</ActivityCard>
-					{/if}
-				{/each}
-			</div>
+							{/if}
+							<button
+								class="btn gap-1 btn-ghost btn-xs"
+								aria-label="Edit follow-up"
+								onclick={(e) => handle_edit_click(e, follow_up)}
+							>
+								<Edit size="16px" />
+								Edit
+							</button>
+							<button
+								class="btn gap-1 text-error btn-ghost btn-xs"
+								aria-label="Delete follow-up"
+								onclick={(e) => handle_delete_click(e, follow_up)}
+							>
+								<Trash size="16px" />
+								Delete
+							</button>
+						{/snippet}
+					</ActivityCard>
+				{/if}
+			{/each}
+		</div>
 
-			<ItemCount count={follow_ups.length} item_name="follow-up" />
-		{/if}
-	{/await}
-</div>
+		<ItemCount count={follow_ups.length} item_name="follow-up" />
+	{/if}
+{/await}

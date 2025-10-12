@@ -131,158 +131,153 @@
 
 <Head seo_config={seo_configs.interactions} />
 
-<div class="mx-auto max-w-6xl">
-	<PageHeaderWithAction title="Interactions">
-		<a href="/interactions/new" class="btn btn-primary">
-			New Interaction
-		</a>
-	</PageHeaderWithAction>
-	<PageNav />
+<PageHeaderWithAction title="Interactions">
+	<a href="/interactions/new" class="btn btn-primary">
+		New Interaction
+	</a>
+</PageHeaderWithAction>
+<PageNav />
 
-	<!-- Search Bar -->
-	<SearchBar
-		bind:value={search}
-		placeholder="Search by contact name or note"
-		on_change={() => {}}
-	/>
+<!-- Search Bar -->
+<SearchBar
+	bind:value={search}
+	placeholder="Search by contact name or note"
+	on_change={() => {}}
+/>
 
-	<!-- Filter Tabs -->
-	<FilterTabs
-		options={interaction_types}
-		active_filter={filter}
-		on_filter_change={(f) => (filter = f)}
-	/>
+<!-- Filter Tabs -->
+<FilterTabs
+	options={interaction_types}
+	active_filter={filter}
+	on_filter_change={(f) => (filter = f)}
+/>
 
-	<!-- Interactions List -->
-	{#await Promise.all( [all_interactions, preferences], ) then [interactions_data, preferences_data]}
-		{@const interactions =
-			filter === 'all'
-				? interactions_data
-				: interactions_data.filter((i) => i.type === filter)}
+<!-- Interactions List -->
+{#await Promise.all( [all_interactions, preferences], ) then [interactions_data, preferences_data]}
+	{@const interactions =
+		filter === 'all'
+			? interactions_data
+			: interactions_data.filter((i) => i.type === filter)}
 
-		{#if interactions.length === 0}
-			<EmptyState
-				message={search
-					? 'No interactions found matching your search.'
-					: filter === 'all'
-						? 'No interactions yet.'
-						: `No ${filter} interactions found.`}
-				action_href={!search && filter === 'all'
-					? '/interactions/new'
-					: undefined}
-				action_text={!search && filter === 'all'
-					? 'Log Your First Interaction'
-					: undefined}
-			/>
-		{:else}
-			<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-				{#each interactions as interaction}
-					{@const TypeIcon = type_icons[interaction.type]}
-					{#if edit_interaction_id === interaction.id}
-						<!-- Edit Mode -->
-						<div
-							class="card bg-base-100 shadow-md transition-shadow hover:shadow-lg"
-						>
-							<div class="card-body p-4">
-								<div class="space-y-4">
-									<div class="flex items-center justify-between">
-										<a
-											href="/contacts/{interaction.contact_id}"
-											class="link text-lg font-semibold link-hover"
+	{#if interactions.length === 0}
+		<EmptyState
+			message={search
+				? 'No interactions found matching your search.'
+				: filter === 'all'
+					? 'No interactions yet.'
+					: `No ${filter} interactions found.`}
+			action_href={!search && filter === 'all'
+				? '/interactions/new'
+				: undefined}
+			action_text={!search && filter === 'all'
+				? 'Log Your First Interaction'
+				: undefined}
+		/>
+	{:else}
+		<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+			{#each interactions as interaction}
+				{@const TypeIcon = type_icons[interaction.type]}
+				{#if edit_interaction_id === interaction.id}
+					<!-- Edit Mode -->
+					<div
+						class="card bg-base-100 shadow-md transition-shadow hover:shadow-lg"
+					>
+						<div class="card-body p-4">
+							<div class="space-y-4">
+								<div class="flex items-center justify-between">
+									<a
+										href="/contacts/{interaction.contact_id}"
+										class="link text-lg font-semibold link-hover"
+									>
+										{interaction.contact_name}
+									</a>
+								</div>
+
+								<div class="space-y-3">
+									<label class="form-control w-full">
+										<div class="label">
+											<span class="label-text">Type</span>
+										</div>
+										<select
+											bind:value={edit_type}
+											class="select-bordered select w-full"
 										>
-											{interaction.contact_name}
-										</a>
-									</div>
+											<option value="meeting">Meeting</option>
+											<option value="call">Call</option>
+											<option value="email">Email</option>
+											<option value="message">Message</option>
+										</select>
+									</label>
 
-									<div class="space-y-3">
-										<label class="form-control w-full">
-											<div class="label">
-												<span class="label-text">Type</span>
-											</div>
-											<select
-												bind:value={edit_type}
-												class="select-bordered select w-full"
-											>
-												<option value="meeting">Meeting</option>
-												<option value="call">Call</option>
-												<option value="email">Email</option>
-												<option value="message">Message</option>
-											</select>
-										</label>
+									<label class="form-control w-full">
+										<div class="label">
+											<span class="label-text">Note</span>
+										</div>
+										<textarea
+											bind:value={edit_note}
+											class="textarea-bordered textarea h-24 w-full"
+											placeholder="Add a note..."
+										></textarea>
+									</label>
+								</div>
 
-										<label class="form-control w-full">
-											<div class="label">
-												<span class="label-text">Note</span>
-											</div>
-											<textarea
-												bind:value={edit_note}
-												class="textarea-bordered textarea h-24 w-full"
-												placeholder="Add a note..."
-											></textarea>
-										</label>
-									</div>
-
-									<div class="flex justify-end gap-2">
-										<button
-											class="btn btn-ghost btn-sm"
-											onclick={cancel_edit}
-										>
-											Cancel
-										</button>
-										<button
-											class="btn btn-sm btn-primary"
-											onclick={save_edit}
-										>
-											Save
-										</button>
-									</div>
+								<div class="flex justify-end gap-2">
+									<button
+										class="btn btn-ghost btn-sm"
+										onclick={cancel_edit}
+									>
+										Cancel
+									</button>
+									<button
+										class="btn btn-sm btn-primary"
+										onclick={save_edit}
+									>
+										Save
+									</button>
 								</div>
 							</div>
 						</div>
-					{:else}
-						<!-- View Mode -->
-						<ActivityCard
-							icon={TypeIcon}
-							icon_color_classes={type_colors[interaction.type]}
-							contact_id={interaction.contact_id}
-							contact_name={interaction.contact_name}
-							metadata="<span class='capitalize'>{interaction.type}</span> • {format_date(
-								new Date(interaction.created_at),
-								preferences_data.date_format,
-							)}"
-							note={interaction.note}
-							show_delete_confirmation={delete_confirmation_id ===
-								interaction.id}
-							on_confirm_delete={confirm_delete}
-							on_cancel_delete={cancel_delete}
-						>
-							{#snippet action_buttons()}
-								<button
-									class="btn gap-1 btn-ghost btn-xs"
-									aria-label="Edit interaction"
-									onclick={(e) => handle_edit_click(e, interaction)}
-								>
-									<Edit size="16px" />
-									Edit
-								</button>
-								<button
-									class="btn gap-1 text-error btn-ghost btn-xs"
-									aria-label="Delete interaction"
-									onclick={(e) => handle_delete_click(e, interaction)}
-								>
-									<Trash size="16px" />
-									Delete
-								</button>
-							{/snippet}
-						</ActivityCard>
-					{/if}
-				{/each}
-			</div>
+					</div>
+				{:else}
+					<!-- View Mode -->
+					<ActivityCard
+						icon={TypeIcon}
+						icon_color_classes={type_colors[interaction.type]}
+						contact_id={interaction.contact_id}
+						contact_name={interaction.contact_name}
+						metadata="<span class='capitalize'>{interaction.type}</span> • {format_date(
+							new Date(interaction.created_at),
+							preferences_data.date_format,
+						)}"
+						note={interaction.note}
+						show_delete_confirmation={delete_confirmation_id ===
+							interaction.id}
+						on_confirm_delete={confirm_delete}
+						on_cancel_delete={cancel_delete}
+					>
+						{#snippet action_buttons()}
+							<button
+								class="btn gap-1 btn-ghost btn-xs"
+								aria-label="Edit interaction"
+								onclick={(e) => handle_edit_click(e, interaction)}
+							>
+								<Edit size="16px" />
+								Edit
+							</button>
+							<button
+								class="btn gap-1 text-error btn-ghost btn-xs"
+								aria-label="Delete interaction"
+								onclick={(e) => handle_delete_click(e, interaction)}
+							>
+								<Trash size="16px" />
+								Delete
+							</button>
+						{/snippet}
+					</ActivityCard>
+				{/if}
+			{/each}
+		</div>
 
-			<ItemCount
-				count={interactions.length}
-				item_name="interaction"
-			/>
-		{/if}
-	{/await}
-</div>
+		<ItemCount count={interactions.length} item_name="interaction" />
+	{/if}
+{/await}

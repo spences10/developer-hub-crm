@@ -128,7 +128,7 @@
 				{/if}
 			{/await}
 
-			<main class="p-8">
+			<main class="mx-auto max-w-6xl p-8">
 				{@render children()}
 			</main>
 		</div>

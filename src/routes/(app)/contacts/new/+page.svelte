@@ -73,83 +73,81 @@
 	}
 </script>
 
-<div class="mx-auto max-w-6xl">
-	<PageHeaderWithAction title="New Contact" />
-	<PageNav />
+<PageHeaderWithAction title="New Contact" />
+<PageNav />
 
-	<!-- GitHub Import Section -->
-	<div class="card mb-6 bg-primary/5 shadow-md">
-		<div class="card-body">
-			<h2 class="card-title text-lg">Quick Import from GitHub</h2>
-			<p class="text-sm opacity-70">
-				Automatically populate contact details from a GitHub profile
-			</p>
-			<div class="mt-4 flex gap-2">
-				<label class="input flex-1">
-					<input
-						type="text"
-						placeholder="Enter GitHub username (e.g., octocat)"
-						class="grow"
-						bind:value={github_input}
-						onkeydown={(e) =>
-							e.key === 'Enter' && handle_github_import()}
-						disabled={loading}
-					/>
-				</label>
-				<LoadingButton
-					{loading}
-					disabled={!github_input.trim()}
-					class_names="btn btn-primary"
-					loading_text="Fetching..."
-					onclick={handle_github_import}
-				>
-					Fetch Profile
-				</LoadingButton>
-			</div>
-			{#if error}
-				<div class="mt-2 alert alert-error">
-					<span>{error}</span>
-				</div>
-			{/if}
-		</div>
-	</div>
-
-	<!-- Contact Form -->
-	<div class="card bg-base-100 shadow-xl">
-		<div class="card-body">
-			<form {...create_contact} class="space-y-4">
-				<!-- Hidden field for social links -->
+<!-- GitHub Import Section -->
+<div class="card mb-6 bg-primary/5 shadow-md">
+	<div class="card-body">
+		<h2 class="card-title text-lg">Quick Import from GitHub</h2>
+		<p class="text-sm opacity-70">
+			Automatically populate contact details from a GitHub profile
+		</p>
+		<div class="mt-4 flex gap-2">
+			<label class="input flex-1">
 				<input
-					type="hidden"
-					name="social_links"
-					value={JSON.stringify(pending_social_links)}
+					type="text"
+					placeholder="Enter GitHub username (e.g., octocat)"
+					class="grow"
+					bind:value={github_input}
+					onkeydown={(e) =>
+						e.key === 'Enter' && handle_github_import()}
+					disabled={loading}
 				/>
-				<!-- Hidden field for avatar URL -->
-				<input type="hidden" name="avatar_url" value={avatar_url} />
-
-				<ContactFormFields
-					{name}
-					{email}
-					{phone}
-					{company}
-					{title}
-					{github_username}
-					{is_vip}
-					{birthday}
-					{notes}
-				/>
-
-				<SocialLinksList
-					links={pending_social_links}
-					editable
-					on_remove={remove_social_link}
-				/>
-
-				<FormActions
-					submit_text="Create Contact"
-					cancel_href="/contacts"
-				/>
-			</form>
+			</label>
+			<LoadingButton
+				{loading}
+				disabled={!github_input.trim()}
+				class_names="btn btn-primary"
+				loading_text="Fetching..."
+				onclick={handle_github_import}
+			>
+				Fetch Profile
+			</LoadingButton>
 		</div>
+		{#if error}
+			<div class="mt-2 alert alert-error">
+				<span>{error}</span>
+			</div>
+		{/if}
+	</div>
+</div>
+
+<!-- Contact Form -->
+<div class="card bg-base-100 shadow-xl">
+	<div class="card-body">
+		<form {...create_contact} class="space-y-4">
+			<!-- Hidden field for social links -->
+			<input
+				type="hidden"
+				name="social_links"
+				value={JSON.stringify(pending_social_links)}
+			/>
+			<!-- Hidden field for avatar URL -->
+			<input type="hidden" name="avatar_url" value={avatar_url} />
+
+			<ContactFormFields
+				{name}
+				{email}
+				{phone}
+				{company}
+				{title}
+				{github_username}
+				{is_vip}
+				{birthday}
+				{notes}
+			/>
+
+			<SocialLinksList
+				links={pending_social_links}
+				editable
+				on_remove={remove_social_link}
+			/>
+
+			<FormActions
+				submit_text="Create Contact"
+				cancel_href="/contacts"
+			/>
+		</form>
 	</div>
 </div>

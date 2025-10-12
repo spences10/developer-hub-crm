@@ -152,7 +152,7 @@
 	{#if user}
 		<!-- Logged in user view - Easter egg delight! -->
 		<div
-			class="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-gradient-to-br from-primary/10 via-secondary/10 to-accent/10"
+			class="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-gradient-to-br from-primary/10 via-secondary/10 to-accent/10 p-8"
 		>
 			<!-- Floating party elements -->
 			{#each floating_elements as element}

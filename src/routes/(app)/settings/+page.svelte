@@ -138,157 +138,154 @@
 	</div>
 {/snippet}
 
-<div class="mx-auto max-w-6xl">
-	<div class="mb-8 flex items-center justify-between">
-		<div>
-			<h1 class="text-3xl font-bold">Settings</h1>
-		</div>
-		{#if saving}
-			<span class="badge badge-lg badge-success">Saving...</span>
-		{/if}
+<div class="mb-8 flex items-center justify-between">
+	<div>
+		<h1 class="text-3xl font-bold">Settings</h1>
 	</div>
-	<PageNav />
-
-	{#await preferences}
-		<div class="flex justify-center">
-			<span class="loading loading-lg loading-spinner"></span>
-		</div>
-	{:then preferences_data}
-		<div class="grid grid-cols-1 gap-6 md:grid-cols-2">
-			<!-- Theme Selector -->
-			<div class="card bg-base-100 shadow-xl">
-				<div class="card-body">
-					<h2 class="card-title">Theme</h2>
-					<p class="text-sm opacity-70">
-						Choose a color theme for the application
-					</p>
-
-					<label class="label mt-4">
-						<select
-							bind:value={current_theme}
-							class="select-bordered select w-full max-w-xs capitalize"
-							onchange={set_theme}
-						>
-							<option value="" disabled={current_theme !== ''}>
-								Choose a theme
-							</option>
-							{#each themes as theme}
-								<option value={theme} class="capitalize"
-									>{theme}</option
-								>
-							{/each}
-						</select>
-					</label>
-
-					<!-- Color Preview -->
-					{#if current_theme}
-						<div class="mt-6">
-							<p class="mb-3 text-sm font-medium">Theme Colors</p>
-							<div class="flex flex-wrap gap-4">
-								{#each theme_colors as color}
-									<div class="flex flex-col items-center gap-2">
-										<div
-											class="h-12 w-12 rounded-full border-2 border-base-300 {color.class}"
-										></div>
-										<span class="text-xs">{color.label}</span>
-									</div>
-								{/each}
-							</div>
-						</div>
-					{/if}
-				</div>
-			</div>
-
-			{@render radio_group(
-				'Date Format',
-				'Choose how dates are displayed throughout the application',
-				'date_format',
-				date_formats,
-				preferences_data.date_format,
-				update_date_format,
-			)}
-
-			{@render radio_group(
-				'Time Format',
-				'Choose how times are displayed',
-				'time_format',
-				time_formats,
-				preferences_data.time_format,
-				update_time_format,
-			)}
-
-			{@render radio_group(
-				'Default Contact Sort',
-				'How contacts are sorted by default',
-				'default_contact_sort',
-				contact_sort_options,
-				preferences_data.default_contact_sort,
-				update_default_contact_sort,
-			)}
-
-			<!-- Default Follow-up Offset -->
-			<div class="card bg-base-100 shadow-xl">
-				<div class="card-body">
-					<h2 class="card-title">Default Follow-up Offset</h2>
-					<p class="text-sm opacity-70">
-						When creating follow-ups, auto-set due date to this many
-						days from today
-					</p>
-
-					<label class="label mt-4">
-						<input
-							type="number"
-							name="default_follow_up_days"
-							min="1"
-							max="90"
-							value={preferences_data.default_follow_up_days}
-							class="input-bordered input w-full max-w-xs"
-							onchange={(e) =>
-								save_with_indicator(() =>
-									update_default_follow_up_days(
-										Number(e.currentTarget.value),
-									),
-								)}
-						/>
-						<span class="label-text-alt ml-2">days</span>
-					</label>
-				</div>
-			</div>
-
-			<!-- Default Interaction Type -->
-			<div class="card bg-base-100 shadow-xl">
-				<div class="card-body">
-					<h2 class="card-title">Default Interaction Type</h2>
-					<p class="text-sm opacity-70">
-						Pre-select this interaction type when logging new
-						interactions
-					</p>
-
-					<label class="label mt-4">
-						<select
-							name="default_interaction_type"
-							class="select-bordered select w-full max-w-xs"
-							value={preferences_data.default_interaction_type || ''}
-							onchange={(e) =>
-								save_with_indicator(() =>
-									update_default_interaction_type(
-										e.currentTarget.value || '',
-									),
-								)}
-						>
-							<option value="">None (no default)</option>
-							<option value="meeting">Meeting</option>
-							<option value="call">Call</option>
-							<option value="email">Email</option>
-							<option value="message">Message</option>
-						</select>
-					</label>
-				</div>
-			</div>
-		</div>
-	{:catch error}
-		<div class="alert alert-error">
-			<span>Failed to load settings: {error.message}</span>
-		</div>
-	{/await}
+	{#if saving}
+		<span class="badge badge-lg badge-success">Saving...</span>
+	{/if}
 </div>
+<PageNav />
+
+{#await preferences}
+	<div class="flex justify-center">
+		<span class="loading loading-lg loading-spinner"></span>
+	</div>
+{:then preferences_data}
+	<div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+		<!-- Theme Selector -->
+		<div class="card bg-base-100 shadow-xl">
+			<div class="card-body">
+				<h2 class="card-title">Theme</h2>
+				<p class="text-sm opacity-70">
+					Choose a color theme for the application
+				</p>
+
+				<label class="label mt-4">
+					<select
+						bind:value={current_theme}
+						class="select-bordered select w-full max-w-xs capitalize"
+						onchange={set_theme}
+					>
+						<option value="" disabled={current_theme !== ''}>
+							Choose a theme
+						</option>
+						{#each themes as theme}
+							<option value={theme} class="capitalize">{theme}</option
+							>
+						{/each}
+					</select>
+				</label>
+
+				<!-- Color Preview -->
+				{#if current_theme}
+					<div class="mt-6">
+						<p class="mb-3 text-sm font-medium">Theme Colors</p>
+						<div class="flex flex-wrap gap-4">
+							{#each theme_colors as color}
+								<div class="flex flex-col items-center gap-2">
+									<div
+										class="h-12 w-12 rounded-full border-2 border-base-300 {color.class}"
+									></div>
+									<span class="text-xs">{color.label}</span>
+								</div>
+							{/each}
+						</div>
+					</div>
+				{/if}
+			</div>
+		</div>
+
+		{@render radio_group(
+			'Date Format',
+			'Choose how dates are displayed throughout the application',
+			'date_format',
+			date_formats,
+			preferences_data.date_format,
+			update_date_format,
+		)}
+
+		{@render radio_group(
+			'Time Format',
+			'Choose how times are displayed',
+			'time_format',
+			time_formats,
+			preferences_data.time_format,
+			update_time_format,
+		)}
+
+		{@render radio_group(
+			'Default Contact Sort',
+			'How contacts are sorted by default',
+			'default_contact_sort',
+			contact_sort_options,
+			preferences_data.default_contact_sort,
+			update_default_contact_sort,
+		)}
+
+		<!-- Default Follow-up Offset -->
+		<div class="card bg-base-100 shadow-xl">
+			<div class="card-body">
+				<h2 class="card-title">Default Follow-up Offset</h2>
+				<p class="text-sm opacity-70">
+					When creating follow-ups, auto-set due date to this many
+					days from today
+				</p>
+
+				<label class="label mt-4">
+					<input
+						type="number"
+						name="default_follow_up_days"
+						min="1"
+						max="90"
+						value={preferences_data.default_follow_up_days}
+						class="input-bordered input w-full max-w-xs"
+						onchange={(e) =>
+							save_with_indicator(() =>
+								update_default_follow_up_days(
+									Number(e.currentTarget.value),
+								),
+							)}
+					/>
+					<span class="label-text-alt ml-2">days</span>
+				</label>
+			</div>
+		</div>
+
+		<!-- Default Interaction Type -->
+		<div class="card bg-base-100 shadow-xl">
+			<div class="card-body">
+				<h2 class="card-title">Default Interaction Type</h2>
+				<p class="text-sm opacity-70">
+					Pre-select this interaction type when logging new
+					interactions
+				</p>
+
+				<label class="label mt-4">
+					<select
+						name="default_interaction_type"
+						class="select-bordered select w-full max-w-xs"
+						value={preferences_data.default_interaction_type || ''}
+						onchange={(e) =>
+							save_with_indicator(() =>
+								update_default_interaction_type(
+									e.currentTarget.value || '',
+								),
+							)}
+					>
+						<option value="">None (no default)</option>
+						<option value="meeting">Meeting</option>
+						<option value="call">Call</option>
+						<option value="email">Email</option>
+						<option value="message">Message</option>
+					</select>
+				</label>
+			</div>
+		</div>
+	</div>
+{:catch error}
+	<div class="alert alert-error">
+		<span>Failed to load settings: {error.message}</span>
+	</div>
+{/await}

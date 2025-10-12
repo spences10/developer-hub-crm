@@ -11,70 +11,68 @@
 	);
 </script>
 
-<div class="mx-auto max-w-6xl">
-	<PageHeaderWithAction title="Log New Interaction" />
-	<PageNav />
+<PageHeaderWithAction title="Log New Interaction" />
+<PageNav />
 
-	{#await get_user_preferences() then preferences}
-		<form {...create_interaction} class="card bg-base-100 shadow-xl">
-			<div class="card-body">
-				<fieldset class="fieldset">
-					<legend class="fieldset-legend">Contact</legend>
-					{#await get_contacts('') then contacts}
-						<label class="select w-full">
-							<select
-								name="contact_id"
-								required
-								value={preselected_contact_id || ''}
-							>
-								<option value="" disabled>Select a contact</option>
-								{#each contacts as contact}
-									<option value={contact.id}>
-										{contact.name}
-										{#if contact.company}
-											- {contact.company}
-										{/if}
-									</option>
-								{/each}
-							</select>
-						</label>
-					{/await}
-				</fieldset>
-
-				<fieldset class="fieldset">
-					<legend class="fieldset-legend">Interaction Type</legend>
+{#await get_user_preferences() then preferences}
+	<form {...create_interaction} class="card bg-base-100 shadow-xl">
+		<div class="card-body">
+			<fieldset class="fieldset">
+				<legend class="fieldset-legend">Contact</legend>
+				{#await get_contacts('') then contacts}
 					<label class="select w-full">
 						<select
-							name="type"
+							name="contact_id"
 							required
-							value={preferences.default_interaction_type || ''}
+							value={preselected_contact_id || ''}
 						>
-							<option value="" disabled>Select type</option>
-							<option value="meeting">Meeting</option>
-							<option value="call">Call</option>
-							<option value="email">Email</option>
-							<option value="message">Message</option>
+							<option value="" disabled>Select a contact</option>
+							{#each contacts as contact}
+								<option value={contact.id}>
+									{contact.name}
+									{#if contact.company}
+										- {contact.company}
+									{/if}
+								</option>
+							{/each}
 						</select>
 					</label>
-				</fieldset>
+				{/await}
+			</fieldset>
 
-				<fieldset class="fieldset">
-					<legend class="fieldset-legend">Notes (Optional)</legend>
-					<textarea
-						name="note"
-						class="textarea w-full"
-						rows="6"
-						placeholder="Add any notes about this interaction..."
-					></textarea>
-				</fieldset>
+			<fieldset class="fieldset">
+				<legend class="fieldset-legend">Interaction Type</legend>
+				<label class="select w-full">
+					<select
+						name="type"
+						required
+						value={preferences.default_interaction_type || ''}
+					>
+						<option value="" disabled>Select type</option>
+						<option value="meeting">Meeting</option>
+						<option value="call">Call</option>
+						<option value="email">Email</option>
+						<option value="message">Message</option>
+					</select>
+				</label>
+			</fieldset>
 
-				<div class="card-actions justify-end">
-					<a href="/interactions" class="btn btn-outline">Cancel</a>
-					<button type="submit" class="btn btn-primary">
-						Log Interaction
-					</button>
-				</div>
+			<fieldset class="fieldset">
+				<legend class="fieldset-legend">Notes (Optional)</legend>
+				<textarea
+					name="note"
+					class="textarea w-full"
+					rows="6"
+					placeholder="Add any notes about this interaction..."
+				></textarea>
+			</fieldset>
+
+			<div class="card-actions justify-end">
+				<a href="/interactions" class="btn btn-outline">Cancel</a>
+				<button type="submit" class="btn btn-primary">
+					Log Interaction
+				</button>
 			</div>
-		</form>
-	{/await}
-</div>
+		</div>
+	</form>
+{/await}
