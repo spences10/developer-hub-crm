@@ -9,7 +9,8 @@ configuration.
 
 ### Registration and Login Forms
 
-The `sveltekitCookies` plugin handles cookies automatically - no manual cookie transfer needed.
+The `sveltekitCookies` plugin handles cookies automatically - no
+manual cookie transfer needed.
 
 ```typescript
 // routes/(auth)/auth.remote.ts
@@ -402,10 +403,14 @@ Redirect to a success page after registration:
 
 ## Key Points
 
-1. **Remote Functions** - SvelteKit's recommended approach for server-side logic
-2. **Automatic Cookies** - `sveltekitCookies` plugin handles session cookies automatically
-3. **Redirect outside try/catch** - SvelteKit's `redirect()` throws an error
+1. **Remote Functions** - SvelteKit's recommended approach for
+   server-side logic
+2. **Automatic Cookies** - `sveltekitCookies` plugin handles session
+   cookies automatically
+3. **Redirect outside try/catch** - SvelteKit's `redirect()` throws an
+   error
 4. **Commands cannot redirect** - Use `goto()` client-side for logout
 5. **Use guarded helpers** - Simplifies protected route implementation
 6. **Layout guards** - Protect entire route groups efficiently
-7. **Email verification** - Users must verify email before accessing the app
+7. **Email verification** - Users must verify email before accessing
+   the app

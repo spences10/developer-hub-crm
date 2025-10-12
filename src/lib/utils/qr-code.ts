@@ -8,7 +8,7 @@ function get_css_color(variable: string, fallback: string): string {
 		.getPropertyValue(variable)
 		.trim();
 
-		return computed || fallback;
+	return computed || fallback;
 }
 
 /**
