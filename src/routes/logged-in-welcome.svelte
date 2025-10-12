@@ -120,7 +120,7 @@
 		>
 			<element.icon
 				size={element.size}
-				class_names="text-base-content/50"
+				gradient={true}
 			/>
 		</div>
 	{/each}

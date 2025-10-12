@@ -1,10 +1,18 @@
 <script lang="ts">
+	import IconGradient from './icon-gradient.svelte';
+
 	interface Props {
 		size?: string;
 		class_names?: string;
+		gradient?: boolean;
 	}
 
-	let { size = '24px', class_names }: Props = $props();
+	let {
+		size = '24px',
+		class_names,
+		gradient = false,
+	}: Props = $props();
+	let gradientId = `star-fill-${Math.random().toString(36).substr(2, 9)}`;
 </script>
 
 <svg
@@ -15,8 +23,11 @@
 	viewBox="0 0 24 24"
 	fill="none"
 >
+	{#if gradient}
+		<IconGradient id={gradientId} />
+	{/if}
 	<path
 		d="M12.8945 3.05279C12.7251 2.714 12.3788 2.5 12 2.5C11.6213 2.5 11.275 2.714 11.1056 3.05279L8.5267 8.2106L2.85609 9.03541C2.47946 9.0902 2.16658 9.35402 2.04897 9.71599C1.93136 10.078 2.02942 10.4753 2.30193 10.741L6.42906 14.7649L5.50065 20.4385C5.4393 20.8135 5.59573 21.1908 5.9044 21.4124C6.21306 21.6339 6.62062 21.6614 6.95624 21.4834L12 18.8071L17.0438 21.4834C17.3794 21.6614 17.787 21.6339 18.0957 21.4124C18.4043 21.1908 18.5608 20.8135 18.4994 20.4385L17.571 14.7649L21.6981 10.741C21.9706 10.4753 22.0687 10.078 21.9511 9.71599C21.8335 9.35402 21.5206 9.0902 21.144 9.03541L15.4734 8.2106L12.8945 3.05279Z"
-		fill="currentColor"
+		fill={gradient ? `url(#${gradientId})` : 'currentColor'}
 	/>
 </svg>

@@ -1,10 +1,18 @@
 <script lang="ts">
+	import IconGradient from './icon-gradient.svelte';
+
 	interface Props {
 		size?: string;
 		class_names?: string;
+		gradient?: boolean;
 	}
 
-	let { size = '24px', class_names }: Props = $props();
+	let {
+		size = '24px',
+		class_names,
+		gradient = false,
+	}: Props = $props();
+	let gradientId = `balloon-${Math.random().toString(36).substr(2, 9)}`;
 </script>
 
 <svg
@@ -15,23 +23,26 @@
 	viewBox="0 0 24 24"
 	fill="none"
 >
+	{#if gradient}
+		<IconGradient id={gradientId} />
+	{/if}
 	<path
 		d="M19.5 9.75C19.5 13.8919 16.1419 18.75 12 18.75C7.85812 18.75 4.5 13.8919 4.5 9.75C4.5 7.76088 5.29018 5.85322 6.6967 4.4467C8.10322 3.04018 10.0109 2.25 12 2.25C13.9891 2.25 15.8968 3.04018 17.3033 4.4467C18.7098 5.85322 19.5 7.76088 19.5 9.75Z"
-		stroke="currentColor"
+		stroke={gradient ? `url(#${gradientId})` : 'currentColor'}
 		stroke-width="1.5"
 		stroke-linecap="round"
 		stroke-linejoin="round"
 	/>
 	<path
 		d="M12.75 5.25C13.6832 5.41737 14.5428 5.86645 15.2132 6.53684C15.8836 7.20723 16.3326 8.06681 16.5 9"
-		stroke="currentColor"
+		stroke={gradient ? `url(#${gradientId})` : 'currentColor'}
 		stroke-width="1.5"
 		stroke-linecap="round"
 		stroke-linejoin="round"
 	/>
 	<path
 		d="M12.9291 18.6684L14.25 21.75H9.75L11.0709 18.6684"
-		stroke="currentColor"
+		stroke={gradient ? `url(#${gradientId})` : 'currentColor'}
 		stroke-width="1.5"
 		stroke-linecap="round"
 		stroke-linejoin="round"
