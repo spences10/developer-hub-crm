@@ -16,22 +16,20 @@ db.exec(schema);
 // Run any pending migrations
 run_migrations();
 
-// Auto-seed demo account in development if it doesn't exist
-if (process.env.NODE_ENV !== 'production') {
-	const demo_user = db
-		.prepare('SELECT id FROM user WHERE email = ?')
-		.get(DEMO_USER_EMAIL);
+// Auto-seed demo account if it doesn't exist
+const demo_user = db
+	.prepare('SELECT id FROM user WHERE email = ?')
+	.get(DEMO_USER_EMAIL);
 
-	if (!demo_user) {
-		console.log('Demo user not found - seeding demo data...');
-		seed_demo()
-			.then((result) => {
-				console.log('Demo seeded:', result.message);
-			})
-			.catch((error) => {
-				console.error('Failed to seed demo:', error);
-			});
-	}
+if (!demo_user) {
+	console.log('Demo user not found - seeding demo data...');
+	seed_demo()
+		.then((result) => {
+			console.log('Demo seeded:', result.message);
+		})
+		.catch((error) => {
+			console.error('Failed to seed demo:', error);
+		});
 }
 
 const sync_on_startup: Handle = async ({ event, resolve }) => {
