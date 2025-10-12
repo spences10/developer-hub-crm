@@ -146,6 +146,7 @@ export const forgot_password = form(
 	}),
 	async ({ email }) => {
 		const event = getRequestEvent();
+		const mode = event.url.searchParams.get('mode');
 
 		try {
 			await auth.api.forgetPassword({
@@ -161,7 +162,12 @@ export const forgot_password = form(
 		}
 
 		// Always redirect to success page for security (don't reveal if email exists)
-		redirect(303, '/forgot-password/sent');
+		// Preserve mode parameter if present
+		const redirectUrl =
+			mode === 'setup'
+				? '/forgot-password/sent?mode=setup'
+				: '/forgot-password/sent';
+		redirect(303, redirectUrl);
 	},
 );
 

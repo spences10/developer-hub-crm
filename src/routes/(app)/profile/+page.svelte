@@ -194,14 +194,16 @@
 											</div>
 										</div>
 									</div>
-									{#if !methods.has_credential}
-										<a
-											href="/forgot-password"
-											class="btn btn-outline btn-sm"
-										>
-											Set Password
-										</a>
-									{/if}
+									<a
+										href="/forgot-password?mode=setup&email={encodeURIComponent(
+											profile_data.email,
+										)}"
+										class="btn btn-outline btn-sm"
+									>
+										{methods.has_credential
+											? 'Change Password'
+											: 'Set Password'}
+									</a>
 								</div>
 
 								<!-- GitHub -->
