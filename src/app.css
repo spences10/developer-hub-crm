@@ -92,10 +92,6 @@
 	}
 
 	/* Animation Classes */
-	.animate-pulse-gentle {
-		animation: pulseGentle 3s ease-in-out infinite;
-	}
-
 	.animate-float-slow {
 		animation: floatSlow 20s ease-in-out infinite;
 	}
@@ -140,6 +136,43 @@
 
 	.stagger-5 {
 		animation-delay: 0.5s;
+	}
+}
+
+@layer components {
+	/* Section spacing */
+	.hero-section {
+		@apply px-4 py-12 sm:px-6 sm:py-16 md:py-20 lg:px-6 lg:py-32;
+	}
+
+	.section-padding {
+		@apply px-4 py-12 sm:px-6 md:py-16 lg:py-20;
+	}
+
+	.card-padding {
+		@apply p-6 md:p-8 lg:p-12;
+	}
+
+	/* Typography */
+	.hero-title {
+		@apply text-3xl leading-tight font-extrabold sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl;
+	}
+
+	.section-title {
+		@apply text-3xl font-extrabold md:text-4xl lg:text-5xl;
+	}
+
+	.hero-subtitle {
+		@apply text-base leading-relaxed font-medium sm:text-lg md:text-xl lg:text-2xl;
+	}
+
+	.section-text {
+		@apply text-lg md:text-xl;
+	}
+
+	/* Buttons */
+	.responsive-btn {
+		@apply btn-md sm:btn-lg;
 	}
 }
 
