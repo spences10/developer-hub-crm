@@ -11,38 +11,58 @@ import { redirect } from '@sveltejs/kit';
 import * as v from 'valibot';
 
 /**
- * Get all contacts for the current user with optional search
+ * Get all contacts for the current user with their tags
  */
-export const get_contacts = query(
-	v.optional(v.string(), ''),
-	async (search = ''): Promise<Contact[]> => {
-		const user_id = await get_current_user_id();
+export const get_contacts = query(async (): Promise<Contact[]> => {
+	const user_id = await get_current_user_id();
 
-		let sql = `
-      SELECT * FROM contacts
-      WHERE user_id = ?
-    `;
-		const params: any[] = [user_id];
+	// First, get all contacts
+	const contacts_stmt = db.prepare(`
+    SELECT * FROM contacts
+    WHERE user_id = ?
+    ORDER BY name ASC
+  `);
+	const contacts = contacts_stmt.all(user_id) as Contact[];
 
-		if (search && search.trim()) {
-			sql += `
-        AND (
-          name LIKE ? OR
-          email LIKE ? OR
-          company LIKE ? OR
-          github_username LIKE ?
-        )
-      `;
-			const search_term = `%${search.trim()}%`;
-			params.push(search_term, search_term, search_term, search_term);
+	// If no contacts, return empty array
+	if (contacts.length === 0) {
+		return [];
+	}
+
+	// Get all tags for these contacts
+	const contact_ids = contacts.map((c) => c.id);
+	const placeholders = contact_ids.map(() => '?').join(',');
+
+	const tags_stmt = db.prepare(`
+    SELECT t.*, ct.contact_id
+    FROM tags t
+    INNER JOIN contact_tags ct ON t.id = ct.tag_id
+    WHERE ct.contact_id IN (${placeholders})
+    ORDER BY t.name ASC
+  `);
+
+	const tags_result = tags_stmt.all(...contact_ids) as Array<
+		Contact['tags'][0] & { contact_id: string }
+	>;
+
+	// Group tags by contact_id
+	const tags_by_contact = new Map<string, Contact['tags']>();
+	for (const tag of tags_result) {
+		const contact_id = tag.contact_id;
+		if (!tags_by_contact.has(contact_id)) {
+			tags_by_contact.set(contact_id, []);
 		}
+		// Remove contact_id from tag object before adding
+		const { contact_id: _, ...tag_without_contact_id } = tag;
+		tags_by_contact.get(contact_id)!.push(tag_without_contact_id);
+	}
 
-		sql += ' ORDER BY name ASC';
-
-		const stmt = db.prepare(sql);
-		return stmt.all(...params) as Contact[];
-	},
-);
+	// Attach tags to contacts
+	return contacts.map((contact) => ({
+		...contact,
+		tags: tags_by_contact.get(contact.id) || [],
+	}));
+});
 
 /**
  * Get a single contact with additional stats
@@ -283,7 +303,7 @@ export const update_contact = guarded_command(
 
 		// Single-flight mutation: refresh related queries
 		await get_contact(data.id).refresh();
-		await get_contacts('').refresh();
+		await get_contacts().refresh();
 
 		return { success: true };
 	},
@@ -309,7 +329,7 @@ export const delete_contact = guarded_command(
 		}
 
 		// Single-flight mutation: refresh contact list
-		await get_contacts('').refresh();
+		await get_contacts().refresh();
 
 		return { success: true };
 	},

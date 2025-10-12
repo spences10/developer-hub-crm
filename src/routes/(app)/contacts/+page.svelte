@@ -24,6 +24,36 @@
 	>('name');
 	let sort_direction = $state<'asc' | 'desc'>('asc');
 
+	// Client-side filtering function
+	function filter_contacts(
+		contacts: Contact[],
+		query: string,
+	): Contact[] {
+		if (!contacts) return [];
+		if (query === '') return contacts;
+
+		const search_query = query.toLowerCase();
+
+		return contacts.filter((contact) => {
+			return (
+				contact.name.toLowerCase().includes(search_query) ||
+				contact.email?.toLowerCase().includes(search_query) ||
+				contact.company?.toLowerCase().includes(search_query) ||
+				contact.github_username
+					?.toLowerCase()
+					.includes(search_query) ||
+				contact.notes?.toLowerCase().includes(search_query) ||
+				contact.title?.toLowerCase().includes(search_query) ||
+				contact.phone?.toLowerCase().includes(search_query) ||
+				// Search through tags
+				(Array.isArray(contact.tags) &&
+					contact.tags.some((tag) =>
+						tag.name.toLowerCase().includes(search_query),
+					))
+			);
+		});
+	}
+
 	function sort_contacts(contacts: Contact[]): Contact[] {
 		const sorted = [...contacts];
 		switch (current_sort) {
@@ -127,16 +157,10 @@
 </div>
 
 <!-- Contacts List -->
-{#await Promise.all( [get_contacts(search), get_user_preferences()], ) then [contacts, preferences]}
-	{#if !current_sort}
-		{(current_sort =
-			preferences.default_contact_sort === 'recently_added' ||
-			preferences.default_contact_sort === 'last_contacted'
-				? 'name'
-				: preferences.default_contact_sort)}
-	{/if}
-	{@const sorted_contacts = sort_contacts(contacts)}
-	{#if contacts.length === 0}
+{#await Promise.all( [get_contacts(), get_user_preferences()], ) then [contacts, preferences]}
+	{@const filtered_contacts = filter_contacts(contacts, search)}
+	{@const sorted_contacts = sort_contacts(filtered_contacts)}
+	{#if filtered_contacts.length === 0}
 		<EmptyState
 			message={search
 				? 'No contacts found matching your search.'
@@ -249,6 +273,6 @@
 			</table>
 		</div>
 
-		<ItemCount count={contacts.length} item_name="contact" />
+		<ItemCount count={filtered_contacts.length} item_name="contact" />
 	{/if}
 {/await}

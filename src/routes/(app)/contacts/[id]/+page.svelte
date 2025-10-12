@@ -375,697 +375,686 @@
 
 {#snippet form_actions(on_cancel: () => void, on_save: () => void)}
 	<div class="flex justify-end gap-2">
-		<button class="btn btn-ghost btn-sm" onclick={on_cancel}
-			>Cancel</button
-		>
-		<button class="btn btn-sm btn-primary" onclick={on_save}
-			>Save</button
-		>
+		<button class="btn btn-ghost btn-sm" onclick={on_cancel}>
+			Cancel
+		</button>
+		<button class="btn btn-sm btn-primary" onclick={on_save}>
+			Save
+		</button>
 	</div>
 {/snippet}
 
 {#if contact_id}
 	{#await Promise.all( [get_contact(contact_id), get_user_preferences(), get_interactions(contact_id), get_contact_follow_ups(contact_id), get_contact_tags(contact_id)], ) then [contact, preferences, interactions, follow_ups, contact_tags]}
-			{@const health_score = calculate_health_score(contact)}
-			{@const health_status = get_health_status(health_score)}
-			{@const pending_follow_ups = follow_ups.filter(
-				(f) => !f.completed,
-			)}
-			{@const overdue_follow_ups = pending_follow_ups.filter((f) =>
-				is_overdue(f.due_date),
-			)}
+		{@const health_score = calculate_health_score(contact)}
+		{@const health_status = get_health_status(health_score)}
+		{@const pending_follow_ups = follow_ups.filter(
+			(f) => !f.completed,
+		)}
+		{@const overdue_follow_ups = pending_follow_ups.filter((f) =>
+			is_overdue(f.due_date),
+		)}
 
-			<PageHeaderWithAction title={contact.name}>
-				<div class="flex gap-2">
-					<a
-						href="/contacts/{contact.id}/edit"
-						class="tooltip btn text-info btn-ghost btn-sm"
-						data-tip="Edit"
-						aria-label="Edit contact"
-					>
-						<Edit size="20px" />
-					</a>
-					{#if show_delete_confirmation}
-						<ConfirmDialog
-							is_inline={true}
-							message="Delete contact?"
-							on_confirm={confirm_delete}
-							on_cancel={cancel_delete}
-						/>
-					{:else}
-						<button
-							onclick={handle_delete_click}
-							class="tooltip btn text-error btn-ghost btn-sm"
-							data-tip="Delete"
-							aria-label="Delete contact"
-						>
-							<Trash size="20px" />
-						</button>
-					{/if}
-				</div>
-			</PageHeaderWithAction>
-			<PageNav />
-
-			<!-- Contact Info Bar -->
-			<div class="mb-6 flex items-center gap-4">
-				<!-- Avatar -->
-				{#if contact.avatar_url}
-					<img
-						src={contact.avatar_url}
-						alt="{contact.name} avatar"
-						class="size-20 rounded-full object-cover shadow-lg"
+		<PageHeaderWithAction title={contact.name}>
+			<div class="flex gap-2">
+				<a
+					href="/contacts/{contact.id}/edit"
+					class="tooltip btn text-info btn-ghost btn-sm"
+					data-tip="Edit"
+					aria-label="Edit contact"
+				>
+					<Edit size="20px" />
+				</a>
+				{#if show_delete_confirmation}
+					<ConfirmDialog
+						is_inline={true}
+						message="Delete contact?"
+						on_confirm={confirm_delete}
+						on_cancel={cancel_delete}
 					/>
 				{:else}
-					<div
-						class="flex size-20 items-center justify-center rounded-full bg-gradient-to-br from-primary to-secondary text-3xl font-bold text-primary-content shadow-lg"
+					<button
+						onclick={handle_delete_click}
+						class="tooltip btn text-error btn-ghost btn-sm"
+						data-tip="Delete"
+						aria-label="Delete contact"
 					>
-						{get_initials(contact.name)}
-					</div>
+						<Trash size="20px" />
+					</button>
 				{/if}
+			</div>
+		</PageHeaderWithAction>
+		<PageNav />
 
-				<div class="flex-1">
-					<div class="mb-2 flex flex-wrap items-center gap-2">
-						{#if contact.is_vip}
+		<!-- Contact Info Bar -->
+		<div class="mb-6 flex items-center gap-4">
+			<!-- Avatar -->
+			{#if contact.avatar_url}
+				<img
+					src={contact.avatar_url}
+					alt="{contact.name} avatar"
+					class="size-20 rounded-full object-cover shadow-lg"
+				/>
+			{:else}
+				<div
+					class="flex size-20 items-center justify-center rounded-full bg-gradient-to-br from-primary to-secondary text-3xl font-bold text-primary-content shadow-lg"
+				>
+					{get_initials(contact.name)}
+				</div>
+			{/if}
+
+			<div class="flex-1">
+				<div class="mb-2 flex flex-wrap items-center gap-2">
+					{#if contact.is_vip}
+						<span class="badge flex items-center gap-1 badge-primary">
+							<StarFill size="14px" />
+							VIP
+						</span>
+					{/if}
+					{#if contact_tags && contact_tags.length > 0}
+						{#each contact_tags as tag}
 							<span
-								class="badge flex items-center gap-1 badge-primary"
+								class="badge badge-sm"
+								style="background-color: {tag.color}; color: white; border: none;"
 							>
-								<StarFill size="14px" />
-								VIP
+								{tag.name}
 							</span>
-						{/if}
-						{#if contact_tags && contact_tags.length > 0}
-							{#each contact_tags as tag}
-								<span
-									class="badge badge-sm"
-									style="background-color: {tag.color}; color: white; border: none;"
-								>
-									{tag.name}
-								</span>
-							{/each}
-						{/if}
-					</div>
-					{#if contact.title || contact.company}
-						<p class="text-base-content/70">
-							{#if contact.title}{contact.title}{/if}
-							{#if contact.title && contact.company}
-								<span class="mx-2">at</span>
-							{/if}
-							{#if contact.company}{contact.company}{/if}
-						</p>
+						{/each}
 					{/if}
 				</div>
+				{#if contact.title || contact.company}
+					<p class="text-base-content/70">
+						{#if contact.title}{contact.title}{/if}
+						{#if contact.title && contact.company}
+							<span class="mx-2">at</span>
+						{/if}
+						{#if contact.company}{contact.company}{/if}
+					</p>
+				{/if}
 			</div>
+		</div>
 
-			<!-- Stats Cards -->
-			{@const stats_cards = get_stats_cards(
-				contact,
-				health_score,
-				health_status,
-				overdue_follow_ups.length,
-				preferences,
-			)}
-			<div class="mb-6 grid grid-cols-2 gap-4 md:grid-cols-4">
-				{#each stats_cards as stat}
-					<div class="card border border-base-300 bg-base-100 shadow">
-						<div class="card-body p-4 text-center">
-							<div class="mb-2 flex items-center justify-center">
-								<stat.icon
+		<!-- Stats Cards -->
+		{@const stats_cards = get_stats_cards(
+			contact,
+			health_score,
+			health_status,
+			overdue_follow_ups.length,
+			preferences,
+		)}
+		<div class="mb-6 grid grid-cols-2 gap-4 md:grid-cols-4">
+			{#each stats_cards as stat}
+				<div class="card border border-base-300 bg-base-100 shadow">
+					<div class="card-body p-4 text-center">
+						<div class="mb-2 flex items-center justify-center">
+							<stat.icon size="28px" class_names={stat.icon_color} />
+						</div>
+						<div
+							class="mb-1 text-2xl font-extrabold {stat.value_color}"
+						>
+							{stat.value}
+						</div>
+						<div class="text-xs font-semibold opacity-70">
+							{stat.label}
+						</div>
+						{#if stat.sublabel}
+							<div class="text-xs {stat.sublabel_color}">
+								{stat.sublabel}
+							</div>
+						{/if}
+					</div>
+				</div>
+			{/each}
+		</div>
+
+		<!-- Quick Actions -->
+		{@const action_cards = get_action_cards(
+			contact.id,
+			contact.email,
+		)}
+		<div class="mb-6 grid grid-cols-1 gap-4 md:grid-cols-3">
+			{#each action_cards as action}
+				{#if action.enabled}
+					<a
+						href={action.href}
+						class="card border {action.border_color} bg-gradient-to-br {action.bg_gradient} transition-all duration-200 {action.hover_border} hover:shadow-md"
+					>
+						<div class="card-body items-center p-6 text-center">
+							<div class="mb-3 rounded-full {action.icon_bg} p-3">
+								<action.icon
 									size="28px"
-									class_names={stat.icon_color}
+									class_names={action.icon_color}
 								/>
 							</div>
-							<div
-								class="mb-1 text-2xl font-extrabold {stat.value_color}"
+							<h3
+								class="card-title justify-center text-base {action.title_color}"
 							>
-								{stat.value}
+								{action.title}
+							</h3>
+							<p class="text-xs opacity-70">
+								{action.description}
+							</p>
+						</div>
+					</a>
+				{:else}
+					<div
+						class="card border {action.border_color} bg-base-200/50 opacity-50"
+					>
+						<div class="card-body items-center p-6 text-center">
+							<div class="mb-3 rounded-full {action.icon_bg} p-3">
+								<action.icon
+									size="28px"
+									class_names={action.icon_color}
+								/>
 							</div>
-							<div class="text-xs font-semibold opacity-70">
-								{stat.label}
-							</div>
-							{#if stat.sublabel}
-								<div class="text-xs {stat.sublabel_color}">
-									{stat.sublabel}
-								</div>
-							{/if}
+							<h3 class="card-title justify-center text-base">
+								{action.title}
+							</h3>
+							<p class="text-xs opacity-70">
+								{action.description}
+							</p>
 						</div>
 					</div>
-				{/each}
-			</div>
+				{/if}
+			{/each}
+		</div>
 
-			<!-- Quick Actions -->
-			{@const action_cards = get_action_cards(
-				contact.id,
-				contact.email,
-			)}
-			<div class="mb-6 grid grid-cols-1 gap-4 md:grid-cols-3">
-				{#each action_cards as action}
-					{#if action.enabled}
-						<a
-							href={action.href}
-							class="card border {action.border_color} bg-gradient-to-br {action.bg_gradient} transition-all duration-200 {action.hover_border} hover:shadow-md"
-						>
-							<div class="card-body items-center p-6 text-center">
-								<div class="mb-3 rounded-full {action.icon_bg} p-3">
-									<action.icon
-										size="28px"
-										class_names={action.icon_color}
-									/>
-								</div>
-								<h3
-									class="card-title justify-center text-base {action.title_color}"
-								>
-									{action.title}
-								</h3>
-								<p class="text-xs opacity-70">
-									{action.description}
-								</p>
-							</div>
-						</a>
-					{:else}
-						<div
-							class="card border {action.border_color} bg-base-200/50 opacity-50"
-						>
-							<div class="card-body items-center p-6 text-center">
-								<div class="mb-3 rounded-full {action.icon_bg} p-3">
-									<action.icon
-										size="28px"
-										class_names={action.icon_color}
-									/>
-								</div>
-								<h3 class="card-title justify-center text-base">
-									{action.title}
-								</h3>
-								<p class="text-xs opacity-70">
-									{action.description}
-								</p>
+		<!-- Main Content Area -->
+		<div>
+			<div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
+				<!-- Left Column: Contact Details & Notes -->
+				<div class="space-y-6 lg:col-span-1">
+					<!-- Contact Information Card -->
+					<div class="card bg-base-100 shadow-xl">
+						<div class="card-body">
+							<h2 class="mb-4 card-title flex items-center gap-2">
+								<ContactBook size="24px" />
+								Contact Details
+							</h2>
+
+							{#snippet detail_field(
+								label: string,
+								value: string | null,
+								is_link: boolean = false,
+								link_prefix: string = '',
+							)}
+								{#if value}
+									<div>
+										<p
+											class="mb-1 text-xs font-semibold uppercase opacity-60"
+										>
+											{label}
+										</p>
+										{#if is_link}
+											<a
+												href="{link_prefix}{value}"
+												class="link text-sm link-primary"
+											>
+												{value}
+											</a>
+										{:else}
+											<p class="text-sm">{value}</p>
+										{/if}
+									</div>
+								{/if}
+							{/snippet}
+
+							<div class="space-y-4">
+								{@render detail_field(
+									'Email',
+									contact.email,
+									true,
+									'mailto:',
+								)}
+								{@render detail_field(
+									'Phone',
+									contact.phone,
+									true,
+									'tel:',
+								)}
+								{@render detail_field(
+									'Birthday',
+									contact.birthday
+										? format_date(
+												new Date(contact.birthday),
+												preferences.date_format,
+											)
+										: null,
+								)}
+								{@render detail_field('Company', contact.company)}
+								{@render detail_field('Title', contact.title)}
+
+								{#if contact.social_links && contact.social_links.length > 0}
+									<div>
+										<p
+											class="mb-2 text-xs font-semibold uppercase opacity-60"
+										>
+											Social Links
+										</p>
+										<div class="flex flex-wrap gap-2">
+											{#each contact.social_links as link}
+												<a
+													href={link.url}
+													target="_blank"
+													rel="noopener noreferrer"
+													class="badge gap-1 badge-outline"
+												>
+													<SocialLinkIcon platform={link.platform} />
+													{link.platform}
+												</a>
+											{/each}
+										</div>
+									</div>
+								{/if}
 							</div>
 						</div>
-					{/if}
-				{/each}
-			</div>
+					</div>
 
-			<!-- Main Content Area -->
-			<div>
-				<div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
-					<!-- Left Column: Contact Details & Notes -->
-					<div class="space-y-6 lg:col-span-1">
-						<!-- Contact Information Card -->
+					<!-- Notes Card -->
+					{#if contact.notes}
 						<div class="card bg-base-100 shadow-xl">
 							<div class="card-body">
 								<h2 class="mb-4 card-title flex items-center gap-2">
-									<ContactBook size="24px" />
-									Contact Details
+									<Lightbulb size="24px" />
+									Notes
 								</h2>
-
-								{#snippet detail_field(
-									label: string,
-									value: string | null,
-									is_link: boolean = false,
-									link_prefix: string = '',
-								)}
-									{#if value}
-										<div>
-											<p
-												class="mb-1 text-xs font-semibold uppercase opacity-60"
-											>
-												{label}
-											</p>
-											{#if is_link}
-												<a
-													href="{link_prefix}{value}"
-													class="link text-sm link-primary"
-												>
-													{value}
-												</a>
-											{:else}
-												<p class="text-sm">{value}</p>
-											{/if}
-										</div>
-									{/if}
-								{/snippet}
-
-								<div class="space-y-4">
-									{@render detail_field(
-										'Email',
-										contact.email,
-										true,
-										'mailto:',
-									)}
-									{@render detail_field(
-										'Phone',
-										contact.phone,
-										true,
-										'tel:',
-									)}
-									{@render detail_field(
-										'Birthday',
-										contact.birthday
-											? format_date(
-													new Date(contact.birthday),
-													preferences.date_format,
-												)
-											: null,
-									)}
-									{@render detail_field('Company', contact.company)}
-									{@render detail_field('Title', contact.title)}
-
-									{#if contact.social_links && contact.social_links.length > 0}
-										<div>
-											<p
-												class="mb-2 text-xs font-semibold uppercase opacity-60"
-											>
-												Social Links
-											</p>
-											<div class="flex flex-wrap gap-2">
-												{#each contact.social_links as link}
-													<a
-														href={link.url}
-														target="_blank"
-														rel="noopener noreferrer"
-														class="badge gap-1 badge-outline"
-													>
-														<SocialLinkIcon
-															platform={link.platform}
-														/>
-														{link.platform}
-													</a>
-												{/each}
-											</div>
-										</div>
-									{/if}
-								</div>
+								<p class="text-sm whitespace-pre-wrap">
+									{contact.notes}
+								</p>
 							</div>
 						</div>
+					{/if}
 
-						<!-- Notes Card -->
-						{#if contact.notes}
-							<div class="card bg-base-100 shadow-xl">
-								<div class="card-body">
-									<h2 class="mb-4 card-title flex items-center gap-2">
-										<Lightbulb size="24px" />
-										Notes
-									</h2>
-									<p class="text-sm whitespace-pre-wrap">
-										{contact.notes}
+					<!-- GitHub Card -->
+					{#if contact.github_username}
+						<div
+							class="card overflow-hidden border border-base-300 bg-gradient-to-br from-base-100 to-base-200 shadow-xl"
+						>
+							<div class="card-body">
+								<h2 class="mb-4 card-title flex items-center gap-2">
+									<GitHub size="24px" />
+									GitHub Profile
+								</h2>
+								<div class="space-y-3">
+									<a
+										href="https://github.com/{contact.github_username}"
+										target="_blank"
+										rel="noopener noreferrer"
+										class="btn btn-block gap-2 btn-outline"
+									>
+										<GitHub size="20px" />
+										@{contact.github_username}
+									</a>
+									<p class="text-xs opacity-70">
+										View their repositories, contributions, and
+										activity on GitHub
 									</p>
 								</div>
 							</div>
-						{/if}
-
-						<!-- GitHub Card -->
-						{#if contact.github_username}
-							<div
-								class="card overflow-hidden border border-base-300 bg-gradient-to-br from-base-100 to-base-200 shadow-xl"
-							>
-								<div class="card-body">
-									<h2 class="mb-4 card-title flex items-center gap-2">
-										<GitHub size="24px" />
-										GitHub Profile
-									</h2>
-									<div class="space-y-3">
-										<a
-											href="https://github.com/{contact.github_username}"
-											target="_blank"
-											rel="noopener noreferrer"
-											class="btn btn-block gap-2 btn-outline"
-										>
-											<GitHub size="20px" />
-											@{contact.github_username}
-										</a>
-										<p class="text-xs opacity-70">
-											View their repositories, contributions, and
-											activity on GitHub
-										</p>
-									</div>
-								</div>
-							</div>
-						{/if}
-					</div>
-
-					<!-- Right Column: Activity Timeline -->
-					<div class="space-y-6 lg:col-span-2">
-						<!-- Activity Timeline Header -->
-						<div class="flex items-center justify-between">
-							<h2 class="flex items-center gap-2 text-2xl font-bold">
-								<Sparkles size="28px" class_names="text-primary" />
-								Activity Timeline
-							</h2>
 						</div>
+					{/if}
+				</div>
 
-						<!-- Combined Timeline -->
-						{#if interactions.length === 0 && pending_follow_ups.length === 0}
-							<div class="card bg-base-100 shadow-xl">
-								<div class="card-body">
-									<EmptyState
-										message="No activity yet. Start by logging an interaction or scheduling a follow-up!"
-									/>
-								</div>
-							</div>
-						{:else}
-							<div class="space-y-4">
-								<!-- Follow-ups Section -->
-								{#if pending_follow_ups.length > 0}
-									<div class="card bg-base-100 shadow-xl">
-										<div class="card-body">
-											<div
-												class="mb-4 flex items-center justify-between"
-											>
-												<h3
-													class="flex items-center gap-2 text-xl font-bold"
-												>
-													<Calendar size="24px" />
-													Pending Follow-ups
-													{#if overdue_follow_ups.length > 0}
-														<span class="badge badge-error">
-															{overdue_follow_ups.length} overdue
-														</span>
-													{/if}
-												</h3>
-												<a
-													href="/follow-ups/new?contact_id={contact.id}"
-													class="btn btn-sm btn-primary"
-												>
-													Add Follow-up
-												</a>
-											</div>
-
-											<div class="space-y-3">
-												{#each pending_follow_ups as follow_up}
-													{@const overdue =
-														!follow_up.completed &&
-														is_overdue(follow_up.due_date)}
-													{#if edit_follow_up_id === follow_up.id}
-														<!-- Edit Mode -->
-														<div
-															class="rounded-box border border-base-300 bg-base-200/50 p-4"
-														>
-															<div class="space-y-3">
-																<label class="form-control w-full">
-																	<div class="label">
-																		<span class="label-text"
-																			>Due Date</span
-																		>
-																	</div>
-																	<input
-																		type="datetime-local"
-																		bind:value={
-																			edit_follow_up_due_date_str
-																		}
-																		class="input-bordered input w-full"
-																	/>
-																</label>
-
-																<label class="form-control w-full">
-																	<div class="label">
-																		<span class="label-text"
-																			>Note</span
-																		>
-																	</div>
-																	<textarea
-																		bind:value={edit_follow_up_note}
-																		class="textarea-bordered textarea h-24 w-full"
-																		placeholder="Add a note..."
-																	></textarea>
-																</label>
-
-																{@render form_actions(
-																	cancel_edit_follow_up,
-																	save_edit_follow_up,
-																)}
-															</div>
-														</div>
-													{:else}
-														<!-- View Mode -->
-														<div
-															class="group rounded-box border transition-all duration-300 hover:shadow-lg {overdue
-																? 'border-error/30 bg-error/5'
-																: 'border-base-300 bg-base-200/30'}"
-														>
-															<div class="flex items-start gap-4 p-4">
-																<!-- Icon -->
-																<div
-																	class="flex-shrink-0 rounded-full p-3 {overdue
-																		? 'bg-error text-error-content'
-																		: 'bg-warning text-warning-content'}"
-																>
-																	<Calendar size="20px" />
-																</div>
-
-																<!-- Content -->
-																<div class="flex-1">
-																	<div
-																		class="mb-1 flex items-center gap-2"
-																	>
-																		<span
-																			class="font-semibold {overdue
-																				? 'text-error'
-																				: ''}"
-																		>
-																			Due: {format_due_date(
-																				follow_up.due_date,
-																				preferences.date_format,
-																			)}
-																		</span>
-																		{#if overdue}
-																			<span
-																				class="badge badge-sm badge-error"
-																			>
-																				Overdue
-																			</span>
-																		{/if}
-																	</div>
-																	{#if follow_up.note}
-																		<p class="text-sm opacity-70">
-																			{follow_up.note}
-																		</p>
-																	{/if}
-																</div>
-
-																<!-- Actions -->
-																<div class="flex flex-col gap-2">
-																	{#if delete_follow_up_id === follow_up.id}
-																		<ConfirmDialog
-																			is_inline={true}
-																			message="Delete follow-up?"
-																			on_confirm={confirm_delete_follow_up}
-																			on_cancel={cancel_delete_follow_up}
-																		/>
-																	{:else}
-																		<button
-																			onclick={() =>
-																				handle_complete_follow_up(
-																					follow_up.id,
-																				)}
-																			class="tooltip btn text-success btn-ghost btn-xs"
-																			data-tip="Complete"
-																			aria-label="Complete follow-up"
-																		>
-																			<Check size="16px" />
-																		</button>
-																		<button
-																			onclick={(e) =>
-																				handle_edit_follow_up_click(
-																					e,
-																					follow_up,
-																				)}
-																			class="tooltip btn btn-ghost btn-xs"
-																			data-tip="Edit"
-																			aria-label="Edit follow-up"
-																		>
-																			<Edit size="16px" />
-																		</button>
-																		<button
-																			onclick={(e) =>
-																				handle_delete_follow_up_click(
-																					e,
-																					follow_up.id,
-																				)}
-																			class="tooltip btn text-error btn-ghost btn-xs"
-																			data-tip="Delete"
-																			aria-label="Delete follow-up"
-																		>
-																			<Trash size="16px" />
-																		</button>
-																	{/if}
-																</div>
-															</div>
-														</div>
-													{/if}
-												{/each}
-											</div>
-										</div>
-									</div>
-								{/if}
-
-								<!-- Interactions Section -->
-								{#if interactions.length > 0}
-									<div class="card bg-base-100 shadow-xl">
-										<div class="card-body">
-											<div
-												class="mb-4 flex items-center justify-between"
-											>
-												<h3
-													class="flex items-center gap-2 text-xl font-bold"
-												>
-													<Message size="24px" />
-													Recent Interactions
-												</h3>
-												<a
-													href="/interactions/new?contact_id={contact.id}"
-													class="btn btn-sm btn-primary"
-												>
-													Log Interaction
-												</a>
-											</div>
-
-											<div class="space-y-3">
-												{#each interactions.slice(0, 10) as interaction}
-													{@const TypeIcon =
-														type_icons[interaction.type]}
-													{#if edit_interaction_id === interaction.id}
-														<!-- Edit Mode -->
-														<div
-															class="rounded-box border border-base-300 bg-base-200/50 p-4"
-														>
-															<div class="space-y-3">
-																<label class="form-control w-full">
-																	<div class="label">
-																		<span class="label-text">
-																			Type
-																		</span>
-																	</div>
-																	<select
-																		bind:value={edit_interaction_type}
-																		class="select-bordered select w-full"
-																	>
-																		{#each interaction_types as type}
-																			<option value={type.value}>
-																				{type.label}
-																			</option>
-																		{/each}
-																	</select>
-																</label>
-
-																<label class="form-control w-full">
-																	<div class="label">
-																		<span class="label-text"
-																			>Note</span
-																		>
-																	</div>
-																	<textarea
-																		bind:value={edit_interaction_note}
-																		class="textarea-bordered textarea h-24 w-full"
-																		placeholder="Add a note..."
-																	></textarea>
-																</label>
-
-																{@render form_actions(
-																	cancel_edit_interaction,
-																	save_edit_interaction,
-																)}
-															</div>
-														</div>
-													{:else}
-														<!-- View Mode -->
-														<div
-															class="group rounded-box border border-base-300 bg-base-200/30 transition-all duration-300 hover:shadow-lg"
-														>
-															<div class="flex items-start gap-4 p-4">
-																<!-- Icon -->
-																<div
-																	class="flex-shrink-0 rounded-full p-3 {type_colors[
-																		interaction.type
-																	]}"
-																>
-																	<TypeIcon size="20px" />
-																</div>
-
-																<!-- Content -->
-																<div class="flex-1">
-																	<div
-																		class="mb-1 flex items-center gap-2"
-																	>
-																		<span
-																			class="font-semibold capitalize"
-																		>
-																			{interaction.type}
-																		</span>
-																		<span class="text-sm opacity-60">
-																			•
-																			{format_date(
-																				new Date(
-																					interaction.created_at,
-																				),
-																				preferences.date_format,
-																			)}
-																		</span>
-																	</div>
-																	{#if interaction.note}
-																		<p class="text-sm opacity-70">
-																			{interaction.note}
-																		</p>
-																	{/if}
-																</div>
-
-																<!-- Actions -->
-																<div class="flex flex-col gap-2">
-																	{#if delete_interaction_id === interaction.id}
-																		<ConfirmDialog
-																			is_inline={true}
-																			message="Delete interaction?"
-																			on_confirm={confirm_delete_interaction}
-																			on_cancel={cancel_delete_interaction}
-																		/>
-																	{:else}
-																		<button
-																			onclick={(e) =>
-																				handle_edit_interaction_click(
-																					e,
-																					interaction,
-																				)}
-																			class="tooltip btn btn-ghost btn-xs"
-																			data-tip="Edit"
-																			aria-label="Edit interaction"
-																		>
-																			<Edit size="16px" />
-																		</button>
-																		<button
-																			onclick={(e) =>
-																				handle_delete_interaction_click(
-																					e,
-																					interaction.id,
-																				)}
-																			class="tooltip btn text-error btn-ghost btn-xs"
-																			data-tip="Delete"
-																			aria-label="Delete interaction"
-																		>
-																			<Trash size="16px" />
-																		</button>
-																	{/if}
-																</div>
-															</div>
-														</div>
-													{/if}
-												{/each}
-											</div>
-
-											{#if interactions.length > 10}
-												<div class="mt-4 text-center">
-													<a
-														href="/interactions?contact_id={contact.id}"
-														class="link link-primary"
-													>
-														View all {interactions.length} interactions
-													</a>
-												</div>
-											{/if}
-										</div>
-									</div>
-								{/if}
-							</div>
-						{/if}
+				<!-- Right Column: Activity Timeline -->
+				<div class="space-y-6 lg:col-span-2">
+					<!-- Activity Timeline Header -->
+					<div class="flex items-center justify-between">
+						<h2 class="flex items-center gap-2 text-2xl font-bold">
+							<Sparkles size="28px" class_names="text-primary" />
+							Activity Timeline
+						</h2>
 					</div>
+
+					<!-- Combined Timeline -->
+					{#if interactions.length === 0 && pending_follow_ups.length === 0}
+						<div class="card bg-base-100 shadow-xl">
+							<div class="card-body">
+								<EmptyState
+									message="No activity yet. Start by logging an interaction or scheduling a follow-up!"
+								/>
+							</div>
+						</div>
+					{:else}
+						<div class="space-y-4">
+							<!-- Follow-ups Section -->
+							{#if pending_follow_ups.length > 0}
+								<div class="card bg-base-100 shadow-xl">
+									<div class="card-body">
+										<div
+											class="mb-4 flex items-center justify-between"
+										>
+											<h3
+												class="flex items-center gap-2 text-xl font-bold"
+											>
+												<Calendar size="24px" />
+												Pending Follow-ups
+												{#if overdue_follow_ups.length > 0}
+													<span class="badge badge-error">
+														{overdue_follow_ups.length} overdue
+													</span>
+												{/if}
+											</h3>
+											<a
+												href="/follow-ups/new?contact_id={contact.id}"
+												class="btn btn-sm btn-primary"
+											>
+												Add Follow-up
+											</a>
+										</div>
+
+										<div class="space-y-3">
+											{#each pending_follow_ups as follow_up}
+												{@const overdue =
+													!follow_up.completed &&
+													is_overdue(follow_up.due_date)}
+												{#if edit_follow_up_id === follow_up.id}
+													<!-- Edit Mode -->
+													<div
+														class="rounded-box border border-base-300 bg-base-200/50 p-4"
+													>
+														<div class="space-y-3">
+															<label class="form-control w-full">
+																<div class="label">
+																	<span class="label-text"
+																		>Due Date</span
+																	>
+																</div>
+																<input
+																	type="datetime-local"
+																	bind:value={
+																		edit_follow_up_due_date_str
+																	}
+																	class="input-bordered input w-full"
+																/>
+															</label>
+
+															<label class="form-control w-full">
+																<div class="label">
+																	<span class="label-text">Note</span>
+																</div>
+																<textarea
+																	bind:value={edit_follow_up_note}
+																	class="textarea-bordered textarea h-24 w-full"
+																	placeholder="Add a note..."
+																></textarea>
+															</label>
+
+															{@render form_actions(
+																cancel_edit_follow_up,
+																save_edit_follow_up,
+															)}
+														</div>
+													</div>
+												{:else}
+													<!-- View Mode -->
+													<div
+														class="group rounded-box border transition-all duration-300 hover:shadow-lg {overdue
+															? 'border-error/30 bg-error/5'
+															: 'border-base-300 bg-base-200/30'}"
+													>
+														<div class="flex items-start gap-4 p-4">
+															<!-- Icon -->
+															<div
+																class="flex-shrink-0 rounded-full p-3 {overdue
+																	? 'bg-error text-error-content'
+																	: 'bg-warning text-warning-content'}"
+															>
+																<Calendar size="20px" />
+															</div>
+
+															<!-- Content -->
+															<div class="flex-1">
+																<div
+																	class="mb-1 flex items-center gap-2"
+																>
+																	<span
+																		class="font-semibold {overdue
+																			? 'text-error'
+																			: ''}"
+																	>
+																		Due: {format_due_date(
+																			follow_up.due_date,
+																			preferences.date_format,
+																		)}
+																	</span>
+																	{#if overdue}
+																		<span
+																			class="badge badge-sm badge-error"
+																		>
+																			Overdue
+																		</span>
+																	{/if}
+																</div>
+																{#if follow_up.note}
+																	<p class="text-sm opacity-70">
+																		{follow_up.note}
+																	</p>
+																{/if}
+															</div>
+
+															<!-- Actions -->
+															<div class="flex flex-col gap-2">
+																{#if delete_follow_up_id === follow_up.id}
+																	<ConfirmDialog
+																		is_inline={true}
+																		message="Delete follow-up?"
+																		on_confirm={confirm_delete_follow_up}
+																		on_cancel={cancel_delete_follow_up}
+																	/>
+																{:else}
+																	<button
+																		onclick={() =>
+																			handle_complete_follow_up(
+																				follow_up.id,
+																			)}
+																		class="tooltip btn text-success btn-ghost btn-xs"
+																		data-tip="Complete"
+																		aria-label="Complete follow-up"
+																	>
+																		<Check size="16px" />
+																	</button>
+																	<button
+																		onclick={(e) =>
+																			handle_edit_follow_up_click(
+																				e,
+																				follow_up,
+																			)}
+																		class="tooltip btn btn-ghost btn-xs"
+																		data-tip="Edit"
+																		aria-label="Edit follow-up"
+																	>
+																		<Edit size="16px" />
+																	</button>
+																	<button
+																		onclick={(e) =>
+																			handle_delete_follow_up_click(
+																				e,
+																				follow_up.id,
+																			)}
+																		class="tooltip btn text-error btn-ghost btn-xs"
+																		data-tip="Delete"
+																		aria-label="Delete follow-up"
+																	>
+																		<Trash size="16px" />
+																	</button>
+																{/if}
+															</div>
+														</div>
+													</div>
+												{/if}
+											{/each}
+										</div>
+									</div>
+								</div>
+							{/if}
+
+							<!-- Interactions Section -->
+							{#if interactions.length > 0}
+								<div class="card bg-base-100 shadow-xl">
+									<div class="card-body">
+										<div
+											class="mb-4 flex items-center justify-between"
+										>
+											<h3
+												class="flex items-center gap-2 text-xl font-bold"
+											>
+												<Message size="24px" />
+												Recent Interactions
+											</h3>
+											<a
+												href="/interactions/new?contact_id={contact.id}"
+												class="btn btn-sm btn-primary"
+											>
+												Log Interaction
+											</a>
+										</div>
+
+										<div class="space-y-3">
+											{#each interactions.slice(0, 10) as interaction}
+												{@const TypeIcon =
+													type_icons[interaction.type]}
+												{#if edit_interaction_id === interaction.id}
+													<!-- Edit Mode -->
+													<div
+														class="rounded-box border border-base-300 bg-base-200/50 p-4"
+													>
+														<div class="space-y-3">
+															<label class="form-control w-full">
+																<div class="label">
+																	<span class="label-text">
+																		Type
+																	</span>
+																</div>
+																<select
+																	bind:value={edit_interaction_type}
+																	class="select-bordered select w-full"
+																>
+																	{#each interaction_types as type}
+																		<option value={type.value}>
+																			{type.label}
+																		</option>
+																	{/each}
+																</select>
+															</label>
+
+															<label class="form-control w-full">
+																<div class="label">
+																	<span class="label-text">Note</span>
+																</div>
+																<textarea
+																	bind:value={edit_interaction_note}
+																	class="textarea-bordered textarea h-24 w-full"
+																	placeholder="Add a note..."
+																></textarea>
+															</label>
+
+															{@render form_actions(
+																cancel_edit_interaction,
+																save_edit_interaction,
+															)}
+														</div>
+													</div>
+												{:else}
+													<!-- View Mode -->
+													<div
+														class="group rounded-box border border-base-300 bg-base-200/30 transition-all duration-300 hover:shadow-lg"
+													>
+														<div class="flex items-start gap-4 p-4">
+															<!-- Icon -->
+															<div
+																class="flex-shrink-0 rounded-full p-3 {type_colors[
+																	interaction.type
+																]}"
+															>
+																<TypeIcon size="20px" />
+															</div>
+
+															<!-- Content -->
+															<div class="flex-1">
+																<div
+																	class="mb-1 flex items-center gap-2"
+																>
+																	<span
+																		class="font-semibold capitalize"
+																	>
+																		{interaction.type}
+																	</span>
+																	<span class="text-sm opacity-60">
+																		•
+																		{format_date(
+																			new Date(
+																				interaction.created_at,
+																			),
+																			preferences.date_format,
+																		)}
+																	</span>
+																</div>
+																{#if interaction.note}
+																	<p class="text-sm opacity-70">
+																		{interaction.note}
+																	</p>
+																{/if}
+															</div>
+
+															<!-- Actions -->
+															<div class="flex flex-col gap-2">
+																{#if delete_interaction_id === interaction.id}
+																	<ConfirmDialog
+																		is_inline={true}
+																		message="Delete interaction?"
+																		on_confirm={confirm_delete_interaction}
+																		on_cancel={cancel_delete_interaction}
+																	/>
+																{:else}
+																	<button
+																		onclick={(e) =>
+																			handle_edit_interaction_click(
+																				e,
+																				interaction,
+																			)}
+																		class="tooltip btn btn-ghost btn-xs"
+																		data-tip="Edit"
+																		aria-label="Edit interaction"
+																	>
+																		<Edit size="16px" />
+																	</button>
+																	<button
+																		onclick={(e) =>
+																			handle_delete_interaction_click(
+																				e,
+																				interaction.id,
+																			)}
+																		class="tooltip btn text-error btn-ghost btn-xs"
+																		data-tip="Delete"
+																		aria-label="Delete interaction"
+																	>
+																		<Trash size="16px" />
+																	</button>
+																{/if}
+															</div>
+														</div>
+													</div>
+												{/if}
+											{/each}
+										</div>
+
+										{#if interactions.length > 10}
+											<div class="mt-4 text-center">
+												<a
+													href="/interactions?contact_id={contact.id}"
+													class="link link-primary"
+												>
+													View all {interactions.length} interactions
+												</a>
+											</div>
+										{/if}
+									</div>
+								</div>
+							{/if}
+						</div>
+					{/if}
 				</div>
 			</div>
-		{/await}
+		</div>
+	{/await}
 {/if}

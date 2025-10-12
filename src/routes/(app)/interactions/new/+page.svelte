@@ -19,7 +19,7 @@
 		<div class="card-body">
 			<fieldset class="fieldset">
 				<legend class="fieldset-legend">Contact</legend>
-				{#await get_contacts('') then contacts}
+				{#await get_contacts() then contacts}
 					<label class="select w-full">
 						<select
 							name="contact_id"

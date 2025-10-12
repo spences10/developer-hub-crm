@@ -118,10 +118,7 @@
 				? 'hidden sm:block'
 				: ''}"
 		>
-			<element.icon
-				size={element.size}
-				gradient={true}
-			/>
+			<element.icon size={element.size} gradient={true} />
 		</div>
 	{/each}
 
@@ -135,10 +132,7 @@
 	<div class="relative z-10 text-center">
 		<!-- Logo with pulse animation -->
 		<div class="animate-fade-in mb-6 opacity-0 sm:mb-8">
-			<Logo
-				size="180px"
-				class_names="mx-auto drop-shadow-2xl"
-			/>
+			<Logo size="180px" class_names="mx-auto drop-shadow-2xl" />
 		</div>
 
 		<!-- Greeting with gradient text -->

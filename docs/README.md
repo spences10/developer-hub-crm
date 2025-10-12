@@ -102,13 +102,17 @@ boilerplate:
 
 **Practical reference for remote functions**
 
-Quick start, query/form/command patterns, schema validation, refresh strategies.
+Quick start, query/form/command patterns, schema validation, refresh
+strategies.
 
 #### [remote-functions-deep-dive.md](./remote-functions-deep-dive.md)
 
 **Complete guide to remote functions**
 
-Why they exist, the four types (query/form/command/prerender), single-flight mutations, async Svelte integration, caching, authentication patterns. Based on Svelte Radio interview with core team.
+Why they exist, the four types (query/form/command/prerender),
+single-flight mutations, async Svelte integration, caching,
+authentication patterns. Based on Svelte Radio interview with core
+team.
 
 #### [database-pattern.md](./database-pattern.md)
 
@@ -190,24 +194,32 @@ When implementing a new feature:
 5. ✅ Use `await` directly in markup (requires `async: true` flag)
 6. ✅ Add type definitions for database rows
 7. ✅ Use `page` from `$app/state` for route params (Svelte 5)
-8. ✅ Use single-flight mutations (call `.refresh()` in form/command handlers)
+8. ✅ Use single-flight mutations (call `.refresh()` in form/command
+   handlers)
 
 ## Key Principles
 
-1. **No hooks.server.ts** - Use `getRequestEvent()` in remote functions
+1. **No hooks.server.ts** - Use `getRequestEvent()` in remote
+   functions
 2. **No +page.server.ts** - Use remote functions instead
 3. **No ORM** - Raw SQL with better-sqlite3
 4. **No API routes** - Remote functions handle everything
-5. **Use query.batch()** - Only for actual batching (N+1 prevention), not all parameterized queries
+5. **Use query.batch()** - Only for actual batching (N+1 prevention),
+   not all parameterized queries
 6. **Use $app/state** - Not $app/stores (deprecated in Svelte 5)
-7. **Type safety everywhere** - TypeScript for all database operations, use proper types instead of `any`
-8. **Single-flight mutations** - Call `.refresh()` in form/command handlers for performance
-9. **Enable async flag** - Set `experimental: { async: true }` in config for Boundary components
-10. **Proper reactivity** - Use `.refresh()` on queries, never `window.location.reload()`
+7. **Type safety everywhere** - TypeScript for all database
+   operations, use proper types instead of `any`
+8. **Single-flight mutations** - Call `.refresh()` in form/command
+   handlers for performance
+9. **Enable async flag** - Set `experimental: { async: true }` in
+   config for Boundary components
+10. **Proper reactivity** - Use `.refresh()` on queries, never
+    `window.location.reload()`
 11. **Shared utilities** - Extract reusable functions to `lib/utils/`
 12. **snake_case for functions/variables** - Use snake_case naming
 13. **kebab-case for file names** - Use kebab-case for all file names
-14. **lang="ts" in Svelte files** - Always use TypeScript in components
+14. **lang="ts" in Svelte files** - Always use TypeScript in
+    components
 
 ## Tech Stack
 
@@ -224,16 +236,17 @@ When implementing a new feature:
 ```javascript
 // svelte.config.js
 export default {
-  kit: {
-    experimental: {
-      remoteFunctions: true, // ✅ Required for remote functions
-      async: true            // ✅ Required for Boundary components & top-level await
-    }
-  }
+	kit: {
+		experimental: {
+			remoteFunctions: true, // ✅ Required for remote functions
+			async: true, // ✅ Required for Boundary components & top-level await
+		},
+	},
 };
 ```
 
 **Why `async: true` matters:**
+
 - Enables top-level `await` in components
 - Provides Boundary components for coordinated loading states
 - Prevents multiple loading spinners (better UX)
@@ -325,30 +338,35 @@ src/
 
 **Best Practice: Single-Flight Mutations**
 
-Call `.refresh()` on queries from within form/command handlers to refresh data in the same request (no extra round trip):
+Call `.refresh()` on queries from within form/command handlers to
+refresh data in the same request (no extra round trip):
 
 ```typescript
 // contacts.remote.ts
 export const delete_contact = command(v.string(), async (id) => {
-  const user_id = await get_current_user_id();
-  await db.delete('contacts', id, user_id);
+	const user_id = await get_current_user_id();
+	await db.delete('contacts', id, user_id);
 
-  // ✅ Refresh in same request (single-flight mutation)
-  await get_contacts.refresh();
+	// ✅ Refresh in same request (single-flight mutation)
+	await get_contacts.refresh();
 
-  return { success: true };
+	return { success: true };
 });
 ```
 
 **Why this is better:**
+
 - Without: 2 round trips (mutation + separate refresh)
 - With: 1 round trip (mutation with embedded refresh data)
 
 **Default behaviors:**
+
 - **Forms**: Automatically refresh ALL queries on page
-- **Commands**: Refresh NOTHING by default (must explicitly call `.refresh()`)
+- **Commands**: Refresh NOTHING by default (must explicitly call
+  `.refresh()`)
 
 **Never use `window.location.reload()`** - It's an anti-pattern that:
+
 - Loses scroll position
 - Clears component state
 - Provides poor UX

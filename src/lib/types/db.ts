@@ -16,6 +16,7 @@ export interface Contact {
 	last_contacted_at: number | null;
 	created_at: number;
 	updated_at: number;
+	tags?: Tag[]; // Optional: tags associated with this contact
 }
 
 export interface Interaction {

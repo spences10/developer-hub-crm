@@ -1,11 +1,6 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import {
-		Calendar,
-		Contacts,
-		Dashboard,
-		GitHub,
-	} from '$lib/icons';
+	import { Calendar, Contacts, Dashboard, GitHub } from '$lib/icons';
 	import { seo_configs } from '$lib/seo';
 	import { Head } from 'svead';
 	import { demo_login, get_current_user } from './auth.remote';
