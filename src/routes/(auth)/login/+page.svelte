@@ -1,11 +1,11 @@
 <script lang="ts">
-	import { Head } from 'svead';
-	import Logo from '$lib/logo.svelte';
-	import Github from '$lib/icons/github.svelte';
-	import { login } from '../../auth.remote';
-	import { auth_client } from '$lib/client/auth';
 	import { page } from '$app/state';
+	import { auth_client } from '$lib/client/auth';
+	import Github from '$lib/icons/github.svelte';
+	import Logo from '$lib/logo.svelte';
 	import { seo_configs } from '$lib/seo';
+	import { Head } from 'svead';
+	import { login } from '../../auth.remote';
 
 	const reset_success = $derived(
 		page.url.searchParams.get('reset') === 'success',
@@ -22,7 +22,9 @@
 <Head seo_config={seo_configs.login} />
 
 <div class="mb-8 flex justify-center">
-	<Logo size="70px" />
+	<a href="/">
+		<Logo size="70px" />
+	</a>
 </div>
 
 <h2 class="mb-6 text-center text-2xl font-bold">Sign in to Devhub</h2>

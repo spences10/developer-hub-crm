@@ -1,14 +1,16 @@
 <script lang="ts">
-	import { Head } from 'svead';
 	import Logo from '$lib/logo.svelte';
 	import { seo_configs } from '$lib/seo';
+	import { Head } from 'svead';
 	import { forgot_password } from '../../auth.remote';
 </script>
 
 <Head seo_config={seo_configs.forgotPassword} />
 
 <div class="mb-8 flex justify-center">
-	<Logo size="70px" />
+	<a href="/">
+		<Logo size="70px" />
+	</a>
 </div>
 
 <h2 class="mb-6 text-center text-2xl font-bold">

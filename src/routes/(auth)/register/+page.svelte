@@ -49,7 +49,9 @@
 	<!-- Left Panel - Branding -->
 	<AuthHeroPanel>
 		<div class="animate-fade-in mb-10 opacity-0">
-			<Logo size="90px" class_names="-ml-4 drop-shadow-lg" />
+			<a href="/">
+				<Logo size="90px" class_names="-ml-4 drop-shadow-lg" />
+			</a>
 		</div>
 
 		<h1

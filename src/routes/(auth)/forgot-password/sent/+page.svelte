@@ -3,7 +3,9 @@
 </script>
 
 <div class="mb-8 flex justify-center">
-	<Logo size="70px" />
+	<a href="/">
+		<Logo size="70px" />
+	</a>
 </div>
 
 <h2 class="mb-6 text-center text-2xl font-bold">Check your email</h2>
