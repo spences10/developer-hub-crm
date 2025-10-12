@@ -5,6 +5,7 @@
 	import { generate_qr_code_data_url } from '$lib/utils/qr-code';
 	import { Head } from 'svead';
 	import { onMount } from 'svelte';
+	import { is_demo_user } from '../layout.remote';
 	import {
 		add_user_social_link,
 		delete_user_social_link,
@@ -29,6 +30,7 @@
 	const social_links = get_user_social_links();
 	const github_status = get_github_connection_status();
 	const user_qr = get_user_qr_code();
+	const is_demo = is_demo_user();
 
 	let saving = $state(false);
 	let generating_qr = $state(false);
@@ -107,32 +109,48 @@
 				<div class="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
 					<fieldset class="fieldset">
 						<legend class="fieldset-legend">Name</legend>
-						<label class="input w-full">
-							<input
-								type="text"
-								class="grow"
-								value={profile_data.name}
-								onblur={(e) =>
-									save_with_indicator(() =>
-										update_name(e.currentTarget.value),
-									)}
-							/>
-						</label>
+						{#await is_demo then demo}
+							<label class="input w-full">
+								<input
+									type="text"
+									class="grow"
+									value={profile_data.name}
+									disabled={demo}
+									onblur={(e) =>
+										save_with_indicator(() =>
+											update_name(e.currentTarget.value),
+										)}
+								/>
+							</label>
+							{#if demo}
+								<p class="mt-1 text-xs opacity-60">
+									Cannot modify demo account
+								</p>
+							{/if}
+						{/await}
 					</fieldset>
 
 					<fieldset class="fieldset">
 						<legend class="fieldset-legend">Email</legend>
-						<label class="input w-full">
-							<input
-								type="email"
-								class="grow"
-								value={profile_data.email}
-								onblur={(e) =>
-									save_with_indicator(() =>
-										update_email(e.currentTarget.value),
-									)}
-							/>
-						</label>
+						{#await is_demo then demo}
+							<label class="input w-full">
+								<input
+									type="email"
+									class="grow"
+									value={profile_data.email}
+									disabled={demo}
+									onblur={(e) =>
+										save_with_indicator(() =>
+											update_email(e.currentTarget.value),
+										)}
+								/>
+							</label>
+							{#if demo}
+								<p class="mt-1 text-xs opacity-60">
+									Cannot modify demo account
+								</p>
+							{/if}
+						{/await}
 					</fieldset>
 				</div>
 			</div>
@@ -154,17 +172,25 @@
 								(devhubcrm.com/@{profile_data.username})
 							</span>
 						</legend>
-						<label class="input w-full">
-							<input
-								type="text"
-								class="grow"
-								value={profile_data.username}
-								onblur={(e) =>
-									save_with_indicator(() =>
-										update_username(e.currentTarget.value),
-									)}
-							/>
-						</label>
+						{#await is_demo then demo}
+							<label class="input w-full">
+								<input
+									type="text"
+									class="grow"
+									value={profile_data.username}
+									disabled={demo}
+									onblur={(e) =>
+										save_with_indicator(() =>
+											update_username(e.currentTarget.value),
+										)}
+								/>
+							</label>
+							{#if demo}
+								<p class="mt-1 text-xs opacity-60">
+									Cannot modify demo account
+								</p>
+							{/if}
+						{/await}
 					</fieldset>
 
 					<fieldset class="fieldset">

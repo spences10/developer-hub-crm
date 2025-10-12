@@ -5,7 +5,7 @@
 	import { generate_qr_code_data_url } from '$lib/utils/qr-code';
 	import { onMount } from 'svelte';
 	import { get_current_user, logout } from '../auth.remote';
-	import { ensure_profile } from './layout.remote';
+	import { ensure_profile, is_demo_user } from './layout.remote';
 	import {
 		get_profile_qr_url,
 		get_user_qr_code,
@@ -99,11 +99,11 @@
 			</div>
 
 			<!-- Demo mode banner -->
-			{#await get_current_user() then user}
-				{#if user?.email === 'demo@devhubcrm.com'}
-					<div class="border-y border-info/30 bg-info/20 px-8 py-4">
+			{#await is_demo_user() then is_demo}
+				{#if is_demo}
+					<div class="border-y border-info/30 bg-info/20 py-4">
 						<div
-							class="mx-auto flex max-w-6xl items-center justify-between gap-4"
+							class="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 sm:px-6 md:px-8 lg:px-10"
 						>
 							<div class="flex items-center gap-3">
 								<Sparkles size="24px" class_names="text-success" />

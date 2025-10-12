@@ -1,12 +1,15 @@
 import { getRequestEvent, query } from '$app/server';
 import { auth } from '$lib/server/auth';
 import { db } from '$lib/server/db';
+import { env } from '$env/dynamic/private';
 import {
 	create_user_profile_from_github,
 	fetch_github_user_data,
 	user_has_profile,
 } from '$lib/server/profile-helpers';
 import { redirect } from '@sveltejs/kit';
+
+const DEMO_USER_EMAIL = env.DEMO_USER_EMAIL || 'demo@devhubcrm.com';
 
 /**
  * Ensure user is authenticated and has a profile
@@ -62,4 +65,17 @@ export const ensure_profile = query(async () => {
 	}
 
 	return { authenticated: true };
+});
+
+/**
+ * Check if current user is the demo account
+ */
+export const is_demo_user = query(async (): Promise<boolean> => {
+	const event = getRequestEvent();
+
+	const session = await auth.api.getSession({
+		headers: event.request.headers,
+	});
+
+	return session?.user?.email === DEMO_USER_EMAIL;
 });

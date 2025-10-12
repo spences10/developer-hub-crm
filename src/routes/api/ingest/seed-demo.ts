@@ -1,11 +1,12 @@
+import { env } from '$env/dynamic/private';
 import { auth } from '$lib/server/auth';
 import { db } from '$lib/server/db';
 import fs from 'node:fs';
 import path from 'node:path';
 
-const DEMO_USER_EMAIL = 'demo@devhubcrm.com';
-const DEMO_USER_NAME = 'Demo User';
-const DEMO_PASSWORD = 'demo1234567890';
+const DEMO_USER_EMAIL = env.DEMO_USER_EMAIL || 'demo@devhubcrm.com';
+const DEMO_USER_NAME = env.DEMO_USER_NAME || 'Demo User';
+const DEMO_PASSWORD = env.DEMO_PASSWORD || 'demo1234567890';
 
 export const seed_demo = async () => {
 	try {
@@ -14,7 +15,7 @@ export const seed_demo = async () => {
 			.prepare('SELECT id FROM user WHERE email = ?')
 			.get(DEMO_USER_EMAIL) as { id: string } | undefined;
 
-		// Create demo user if doesn't exist using better-auth's signup
+		// Create demo user and profile if doesn't exist using better-auth's signup
 		if (!demo_user) {
 			try {
 				await auth.api.signUpEmail({
@@ -34,9 +35,67 @@ export const seed_demo = async () => {
 				db.prepare(
 					'UPDATE user SET emailVerified = 1 WHERE email = ?',
 				).run(DEMO_USER_EMAIL);
+
+				// Create user profile for the demo user
+				const profile_id = crypto.randomUUID();
+				const now = Date.now();
+				db.prepare(
+					`
+					INSERT INTO user_profiles (
+						id, user_id, username, github_username,
+						bio, tagline, location, website, visibility,
+						created_at, updated_at
+					)
+					VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+				`,
+				).run(
+					profile_id,
+					demo_user!.id,
+					'demo-user',
+					null,
+					'This is a demo account with sample data. Sign up to create your own CRM!',
+					'Try DevHub CRM',
+					null,
+					null,
+					'public',
+					now,
+					now,
+				);
 			} catch (error) {
 				console.error('Error creating demo user:', error);
 				throw error;
+			}
+		} else {
+			// Demo user exists - ensure profile exists
+			const existing_profile = db
+				.prepare('SELECT id FROM user_profiles WHERE user_id = ?')
+				.get(demo_user.id);
+
+			if (!existing_profile) {
+				const profile_id = crypto.randomUUID();
+				const now = Date.now();
+				db.prepare(
+					`
+					INSERT INTO user_profiles (
+						id, user_id, username, github_username,
+						bio, tagline, location, website, visibility,
+						created_at, updated_at
+					)
+					VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+				`,
+				).run(
+					profile_id,
+					demo_user.id,
+					'demo-user',
+					null,
+					'This is a demo account with sample data. Sign up to create your own CRM!',
+					'Try DevHub CRM',
+					null,
+					null,
+					'public',
+					now,
+					now,
+				);
 			}
 		}
 

@@ -1,4 +1,5 @@
 import { getRequestEvent, query } from '$app/server';
+import { env } from '$env/dynamic/private';
 import {
 	get_current_user_id,
 	guarded_command,
@@ -6,6 +7,20 @@ import {
 } from '$lib/server/auth-helpers';
 import { db } from '$lib/server/db';
 import * as v from 'valibot';
+
+const DEMO_USER_EMAIL = env.DEMO_USER_EMAIL || 'demo@devhubcrm.com';
+
+/**
+ * Check if the current user is the demo account
+ */
+const is_demo_account = async (): Promise<boolean> => {
+	const user_id = await get_current_user_id();
+	const user = db
+		.prepare('SELECT email FROM user WHERE id = ?')
+		.get(user_id) as { email: string } | undefined;
+
+	return user?.email === DEMO_USER_EMAIL;
+};
 
 interface UserProfile {
 	id: string;
@@ -115,6 +130,10 @@ export const update_basic_info = guarded_form(
 		email: v.pipe(v.string(), v.email('Invalid email address')),
 	}),
 	async ({ name, email }) => {
+		if (await is_demo_account()) {
+			return { error: 'Cannot modify demo account' };
+		}
+
 		const user_id = await get_current_user_id();
 
 		db.prepare(
@@ -131,6 +150,10 @@ export const update_basic_info = guarded_form(
 export const update_name = guarded_command(
 	v.pipe(v.string(), v.minLength(1, 'Name is required')),
 	async (name) => {
+		if (await is_demo_account()) {
+			throw new Error('Cannot modify demo account');
+		}
+
 		const user_id = await get_current_user_id();
 
 		db.prepare(
@@ -147,6 +170,10 @@ export const update_name = guarded_command(
 export const update_email = guarded_command(
 	v.pipe(v.string(), v.email('Invalid email address')),
 	async (email) => {
+		if (await is_demo_account()) {
+			throw new Error('Cannot modify demo account');
+		}
+
 		const user_id = await get_current_user_id();
 
 		console.log('[update_email] Starting update', {
@@ -193,6 +220,10 @@ export const update_profile_details = guarded_form(
 		website: v.optional(v.pipe(v.string(), v.url('Invalid URL'))),
 	}),
 	async ({ username, bio, tagline, location, website }) => {
+		if (await is_demo_account()) {
+			return { error: 'Cannot modify demo account' };
+		}
+
 		const user_id = await get_current_user_id();
 
 		// Check if username is already taken by another user
