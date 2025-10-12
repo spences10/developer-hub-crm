@@ -6,7 +6,7 @@ import {
 } from '$lib/server/auth-helpers';
 import { db } from '$lib/server/db';
 import { fetch_github_contact } from '$lib/server/github';
-import type { Contact, SocialLink } from '$lib/types/db';
+import type { Contact, SocialLink, Tag } from '$lib/types/db';
 import { redirect } from '@sveltejs/kit';
 import * as v from 'valibot';
 
@@ -42,7 +42,7 @@ export const get_contacts = query(async (): Promise<Contact[]> => {
   `);
 
 	const tags_result = tags_stmt.all(...contact_ids) as Array<
-		Contact['tags'][0] & { contact_id: string }
+		Tag & { contact_id: string }
 	>;
 
 	// Group tags by contact_id
