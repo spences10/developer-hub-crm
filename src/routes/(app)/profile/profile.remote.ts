@@ -425,6 +425,44 @@ export const delete_user_social_link = guarded_command(
 );
 
 /**
+ * Get all connected authentication methods
+ */
+export const get_connected_auth_methods = query(
+	async (): Promise<{
+		has_credential: boolean;
+		has_github: boolean;
+		github_username: string | null;
+	}> => {
+		const user_id = await get_current_user_id();
+
+		// Get all account providers for this user
+		const accounts = db
+			.prepare('SELECT providerId FROM account WHERE userId = ?')
+			.all(user_id) as { providerId: string }[];
+
+		const has_credential = accounts.some(
+			(acc) => acc.providerId === 'credential',
+		);
+		const has_github = accounts.some(
+			(acc) => acc.providerId === 'github',
+		);
+
+		// Get GitHub username from profile
+		const profile = db
+			.prepare(
+				'SELECT github_username FROM user_profiles WHERE user_id = ?',
+			)
+			.get(user_id) as { github_username: string | null } | undefined;
+
+		return {
+			has_credential,
+			has_github,
+			github_username: profile?.github_username || null,
+		};
+	},
+);
+
+/**
  * Get GitHub connection status
  */
 export const get_github_connection_status = query(

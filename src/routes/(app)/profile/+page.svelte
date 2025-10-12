@@ -1,6 +1,7 @@
 <script lang="ts">
 	import PageNav from '$lib/components/page-nav.svelte';
 	import SocialLinksManager from '$lib/components/social-links-manager.svelte';
+	import { Email, GitHub } from '$lib/icons';
 	import { seo_configs } from '$lib/seo';
 	import { generate_qr_code_data_url } from '$lib/utils/qr-code';
 	import { Head } from 'svead';
@@ -10,6 +11,7 @@
 		add_user_social_link,
 		delete_user_social_link,
 		disconnect_github,
+		get_connected_auth_methods,
 		get_github_connection_status,
 		get_profile_qr_url,
 		get_user_profile,
@@ -28,6 +30,7 @@
 
 	const profile = get_user_profile();
 	const social_links = get_user_social_links();
+	const auth_methods = get_connected_auth_methods();
 	const github_status = get_github_connection_status();
 	const user_qr = get_user_qr_code();
 	const is_demo = is_demo_user();
@@ -98,60 +101,221 @@
 	</div>
 {:then profile_data}
 	<div class="grid grid-cols-1 gap-6 md:grid-cols-2">
-		<!-- Personal Info -->
+		<!-- Account & Security -->
 		<div class="card bg-base-100 shadow-xl md:col-span-2">
 			<div class="card-body">
-				<h2 class="card-title">Personal Information</h2>
+				<h2 class="card-title">Account & Security</h2>
 				<p class="text-sm opacity-70">
-					Your basic account information
+					Manage your account information, authentication methods, and
+					privacy settings
 				</p>
 
-				<div class="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
-					<fieldset class="fieldset">
-						<legend class="fieldset-legend">Name</legend>
-						{#await is_demo then demo}
-							<label class="input w-full">
-								<input
-									type="text"
-									class="grow"
-									value={profile_data.name}
-									disabled={demo}
-									onblur={(e) =>
-										save_with_indicator(() =>
-											update_name(e.currentTarget.value),
-										)}
-								/>
-							</label>
-							{#if demo}
-								<p class="mt-1 text-xs opacity-60">
-									Cannot modify demo account
-								</p>
-							{/if}
-						{/await}
-					</fieldset>
+				<!-- Personal Information -->
+				<div class="mt-4">
+					<h3 class="mb-3 font-semibold">Personal Information</h3>
+					<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+						<fieldset class="fieldset">
+							<legend class="fieldset-legend">Name</legend>
+							{#await is_demo then demo}
+								<label class="input w-full">
+									<input
+										type="text"
+										class="grow"
+										value={profile_data.name}
+										disabled={demo}
+										onblur={(e) =>
+											save_with_indicator(() =>
+												update_name(e.currentTarget.value),
+											)}
+									/>
+								</label>
+								{#if demo}
+									<p class="mt-1 text-xs opacity-60">
+										Cannot modify demo account
+									</p>
+								{/if}
+							{/await}
+						</fieldset>
 
-					<fieldset class="fieldset">
-						<legend class="fieldset-legend">Email</legend>
-						{#await is_demo then demo}
-							<label class="input w-full">
+						<fieldset class="fieldset">
+							<legend class="fieldset-legend">Email</legend>
+							{#await is_demo then demo}
+								<label class="input w-full">
+									<input
+										type="email"
+										class="grow"
+										value={profile_data.email}
+										disabled={demo}
+										onblur={(e) =>
+											save_with_indicator(() =>
+												update_email(e.currentTarget.value),
+											)}
+									/>
+								</label>
+								{#if demo}
+									<p class="mt-1 text-xs opacity-60">
+										Cannot modify demo account
+									</p>
+								{/if}
+							{/await}
+						</fieldset>
+					</div>
+				</div>
+
+				<div class="divider"></div>
+
+				<!-- Authentication Methods & Privacy -->
+				<div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+					<!-- Authentication Methods -->
+					{#await auth_methods then methods}
+						<div>
+							<h3 class="mb-3 font-semibold">
+								Authentication Methods
+							</h3>
+							<div class="space-y-3">
+								<!-- Email/Password -->
+								<div
+									class="flex items-center justify-between rounded-box border border-base-300 p-4"
+								>
+									<div class="flex items-center gap-3">
+										<div
+											class="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10"
+										>
+											<Email size="20px" />
+										</div>
+										<div>
+											<div class="font-medium">Email & Password</div>
+											<div class="text-sm opacity-60">
+												{#if methods.has_credential}
+													Password is set
+												{:else}
+													No password set
+												{/if}
+											</div>
+										</div>
+									</div>
+									{#if !methods.has_credential}
+										<a
+											href="/forgot-password"
+											class="btn btn-outline btn-sm"
+										>
+											Set Password
+										</a>
+									{/if}
+								</div>
+
+								<!-- GitHub -->
+								<div
+									class="flex items-center justify-between rounded-box border border-base-300 p-4"
+								>
+									<div class="flex items-center gap-3">
+										<div
+											class="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10"
+										>
+											<GitHub size="20px" />
+										</div>
+										<div>
+											<div class="font-medium">GitHub</div>
+											<div class="text-sm opacity-60">
+												{#if methods.has_github}
+													Connected as
+													<strong>{methods.github_username}</strong>
+												{:else}
+													Not connected
+												{/if}
+											</div>
+										</div>
+									</div>
+									{#if methods.has_github}
+										<button
+											onclick={handle_disconnect_github}
+											class="btn btn-outline btn-sm btn-error"
+										>
+											Disconnect
+										</button>
+									{:else}
+										<a
+											href="/api/auth/signin/github"
+											class="btn btn-outline btn-sm"
+										>
+											Connect
+										</a>
+									{/if}
+								</div>
+							</div>
+						</div>
+					{/await}
+
+					<!-- Privacy Settings -->
+					<div>
+						<div class="mb-2 flex items-center gap-2">
+							<h3 class="font-semibold">Privacy</h3>
+							<span class="text-xs font-bold opacity-60">
+								Control who can see your public profile
+							</span>
+						</div>
+						<div class="space-y-3">
+							<label class="flex cursor-pointer items-center gap-3">
 								<input
-									type="email"
-									class="grow"
-									value={profile_data.email}
-									disabled={demo}
-									onblur={(e) =>
+									type="radio"
+									name="visibility"
+									value="public"
+									class="radio radio-primary"
+									checked={profile_data.visibility === 'public'}
+									onchange={() =>
 										save_with_indicator(() =>
-											update_email(e.currentTarget.value),
+											update_visibility('public'),
 										)}
 								/>
+								<div class="flex flex-col">
+									<span class="font-medium">Public</span>
+									<span class="text-sm opacity-60">
+										Anyone can view your profile
+									</span>
+								</div>
 							</label>
-							{#if demo}
-								<p class="mt-1 text-xs opacity-60">
-									Cannot modify demo account
-								</p>
-							{/if}
-						{/await}
-					</fieldset>
+
+							<label class="flex cursor-pointer items-center gap-3">
+								<input
+									type="radio"
+									name="visibility"
+									value="unlisted"
+									class="radio radio-primary"
+									checked={profile_data.visibility === 'unlisted'}
+									onchange={() =>
+										save_with_indicator(() =>
+											update_visibility('unlisted'),
+										)}
+								/>
+								<div class="flex flex-col">
+									<span class="font-medium">Unlisted</span>
+									<span class="text-sm opacity-60">
+										Only people with the link can view
+									</span>
+								</div>
+							</label>
+
+							<label class="flex cursor-pointer items-center gap-3">
+								<input
+									type="radio"
+									name="visibility"
+									value="private"
+									class="radio radio-primary"
+									checked={profile_data.visibility === 'private'}
+									onchange={() =>
+										save_with_indicator(() =>
+											update_visibility('private'),
+										)}
+								/>
+								<div class="flex flex-col">
+									<span class="font-medium">Private</span>
+									<span class="text-sm opacity-60">
+										Only logged-in users can view
+									</span>
+								</div>
+							</label>
+						</div>
+					</div>
 				</div>
 			</div>
 		</div>
@@ -334,119 +498,6 @@
 							<li>Track scans in your analytics (coming soon)</li>
 						</ul>
 					</div>
-				</div>
-			</div>
-		</div>
-
-		<!-- GitHub Integration -->
-		{#await github_status then status}
-			<div class="card bg-base-100 shadow-xl">
-				<div class="card-body">
-					<h2 class="card-title">GitHub Integration</h2>
-					<p class="text-sm opacity-70">
-						Connect your GitHub account for enhanced features
-					</p>
-
-					<div class="mt-4">
-						{#if status.is_connected}
-							<div class="space-y-3">
-								<div class="alert alert-success">
-									<span>
-										Connected as
-										<strong>{status.github_username}</strong>
-									</span>
-								</div>
-								<button
-									onclick={handle_disconnect_github}
-									class="btn btn-outline btn-sm btn-error"
-								>
-									Disconnect GitHub
-								</button>
-							</div>
-						{:else}
-							<div class="alert alert-info">
-								<span>No GitHub account connected</span>
-							</div>
-							<a
-								href="/api/auth/signin/github"
-								class="btn mt-3 btn-sm btn-primary"
-							>
-								Connect GitHub
-							</a>
-						{/if}
-					</div>
-				</div>
-			</div>
-		{/await}
-
-		<!-- Privacy Settings -->
-		<div class="card bg-base-100 shadow-xl">
-			<div class="card-body">
-				<h2 class="card-title">Privacy</h2>
-				<p class="text-sm opacity-70">
-					Control who can see your public profile
-				</p>
-
-				<div class="mt-4 space-y-3">
-					<label class="flex cursor-pointer items-center gap-3">
-						<input
-							type="radio"
-							name="visibility"
-							value="public"
-							class="radio radio-primary"
-							checked={profile_data.visibility === 'public'}
-							onchange={() =>
-								save_with_indicator(() =>
-									update_visibility('public'),
-								)}
-						/>
-						<div class="flex flex-col">
-							<span class="font-medium">Public</span>
-							<span class="text-sm opacity-60">
-								Anyone can view your profile
-							</span>
-						</div>
-					</label>
-
-					<label class="flex cursor-pointer items-center gap-3">
-						<input
-							type="radio"
-							name="visibility"
-							value="unlisted"
-							class="radio radio-primary"
-							checked={profile_data.visibility === 'unlisted'}
-							onchange={() =>
-								save_with_indicator(() =>
-									update_visibility('unlisted'),
-								)}
-						/>
-						<div class="flex flex-col">
-							<span class="font-medium">Unlisted</span>
-							<span class="text-sm opacity-60">
-								Only people with the link can view
-							</span>
-						</div>
-					</label>
-
-					<label class="flex cursor-pointer items-center gap-3">
-						<input
-							type="radio"
-							name="visibility"
-							value="private"
-							class="radio radio-primary"
-							checked={profile_data.visibility === 'private'}
-							onchange={() =>
-								save_with_indicator(() =>
-									update_visibility('private'),
-								)}
-						/>
-						<div class="flex flex-col">
-							<span class="font-medium">Private</span>
-							<span class="text-sm opacity-60">
-								Only logged-in users can view
-							</span>
-						</div>
-					</label>
 				</div>
 			</div>
 		</div>
