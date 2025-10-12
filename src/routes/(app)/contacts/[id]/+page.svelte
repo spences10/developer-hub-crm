@@ -42,6 +42,7 @@
 		update_interaction,
 	} from '../../interactions/interactions.remote';
 	import { get_user_preferences } from '../../settings/settings.remote';
+	import { get_contact_tags } from '../../tags/tags.remote';
 	import { delete_contact, get_contact } from '../contacts.remote';
 
 	const contact_id = $derived(page.params.id);
@@ -393,7 +394,7 @@
 
 {#if contact_id}
 	{#key refresh_key}
-		{#await Promise.all( [get_contact(contact_id), get_user_preferences(), get_interactions(contact_id), get_contact_follow_ups(contact_id)], ) then [contact, preferences, interactions, follow_ups]}
+		{#await Promise.all( [get_contact(contact_id), get_user_preferences(), get_interactions(contact_id), get_contact_follow_ups(contact_id), get_contact_tags(contact_id)], ) then [contact, preferences, interactions, follow_ups, contact_tags]}
 			{@const health_score = calculate_health_score(contact)}
 			{@const health_status = get_health_status(health_score)}
 			{@const pending_follow_ups = follow_ups.filter(
@@ -452,7 +453,7 @@
 				{/if}
 
 				<div class="flex-1">
-					<div class="mb-1 flex items-center gap-3">
+					<div class="mb-2 flex flex-wrap items-center gap-2">
 						{#if contact.is_vip}
 							<span
 								class="badge flex items-center gap-1 badge-primary"
@@ -460,6 +461,16 @@
 								<StarFill size="14px" />
 								VIP
 							</span>
+						{/if}
+						{#if contact_tags && contact_tags.length > 0}
+							{#each contact_tags as tag}
+								<span
+									class="badge badge-sm"
+									style="background-color: {tag.color}; color: white; border: none;"
+								>
+									{tag.name}
+								</span>
+							{/each}
 						{/if}
 					</div>
 					{#if contact.title || contact.company}

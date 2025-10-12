@@ -102,6 +102,28 @@ CREATE TABLE IF NOT EXISTS social_links (
   FOREIGN KEY (contact_id) REFERENCES contacts(id) ON DELETE CASCADE
 );
 
+-- Tags table
+CREATE TABLE IF NOT EXISTS tags (
+  id TEXT PRIMARY KEY,
+  user_id TEXT NOT NULL,
+  name TEXT NOT NULL,
+  color TEXT NOT NULL,
+  created_at INTEGER NOT NULL,
+  updated_at INTEGER NOT NULL,
+  FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE
+);
+
+-- Contact tags junction table
+CREATE TABLE IF NOT EXISTS contact_tags (
+  id TEXT PRIMARY KEY,
+  contact_id TEXT NOT NULL,
+  tag_id TEXT NOT NULL,
+  created_at INTEGER NOT NULL,
+  FOREIGN KEY (contact_id) REFERENCES contacts(id) ON DELETE CASCADE,
+  FOREIGN KEY (tag_id) REFERENCES tags(id) ON DELETE CASCADE,
+  UNIQUE(contact_id, tag_id)
+);
+
 -- User preferences table
 CREATE TABLE IF NOT EXISTS user_preferences (
   id TEXT PRIMARY KEY,
@@ -172,6 +194,11 @@ CREATE INDEX IF NOT EXISTS idx_follow_ups_due_date ON follow_ups(due_date);
 CREATE INDEX IF NOT EXISTS idx_follow_ups_completed ON follow_ups(completed);
 
 CREATE INDEX IF NOT EXISTS idx_social_links_contact_id ON social_links(contact_id);
+
+CREATE INDEX IF NOT EXISTS idx_tags_user_id ON tags(user_id);
+
+CREATE INDEX IF NOT EXISTS idx_contact_tags_contact_id ON contact_tags(contact_id);
+CREATE INDEX IF NOT EXISTS idx_contact_tags_tag_id ON contact_tags(tag_id);
 
 CREATE INDEX IF NOT EXISTS idx_user_profiles_username ON user_profiles(username);
 CREATE INDEX IF NOT EXISTS idx_user_profiles_user_id ON user_profiles(user_id);

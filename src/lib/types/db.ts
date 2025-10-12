@@ -102,3 +102,19 @@ export interface ProfileView {
 	referrer: string | null;
 	created_at: number;
 }
+
+export interface Tag {
+	id: string;
+	user_id: string;
+	name: string;
+	color: string; // Hex color code
+	created_at: number;
+	updated_at: number;
+}
+
+export interface ContactTag {
+	id: string;
+	contact_id: string;
+	tag_id: string;
+	created_at: number;
+}

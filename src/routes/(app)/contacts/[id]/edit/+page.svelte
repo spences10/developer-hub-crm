@@ -2,7 +2,15 @@
 	import { page } from '$app/state';
 	import PageNav from '$lib/components/page-nav.svelte';
 	import SocialLinksManager from '$lib/components/social-links-manager.svelte';
+	import TagManager from '$lib/components/tag-manager.svelte';
 	import { Cancel } from '$lib/icons';
+	import {
+		add_tag_to_contact,
+		create_tag,
+		get_contact_tags,
+		get_tags,
+		remove_tag_from_contact,
+	} from '../../../tags/tags.remote';
 	import {
 		add_social_link,
 		delete_social_link,
@@ -289,6 +297,27 @@
 							on_delete={delete_social_link}
 							on_change={() => contact_query?.refresh()}
 						/>
+
+						<!-- Tags Management -->
+						{#await Promise.all( [get_contact_tags(contact.id), get_tags()], ) then [contact_tags, all_tags]}
+							<TagManager
+								{contact_tags}
+								available_tags={all_tags}
+								on_add_tag={(tag_id) =>
+									add_tag_to_contact({
+										contact_id: contact.id,
+										tag_id,
+									})}
+								on_remove_tag={(tag_id) =>
+									remove_tag_from_contact({
+										contact_id: contact.id,
+										tag_id,
+									})}
+								on_create_tag={(name, color) =>
+									create_tag({ name, color })}
+								on_change={() => contact_query?.refresh()}
+							/>
+						{/await}
 
 						<!-- Error Display -->
 						{#if error}

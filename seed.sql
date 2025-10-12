@@ -8,6 +8,8 @@
 -- This will add sample contacts, interactions, and follow-ups to your account
 
 -- Clear only CRM data (keeps user/auth data)
+DELETE FROM contact_tags;
+DELETE FROM tags;
 DELETE FROM social_links;
 DELETE FROM follow_ups;
 DELETE FROM interactions;
@@ -209,8 +211,126 @@ INSERT INTO social_links (id, contact_id, platform, url, created_at) VALUES
 ('social_030', 'contact_018', 'github', 'https://github.com/miguelsantos', CAST(strftime('%s', 'now', '-10 days') AS INTEGER) * 1000),
 ('social_031', 'contact_018', 'linkedin', 'https://linkedin.com/in/miguelsantos', CAST(strftime('%s', 'now', '-10 days') AS INTEGER) * 1000);
 
+-- Create tags
+INSERT INTO tags (id, user_id, name, color, created_at, updated_at) VALUES
+-- Relationship stage tags
+('tag_001', (SELECT id FROM user LIMIT 1), 'Hot Lead', '#ef4444', CAST(strftime('%s', 'now', '-180 days') AS INTEGER) * 1000, CAST(strftime('%s', 'now', '-180 days') AS INTEGER) * 1000),
+('tag_002', (SELECT id FROM user LIMIT 1), 'Active', '#22c55e', CAST(strftime('%s', 'now', '-180 days') AS INTEGER) * 1000, CAST(strftime('%s', 'now', '-180 days') AS INTEGER) * 1000),
+('tag_003', (SELECT id FROM user LIMIT 1), 'Exploring', '#3b82f6', CAST(strftime('%s', 'now', '-180 days') AS INTEGER) * 1000, CAST(strftime('%s', 'now', '-180 days') AS INTEGER) * 1000),
+
+-- Conference tags
+('tag_004', (SELECT id FROM user LIMIT 1), 'SvelteConf 2024', '#ff3e00', CAST(strftime('%s', 'now', '-180 days') AS INTEGER) * 1000, CAST(strftime('%s', 'now', '-180 days') AS INTEGER) * 1000),
+('tag_005', (SELECT id FROM user LIMIT 1), 'KubeCon', '#326ce5', CAST(strftime('%s', 'now', '-150 days') AS INTEGER) * 1000, CAST(strftime('%s', 'now', '-150 days') AS INTEGER) * 1000),
+('tag_006', (SELECT id FROM user LIMIT 1), 'Conference', '#a855f7', CAST(strftime('%s', 'now', '-120 days') AS INTEGER) * 1000, CAST(strftime('%s', 'now', '-120 days') AS INTEGER) * 1000),
+
+-- Company type tags
+('tag_007', (SELECT id FROM user LIMIT 1), 'Startup', '#f59e0b', CAST(strftime('%s', 'now', '-170 days') AS INTEGER) * 1000, CAST(strftime('%s', 'now', '-170 days') AS INTEGER) * 1000),
+('tag_008', (SELECT id FROM user LIMIT 1), 'Enterprise', '#8b5cf6', CAST(strftime('%s', 'now', '-180 days') AS INTEGER) * 1000, CAST(strftime('%s', 'now', '-180 days') AS INTEGER) * 1000),
+
+-- Role tags
+('tag_009', (SELECT id FROM user LIMIT 1), 'Leadership', '#dc2626', CAST(strftime('%s', 'now', '-180 days') AS INTEGER) * 1000, CAST(strftime('%s', 'now', '-180 days') AS INTEGER) * 1000),
+('tag_010', (SELECT id FROM user LIMIT 1), 'Founder', '#ea580c', CAST(strftime('%s', 'now', '-170 days') AS INTEGER) * 1000, CAST(strftime('%s', 'now', '-170 days') AS INTEGER) * 1000),
+
+-- Tech/Interest tags
+('tag_011', (SELECT id FROM user LIMIT 1), 'Open Source', '#10b981', CAST(strftime('%s', 'now', '-170 days') AS INTEGER) * 1000, CAST(strftime('%s', 'now', '-170 days') AS INTEGER) * 1000),
+('tag_012', (SELECT id FROM user LIMIT 1), 'DevOps', '#0ea5e9', CAST(strftime('%s', 'now', '-150 days') AS INTEGER) * 1000, CAST(strftime('%s', 'now', '-150 days') AS INTEGER) * 1000),
+('tag_013', (SELECT id FROM user LIMIT 1), 'AI/ML', '#ec4899', CAST(strftime('%s', 'now', '-120 days') AS INTEGER) * 1000, CAST(strftime('%s', 'now', '-120 days') AS INTEGER) * 1000),
+('tag_014', (SELECT id FROM user LIMIT 1), 'Security', '#dc2626', CAST(strftime('%s', 'now', '-100 days') AS INTEGER) * 1000, CAST(strftime('%s', 'now', '-100 days') AS INTEGER) * 1000),
+('tag_015', (SELECT id FROM user LIMIT 1), 'Frontend', '#06b6d4', CAST(strftime('%s', 'now', '-140 days') AS INTEGER) * 1000, CAST(strftime('%s', 'now', '-140 days') AS INTEGER) * 1000),
+('tag_016', (SELECT id FROM user LIMIT 1), 'Design Systems', '#a78bfa', CAST(strftime('%s', 'now', '-140 days') AS INTEGER) * 1000, CAST(strftime('%s', 'now', '-140 days') AS INTEGER) * 1000),
+('tag_017', (SELECT id FROM user LIMIT 1), 'Mobile', '#f97316', CAST(strftime('%s', 'now', '-90 days') AS INTEGER) * 1000, CAST(strftime('%s', 'now', '-90 days') AS INTEGER) * 1000),
+('tag_018', (SELECT id FROM user LIMIT 1), 'Data Engineering', '#6366f1', CAST(strftime('%s', 'now', '-80 days') AS INTEGER) * 1000, CAST(strftime('%s', 'now', '-80 days') AS INTEGER) * 1000),
+('tag_019', (SELECT id FROM user LIMIT 1), 'Blockchain', '#eab308', CAST(strftime('%s', 'now', '-30 days') AS INTEGER) * 1000, CAST(strftime('%s', 'now', '-30 days') AS INTEGER) * 1000),
+('tag_020', (SELECT id FROM user LIMIT 1), 'Testing', '#14b8a6', CAST(strftime('%s', 'now', '-20 days') AS INTEGER) * 1000, CAST(strftime('%s', 'now', '-20 days') AS INTEGER) * 1000);
+
+-- Create contact tags (assign tags to contacts)
+INSERT INTO contact_tags (id, contact_id, tag_id, created_at) VALUES
+-- Sarah Chen (VIP, Enterprise, Leadership, Conference)
+('ct_001', 'contact_001', 'tag_001', CAST(strftime('%s', 'now', '-180 days') AS INTEGER) * 1000), -- Hot Lead
+('ct_002', 'contact_001', 'tag_004', CAST(strftime('%s', 'now', '-180 days') AS INTEGER) * 1000), -- SvelteConf 2024
+('ct_003', 'contact_001', 'tag_008', CAST(strftime('%s', 'now', '-180 days') AS INTEGER) * 1000), -- Enterprise
+('ct_004', 'contact_001', 'tag_009', CAST(strftime('%s', 'now', '-180 days') AS INTEGER) * 1000), -- Leadership
+('ct_005', 'contact_001', 'tag_015', CAST(strftime('%s', 'now', '-180 days') AS INTEGER) * 1000), -- Frontend
+
+-- Marcus Rodriguez (VIP, Startup, Founder, Open Source)
+('ct_006', 'contact_002', 'tag_002', CAST(strftime('%s', 'now', '-170 days') AS INTEGER) * 1000), -- Active
+('ct_007', 'contact_002', 'tag_007', CAST(strftime('%s', 'now', '-170 days') AS INTEGER) * 1000), -- Startup
+('ct_008', 'contact_002', 'tag_010', CAST(strftime('%s', 'now', '-170 days') AS INTEGER) * 1000), -- Founder
+('ct_009', 'contact_002', 'tag_011', CAST(strftime('%s', 'now', '-170 days') AS INTEGER) * 1000), -- Open Source
+
+-- Emily Watson (VIP, Enterprise, Leadership)
+('ct_010', 'contact_003', 'tag_001', CAST(strftime('%s', 'now', '-160 days') AS INTEGER) * 1000), -- Hot Lead
+('ct_011', 'contact_003', 'tag_008', CAST(strftime('%s', 'now', '-160 days') AS INTEGER) * 1000), -- Enterprise
+('ct_012', 'contact_003', 'tag_009', CAST(strftime('%s', 'now', '-160 days') AS INTEGER) * 1000), -- Leadership
+
+-- Alex Kumar (DevOps, Conference)
+('ct_013', 'contact_004', 'tag_005', CAST(strftime('%s', 'now', '-150 days') AS INTEGER) * 1000), -- KubeCon
+('ct_014', 'contact_004', 'tag_012', CAST(strftime('%s', 'now', '-150 days') AS INTEGER) * 1000), -- DevOps
+('ct_015', 'contact_004', 'tag_003', CAST(strftime('%s', 'now', '-150 days') AS INTEGER) * 1000), -- Exploring
+
+-- Jessica Park (Design Systems, Frontend)
+('ct_016', 'contact_005', 'tag_016', CAST(strftime('%s', 'now', '-140 days') AS INTEGER) * 1000), -- Design Systems
+('ct_017', 'contact_005', 'tag_015', CAST(strftime('%s', 'now', '-140 days') AS INTEGER) * 1000), -- Frontend
+('ct_018', 'contact_005', 'tag_003', CAST(strftime('%s', 'now', '-140 days') AS INTEGER) * 1000), -- Exploring
+
+-- David Thompson (Frontend)
+('ct_019', 'contact_006', 'tag_015', CAST(strftime('%s', 'now', '-130 days') AS INTEGER) * 1000), -- Frontend
+('ct_020', 'contact_006', 'tag_003', CAST(strftime('%s', 'now', '-130 days') AS INTEGER) * 1000), -- Exploring
+
+-- Priya Sharma (AI/ML)
+('ct_021', 'contact_007', 'tag_013', CAST(strftime('%s', 'now', '-120 days') AS INTEGER) * 1000), -- AI/ML
+('ct_022', 'contact_007', 'tag_006', CAST(strftime('%s', 'now', '-120 days') AS INTEGER) * 1000), -- Conference
+('ct_023', 'contact_007', 'tag_003', CAST(strftime('%s', 'now', '-120 days') AS INTEGER) * 1000), -- Exploring
+
+-- Tom Anderson (Mobile)
+('ct_024', 'contact_008', 'tag_017', CAST(strftime('%s', 'now', '-110 days') AS INTEGER) * 1000), -- Mobile
+('ct_025', 'contact_008', 'tag_003', CAST(strftime('%s', 'now', '-110 days') AS INTEGER) * 1000), -- Exploring
+
+-- Lisa Zhang (Security, DevOps)
+('ct_026', 'contact_009', 'tag_014', CAST(strftime('%s', 'now', '-100 days') AS INTEGER) * 1000), -- Security
+('ct_027', 'contact_009', 'tag_012', CAST(strftime('%s', 'now', '-100 days') AS INTEGER) * 1000), -- DevOps
+('ct_028', 'contact_009', 'tag_003', CAST(strftime('%s', 'now', '-100 days') AS INTEGER) * 1000), -- Exploring
+
+-- Ryan O'Neill (Mobile)
+('ct_029', 'contact_010', 'tag_017', CAST(strftime('%s', 'now', '-90 days') AS INTEGER) * 1000), -- Mobile
+('ct_030', 'contact_010', 'tag_003', CAST(strftime('%s', 'now', '-90 days') AS INTEGER) * 1000), -- Exploring
+
+-- Nina Patel (Data Engineering)
+('ct_031', 'contact_011', 'tag_018', CAST(strftime('%s', 'now', '-80 days') AS INTEGER) * 1000), -- Data Engineering
+('ct_032', 'contact_011', 'tag_003', CAST(strftime('%s', 'now', '-80 days') AS INTEGER) * 1000), -- Exploring
+
+-- Chris Martinez (DevOps)
+('ct_033', 'contact_012', 'tag_012', CAST(strftime('%s', 'now', '-70 days') AS INTEGER) * 1000), -- DevOps
+('ct_034', 'contact_012', 'tag_003', CAST(strftime('%s', 'now', '-70 days') AS INTEGER) * 1000), -- Exploring
+
+-- Sophie Laurent (Leadership)
+('ct_035', 'contact_013', 'tag_009', CAST(strftime('%s', 'now', '-60 days') AS INTEGER) * 1000), -- Leadership
+('ct_036', 'contact_013', 'tag_003', CAST(strftime('%s', 'now', '-60 days') AS INTEGER) * 1000), -- Exploring
+
+-- Ahmed Hassan (Startup)
+('ct_037', 'contact_014', 'tag_007', CAST(strftime('%s', 'now', '-50 days') AS INTEGER) * 1000), -- Startup
+('ct_038', 'contact_014', 'tag_003', CAST(strftime('%s', 'now', '-50 days') AS INTEGER) * 1000), -- Exploring
+
+-- Kate Wilson (Open Source)
+('ct_039', 'contact_015', 'tag_011', CAST(strftime('%s', 'now', '-40 days') AS INTEGER) * 1000), -- Open Source
+('ct_040', 'contact_015', 'tag_003', CAST(strftime('%s', 'now', '-40 days') AS INTEGER) * 1000), -- Exploring
+
+-- James Lee (Blockchain)
+('ct_041', 'contact_016', 'tag_019', CAST(strftime('%s', 'now', '-30 days') AS INTEGER) * 1000), -- Blockchain
+('ct_042', 'contact_016', 'tag_003', CAST(strftime('%s', 'now', '-30 days') AS INTEGER) * 1000), -- Exploring
+
+-- Rachel Green (Testing)
+('ct_043', 'contact_017', 'tag_020', CAST(strftime('%s', 'now', '-20 days') AS INTEGER) * 1000), -- Testing
+('ct_044', 'contact_017', 'tag_003', CAST(strftime('%s', 'now', '-20 days') AS INTEGER) * 1000), -- Exploring
+
+-- Miguel Santos (Startup)
+('ct_045', 'contact_018', 'tag_007', CAST(strftime('%s', 'now', '-10 days') AS INTEGER) * 1000), -- Startup
+('ct_046', 'contact_018', 'tag_003', CAST(strftime('%s', 'now', '-10 days') AS INTEGER) * 1000); -- Exploring
+
 -- Summary
 -- Contacts: 18 contacts (3 VIP, 15 regular)
 -- Interactions: 37 interactions (meetings, calls, emails, coffee chats)
 -- Follow-ups: 20 follow-ups (7 completed, 2 overdue, 11 upcoming)
 -- Social Links: 31 social links (GitHub, LinkedIn, Twitter, Dribbble)
+-- Tags: 20 tags (relationship stages, conferences, company types, roles, tech interests)
+-- Contact Tags: 46 tag assignments

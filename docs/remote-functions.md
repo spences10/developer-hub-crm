@@ -1,9 +1,24 @@
-# Remote Functions Pattern
+# Remote Functions - Practical Reference
 
-Remote functions provide type-safe client-server communication in
-SvelteKit without needing to pass around `locals` or event objects.
+> For deep understanding of why remote functions exist and advanced patterns, see [remote-functions-deep-dive.md](./remote-functions-deep-dive.md)
 
-## Core Concepts
+Remote functions provide type-safe client-server communication in SvelteKit without needing to pass around `locals` or event objects.
+
+## Quick Start
+
+### Enable in Config
+
+```javascript
+// svelte.config.js
+export default {
+  kit: {
+    experimental: {
+      remoteFunctions: true,
+      async: true  // ← Highly recommended! Enables Async Svelte
+    }
+  }
+};
+```
 
 ### File Naming
 
@@ -14,11 +29,12 @@ src/routes/auth/auth.remote.ts
 src/lib/server/contacts.remote.ts
 ```
 
-### Three Types
+### Four Types
 
-1. **query** - Fetch data from server
-2. **form** - Handle form submissions with validation
-3. **command** - Execute server-side mutations
+1. **query** - Fetch data from server (read-only)
+2. **form** - Handle form submissions with validation (progressive enhancement)
+3. **command** - Execute server-side mutations (requires JavaScript)
+4. **prerender** - Pre-render data at build time (static)
 
 ## Query Functions
 
@@ -51,9 +67,9 @@ export const get_all_contacts = query(async () => {
 
 ### Batched Queries (With Parameters)
 
-**IMPORTANT:** For query functions that accept parameters, use
-`query.batch()` instead of `query()`. This enables automatic request
-batching and proper TypeScript typing.
+**IMPORTANT:** Use `query.batch()` when you need to solve N+1 query problems (e.g., fetching related data for each item in a list). This batches multiple calls into a single request.
+
+**Only use `query.batch` if you're actually batching** - if you're just returning a function that executes queries individually, use regular `query()` instead.
 
 ```typescript
 // contacts.remote.ts
@@ -167,88 +183,62 @@ export const login = form(
 </form>
 ```
 
-### Refreshing Queries After Form Submission
+### Refreshing Data After Mutations
 
-When a form updates data, you need to refresh queries to show the
-updated data. There are two approaches:
+**Default Behaviors:**
+- **Forms**: Automatically refresh ALL queries on the page (mirrors non-JS behavior)
+- **Commands**: Refresh NOTHING by default (must explicitly opt-in)
 
-#### Option 1: Server-side refresh (recommended)
+#### Single-Flight Mutation (Recommended for Performance)
 
-Call `.refresh()` on the query from within the form handler:
+Call `.refresh()` on queries from within the form/command handler to refresh specific data in the same request:
 
 ```typescript
-// settings.remote.ts
-export const get_preferences = query(() => {
-	return db.prepare('SELECT * FROM preferences').get();
+// contacts.remote.ts
+export const get_contacts = query(async () => {
+  const user_id = await get_current_user_id();
+  return db.query('SELECT * FROM contacts WHERE user_id = ?', [user_id]);
 });
 
-export const update_preferences = form(
-	v.object({
-		theme: v.string(),
-	}),
-	async (data) => {
-		// Update database
-		db.prepare('UPDATE preferences SET theme = ?').run(data.theme);
+export const create_contact = form(
+  v.object({
+    name: v.string(),
+    email: v.string(),
+  }),
+  async (data) => {
+    const user_id = await get_current_user_id();
+    await db.insert('contacts', { ...data, user_id });
 
-		// Refresh the query so UI updates
-		await get_preferences().refresh();
+    // ✅ Single-flight mutation: refresh in same request
+    await get_contacts.refresh();
 
-		// Don't redirect - stay on same page to see updates
-	},
+    return { success: true };
+  }
 );
 ```
 
-```svelte
-<script lang="ts">
-	import {
-		get_preferences,
-		update_preferences,
-	} from './settings.remote';
+**Why this is better:**
+- **Without**: 2 round trips (mutation request + separate refresh request)
+- **With**: 1 round trip (mutation with embedded refresh data in response)
 
-	// Store query in a reactive variable
-	const preferences = get_preferences();
-</script>
+#### Alternative: Redirect After Save
 
-<!-- Use the reactive variable, not a function call -->
-{#await preferences then prefs}
-	<form {...update_preferences}>
-		<input name="theme" value={prefs.theme} />
-		<button>Save</button>
-	</form>
-{/await}
-```
-
-**Key points:**
-
-- Store query result in a variable
-  (`const preferences = get_preferences()`)
-- Use the variable in `{#await}`, not a function call
-- Call `.refresh()` in the form handler
-- Don't redirect if you want to show the update on the same page
-
-#### Option 2: Redirect after save
-
-If you redirect after saving, the new page will fetch fresh data:
+If you redirect, the new page fetches fresh data automatically:
 
 ```typescript
-export const update_preferences = form(
-	v.object({ theme: v.string() }),
-	async (data) => {
-		db.prepare('UPDATE preferences SET theme = ?').run(data.theme);
-		redirect(303, '/settings'); // Fresh load gets new data
-	},
-);
+export const create_contact = form(schema, async (data) => {
+  const id = await db.insert('contacts', data);
+  redirect(303, `/contacts/${id}`); // New page loads fresh data
+});
 ```
 
-**Trade-off:** Redirect causes a full page reload, but ensures all
-data is fresh.
+**Trade-off:** Causes full page navigation but guarantees fresh data.
 
 ## Command Functions
 
-Use for mutations without forms (like button clicks).
+Use for mutations without forms (like button clicks). Commands require JavaScript and **do not refresh anything by default**.
 
-**IMPORTANT:** Commands must return a value for `await` to properly
-complete. Always return `{ success: true }` or an error object.
+**IMPORTANT:** Commands must return a value for `await` to properly complete. Always return `{ success: true }` or an error object.
 
 ```typescript
 // contacts.remote.ts
@@ -256,150 +246,88 @@ import { command } from '$app/server';
 import * as v from 'valibot';
 
 export const delete_contact = command(
-	v.string(), // Validate the contact ID
-	async (id) => {
-		await db.query('DELETE FROM contacts WHERE id = ?', [id]);
+  v.string(), // Validate the contact ID
+  async (id) => {
+    const user_id = await get_current_user_id();
+    await db.query('DELETE FROM contacts WHERE id = ? AND user_id = ?', [id, user_id]);
 
-		return { success: true }; // ✅ Required for proper async completion
-	},
+    // ✅ Explicitly refresh queries (commands don't refresh by default)
+    await get_contacts.refresh();
+
+    return { success: true }; // ✅ Required for proper async completion
+  }
 );
 ```
 
 ```svelte
 <script lang="ts">
-	import { delete_contact } from './contacts.remote';
+  import { delete_contact, get_contacts } from './contacts.remote';
+
+  const contacts = await get_contacts();
 </script>
 
-<button onclick={() => delete_contact(contact.id)}> Delete </button>
+<button onclick={() => delete_contact(contact.id)}>
+  Delete
+</button>
 ```
 
 **Why return values matter:**
 
-Without a return value, the command may not fully complete before the
-next operation (like incrementing `refresh_key`), causing UI updates
-to fail. Always return either:
+Without a return value, the command may not fully complete before the next operation, causing UI updates to fail. Always return either:
 
 - `{ success: true }` for successful operations
 - `{ error: 'message' }` for errors
 
-## Re-fetching Data After Mutations
+## Client-Side Cache & Deduplication
 
-After mutations (create/update/delete), use `.refresh()` on stored
-query variables to update the UI.
+Remote functions use a hidden client-side cache:
 
-### Single Query Pattern
+**Cache Key**: `remote_function_id + stringified_payload`
 
+**Example**:
 ```svelte
-<script lang="ts">
-	import {
-		delete_contact,
-		get_all_contacts,
-	} from './contacts.remote';
-
-	// Store query in a variable for reactivity
-	const contacts = get_all_contacts();
-
-	async function handle_delete(id: string) {
-		await delete_contact(id);
-		await contacts.refresh(); // ✅ Refreshes cached query data
-	}
+<script>
+  // Called 3 times across different components
+  const user1 = await get_user('user-123');  // Fetches from server
+  const user2 = await get_user('user-123');  // Cache hit!
+  const user3 = await get_user('user-456');  // Different ID, fetches
 </script>
-
-{#await contacts then contact_list}
-	<ul>
-		{#each contact_list as contact}
-			<li>
-				{contact.name}
-				<button onclick={() => handle_delete(contact.id)}>
-					Delete
-				</button>
-			</li>
-		{/each}
-	</ul>
-{/await}
 ```
 
-### Multiple Queries Pattern (Promise.all)
+**Benefits:**
+- No need to hoist data loading to parent components
+- Use queries wherever you need them
+- Automatic deduplication across components
+- Reduces network requests
 
-**IMPORTANT:** When using `Promise.all()` with multiple queries, you
-MUST store the queries in variables:
+## Async Svelte & Boundaries
+
+When you enable the `async` flag, you get access to Boundary components for coordinated loading states:
 
 ```svelte
-<script lang="ts">
-	import {
-		delete_interaction,
-		get_all_interactions,
-		update_interaction,
-	} from './interactions.remote';
-	import { get_user_preferences } from './settings.remote';
+<script>
+  import { Boundary } from 'svelte';
+  import { get_contacts, get_stats } from './data.remote';
 
-	// ✅ Store queries in variables
-	const all_interactions = get_all_interactions();
-	const preferences = get_user_preferences();
-
-	async function handle_delete(id: string) {
-		await delete_interaction(id);
-		await all_interactions.refresh(); // ✅ Refreshes the cache
-	}
-
-	async function handle_update(id: string, data: any) {
-		await update_interaction({ id, ...data });
-		await all_interactions.refresh(); // ✅ Refreshes the cache
-	}
+  // Both awaits coordinate through boundary
+  const contacts = await get_contacts();
+  const stats = await get_stats();
 </script>
 
-<!-- Use stored variables in Promise.all -->
-{#await Promise.all( [all_interactions, preferences], ) then [interactions_data, preferences_data]}
-	<div>
-		{#each interactions_data as interaction}
-			<div>
-				<p>{interaction.note}</p>
-				<p>
-					{format_date(
-						interaction.created_at,
-						preferences_data.date_format,
-					)}
-				</p>
-				<button onclick={() => handle_delete(interaction.id)}
-					>Delete</button
-				>
-			</div>
-		{/each}
-	</div>
-{/await}
+<Boundary>
+  {#snippet pending()}
+    <!-- Single loading screen while ANY async work pending -->
+    <div>Loading dashboard...</div>
+  {/snippet}
+
+  <!-- Main content shows when ALL async work complete -->
+  <h1>Contacts: {contacts.length}</h1>
+  <p>Total interactions: {stats.interactions}</p>
+</Boundary>
 ```
 
-**Why this works:**
-
-- Queries are cached while they're on the page
-- Storing queries in variables allows Svelte to track them reactively
-- Calling `.refresh()` on a stored variable updates the cache AND
-  triggers reactivity
-- The `{#await}` block automatically re-runs with fresh data
-
-**❌ Anti-patterns to avoid:**
-
-1. **Don't call queries directly in Promise.all:**
-
-   ```svelte
-   <!-- ❌ BAD - query called inline, .refresh() won't work -->
-   {#await Promise.all([get_all_interactions(), get_user_preferences()]) then ...}
-   ```
-
-2. **Don't use `{#key}` blocks with Promise.all:**
-
-   ```svelte
-   <!-- ❌ BAD - {#key} recreates block but gets cached data -->
-   {#key refresh_key}
-     {#await Promise.all([...]) then ...}
-   {/key}
-   ```
-
-3. **Never use `window.location.reload()`:**
-   - Loses scroll position
-   - Clears all component state
-   - Provides poor user experience
-   - Defeats Svelte's reactivity system
+**Without Boundary**: Multiple loading spinners (bad UX)
+**With Boundary**: Single coordinated loading screen (good UX)
 
 ## Accessing Request Context
 
@@ -447,10 +375,35 @@ In Svelte 5, use `page` from `$app/state` instead of the deprecated
 
 ## Key Benefits
 
-1. **No locals passing** - Access request context directly via
-   `getRequestEvent()`
-2. **Type-safe** - Full TypeScript support
+1. **No locals passing** - Access request context directly via `getRequestEvent()`
+2. **Type-safe** - Full TypeScript support without magic
 3. **Automatic validation** - Built-in schema validation with valibot
 4. **Progressive enhancement** - Forms work without JavaScript
 5. **Simple** - No need for API routes or +page.server.ts
-6. **Automatic batching** - `query.batch()` optimizes multiple calls
+6. **Automatic caching** - Client-side cache with deduplication
+7. **Single-flight mutations** - Refresh data in same request (performance!)
+8. **Flexible refresh** - Granular control over what refreshes when
+
+## Best Practices
+
+✅ **DO:**
+- Enable the `async` flag in config for Boundary components
+- Use single-flight mutations (call `.refresh()` in form/command handlers)
+- Use `query.batch()` for actual batching (N+1 prevention)
+- Always validate with schemas (endpoints are public!)
+- Use auth helpers for consistent authentication
+- Verify ownership in all mutations
+- Return values from commands (`{ success: true }`)
+
+❌ **DON'T:**
+- Use `query.batch()` if you're not actually batching
+- Forget that commands don't refresh by default
+- Use `window.location.reload()` (defeats reactivity)
+- Forget that remote functions are public endpoints
+- Assume route-based protection works
+
+## See Also
+
+- [remote-functions-deep-dive.md](./remote-functions-deep-dive.md) - Complete guide with rationale and advanced patterns
+- [auth-helpers.ts](../src/lib/server/auth-helpers.ts) - Authentication wrapper examples
+- [Svelte Radio: Remote Functions Interview](../transcript.md)

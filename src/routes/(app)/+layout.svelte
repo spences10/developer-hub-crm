@@ -85,6 +85,7 @@
 									</li>
 									<li><a href="/dashboard">Dashboard</a></li>
 									<li><a href="/contacts">Contacts</a></li>
+									<li><a href="/tags">Tags</a></li>
 									<li><a href="/interactions">Interactions</a></li>
 									<li><a href="/follow-ups">Follow-ups</a></li>
 									<li><a href="/settings">Settings</a></li>
