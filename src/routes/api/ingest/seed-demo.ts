@@ -4,7 +4,7 @@ import { db } from '$lib/server/db';
 import fs from 'node:fs';
 import path from 'node:path';
 
-const DEMO_USER_EMAIL = env.DEMO_USER_EMAIL || 'demo@devhubcrm.com';
+const DEMO_USER_EMAIL = env.DEMO_USER_EMAIL || 'demo@devhub.party';
 const DEMO_USER_NAME = env.DEMO_USER_NAME || 'Demo User';
 const DEMO_PASSWORD = env.DEMO_PASSWORD || 'demo1234567890';
 

@@ -8,7 +8,7 @@ import { seed_demo } from './seed-demo';
  *
  * Trigger a database backup:
  *
- curl -X POST https://devhubcrm.com/api/ingest \
+ curl -X POST https://devhub.party/api/ingest \
    -H "Content-Type: application/json" \
    -d '{"task": "backup_database", "token": "your-secret-token"}'
  *
@@ -16,7 +16,7 @@ import { seed_demo } from './seed-demo';
  *
  * Reset demo account with seed data:
  *
- curl -X POST https://devhubcrm.com/api/ingest \
+ curl -X POST https://devhub.party/api/ingest \
    -H "Content-Type: application/json" \
    -d '{"task": "seed_demo", "token": "your-secret-token"}'
  */

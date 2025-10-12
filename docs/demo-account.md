@@ -10,7 +10,7 @@ interactions, 20 follow-ups). Auto-resets every 6 hours.
 ```typescript
 export const demo_login = command(async () => {
 	await auth.api.signInEmail({
-		body: { email: 'demo@devhubcrm.com', password: 'demo1234567890' },
+		body: { email: 'demo@devhub.party', password: 'demo1234567890' },
 		headers: getRequestEvent().request.headers,
 	});
 	return { success: true };
@@ -36,7 +36,7 @@ export const demo_login = command(async () => {
 **Demo banner (`src/routes/(app)/+layout.svelte`):**
 
 ```svelte
-{#if user?.email === 'demo@devhubcrm.com'}
+{#if user?.email === 'demo@devhub.party'}
 	<div class="alert alert-info">
 		Demo mode - data resets every 6 hours. <a href="/register"
 			>Sign up</a
@@ -50,7 +50,7 @@ export const demo_login = command(async () => {
 **1. Seed demo:**
 
 ```bash
-curl -X POST https://devhubcrm.com/api/ingest \
+curl -X POST https://devhub.party/api/ingest \
   -H "Content-Type: application/json" \
   -d '{"task": "seed_demo", "token": "your-ingest-token"}'
 ```
@@ -65,7 +65,7 @@ hours
 ## Optional Restrictions
 
 ```typescript
-if (user.email === 'demo@devhubcrm.com') {
+if (user.email === 'demo@devhub.party') {
 	return { error: 'Not available in demo mode' };
 }
 ```

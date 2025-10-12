@@ -641,7 +641,7 @@ export const delete_contact = command(v.string(), async (id) => {
 ### Demo User Protection
 
 ```typescript
-const DEMO_USER_EMAIL = 'demo@devhubcrm.com';
+const DEMO_USER_EMAIL = 'demo@devhub.party';
 
 async function prevent_demo_modifications() {
 	const user_id = await get_current_user_id();

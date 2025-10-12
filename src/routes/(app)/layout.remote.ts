@@ -1,7 +1,7 @@
 import { getRequestEvent, query } from '$app/server';
+import { env } from '$env/dynamic/private';
 import { auth } from '$lib/server/auth';
 import { db } from '$lib/server/db';
-import { env } from '$env/dynamic/private';
 import {
 	create_user_profile_from_github,
 	fetch_github_user_data,
@@ -9,7 +9,7 @@ import {
 } from '$lib/server/profile-helpers';
 import { redirect } from '@sveltejs/kit';
 
-const DEMO_USER_EMAIL = env.DEMO_USER_EMAIL || 'demo@devhubcrm.com';
+const DEMO_USER_EMAIL = env.DEMO_USER_EMAIL || 'demo@devhub.party';
 
 /**
  * Ensure user is authenticated and has a profile

@@ -8,7 +8,7 @@ import {
 import { db } from '$lib/server/db';
 import * as v from 'valibot';
 
-const DEMO_USER_EMAIL = env.DEMO_USER_EMAIL || 'demo@devhubcrm.com';
+const DEMO_USER_EMAIL = env.DEMO_USER_EMAIL || 'demo@devhub.party';
 
 /**
  * Check if the current user is the demo account

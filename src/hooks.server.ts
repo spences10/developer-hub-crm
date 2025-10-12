@@ -7,7 +7,7 @@ import { sequence } from '@sveltejs/kit/hooks';
 import { readFileSync } from 'node:fs';
 import { seed_demo } from './routes/api/ingest/seed-demo';
 
-const DEMO_USER_EMAIL = env.DEMO_USER_EMAIL || 'demo@devhubcrm.com';
+const DEMO_USER_EMAIL = env.DEMO_USER_EMAIL || 'demo@devhub.party';
 
 // Initialize schema on startup
 const schema = readFileSync('schema.sql', 'utf-8');

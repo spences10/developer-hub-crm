@@ -30,7 +30,7 @@ export const auth = betterAuth({
 				console.log('Sending password reset email to:', user.email);
 
 				const result = await resend.emails.send({
-					from: 'Devhub <notifications@notifications.devhubcrm.com>',
+					from: 'Devhub <notifications@notifications.devhub.party>',
 					to: user.email,
 					subject: 'Reset your password',
 					html: `
@@ -76,7 +76,7 @@ export const auth = betterAuth({
 				console.log('Resend API Key exists:', !!env.RESEND_API_KEY);
 
 				const result = await resend.emails.send({
-					from: 'Devhub <notifications@notifications.devhubcrm.com>',
+					from: 'Devhub <notifications@notifications.devhub.party>',
 					to: user.email,
 					subject: 'Verify your email address',
 					html: `

@@ -4,7 +4,7 @@ import { auth } from '$lib/server/auth';
 import { redirect } from '@sveltejs/kit';
 import * as v from 'valibot';
 
-const DEMO_USER_EMAIL = env.DEMO_USER_EMAIL || 'demo@devhubcrm.com';
+const DEMO_USER_EMAIL = env.DEMO_USER_EMAIL || 'demo@devhub.party';
 const DEMO_PASSWORD = env.DEMO_PASSWORD || 'demo1234567890';
 
 export const register = form(

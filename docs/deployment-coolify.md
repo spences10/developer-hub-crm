@@ -67,7 +67,7 @@ Set up automated backups via cron job or GitHub Actions:
 **Manual backup:**
 
 ```bash
-curl -X POST https://devhubcrm.com/api/ingest \
+curl -X POST https://devhub.party/api/ingest \
   -H "Content-Type: application/json" \
   -d '{"task": "backup_database", "token": "your-ingest-token"}'
 ```
@@ -101,7 +101,7 @@ jobs:
     steps:
       - name: Trigger backup
         run: |
-          curl -X POST https://devhubcrm.com/api/ingest \
+          curl -X POST https://devhub.party/api/ingest \
             -H "Content-Type: application/json" \
             -d '{"task": "backup_database", "token": "${{ secrets.INGEST_TOKEN }}"}'
 ```

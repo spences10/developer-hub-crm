@@ -335,7 +335,7 @@
 						<legend class="fieldset-legend">
 							Username
 							<span class="text-xs opacity-60">
-								(devhubcrm.com/@{profile_data.username})
+								(devhub.party/@{profile_data.username})
 							</span>
 						</legend>
 						{#await is_demo then demo}
