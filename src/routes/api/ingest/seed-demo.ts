@@ -51,7 +51,7 @@ export const seed_demo = async () => {
 				).run(
 					profile_id,
 					demo_user!.id,
-					'dev-hubber',
+					'demo-user',
 					null,
 					'This is a demo account with sample data. Sign up to create your own CRM!',
 					'Try DevHub CRM',
@@ -86,7 +86,7 @@ export const seed_demo = async () => {
 				).run(
 					profile_id,
 					demo_user.id,
-					'dev-hubber',
+					'demo-user',
 					null,
 					'This is a demo account with sample data. Sign up to create your own CRM!',
 					'Try DevHub CRM',
