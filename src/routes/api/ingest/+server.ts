@@ -1,6 +1,7 @@
 import { env } from '$env/dynamic/private';
 import { json } from '@sveltejs/kit';
 import { backup_database } from './backup-database';
+import { pull_database } from './pull-database';
 import { seed_demo } from './seed-demo';
 
 /**
@@ -11,6 +12,14 @@ import { seed_demo } from './seed-demo';
  curl -X POST https://devhub.party/api/ingest \
    -H "Content-Type: application/json" \
    -d '{"task": "backup_database", "token": "your-secret-token"}'
+ *
+ * === PULL DATABASE ===
+ *
+ * Pull production database to local:
+ *
+ curl -X POST http://localhost:5173/api/ingest \
+   -H "Content-Type: application/json" \
+   -d '{"task": "pull_database", "token": "your-secret-token"}'
  *
  * === SEED DEMO ===
  *
@@ -25,7 +34,7 @@ type TaskFunction<TArgs = any, TResult = any> = (
 	...args: TArgs[]
 ) => Promise<TResult>;
 
-type TaskKey = 'backup_database' | 'seed_demo';
+type TaskKey = 'backup_database' | 'pull_database' | 'seed_demo';
 
 interface TaskType {
 	[key: string]: {
@@ -41,6 +50,9 @@ interface RequestBody {
 const tasks: TaskType = {
 	backup_database: {
 		function: backup_database,
+	},
+	pull_database: {
+		function: pull_database,
 	},
 	seed_demo: {
 		function: seed_demo,

@@ -8,8 +8,19 @@ export const backup_database = async () => {
 		const db_path = get_database_path();
 		const backups_dir = path.join(path.dirname(db_path), 'backups');
 
+		console.log(`[backup_database] Database path: ${db_path}`);
+		console.log(
+			`[backup_database] Backups directory: ${backups_dir}`,
+		);
+		console.log(
+			`[backup_database] Current working directory: ${process.cwd()}`,
+		);
+
 		// Ensure backups directory exists
 		await fs.mkdir(backups_dir, { recursive: true });
+		console.log(
+			`[backup_database] Backups directory created/verified`,
+		);
 
 		// Create timestamped backup filename with hour for multiple backups per day
 		const now = new Date();
@@ -20,10 +31,17 @@ export const backup_database = async () => {
 
 		// Use SQLite's native backup API to avoid corruption with WAL mode
 		// Opens a separate connection for backup to ensure consistency
+		// See: scottspence.com/posts/sqlite-corruption-fs-copyfile-issue
+		console.log(
+			`[backup_database] Creating backup: ${backup_filename}`,
+		);
+		console.log(`[backup_database] Full backup path: ${backup_path}`);
+
 		const source_db = new Database(db_path, { readonly: true });
 
 		try {
 			await source_db.backup(backup_path);
+			console.log(`[backup_database] Backup created successfully`);
 		} finally {
 			source_db.close();
 		}
@@ -37,13 +55,25 @@ export const backup_database = async () => {
 			.sort()
 			.reverse(); // newest first
 
+		console.log(
+			`[backup_database] Found ${backup_files.length} existing backups`,
+		);
+
 		// Remove files beyond the 28 most recent
 		const files_to_delete = backup_files.slice(28);
+		if (files_to_delete.length > 0) {
+			console.log(
+				`[backup_database] Deleting ${files_to_delete.length} old backups`,
+			);
+		}
 		for (const file of files_to_delete) {
 			await fs.unlink(path.join(backups_dir, file));
 		}
 
 		const backup_size = await fs.stat(backup_path);
+		console.log(
+			`[backup_database] Backup size: ${Math.round(backup_size.size / 1024 / 1024)}MB`,
+		);
 
 		return {
 			message: 'Database exported successfully',
