@@ -12,10 +12,50 @@
 		get_platform_label,
 	} from '$lib/utils/social-icons';
 	import { get_current_user } from '../auth.remote';
+	import { add_profile_as_contact } from './add-contact.remote';
 	import { get_profile } from './profile.remote';
 
 	const username = $derived(page.params.username);
 	const is_qr_scan = $derived(page.url.searchParams.has('qr'));
+
+	let adding = $state(false);
+	let add_message = $state<{
+		type: 'success' | 'error';
+		text: string;
+	} | null>(null);
+
+	async function handle_add_contact() {
+		if (!username) return;
+
+		adding = true;
+		add_message = null;
+
+		try {
+			const result = await add_profile_as_contact({ username });
+
+			if (result.error) {
+				add_message = {
+					type: 'error',
+					text: result.error,
+				};
+			} else if (result.success) {
+				add_message = {
+					type: 'success',
+					text: result.message || 'Contact added successfully!',
+				};
+			}
+		} catch (error) {
+			add_message = {
+				type: 'error',
+				text:
+					error instanceof Error
+						? error.message
+						: 'Failed to add contact',
+			};
+		} finally {
+			adding = false;
+		}
+	}
 </script>
 
 <svelte:boundary>
@@ -133,10 +173,43 @@
 													<Phone size="24px" />
 													<span>Scanned from QR code</span>
 												</div>
-												<button class="btn btn-lg btn-primary">
-													<ContactBook size="24px" />
-													Add {profile.username} to My Contacts
+
+												{#if add_message}
+													<div
+														class="mb-4 alert {add_message.type ===
+														'success'
+															? 'alert-success'
+															: 'alert-error'}"
+													>
+														<span>{add_message.text}</span>
+													</div>
+												{/if}
+
+												<button
+													class="btn btn-lg btn-primary"
+													onclick={handle_add_contact}
+													disabled={adding}
+												>
+													{#if adding}
+														<span class="loading loading-spinner"
+														></span>
+														Adding...
+													{:else}
+														<ContactBook size="24px" />
+														Add {profile.username} to My Contacts
+													{/if}
 												</button>
+
+												{#if add_message?.type === 'success'}
+													<div class="mt-4">
+														<a
+															href="/contacts"
+															class="btn btn-outline btn-sm"
+														>
+															View My Contacts
+														</a>
+													</div>
+												{/if}
 											{:else}
 												<div class="mb-4 alert alert-success">
 													<Phone size="24px" />
