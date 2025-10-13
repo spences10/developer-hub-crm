@@ -138,7 +138,12 @@
 <Head seo_config={seo_configs.contacts} />
 
 <PageHeaderWithAction title="Contacts">
-	<a href="/contacts/new" class="btn btn-primary">New Contact</a>
+	<div class="flex gap-2">
+		<a href="/contacts/import/github" class="btn btn-ghost">
+			Import from GitHub
+		</a>
+		<a href="/contacts/new" class="btn btn-primary">New Contact</a>
+	</div>
 </PageHeaderWithAction>
 <PageNav />
 <!-- Search Bar -->
