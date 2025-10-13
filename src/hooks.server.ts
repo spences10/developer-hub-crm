@@ -1,13 +1,13 @@
-import { env } from '$env/dynamic/private';
+// import { env } from '$env/dynamic/private';
 import { db } from '$lib/server/db';
 import { run_migrations } from '$lib/server/migrate';
 import { themes } from '$lib/themes';
 import type { Handle } from '@sveltejs/kit';
 import { sequence } from '@sveltejs/kit/hooks';
 import { readFileSync } from 'node:fs';
-import { seed_demo } from './routes/api/ingest/seed-demo';
+// import { seed_demo } from './routes/api/ingest/seed-demo';
 
-const DEMO_USER_EMAIL = env.DEMO_USER_EMAIL || 'demo@devhub.party';
+// const DEMO_USER_EMAIL = env.DEMO_USER_EMAIL || 'demo@devhub.party';
 
 // Initialize schema on startup
 const schema = readFileSync('schema.sql', 'utf-8');
@@ -17,20 +17,21 @@ db.exec(schema);
 run_migrations();
 
 // Auto-seed demo account if it doesn't exist
-const demo_user = db
-	.prepare('SELECT id FROM user WHERE email = ?')
-	.get(DEMO_USER_EMAIL);
+// TEMPORARILY COMMENTED OUT TO TEST PERSISTENT STORAGE
+// const demo_user = db
+// 	.prepare('SELECT id FROM user WHERE email = ?')
+// 	.get(DEMO_USER_EMAIL);
 
-if (!demo_user) {
-	console.log('Demo user not found - seeding demo data...');
-	seed_demo()
-		.then((result) => {
-			console.log('Demo seeded:', result.message);
-		})
-		.catch((error) => {
-			console.error('Failed to seed demo:', error);
-		});
-}
+// if (!demo_user) {
+// 	console.log('Demo user not found - seeding demo data...');
+// 	seed_demo()
+// 		.then((result) => {
+// 			console.log('Demo seeded:', result.message);
+// 		})
+// 		.catch((error) => {
+// 			console.error('Failed to seed demo:', error);
+// 		});
+// }
 
 const sync_on_startup: Handle = async ({ event, resolve }) => {
 	// SQLite migration: No sync needed for local database
