@@ -64,7 +64,9 @@
 	<div class="grid gap-6 lg:grid-cols-2">
 		<!-- Overdue Follow-ups (if any) -->
 		{#if activity.overdue_follow_ups.length > 0}
-			<div class="card bg-warning/30 shadow-xl lg:col-span-2">
+			<div
+				class="card border-2 border-warning bg-base-100 shadow-xl lg:col-span-2"
+			>
 				<div class="card-body">
 					<div class="mb-4 flex items-center justify-between">
 						<h2

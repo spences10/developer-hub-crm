@@ -77,9 +77,11 @@
 <PageNav />
 
 <!-- GitHub Import Section -->
-<div class="card mb-6 bg-primary/5 shadow-md">
+<div class="card mb-6 border border-primary bg-base-100 shadow-md">
 	<div class="card-body">
-		<h2 class="card-title text-lg">Quick Import from GitHub</h2>
+		<h2 class="card-title text-lg text-primary">
+			Quick Import from GitHub
+		</h2>
 		<p class="text-sm opacity-70">
 			Automatically populate contact details from a GitHub profile
 		</p>

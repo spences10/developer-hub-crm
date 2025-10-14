@@ -148,7 +148,7 @@
 				{#if github_state.cache.has_cache}
 					<!-- Cache exists - show info and load from cache option -->
 					<div
-						class="mt-4 rounded-lg border-2 border-info bg-info/10 p-4"
+						class="mt-4 rounded-lg border-2 border-info bg-base-100 p-4"
 					>
 						<div class="flex items-start gap-3">
 							<svg
@@ -173,7 +173,7 @@
 											on GitHub</strong
 										>
 									</p>
-									<p class="opacity-90">
+									<p class="opacity-80">
 										Cached {new Date(
 											github_state.cache.cached_at!,
 										).toLocaleString()}
@@ -206,7 +206,7 @@
 				{:else}
 					<!-- No cache - show warning with following info -->
 					<div
-						class="mt-4 rounded-lg border-2 border-warning bg-warning/10 p-4"
+						class="mt-4 rounded-lg border-2 border-warning bg-base-100 p-4"
 					>
 						<div class="flex items-start gap-3">
 							<svg
@@ -232,7 +232,7 @@
 										>
 									</p>
 									<ul
-										class="list-inside list-disc space-y-1 opacity-90"
+										class="list-inside list-disc space-y-1 opacity-80"
 									>
 										<li>
 											This will make approximately <strong

@@ -181,7 +181,7 @@
 								>
 									<div class="flex items-center gap-3">
 										<div
-											class="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10"
+											class="flex h-10 w-10 items-center justify-center rounded-full bg-base-200"
 										>
 											<Email size="20px" />
 										</div>
@@ -214,7 +214,7 @@
 								>
 									<div class="flex items-center gap-3">
 										<div
-											class="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10"
+											class="flex h-10 w-10 items-center justify-center rounded-full bg-base-200"
 										>
 											<GitHub size="20px" />
 										</div>

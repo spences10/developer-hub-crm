@@ -56,7 +56,7 @@
 	<div class="card-body">
 		<div class="flex items-start gap-3">
 			<div
-				class="flex h-12 w-12 items-center justify-center rounded-full bg-error/10"
+				class="flex h-12 w-12 items-center justify-center rounded-full bg-base-200"
 			>
 				<Trash size="24px" class_names="text-error" />
 			</div>

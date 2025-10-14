@@ -102,21 +102,21 @@
 			<!-- Demo mode banner -->
 			{#await is_demo_user() then is_demo}
 				{#if is_demo}
-					<div class="border-y border-info/30 bg-info/20 py-4">
+					<div class="border-y border-info bg-info py-4">
 						<div
 							class="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 sm:px-6 md:px-8 lg:px-10"
 						>
 							<div class="flex items-center gap-3">
 								<Sparkles
 									size="24px"
-									class_names="text-success"
+									class_names="text-info-content"
 									gradient={true}
 								/>
 								<div>
 									<p class="font-semibold text-info-content">
 										You're in demo mode
 									</p>
-									<p class="text-sm text-info-content/80">
+									<p class="text-sm text-info-content opacity-80">
 										Data resets every 6 hours. Create an account to
 										keep your data.
 									</p>
