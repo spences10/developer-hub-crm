@@ -108,6 +108,7 @@ export const auth = betterAuth({
 		github: {
 			clientId: env.GITHUB_CLIENT_ID as string,
 			clientSecret: env.GITHUB_CLIENT_SECRET as string,
+			scope: ['user:email'],
 		},
 	},
 	secret: env.AUTH_SECRET || 'dev-secret-change-in-production',

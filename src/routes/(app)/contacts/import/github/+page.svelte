@@ -7,13 +7,13 @@
 	import GithubConnectionStatus from './github-connection-status.svelte';
 	import {
 		check_github_connection,
-		fetch_github_following,
+		fetch_github_following_chunk,
+		get_github_following_info,
 		import_github_contacts,
 	} from './github-import.remote';
 	import GithubUserCard from './github-user-card.svelte';
 
 	let is_authorizing = $state(false);
-	let is_loading_following = $state(false);
 	let is_importing = $state(false);
 	let selected_usernames = $state<Set<string>>(new Set());
 	let following_list = $state<any[]>([]);
@@ -30,6 +30,38 @@
 		  }
 		| null
 	>(null);
+
+	// Single state object for GitHub import flow
+	let github_state = $state<
+		| { stage: 'initial' }
+		| {
+				stage: 'info_loaded';
+				following_count: number;
+				followers_count: number;
+				username: string;
+				rate_limit: {
+					limit: number;
+					remaining: number;
+					used: number;
+					reset: number;
+				};
+				estimates: {
+					api_calls: number;
+					time_seconds: number;
+				};
+		  }
+		| {
+				stage: 'loading';
+				loaded: number;
+				total: number;
+		  }
+		| { stage: 'complete' }
+	>({ stage: 'initial' });
+
+	let import_progress = $state<{
+		imported: number;
+		total: number;
+	} | null>(null);
 
 	async function handle_connect_github() {
 		try {
@@ -59,27 +91,87 @@
 		}
 	}
 
-	async function handle_load_following() {
+	async function handle_fetch_info() {
 		try {
-			is_loading_following = true;
-			const result = await fetch_github_following();
-			if (result.success && result.profiles) {
-				following_list = result.profiles;
+			const result = await get_github_following_info();
+			if (result.success) {
+				github_state = {
+					stage: 'info_loaded',
+					following_count: result.following_count,
+					followers_count: result.followers_count,
+					username: result.username,
+					rate_limit: result.rate_limit,
+					estimates: result.estimates,
+				};
 			} else if (result.error) {
-				console.error('Error loading following:', result.error);
+				console.error('Error fetching info:', result.error);
 				import_result = {
 					success: false,
 					error: result.error,
 				};
 			}
 		} catch (error) {
+			console.error('Error fetching info:', error);
+			import_result = {
+				success: false,
+				error: 'Failed to fetch GitHub info',
+			};
+		}
+	}
+
+	async function handle_load_following() {
+		if (github_state.stage !== 'info_loaded') return;
+
+		try {
+			const total = github_state.following_count;
+			github_state = {
+				stage: 'loading',
+				loaded: 0,
+				total,
+			};
+
+			const chunk_size = 50;
+			let offset = 0;
+			let has_more = true;
+			const all_profiles: any[] = [];
+
+			while (has_more) {
+				const result = await fetch_github_following_chunk({
+					offset,
+					limit: chunk_size,
+				});
+
+				if (result.success && result.profiles) {
+					all_profiles.push(...result.profiles);
+					offset = result.offset || offset + chunk_size;
+					has_more = result.has_more || false;
+
+					// Update progress
+					github_state = {
+						stage: 'loading',
+						loaded: result.total_loaded || all_profiles.length,
+						total,
+					};
+				} else if (result.error) {
+					console.error('Error loading chunk:', result.error);
+					import_result = {
+						success: false,
+						error: result.error,
+					};
+					github_state = { stage: 'initial' };
+					break;
+				}
+			}
+
+			following_list = all_profiles;
+			github_state = { stage: 'complete' };
+		} catch (error) {
 			console.error('Error loading following:', error);
 			import_result = {
 				success: false,
 				error: 'Failed to load following list',
 			};
-		} finally {
-			is_loading_following = false;
+			github_state = { stage: 'initial' };
 		}
 	}
 
@@ -109,24 +201,55 @@
 		try {
 			is_importing = true;
 			import_result = null;
-			const result = await import_github_contacts({
-				usernames: Array.from(selected_usernames),
-			});
 
-			if (result.success) {
-				import_result = {
-					success: true,
-					imported_count: result.imported_count || 0,
-					skipped_count: result.skipped_count || 0,
-				};
-				await handle_load_following();
-				selected_usernames = new Set();
-			} else {
-				import_result = {
-					success: false,
-					error: result.error || 'An unexpected error occurred',
-				};
+			const usernames_array = Array.from(selected_usernames);
+			const batch_size = 25; // Import 25 contacts at a time
+			let total_imported = 0;
+			let total_skipped = 0;
+
+			// Initialize progress
+			import_progress = {
+				imported: 0,
+				total: usernames_array.length,
+			};
+
+			// Process in batches
+			for (let i = 0; i < usernames_array.length; i += batch_size) {
+				const batch = usernames_array.slice(i, i + batch_size);
+				const result = await import_github_contacts({
+					usernames: batch,
+				});
+
+				if (result.success) {
+					total_imported += result.imported_count || 0;
+					total_skipped += result.skipped_count || 0;
+
+					// Update progress
+					import_progress = {
+						imported: Math.min(
+							i + batch_size,
+							usernames_array.length,
+						),
+						total: usernames_array.length,
+					};
+				} else {
+					import_result = {
+						success: false,
+						error: result.error || 'An unexpected error occurred',
+					};
+					return;
+				}
 			}
+
+			import_result = {
+				success: true,
+				imported_count: total_imported,
+				skipped_count: total_skipped,
+			};
+
+			// Reload the following list to update "already imported" flags
+			await handle_load_following();
+			selected_usernames = new Set();
 		} catch (error) {
 			console.error('Error importing contacts:', error);
 			import_result = {
@@ -135,6 +258,7 @@
 			};
 		} finally {
 			is_importing = false;
+			import_progress = null;
 		}
 	}
 
@@ -160,14 +284,23 @@
 <PageNav />
 
 {#await check_github_connection() then connection}
+	{#if connection.connected && connection.has_follow_scope && github_state.stage === 'initial' && following_list.length === 0}
+		{@const _ = handle_fetch_info()}
+	{/if}
+
 	<GithubConnectionStatus
 		{connection}
 		{is_authorizing}
 		following_list_length={following_list.length}
-		{is_loading_following}
+		{github_state}
 		on_connect={handle_connect_github}
 		on_authorize={handle_authorize_additional_scope}
-		on_load_following={handle_load_following}
+		on_load_following={github_state.stage === 'info_loaded'
+			? handle_load_following
+			: handle_fetch_info}
+		on_cancel={() => {
+			github_state = { stage: 'initial' };
+		}}
 	/>
 
 	<!-- Import Results -->
@@ -229,8 +362,16 @@
 			>
 				{#if is_importing}
 					<span class="loading loading-spinner"></span>
-					Importing {selected_usernames.size}
-					contact{selected_usernames.size === 1 ? '' : 's'}...
+					{#if import_progress}
+						Importing: {import_progress.imported}/{import_progress.total}
+						({Math.round(
+							(import_progress.imported / import_progress.total) *
+								100,
+						)}%)
+					{:else}
+						Importing {selected_usernames.size}
+						contact{selected_usernames.size === 1 ? '' : 's'}...
+					{/if}
 				{:else}
 					Import {selected_usernames.size} Selected
 				{/if}
@@ -259,15 +400,5 @@
 				user{following_list.length === 1 ? '' : 's'}
 			</div>
 		{/if}
-	{:else if is_loading_following}
-		<div class="flex flex-col items-center gap-4 py-12">
-			<span class="loading loading-lg loading-spinner"></span>
-			<p class="opacity-70">
-				Loading your following list from GitHub...
-			</p>
-			<p class="text-sm opacity-50">
-				This may take a moment if you follow many people
-			</p>
-		</div>
 	{/if}
 {/await}

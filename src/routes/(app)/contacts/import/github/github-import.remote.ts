@@ -4,8 +4,10 @@ import { db } from '$lib/server/db';
 import { github_profile_to_contact } from '$lib/server/github';
 import {
 	check_github_scopes,
-	fetch_following_list,
+	fetch_following_chunk,
 	fetch_user_profiles_batch,
+	get_following_count,
+	get_rate_limit_status,
 } from '$lib/server/github-following';
 import * as v from 'valibot';
 
@@ -53,45 +55,51 @@ async function get_github_token(): Promise<{
 }
 
 /**
- * Check GitHub connection status and required scopes
+ * Check GitHub connection status (fast - DB only)
+ * Scopes are verified when actually fetching data
  */
 export const check_github_connection = query(
 	async (): Promise<{
 		connected: boolean;
 		has_follow_scope: boolean;
 		username?: string;
-		scopes?: string[];
 	}> => {
 		try {
-			const token_data = await get_github_token();
+			const user_id = await get_current_user_id();
 
-			if (!token_data) {
+			// Just check if token exists in DB (fast)
+			const account_stmt = db.prepare(`
+        SELECT accessToken, accountId, scope FROM account
+        WHERE userId = ? AND providerId = 'github'
+      `);
+
+			const account = account_stmt.get(user_id) as
+				| {
+						accessToken: string | null;
+						accountId: string;
+						scope: string | null;
+				  }
+				| undefined;
+
+			if (!account || !account.accessToken) {
 				return {
 					connected: false,
 					has_follow_scope: false,
 				};
 			}
 
-			// Verify the token is still valid and check actual scopes from GitHub
-			try {
-				const scope_check = await check_github_scopes(
-					token_data.access_token,
-				);
+			// Check scope from DB (might be stale, but fast)
+			// Scopes are comma-separated in Better Auth
+			const scopes = account.scope
+				? account.scope.split(',').map((s) => s.trim())
+				: [];
+			const has_follow_scope = scopes.includes('user:follow');
 
-				return {
-					connected: true,
-					has_follow_scope: scope_check.has_follow_scope,
-					username: token_data.username,
-					scopes: scope_check.scopes,
-				};
-			} catch (error) {
-				console.error('Error checking GitHub scopes:', error);
-				// Token might be invalid
-				return {
-					connected: false,
-					has_follow_scope: false,
-				};
-			}
+			return {
+				connected: true,
+				has_follow_scope,
+				username: account.accountId,
+			};
 		} catch (error) {
 			console.error('Error checking GitHub connection:', error);
 			return {
@@ -103,9 +111,10 @@ export const check_github_connection = query(
 );
 
 /**
- * Fetch the list of users the current user follows on GitHub
+ * Get the authenticated user's following count and rate limit info
+ * This is called BEFORE loading the full list to show a warning
  */
-export const fetch_github_following = query(async () => {
+export const get_github_following_info = query(async () => {
 	try {
 		const token_data = await get_github_token();
 
@@ -122,49 +131,119 @@ export const fetch_github_following = query(async () => {
 			};
 		}
 
-		const following_list = await fetch_following_list(
+		// Get following count
+		const count_info = await get_following_count(
 			token_data.access_token,
 		);
 
-		// Fetch detailed profiles for all users
-		const usernames = following_list.map((user) => user.login);
-		const profiles = await fetch_user_profiles_batch(
+		// Get rate limit status
+		const rate_limit = await get_rate_limit_status(
 			token_data.access_token,
-			usernames,
-			10, // batch size
 		);
 
-		// Get existing contacts to mark duplicates
-		const user_id = await get_current_user_id();
-		const existing_contacts_stmt = db.prepare(`
-      SELECT github_username FROM contacts
-      WHERE user_id = ? AND github_username IS NOT NULL
-    `);
-		const existing_contacts = existing_contacts_stmt.all(
-			user_id,
-		) as Array<{
-			github_username: string;
-		}>;
-		const existing_usernames = new Set(
-			existing_contacts.map((c) => c.github_username.toLowerCase()),
+		// Calculate estimates
+		const api_calls_needed =
+			Math.ceil(count_info.following_count / 100) + // Paginated following list
+			count_info.following_count; // Individual profile fetches
+
+		// Estimate time: ~10 profiles per second with batching and delays
+		const estimated_seconds = Math.ceil(
+			count_info.following_count / 10,
 		);
 
 		return {
 			success: true,
-			profiles: profiles.map((profile) => ({
-				...profile,
-				already_imported: existing_usernames.has(
-					profile.login.toLowerCase(),
-				),
-			})),
+			following_count: count_info.following_count,
+			followers_count: count_info.followers_count,
+			username: count_info.username,
+			rate_limit: {
+				limit: rate_limit.limit,
+				remaining: rate_limit.remaining,
+				used: rate_limit.used,
+				reset: rate_limit.reset,
+			},
+			estimates: {
+				api_calls: api_calls_needed,
+				time_seconds: estimated_seconds,
+			},
 		};
 	} catch (error: any) {
-		console.error('Error fetching GitHub following:', error);
+		console.error('Error fetching GitHub following info:', error);
 		return {
-			error: error.message || 'Failed to fetch GitHub following list',
+			error: error.message || 'Failed to fetch GitHub info',
 		};
 	}
 });
+
+/**
+ * Fetch a chunk of users the current user follows on GitHub
+ * This enables chunked loading with progress feedback
+ */
+export const fetch_github_following_chunk = query(
+	v.object({
+		offset: v.pipe(v.number(), v.minValue(0)),
+		limit: v.pipe(v.number(), v.minValue(1), v.maxValue(100)),
+	}),
+	async (params: { offset: number; limit: number }) => {
+		try {
+			const token_data = await get_github_token();
+
+			if (!token_data) {
+				return {
+					error: 'GitHub account not connected',
+				};
+			}
+
+			if (!token_data.has_follow_scope) {
+				return {
+					error:
+						'Missing required GitHub permissions. Please reconnect your GitHub account.',
+				};
+			}
+
+			// Fetch chunk
+			const chunk_result = await fetch_following_chunk(
+				token_data.access_token,
+				params.offset,
+				params.limit,
+			);
+
+			// Get existing contacts to mark duplicates
+			const user_id = await get_current_user_id();
+			const existing_contacts_stmt = db.prepare(`
+        SELECT github_username FROM contacts
+        WHERE user_id = ? AND github_username IS NOT NULL
+      `);
+			const existing_contacts = existing_contacts_stmt.all(
+				user_id,
+			) as Array<{
+				github_username: string;
+			}>;
+			const existing_usernames = new Set(
+				existing_contacts.map((c) => c.github_username.toLowerCase()),
+			);
+
+			return {
+				success: true,
+				profiles: chunk_result.profiles.map((profile) => ({
+					...profile,
+					already_imported: existing_usernames.has(
+						profile.login.toLowerCase(),
+					),
+				})),
+				has_more: chunk_result.has_more,
+				offset: chunk_result.offset,
+				total_loaded: chunk_result.total_loaded,
+			};
+		} catch (error: any) {
+			console.error('Error fetching GitHub following chunk:', error);
+			return {
+				error:
+					error.message || 'Failed to fetch GitHub following chunk',
+			};
+		}
+	},
+);
 
 /**
  * Import selected GitHub users as contacts
