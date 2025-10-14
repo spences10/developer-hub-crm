@@ -165,7 +165,7 @@
 				<label class="label mt-4">
 					<select
 						bind:value={current_theme}
-						class="select-bordered select w-full max-w-xs capitalize"
+						class="select w-full max-w-xs capitalize"
 						onchange={set_theme}
 					>
 						<option value="" disabled={current_theme !== ''}>
@@ -240,7 +240,7 @@
 						min="1"
 						max="90"
 						value={preferences_data.default_follow_up_days}
-						class="input-bordered input w-full max-w-xs"
+						class="input w-full max-w-xs"
 						onchange={(e) =>
 							save_with_indicator(() =>
 								update_default_follow_up_days(
@@ -248,7 +248,7 @@
 								),
 							)}
 					/>
-					<span class="label-text-alt ml-2">days</span>
+					<span class="ml-2 text-sm opacity-60">days</span>
 				</label>
 			</div>
 		</div>
@@ -265,7 +265,7 @@
 				<label class="label mt-4">
 					<select
 						name="default_interaction_type"
-						class="select-bordered select w-full max-w-xs"
+						class="select w-full max-w-xs"
 						value={preferences_data.default_interaction_type || ''}
 						onchange={(e) =>
 							save_with_indicator(() =>

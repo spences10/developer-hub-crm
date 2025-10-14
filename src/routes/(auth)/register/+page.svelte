@@ -110,7 +110,7 @@
 						>{label}</legend
 					>
 					<label
-						class="input-bordered validator input w-full shadow-sm transition-all duration-300 focus-within:scale-[1.02] focus-within:shadow-md focus-within:ring-2 focus-within:ring-primary/20"
+						class="validator input w-full shadow-sm transition-all duration-300 focus-within:scale-[1.02] focus-within:shadow-md focus-within:ring-2 focus-within:ring-primary/20"
 					>
 						<input
 							{type}

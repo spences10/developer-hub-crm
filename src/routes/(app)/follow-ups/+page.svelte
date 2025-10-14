@@ -227,27 +227,25 @@
 								</div>
 
 								<div class="space-y-3">
-									<label class="form-control w-full">
-										<div class="label">
-											<span class="label-text">Due Date</span>
-										</div>
-										<input
-											type="datetime-local"
-											bind:value={edit_due_date_str}
-											class="input-bordered input w-full"
-										/>
-									</label>
+									<fieldset class="fieldset">
+										<legend class="fieldset-legend">Due Date</legend>
+										<label class="input w-full">
+											<input
+												type="datetime-local"
+												bind:value={edit_due_date_str}
+												class="grow"
+											/>
+										</label>
+									</fieldset>
 
-									<label class="form-control w-full">
-										<div class="label">
-											<span class="label-text">Note</span>
-										</div>
+									<fieldset class="fieldset">
+										<legend class="fieldset-legend">Note</legend>
 										<textarea
 											bind:value={edit_note}
-											class="textarea-bordered textarea h-24 w-full"
+											class="textarea h-24 w-full"
 											placeholder="Add a note..."
 										></textarea>
-									</label>
+									</fieldset>
 								</div>
 
 								<div class="flex justify-end gap-2">

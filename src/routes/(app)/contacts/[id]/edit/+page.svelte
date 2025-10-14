@@ -133,10 +133,8 @@
 								</label>
 							</fieldset>
 
-							<div class="form-control pb-2">
-								<label
-									class="label cursor-pointer justify-start gap-2"
-								>
+							<div class="pb-2">
+								<label class="flex cursor-pointer items-center gap-2">
 									<input
 										type="checkbox"
 										checked={contact.is_vip === 1}
@@ -148,7 +146,7 @@
 												contact,
 											)}
 									/>
-									<span class="label-text">Mark as VIP</span>
+									<span>Mark as VIP</span>
 								</label>
 							</div>
 						</div>

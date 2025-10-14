@@ -192,6 +192,73 @@ Always use `class="grow"` on the actual `<input>` element:
 - `btn-primary` - Primary color
 - `btn-block` - Full width
 
+## Select Pattern
+
+### Basic Select (v5)
+
+```svelte
+<fieldset class="fieldset">
+	<legend class="fieldset-legend">Choose option</legend>
+	<select name="type" class="select w-full" required>
+		<option value="" disabled>Select type</option>
+		<option value="meeting">Meeting</option>
+		<option value="call">Call</option>
+	</select>
+</fieldset>
+```
+
+**Key Points:**
+
+- Select has 20rem default width, use `w-full` for full width
+- No wrapper needed - apply `select` class directly to `<select>`
+- Use `select-ghost` to remove border
+- **DON'T wrap in `<label class="select">`** - this is wrong!
+
+### Select with Validation
+
+```svelte
+<fieldset class="fieldset">
+	<legend class="fieldset-legend">Required Selection</legend>
+	<select class="validator select w-full" required>
+		<option value="" disabled selected>Choose</option>
+		<option value="1">Option 1</option>
+	</select>
+	<p class="validator-hint">Please select an option</p>
+</fieldset>
+```
+
+## Textarea Pattern
+
+### Basic Textarea (v5)
+
+```svelte
+<fieldset class="fieldset">
+	<legend class="fieldset-legend">Notes</legend>
+	<textarea
+		name="notes"
+		class="textarea w-full"
+		rows="4"
+		placeholder="Enter your notes..."
+	></textarea>
+	<p class="label">Helper text here</p>
+</fieldset>
+```
+
+**Key Points:**
+
+- Textarea has border by default (v5 change)
+- Use `textarea-ghost` to remove border
+- **Don't use `textarea-bordered`** - removed in v5
+- Apply `w-full` for full width
+
+### With Validation
+
+```svelte
+<textarea class="validator textarea w-full" required minlength="10"
+></textarea>
+<p class="validator-hint">Minimum 10 characters required</p>
+```
+
 ## Best Practices
 
 1. **Always use `w-full`** on `<label class="input">` for full-width
@@ -203,6 +270,8 @@ Always use `class="grow"` on the actual `<input>` element:
 6. **Use `space-y-4`** on forms for consistent spacing
 7. **Always include `class="grow"`** on the actual `<input>` element
 8. **Don't add outline utilities** - daisyUI handles focus states
+9. **For selects: apply classes directly, no label wrapper**
+10. **For textareas: no `-bordered` suffix in v5**
 
 ## Common Mistakes
 
@@ -220,6 +289,40 @@ Always use `class="grow"` on the actual `<input>` element:
 <label class="validator input w-full">
 	<input type="text" class="grow" />
 </label>
+```
+
+### ❌ Wrong - Select wrapped in label
+
+```html
+<label class="select w-full">
+	<select name="type">
+		<option>Option 1</option>
+	</select>
+</label>
+```
+
+### ✅ Correct - Select standalone
+
+```html
+<select name="type" class="select w-full">
+	<option>Option 1</option>
+</select>
+```
+
+### ❌ Wrong - Using -bordered suffix (v4)
+
+```html
+<input class="input-bordered input">
+<textarea class="textarea-bordered textarea">
+<select class="select-bordered select">
+```
+
+### ✅ Correct - No -bordered (default in v5)
+
+```html
+<input class="input">
+<textarea class="textarea">
+<select class="select">
 ```
 
 ### ❌ Wrong - Old v4 pattern

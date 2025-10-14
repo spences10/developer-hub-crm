@@ -412,7 +412,7 @@
 					<fieldset class="fieldset md:col-span-2">
 						<legend class="fieldset-legend">Bio</legend>
 						<textarea
-							class="textarea-bordered textarea w-full"
+							class="textarea w-full"
 							rows="3"
 							placeholder="Tell others about yourself"
 							value={profile_data.bio || ''}

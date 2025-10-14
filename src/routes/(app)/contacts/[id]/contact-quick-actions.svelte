@@ -31,7 +31,10 @@
 			>
 				<div class="card-body items-center p-6 text-center">
 					<div class="mb-3 rounded-full {action.icon_bg} p-3">
-						<action.icon size="28px" class_names={action.icon_color} />
+						<action.icon
+							size="28px"
+							class_names={action.icon_color}
+						/>
 					</div>
 					<h3
 						class="card-title justify-center text-base {action.title_color}"
@@ -49,7 +52,10 @@
 			>
 				<div class="card-body items-center p-6 text-center">
 					<div class="mb-3 rounded-full {action.icon_bg} p-3">
-						<action.icon size="28px" class_names={action.icon_color} />
+						<action.icon
+							size="28px"
+							class_names={action.icon_color}
+						/>
 					</div>
 					<h3 class="card-title justify-center text-base">
 						{action.title}

@@ -28,7 +28,8 @@
 					@{github_username}
 				</a>
 				<p class="text-xs opacity-70">
-					View their repositories, contributions, and activity on GitHub
+					View their repositories, contributions, and activity on
+					GitHub
 				</p>
 			</div>
 		</div>

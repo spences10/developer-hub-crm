@@ -30,14 +30,22 @@
 	}: Props = $props();
 </script>
 
-{#snippet detail_field( label: string, value: string | null, is_link: boolean = false, link_prefix: string = '', )}
+{#snippet detail_field(
+	label: string,
+	value: string | null,
+	is_link: boolean = false,
+	link_prefix: string = '',
+)}
 	{#if value}
 		<div>
 			<p class="mb-1 text-xs font-semibold uppercase opacity-60">
 				{label}
 			</p>
 			{#if is_link}
-				<a href="{link_prefix}{value}" class="link text-sm link-primary">
+				<a
+					href="{link_prefix}{value}"
+					class="link text-sm link-primary"
+				>
 					{value}
 				</a>
 			{:else}
@@ -59,7 +67,9 @@
 			{@render detail_field('Phone', phone, true, 'tel:')}
 			{@render detail_field(
 				'Birthday',
-				birthday ? format_date(new Date(birthday), date_format) : null,
+				birthday
+					? format_date(new Date(birthday), date_format)
+					: null,
 			)}
 			{@render detail_field('Company', company)}
 			{@render detail_field('Title', title)}

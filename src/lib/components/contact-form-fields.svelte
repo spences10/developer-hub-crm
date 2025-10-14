@@ -40,15 +40,15 @@
 		</label>
 	</fieldset>
 
-	<div class="form-control pb-2">
-		<label class="label cursor-pointer justify-start gap-2">
+	<div class="pb-2">
+		<label class="flex cursor-pointer items-center gap-2">
 			<input
 				type="checkbox"
 				name="is_vip"
 				checked={is_vip}
 				class="checkbox"
 			/>
-			<span class="label-text">Mark as VIP</span>
+			<span>Mark as VIP</span>
 		</label>
 	</div>
 </div>

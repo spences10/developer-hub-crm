@@ -194,31 +194,27 @@
 								</div>
 
 								<div class="space-y-3">
-									<label class="form-control w-full">
-										<div class="label">
-											<span class="label-text">Type</span>
-										</div>
+									<fieldset class="fieldset">
+										<legend class="fieldset-legend">Type</legend>
 										<select
 											bind:value={edit_type}
-											class="select-bordered select w-full"
+											class="select w-full"
 										>
 											<option value="meeting">Meeting</option>
 											<option value="call">Call</option>
 											<option value="email">Email</option>
 											<option value="message">Message</option>
 										</select>
-									</label>
+									</fieldset>
 
-									<label class="form-control w-full">
-										<div class="label">
-											<span class="label-text">Note</span>
-										</div>
+									<fieldset class="fieldset">
+										<legend class="fieldset-legend">Note</legend>
 										<textarea
 											bind:value={edit_note}
-											class="textarea-bordered textarea h-24 w-full"
+											class="textarea h-24 w-full"
 											placeholder="Add a note..."
 										></textarea>
-									</label>
+									</fieldset>
 								</div>
 
 								<div class="flex justify-end gap-2">

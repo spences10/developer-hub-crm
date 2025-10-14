@@ -51,23 +51,22 @@
 			<fieldset class="fieldset">
 				<legend class="fieldset-legend">Contact</legend>
 				{#await get_contacts() then contacts}
-					<label class="select w-full">
-						<select
-							name="contact_id"
-							required
-							value={preselected_contact_id || ''}
-						>
-							<option value="" disabled>Select a contact</option>
-							{#each contacts as contact}
-								<option value={contact.id}>
-									{contact.name}
-									{#if contact.company}
-										- {contact.company}
-									{/if}
-								</option>
-							{/each}
-						</select>
-					</label>
+					<select
+						name="contact_id"
+						class="select w-full"
+						required
+						value={preselected_contact_id || ''}
+					>
+						<option value="" disabled>Select a contact</option>
+						{#each contacts as contact}
+							<option value={contact.id}>
+								{contact.name}
+								{#if contact.company}
+									- {contact.company}
+								{/if}
+							</option>
+						{/each}
+					</select>
 				{/await}
 			</fieldset>
 

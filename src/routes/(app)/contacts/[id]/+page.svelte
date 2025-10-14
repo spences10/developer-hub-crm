@@ -581,31 +581,31 @@
 														class="rounded-box border border-base-300 bg-base-200/50 p-4"
 													>
 														<div class="space-y-3">
-															<label class="form-control w-full">
-																<div class="label">
-																	<span class="label-text"
-																		>Due Date</span
-																	>
-																</div>
-																<input
-																	type="datetime-local"
-																	bind:value={
-																		edit_follow_up_due_date_str
-																	}
-																	class="input-bordered input w-full"
-																/>
-															</label>
+															<fieldset class="fieldset">
+																<legend class="fieldset-legend">
+																	Due Date
+																</legend>
+																<label class="input w-full">
+																	<input
+																		type="datetime-local"
+																		bind:value={
+																			edit_follow_up_due_date_str
+																		}
+																		class="grow"
+																	/>
+																</label>
+															</fieldset>
 
-															<label class="form-control w-full">
-																<div class="label">
-																	<span class="label-text">Note</span>
-																</div>
+															<fieldset class="fieldset">
+																<legend class="fieldset-legend">
+																	Note
+																</legend>
 																<textarea
 																	bind:value={edit_follow_up_note}
-																	class="textarea-bordered textarea h-24 w-full"
+																	class="textarea h-24 w-full"
 																	placeholder="Add a note..."
 																></textarea>
-															</label>
+															</fieldset>
 
 															{@render form_actions(
 																cancel_edit_follow_up,
@@ -709,15 +709,13 @@
 														class="rounded-box border border-base-300 bg-base-200/50 p-4"
 													>
 														<div class="space-y-3">
-															<label class="form-control w-full">
-																<div class="label">
-																	<span class="label-text">
-																		Type
-																	</span>
-																</div>
+															<fieldset class="fieldset">
+																<legend class="fieldset-legend">
+																	Type
+																</legend>
 																<select
 																	bind:value={edit_interaction_type}
-																	class="select-bordered select w-full"
+																	class="select w-full"
 																>
 																	{#each interaction_types as type}
 																		<option value={type.value}>
@@ -725,18 +723,18 @@
 																		</option>
 																	{/each}
 																</select>
-															</label>
+															</fieldset>
 
-															<label class="form-control w-full">
-																<div class="label">
-																	<span class="label-text">Note</span>
-																</div>
+															<fieldset class="fieldset">
+																<legend class="fieldset-legend">
+																	Note
+																</legend>
 																<textarea
 																	bind:value={edit_interaction_note}
-																	class="textarea-bordered textarea h-24 w-full"
+																	class="textarea h-24 w-full"
 																	placeholder="Add a note..."
 																></textarea>
-															</label>
+															</fieldset>
 
 															{@render form_actions(
 																cancel_edit_interaction,
