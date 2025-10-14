@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { goto } from '$app/navigation';
 	import { Trash } from '$lib/icons';
 	import type { delete_account } from './profile.remote';
 
@@ -38,8 +37,8 @@
 
 		try {
 			await on_delete(confirmation);
-			// Navigate to home page after successful deletion
-			goto('/');
+			// Full page reload to clear all cached remote function data
+			window.location.href = '/';
 		} catch (err) {
 			console.error('Failed to delete account:', err);
 			error_message =
