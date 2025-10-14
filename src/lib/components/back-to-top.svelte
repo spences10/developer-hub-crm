@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { Arrow } from '$lib/icons';
+
 	let show_scroll_button = $state(false);
 	let last_scroll_top = $state(0);
 
@@ -22,13 +24,14 @@
 <button
 	type="button"
 	onclick={scroll_to_top}
-	class="back-to-top-button btn fixed right-5 bottom-[-2rem] rounded-box font-normal text-secondary-content normal-case btn-secondary {show_scroll_button
+	class="back-to-top-button btn fixed right-5 bottom-[-2rem] btn-circle font-normal text-secondary-content normal-case btn-secondary lg:w-auto lg:rounded-box lg:px-4 {show_scroll_button
 		? 'show-button'
 		: 'hide-button'}"
 	aria-label="Back to top"
 	data-testid="back-to-top"
 >
-	Back to top
+	<Arrow direction="up" size="20px" class_names="lg:mr-2" />
+	<span class="hidden lg:inline">Back to top</span>
 </button>
 
 <style>
@@ -55,7 +58,7 @@
 	}
 
 	.show-button {
-		bottom: 6rem;
+		bottom: 5rem;
 		animation: flyIn 0.3s ease forwards;
 	}
 
