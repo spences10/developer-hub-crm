@@ -5,7 +5,7 @@
 	import PageHeaderWithAction from '$lib/components/page-header-with-action.svelte';
 	import PageNav from '$lib/components/page-nav.svelte';
 	import SortableTableHeader from '$lib/components/sortable-table-header.svelte';
-	import { StarFill } from '$lib/icons';
+	import { GitHub, StarFill } from '$lib/icons';
 	import { seo_configs } from '$lib/seo';
 	import type { Contact } from '$lib/types/db';
 	import { Head } from 'svead';
@@ -139,8 +139,13 @@
 
 <PageHeaderWithAction title="Contacts">
 	<div class="flex gap-2">
-		<a href="/contacts/import/github" class="btn btn-ghost">
-			Import from GitHub
+		<a
+			href="/contacts/import/github"
+			class="tooltip btn btn-ghost"
+			data-tip="Import from GitHub"
+			aria-label="Import contacts from GitHub"
+		>
+			<GitHub class_names="inline h-5 w-5 mr-2" gradient={true} />
 		</a>
 		<a href="/contacts/new" class="btn btn-primary">New Contact</a>
 	</div>

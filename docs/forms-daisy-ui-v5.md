@@ -3,6 +3,26 @@
 Critical patterns for daisyUI v5 form structure - **v5 changed
 significantly from v4**.
 
+## Mobile Navigation with Dock
+
+**IMPORTANT**: In v5, `btm-nav` was replaced with `dock`.
+
+- Use `<div class="dock">` as the container
+- Use `<button>` elements (not `<a>` tags) for navigation items
+- Use `dock-active` class for active state (not `active`)
+- Use `dock-label` for text labels
+- Sizes: `dock-xs`, `dock-sm`, `dock-md` (default), `dock-lg`,
+  `dock-xl`
+
+```svelte
+<div class="dock z-40 lg:hidden">
+	<button class={is_active ? 'dock-active' : ''} onclick={navigate}>
+		<Icon size="24px" />
+		<span class="dock-label">Label</span>
+	</button>
+</div>
+```
+
 ## Key Changes from v4 to v5
 
 - `form-control` → `fieldset`

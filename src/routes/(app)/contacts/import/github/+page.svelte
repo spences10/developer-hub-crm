@@ -296,9 +296,9 @@
 <Head seo_config={seo_configs.contacts} />
 
 <PageHeaderWithAction title="Import from GitHub">
-	<a href="/contacts" class="btn btn-ghost btn-outline"
-		>Back to Contacts</a
-	>
+	<a href="/contacts" class="btn btn-ghost btn-outline">
+		Back to Contacts
+	</a>
 </PageHeaderWithAction>
 <PageNav />
 

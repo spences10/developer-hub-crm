@@ -1,5 +1,7 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
+	import BackToTop from '$lib/components/back-to-top.svelte';
+	import BottomNavDock from '$lib/components/bottom-nav-dock.svelte';
 	import { Sparkles } from '$lib/icons';
 	import Logo from '$lib/logo.svelte';
 	import { generate_qr_code_data_url } from '$lib/utils/qr-code';
@@ -133,9 +135,14 @@
 				{/if}
 			{/await}
 
-			<main class="mx-auto max-w-6xl p-4 sm:p-6 md:p-8 lg:p-10">
+			<main
+				class="mx-auto max-w-6xl p-4 pb-20 sm:p-6 md:p-8 lg:p-10 lg:pb-10"
+			>
 				{@render children()}
 			</main>
+
+			<BackToTop />
+			<BottomNavDock />
 		</div>
 	{/await}
 
