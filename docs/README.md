@@ -172,6 +172,16 @@ common mistakes.
 Complete guide to all input types: text, email, password, textarea,
 select, checkbox, radio, file, etc.
 
+### Design System
+
+#### [styling.md](./styling.md)
+
+**Visual design system & DaisyUI guidelines**
+
+Background hierarchy, border system, text sizes, opacity modifiers,
+semantic colors, shadows, spacing, contrast rules. Critical reference
+for maintaining visual consistency.
+
 ### External Integrations
 
 #### [integrations.md](./integrations.md)
