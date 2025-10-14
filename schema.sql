@@ -180,6 +180,15 @@ CREATE TABLE IF NOT EXISTS profile_views (
   FOREIGN KEY (viewer_id) REFERENCES user(id) ON DELETE SET NULL
 );
 
+-- GitHub following cache table (cache GitHub profiles for 24h)
+CREATE TABLE IF NOT EXISTS github_following_cache (
+  id TEXT PRIMARY KEY,
+  user_id TEXT NOT NULL,
+  profile_data TEXT NOT NULL,
+  cached_at INTEGER NOT NULL,
+  FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE
+);
+
 -- Indexes for performance
 CREATE INDEX IF NOT EXISTS idx_contacts_user_id ON contacts(user_id);
 CREATE INDEX IF NOT EXISTS idx_contacts_email ON contacts(email);
@@ -207,3 +216,6 @@ CREATE INDEX IF NOT EXISTS idx_user_social_links_user_id ON user_social_links(us
 
 CREATE INDEX IF NOT EXISTS idx_profile_views_user_id ON profile_views(user_id);
 CREATE INDEX IF NOT EXISTS idx_profile_views_created_at ON profile_views(created_at);
+
+CREATE INDEX IF NOT EXISTS idx_github_following_cache_user_id ON github_following_cache(user_id);
+CREATE INDEX IF NOT EXISTS idx_github_following_cache_cached_at ON github_following_cache(cached_at);

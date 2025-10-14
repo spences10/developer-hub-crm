@@ -6,6 +6,7 @@
 	import { Head } from 'svead';
 	import GithubConnectionStatus from './github-connection-status.svelte';
 	import {
+		cache_github_profiles,
 		check_github_connection,
 		fetch_github_following_chunk,
 		get_github_following_info,
@@ -48,6 +49,10 @@
 				estimates: {
 					api_calls: number;
 					time_seconds: number;
+				};
+				cache: {
+					has_cache: boolean;
+					cached_at: number | null;
 				};
 		  }
 		| {
@@ -102,6 +107,7 @@
 					username: result.username,
 					rate_limit: result.rate_limit,
 					estimates: result.estimates,
+					cache: result.cache,
 				};
 			} else if (result.error) {
 				console.error('Error fetching info:', result.error);
@@ -119,7 +125,7 @@
 		}
 	}
 
-	async function handle_load_following() {
+	async function handle_load_following(force_refresh = false) {
 		if (github_state.stage !== 'info_loaded') return;
 
 		try {
@@ -134,17 +140,20 @@
 			let offset = 0;
 			let has_more = true;
 			const all_profiles: any[] = [];
+			let from_cache = false;
 
 			while (has_more) {
 				const result = await fetch_github_following_chunk({
 					offset,
 					limit: chunk_size,
+					force_refresh,
 				});
 
 				if (result.success && result.profiles) {
 					all_profiles.push(...result.profiles);
 					offset = result.offset || offset + chunk_size;
 					has_more = result.has_more || false;
+					from_cache = result.from_cache || false;
 
 					// Update progress
 					github_state = {
@@ -165,6 +174,16 @@
 
 			following_list = all_profiles;
 			github_state = { stage: 'complete' };
+
+			// If we fetched from API (not cache), save to cache
+			if (!from_cache && all_profiles.length > 0) {
+				try {
+					await cache_github_profiles({ profiles: all_profiles });
+				} catch (error) {
+					console.error('Failed to cache profiles:', error);
+					// Don't fail the whole operation if caching fails
+				}
+			}
 		} catch (error) {
 			console.error('Error loading following:', error);
 			import_result = {
@@ -296,7 +315,10 @@
 		on_connect={handle_connect_github}
 		on_authorize={handle_authorize_additional_scope}
 		on_load_following={github_state.stage === 'info_loaded'
-			? handle_load_following
+			? () => handle_load_following(false)
+			: handle_fetch_info}
+		on_refresh={github_state.stage === 'info_loaded'
+			? () => handle_load_following(true)
 			: handle_fetch_info}
 		on_cancel={() => {
 			github_state = { stage: 'initial' };

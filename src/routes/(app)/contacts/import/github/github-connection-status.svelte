@@ -22,6 +22,10 @@
 					api_calls: number;
 					time_seconds: number;
 				};
+				cache: {
+					has_cache: boolean;
+					cached_at: number | null;
+				};
 		  }
 		| {
 				stage: 'loading';
@@ -38,6 +42,7 @@
 		on_connect: () => void;
 		on_authorize: () => void;
 		on_load_following: () => void;
+		on_refresh: () => void;
 		on_cancel: () => void;
 	}
 
@@ -49,6 +54,7 @@
 		on_connect,
 		on_authorize,
 		on_load_following,
+		on_refresh,
 		on_cancel,
 	}: Props = $props();
 
@@ -139,85 +145,146 @@
 			</p>
 
 			{#if github_state.stage === 'info_loaded'}
-				<!-- Show warning with following info -->
-				<div
-					class="mt-4 rounded-lg border-2 border-warning bg-warning/10 p-4"
-				>
-					<div class="flex items-start gap-3">
-						<svg
-							xmlns="http://www.w3.org/2000/svg"
-							class="h-6 w-6 shrink-0 stroke-warning"
-							fill="none"
-							viewBox="0 0 24 24"
-						>
-							<path
-								stroke-linecap="round"
-								stroke-linejoin="round"
-								stroke-width="2"
-								d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-							/>
-						</svg>
-						<div class="flex-1">
-							<h3 class="font-bold">Before You Continue</h3>
-							<div class="mt-2 space-y-2 text-sm">
-								<p>
-									<strong
-										>You follow {github_state.following_count} people on
-										GitHub</strong
+				{#if github_state.cache.has_cache}
+					<!-- Cache exists - show info and load from cache option -->
+					<div
+						class="mt-4 rounded-lg border-2 border-info bg-info/10 p-4"
+					>
+						<div class="flex items-start gap-3">
+							<svg
+								xmlns="http://www.w3.org/2000/svg"
+								class="h-6 w-6 shrink-0 stroke-info"
+								fill="none"
+								viewBox="0 0 24 24"
+							>
+								<path
+									stroke-linecap="round"
+									stroke-linejoin="round"
+									stroke-width="2"
+									d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+								/>
+							</svg>
+							<div class="flex-1">
+								<h3 class="font-bold">Cached Data Available</h3>
+								<div class="mt-2 space-y-2 text-sm">
+									<p>
+										<strong
+											>You follow {github_state.following_count} people
+											on GitHub</strong
+										>
+									</p>
+									<p class="opacity-90">
+										Cached {new Date(
+											github_state.cache.cached_at!,
+										).toLocaleString()}
+										(loads instantly from cache)
+									</p>
+								</div>
+								<div class="mt-4 flex gap-2">
+									<button
+										class="btn btn-sm btn-primary"
+										onclick={on_load_following}
 									>
-								</p>
-								<ul
-									class="list-inside list-disc space-y-1 opacity-90"
-								>
-									<li>
-										This will make approximately <strong
-											>{github_state.estimates.api_calls} GitHub API requests</strong
-										>
-									</li>
-									<li>
-										Uses your GitHub rate limit (currently <strong
-											>{github_state.rate_limit.remaining.toLocaleString()}/{github_state.rate_limit.limit.toLocaleString()}
-											remaining</strong
-										>)
-									</li>
-									<li>
-										Rate limit resets in <strong
-											>{format_reset_time(
-												github_state.rate_limit.reset,
-											)}</strong
-										>
-									</li>
-									<li>
-										Estimated time: <strong
-											>{format_time_estimate(
-												github_state.estimates.time_seconds,
-											)}</strong
-										>
-									</li>
-									{#if github_state.rate_limit.remaining < github_state.estimates.api_calls}
-										<li class="font-semibold text-error">
-											Warning: You may hit your rate limit!
-										</li>
-									{/if}
-								</ul>
-							</div>
-							<div class="mt-4 flex gap-2">
-								<button
-									class="btn btn-sm btn-primary"
-									onclick={on_load_following}
-								>
-									I Understand, Proceed
-								</button>
-								<button
-									class="btn btn-ghost btn-sm"
-									onclick={on_cancel}
-								>
-									Cancel
-								</button>
+										Load from Cache
+									</button>
+									<button
+										class="btn btn-ghost btn-sm"
+										onclick={on_refresh}
+									>
+										Refresh from GitHub
+									</button>
+									<button
+										class="btn btn-ghost btn-sm"
+										onclick={on_cancel}
+									>
+										Cancel
+									</button>
+								</div>
 							</div>
 						</div>
 					</div>
-				</div>
+				{:else}
+					<!-- No cache - show warning with following info -->
+					<div
+						class="mt-4 rounded-lg border-2 border-warning bg-warning/10 p-4"
+					>
+						<div class="flex items-start gap-3">
+							<svg
+								xmlns="http://www.w3.org/2000/svg"
+								class="h-6 w-6 shrink-0 stroke-warning"
+								fill="none"
+								viewBox="0 0 24 24"
+							>
+								<path
+									stroke-linecap="round"
+									stroke-linejoin="round"
+									stroke-width="2"
+									d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+								/>
+							</svg>
+							<div class="flex-1">
+								<h3 class="font-bold">Before You Continue</h3>
+								<div class="mt-2 space-y-2 text-sm">
+									<p>
+										<strong
+											>You follow {github_state.following_count} people
+											on GitHub</strong
+										>
+									</p>
+									<ul
+										class="list-inside list-disc space-y-1 opacity-90"
+									>
+										<li>
+											This will make approximately <strong
+												>{github_state.estimates.api_calls} GitHub API
+												requests</strong
+											>
+										</li>
+										<li>
+											Uses your GitHub rate limit (currently <strong
+												>{github_state.rate_limit.remaining.toLocaleString()}/{github_state.rate_limit.limit.toLocaleString()}
+												remaining</strong
+											>)
+										</li>
+										<li>
+											Rate limit resets in <strong
+												>{format_reset_time(
+													github_state.rate_limit.reset,
+												)}</strong
+											>
+										</li>
+										<li>
+											Estimated time: <strong
+												>{format_time_estimate(
+													github_state.estimates.time_seconds,
+												)}</strong
+											>
+										</li>
+										{#if github_state.rate_limit.remaining < github_state.estimates.api_calls}
+											<li class="font-semibold text-error">
+												Warning: You may hit your rate limit!
+											</li>
+										{/if}
+									</ul>
+								</div>
+								<div class="mt-4 flex gap-2">
+									<button
+										class="btn btn-sm btn-primary"
+										onclick={on_load_following}
+									>
+										I Understand, Proceed
+									</button>
+									<button
+										class="btn btn-ghost btn-sm"
+										onclick={on_cancel}
+									>
+										Cancel
+									</button>
+								</div>
+							</div>
+						</div>
+					</div>
+				{/if}
 			{:else if github_state.stage === 'loading'}
 				<!-- Show loading progress -->
 				<div class="mt-4 rounded-lg bg-base-200 p-4">

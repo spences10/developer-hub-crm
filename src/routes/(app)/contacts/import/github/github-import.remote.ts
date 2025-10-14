@@ -4,10 +4,14 @@ import { db } from '$lib/server/db';
 import { github_profile_to_contact } from '$lib/server/github';
 import {
 	check_github_scopes,
+	clear_cache,
 	fetch_following_chunk,
 	fetch_user_profiles_batch,
+	get_cache_timestamp,
+	get_cached_profiles,
 	get_following_count,
 	get_rate_limit_status,
+	save_profiles_to_cache,
 } from '$lib/server/github-following';
 import * as v from 'valibot';
 
@@ -116,6 +120,7 @@ export const check_github_connection = query(
  */
 export const get_github_following_info = query(async () => {
 	try {
+		const user_id = await get_current_user_id();
 		const token_data = await get_github_token();
 
 		if (!token_data) {
@@ -130,6 +135,10 @@ export const get_github_following_info = query(async () => {
 					'Missing required GitHub permissions. Please reconnect your GitHub account.',
 			};
 		}
+
+		// Check if we have cached data
+		const cache_timestamp = get_cache_timestamp(user_id);
+		const has_cache = cache_timestamp !== null;
 
 		// Get following count
 		const count_info = await get_following_count(
@@ -166,6 +175,10 @@ export const get_github_following_info = query(async () => {
 				api_calls: api_calls_needed,
 				time_seconds: estimated_seconds,
 			},
+			cache: {
+				has_cache,
+				cached_at: cache_timestamp,
+			},
 		};
 	} catch (error: any) {
 		console.error('Error fetching GitHub following info:', error);
@@ -178,14 +191,21 @@ export const get_github_following_info = query(async () => {
 /**
  * Fetch a chunk of users the current user follows on GitHub
  * This enables chunked loading with progress feedback
+ * Now uses cache to avoid repeated API calls
  */
 export const fetch_github_following_chunk = query(
 	v.object({
 		offset: v.pipe(v.number(), v.minValue(0)),
 		limit: v.pipe(v.number(), v.minValue(1), v.maxValue(100)),
+		force_refresh: v.optional(v.boolean()),
 	}),
-	async (params: { offset: number; limit: number }) => {
+	async (params: {
+		offset: number;
+		limit: number;
+		force_refresh?: boolean;
+	}) => {
 		try {
+			const user_id = await get_current_user_id();
 			const token_data = await get_github_token();
 
 			if (!token_data) {
@@ -201,7 +221,53 @@ export const fetch_github_following_chunk = query(
 				};
 			}
 
-			// Fetch chunk
+			// Clear cache if force refresh requested
+			if (params.force_refresh && params.offset === 0) {
+				clear_cache(user_id);
+			}
+
+			// Try to get cached profiles
+			const cached_profiles = get_cached_profiles(user_id);
+
+			// If cache exists and we're not forcing refresh, use cache
+			if (cached_profiles && !params.force_refresh) {
+				// Using cache - slice the requested chunk
+				const total = cached_profiles.length;
+				const end = Math.min(params.offset + params.limit, total);
+				const chunk = cached_profiles.slice(params.offset, end);
+
+				// Get existing contacts to mark duplicates
+				const existing_contacts_stmt = db.prepare(`
+          SELECT github_username FROM contacts
+          WHERE user_id = ? AND github_username IS NOT NULL
+        `);
+				const existing_contacts = existing_contacts_stmt.all(
+					user_id,
+				) as Array<{
+					github_username: string;
+				}>;
+				const existing_usernames = new Set(
+					existing_contacts.map((c) =>
+						c.github_username.toLowerCase(),
+					),
+				);
+
+				return {
+					success: true,
+					profiles: chunk.map((profile) => ({
+						...profile,
+						already_imported: existing_usernames.has(
+							profile.login.toLowerCase(),
+						),
+					})),
+					has_more: end < total,
+					offset: end,
+					total_loaded: end,
+					from_cache: true,
+				};
+			}
+
+			// No cache or force refresh - fetch from GitHub API
 			const chunk_result = await fetch_following_chunk(
 				token_data.access_token,
 				params.offset,
@@ -209,7 +275,6 @@ export const fetch_github_following_chunk = query(
 			);
 
 			// Get existing contacts to mark duplicates
-			const user_id = await get_current_user_id();
 			const existing_contacts_stmt = db.prepare(`
         SELECT github_username FROM contacts
         WHERE user_id = ? AND github_username IS NOT NULL
@@ -234,6 +299,7 @@ export const fetch_github_following_chunk = query(
 				has_more: chunk_result.has_more,
 				offset: chunk_result.offset,
 				total_loaded: chunk_result.total_loaded,
+				from_cache: false,
 			};
 		} catch (error: any) {
 			console.error('Error fetching GitHub following chunk:', error);
@@ -361,3 +427,47 @@ export const import_github_contacts = command(
 		}
 	},
 );
+
+/**
+ * Save GitHub profiles to cache
+ * Called after all chunks have been loaded to cache the full list
+ */
+export const cache_github_profiles = command(
+	v.object({
+		profiles: v.array(v.any()),
+	}),
+	async (data: { profiles: any[] }) => {
+		try {
+			const user_id = await get_current_user_id();
+			save_profiles_to_cache(user_id, data.profiles);
+
+			return {
+				success: true,
+			};
+		} catch (error: any) {
+			console.error('Error caching profiles:', error);
+			return {
+				error: error.message || 'Failed to cache profiles',
+			};
+		}
+	},
+);
+
+/**
+ * Clear the GitHub following cache
+ */
+export const clear_github_cache = command(async () => {
+	try {
+		const user_id = await get_current_user_id();
+		clear_cache(user_id);
+
+		return {
+			success: true,
+		};
+	} catch (error: any) {
+		console.error('Error clearing cache:', error);
+		return {
+			error: error.message || 'Failed to clear cache',
+		};
+	}
+});

@@ -3,6 +3,11 @@
  * Uses authenticated requests with user's OAuth token to access following list
  */
 
+import { db } from './db';
+
+// Cache TTL: 24 hours in milliseconds
+const CACHE_TTL_MS = 24 * 60 * 60 * 1000;
+
 interface GitHubUser {
 	login: string;
 	id: number;
@@ -374,5 +379,124 @@ export async function get_rate_limit_status(
 	} catch (error) {
 		console.error('Error fetching rate limit:', error);
 		throw error;
+	}
+}
+
+/**
+ * Get cached GitHub profiles for a user if they exist and are fresh
+ * @param user_id - User ID
+ * @returns Cached profiles or null if cache miss or expired
+ */
+export function get_cached_profiles(
+	user_id: string,
+): GitHubFollowingUser[] | null {
+	try {
+		const stmt = db.prepare(`
+      SELECT profile_data, cached_at
+      FROM github_following_cache
+      WHERE user_id = ?
+    `);
+
+		const row = stmt.get(user_id) as
+			| {
+					profile_data: string;
+					cached_at: number;
+			  }
+			| undefined;
+
+		if (!row) {
+			return null;
+		}
+
+		// Check if cache is still fresh (< 24 hours old)
+		const now = Date.now();
+		const age_ms = now - row.cached_at;
+
+		if (age_ms > CACHE_TTL_MS) {
+			// Cache expired, delete it
+			clear_cache(user_id);
+			return null;
+		}
+
+		// Parse and return cached profiles
+		const profiles = JSON.parse(
+			row.profile_data,
+		) as GitHubFollowingUser[];
+		return profiles;
+	} catch (error) {
+		console.error('Error reading cache:', error);
+		return null;
+	}
+}
+
+/**
+ * Save GitHub profiles to cache
+ * @param user_id - User ID
+ * @param profiles - Array of GitHub profiles to cache
+ */
+export function save_profiles_to_cache(
+	user_id: string,
+	profiles: GitHubFollowingUser[],
+): void {
+	try {
+		const now = Date.now();
+		const profile_data = JSON.stringify(profiles);
+
+		// Delete existing cache for this user
+		clear_cache(user_id);
+
+		// Insert new cache
+		const stmt = db.prepare(`
+      INSERT INTO github_following_cache (id, user_id, profile_data, cached_at)
+      VALUES (?, ?, ?, ?)
+    `);
+
+		stmt.run(crypto.randomUUID(), user_id, profile_data, now);
+	} catch (error) {
+		console.error('Error saving to cache:', error);
+		// Don't throw - caching failure shouldn't break the flow
+	}
+}
+
+/**
+ * Clear cache for a user
+ * @param user_id - User ID
+ */
+export function clear_cache(user_id: string): void {
+	try {
+		const stmt = db.prepare(`
+      DELETE FROM github_following_cache
+      WHERE user_id = ?
+    `);
+
+		stmt.run(user_id);
+	} catch (error) {
+		console.error('Error clearing cache:', error);
+	}
+}
+
+/**
+ * Get cache timestamp for a user
+ * @param user_id - User ID
+ * @returns Timestamp when cache was created, or null if no cache
+ */
+export function get_cache_timestamp(user_id: string): number | null {
+	try {
+		const stmt = db.prepare(`
+      SELECT cached_at
+      FROM github_following_cache
+      WHERE user_id = ?
+    `);
+
+		const row = stmt.get(user_id) as
+			| {
+					cached_at: number;
+			  }
+			| undefined;
+
+		return row ? row.cached_at : null;
+	} catch (error) {
+		console.error('Error getting cache timestamp:', error);
+		return null;
 	}
 }
