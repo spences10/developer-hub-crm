@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { goto } from '$app/navigation';
 	import { Trash } from '$lib/icons';
 	import type { delete_account } from './profile.remote';
 
@@ -37,8 +38,9 @@
 
 		try {
 			await on_delete(confirmation);
-			// Full page reload to clear all cached remote function data
-			window.location.href = '/';
+			// Navigate to home - user is deleted and signed out
+			// The home page will re-fetch and see no user
+			await goto('/', { invalidateAll: true });
 		} catch (err) {
 			console.error('Failed to delete account:', err);
 			error_message =
@@ -56,7 +58,7 @@
 			<div
 				class="flex h-12 w-12 items-center justify-center rounded-full bg-error/10"
 			>
-				<Trash size="24px" class="text-error" />
+				<Trash size="24px" class_names="text-error" />
 			</div>
 			<div class="flex-1">
 				<h2 class="card-title text-error">Danger Zone</h2>
@@ -145,6 +147,8 @@
 				</button>
 			</div>
 		</div>
+		<!-- svelte-ignore a11y_click_events_have_key_events -->
+		<!-- svelte-ignore a11y_no_static_element_interactions -->
 		<div class="modal-backdrop" onclick={close_modal}></div>
 	</dialog>
 {/if}
