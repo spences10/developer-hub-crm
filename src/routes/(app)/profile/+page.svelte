@@ -7,8 +7,10 @@
 	import { Head } from 'svead';
 	import { onMount } from 'svelte';
 	import { is_demo_user } from '../layout.remote';
+	import DeleteAccountModal from './delete-account-modal.svelte';
 	import {
 		add_user_social_link,
+		delete_account,
 		delete_user_social_link,
 		disconnect_github,
 		get_connected_auth_methods,
@@ -502,6 +504,11 @@
 					</div>
 				</div>
 			</div>
+		</div>
+
+		<!-- Delete Account - Danger Zone -->
+		<div class="md:col-span-2">
+			<DeleteAccountModal on_delete={delete_account} />
 		</div>
 	</div>
 {:catch error}

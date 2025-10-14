@@ -1,5 +1,6 @@
 import { getRequestEvent, query } from '$app/server';
 import { env } from '$env/dynamic/private';
+import { auth } from '$lib/server/auth';
 import {
 	get_current_user_id,
 	guarded_command,
@@ -571,3 +572,51 @@ export const get_profile_qr_url = query(async (): Promise<string> => {
 
 	return `${event.url.origin}/@${profile.username}?qr=1`;
 });
+
+/**
+ * Delete user account permanently
+ * This will delete all user data including contacts, interactions, follow-ups, etc.
+ * Requires password confirmation for credential-based accounts
+ */
+export const delete_account = guarded_command(
+	v.pipe(
+		v.string(),
+		v.literal(
+			'DELETE',
+			'You must type DELETE to confirm account deletion',
+		),
+	),
+	async (confirmation: string) => {
+		if (await is_demo_account()) {
+			throw new Error('Cannot delete demo account');
+		}
+
+		const user_id = await get_current_user_id();
+		const event = getRequestEvent();
+
+		console.log(
+			'[delete_account] Deleting user account and all related data',
+			{
+				user_id,
+				timestamp: new Date().toISOString(),
+			},
+		);
+
+		// Sign out the user first
+		await auth.api.signOut({
+			headers: event.request.headers,
+		});
+
+		// Delete the user record - CASCADE will handle all related data
+		db.prepare('DELETE FROM user WHERE id = ?').run(user_id);
+
+		console.log(
+			'[delete_account] Successfully deleted user account',
+			{
+				user_id,
+			},
+		);
+
+		return { success: true };
+	},
+);

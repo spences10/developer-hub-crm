@@ -95,6 +95,21 @@ Shows GitHub OAuth connection status:
 - Disconnecting removes GitHub account link and clears
   `github_username`
 
+### Account Deletion
+
+Self-service account deletion with safety measures:
+
+- **Confirmation Text** - User must type "DELETE" to confirm (no
+  password required since user is already authenticated)
+- **Permanent Action** - All data is deleted immediately and cannot be
+  recovered
+- **Data Removal** - Deletes all contacts, interactions, follow-ups,
+  tags, preferences, profile, and social links via CASCADE DELETE
+- **Demo Account Protection** - Demo account cannot be deleted
+- **Auto Sign-out** - User is signed out before deletion
+- **Client-side Navigation** - After deletion, user is navigated to
+  home page via `goto()`
+
 ## Database Schema
 
 ### user_profiles Table
@@ -159,6 +174,8 @@ Located in `src/routes/(app)/profile/profile.remote.ts`:
 - `delete_user_social_link()` - Removes a social link
 - `disconnect_github()` - Disconnects GitHub OAuth
 - `save_qr_code()` - Saves generated QR code data URL
+- `delete_account()` - Permanently deletes user account and all
+  related data
 
 ### Component Usage
 
@@ -260,7 +277,6 @@ Profile settings are accessible via:
 
 - **Profile Picture Upload** - Direct image upload vs Better Auth
   default
-- **Account Deletion** - Self-service account deletion flow
 - **Password Change** - In-app password reset
 - **Email Verification** - Re-send verification, change email workflow
 - **Social Link Icons** - Reuse/adapt `social-links-manager.svelte`
@@ -268,6 +284,9 @@ Profile settings are accessible via:
 - **Profile Preview** - Live preview of public profile
 - **Custom Domains** - Premium feature for `user.com` instead of
   `devhub.party/@user`
+- **Account Deletion Grace Period** - Optional soft delete with 30-day
+  recovery window
+- **Data Export** - Export user data before deletion
 
 ### Potential Improvements
 
@@ -317,5 +336,7 @@ Profile settings are accessible via:
 5. **Privacy First** - Visibility controls built in from day one
 6. **GitHub Integration** - OAuth via Better Auth, managed at profile
    level
-7. **Future-Proof** - Schema supports planned features (custom
+7. **Account Deletion** - Self-service with password verification and
+   CASCADE DELETE for data cleanup
+8. **Future-Proof** - Schema supports planned features (custom
    domains, analytics)
