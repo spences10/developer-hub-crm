@@ -334,40 +334,28 @@
 	) => [
 		{
 			href: `/interactions/new?contact_id=${contact_id}`,
-			border_color: 'border-primary/20',
-			bg_gradient: 'from-primary/10 to-primary/5',
-			hover_border: 'hover:border-primary/30',
-			icon_bg: 'bg-primary/20',
 			icon: Message,
 			icon_color: 'text-primary',
 			title: 'Log Interaction',
-			title_color: 'text-primary',
+			title_short: 'Interaction',
 			description: 'Record a meeting, call, email, or message',
 			enabled: true,
 		},
 		{
 			href: `/follow-ups/new?contact_id=${contact_id}`,
-			border_color: 'border-warning/20',
-			bg_gradient: 'from-warning/10 to-warning/5',
-			hover_border: 'hover:border-warning/30',
-			icon_bg: 'bg-warning/20',
 			icon: Calendar,
 			icon_color: 'text-warning',
 			title: 'Schedule Follow-up',
-			title_color: 'text-warning',
+			title_short: 'Follow-up',
 			description: 'Set a reminder to reconnect',
 			enabled: true,
 		},
 		{
 			href: email ? `mailto:${email}` : null,
-			border_color: email ? 'border-info/20' : 'border-base-300',
-			bg_gradient: email ? 'from-info/10 to-info/5' : '',
-			hover_border: email ? 'hover:border-info/30' : '',
-			icon_bg: email ? 'bg-info/20' : 'bg-base-300',
 			icon: Email,
-			icon_color: email ? 'text-info' : 'opacity-50',
+			icon_color: email ? 'text-info' : 'text-base-content/30',
 			title: 'Send Email',
-			title_color: email ? 'text-info' : '',
+			title_short: 'Email',
 			description: email
 				? 'Open your email client'
 				: 'No email address on file',
@@ -639,14 +627,16 @@
 																	handle_complete_follow_up(
 																		follow_up.id,
 																	)}
-																class="btn gap-1 text-success btn-ghost btn-xs"
+																class="btn gap-0 text-success btn-ghost btn-xs lg:gap-1"
 																aria-label="Complete follow-up"
 															>
 																<Check size="16px" />
-																Complete
+																<span class="hidden lg:inline">
+																	Complete
+																</span>
 															</button>
 															<button
-																class="btn gap-1 btn-ghost btn-xs"
+																class="btn gap-0 btn-ghost btn-xs lg:gap-1"
 																aria-label="Edit follow-up"
 																onclick={(e) =>
 																	handle_edit_follow_up_click(
@@ -655,10 +645,12 @@
 																	)}
 															>
 																<Edit size="16px" />
-																Edit
+																<span class="hidden lg:inline">
+																	Edit
+																</span>
 															</button>
 															<button
-																class="btn gap-1 text-error btn-ghost btn-xs"
+																class="btn gap-0 text-error btn-ghost btn-xs lg:gap-1"
 																aria-label="Delete follow-up"
 																onclick={(e) =>
 																	handle_delete_follow_up_click(
@@ -667,7 +659,9 @@
 																	)}
 															>
 																<Trash size="16px" />
-																Delete
+																<span class="hidden lg:inline">
+																	Delete
+																</span>
 															</button>
 														{/snippet}
 													</ActivityCard>
@@ -763,7 +757,7 @@
 													>
 														{#snippet action_buttons()}
 															<button
-																class="btn gap-1 btn-ghost btn-xs"
+																class="btn gap-0 btn-ghost btn-xs lg:gap-1"
 																aria-label="Edit interaction"
 																onclick={(e) =>
 																	handle_edit_interaction_click(
@@ -772,10 +766,12 @@
 																	)}
 															>
 																<Edit size="16px" />
-																Edit
+																<span class="hidden lg:inline"
+																	>Edit</span
+																>
 															</button>
 															<button
-																class="btn gap-1 text-error btn-ghost btn-xs"
+																class="btn gap-0 text-error btn-ghost btn-xs lg:gap-1"
 																aria-label="Delete interaction"
 																onclick={(e) =>
 																	handle_delete_interaction_click(
@@ -784,7 +780,9 @@
 																	)}
 															>
 																<Trash size="16px" />
-																Delete
+																<span class="hidden lg:inline"
+																	>Delete</span
+																>
 															</button>
 														{/snippet}
 													</ActivityCard>

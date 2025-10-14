@@ -90,7 +90,7 @@
 
 			<!-- Actions Footer -->
 			<div
-				class="flex items-center justify-end gap-2 border-t border-base-300 pt-2"
+				class="flex items-center justify-end gap-1 border-t border-base-300 pt-2 lg:gap-2"
 			>
 				{#if show_delete_confirmation}
 					<ConfirmDialog
