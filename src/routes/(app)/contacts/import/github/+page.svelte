@@ -37,6 +37,7 @@
 			await auth_client.linkSocial({
 				provider: 'github',
 				scopes: ['user:follow'],
+				callbackURL: '/contacts/import/github',
 			});
 		} catch (error) {
 			console.error('Error connecting GitHub:', error);
@@ -50,6 +51,7 @@
 			await auth_client.linkSocial({
 				provider: 'github',
 				scopes: ['user:follow'],
+				callbackURL: '/contacts/import/github',
 			});
 		} catch (error) {
 			console.error('Error authorizing GitHub scope:', error);
@@ -151,7 +153,9 @@
 <Head seo_config={seo_configs.contacts} />
 
 <PageHeaderWithAction title="Import from GitHub">
-	<a href="/contacts" class="btn btn-ghost btn-outline">Back to Contacts</a>
+	<a href="/contacts" class="btn btn-ghost btn-outline"
+		>Back to Contacts</a
+	>
 </PageHeaderWithAction>
 <PageNav />
 

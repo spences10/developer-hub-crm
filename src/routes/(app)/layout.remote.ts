@@ -61,6 +61,48 @@ export const ensure_profile = query(async () => {
 				console.error('Failed to create profile from GitHub:', error);
 				// Continue without profile - user can create manually later
 			}
+		} else {
+			// Create default profile for credential users
+			const user_stmt = db.prepare(`
+        SELECT name, email FROM user WHERE id = ?
+      `);
+			const user = user_stmt.get(user_id) as
+				| { name: string; email: string }
+				| undefined;
+
+			if (user) {
+				const now = Date.now();
+				const profile_id = crypto.randomUUID();
+				// Generate username from email (before @)
+				const base_username = user.email.split('@')[0];
+				let username = base_username;
+
+				// Check if username exists and make it unique if needed
+				let attempt = 0;
+				while (true) {
+					const existing = db
+						.prepare(
+							'SELECT id FROM user_profiles WHERE username = ?',
+						)
+						.get(username);
+					if (!existing) break;
+					attempt++;
+					username = `${base_username}${attempt}`;
+				}
+
+				db.prepare(
+					`
+          INSERT INTO user_profiles (
+            id, user_id, username, created_at, updated_at
+          )
+          VALUES (?, ?, ?, ?, ?)
+        `,
+				).run(profile_id, user_id, username, now, now);
+
+				console.log(
+					'✅ Created default user profile for credential user',
+				);
+			}
 		}
 	}
 
