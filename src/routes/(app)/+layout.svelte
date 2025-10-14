@@ -2,6 +2,7 @@
 	import { goto } from '$app/navigation';
 	import BackToTop from '$lib/components/back-to-top.svelte';
 	import BottomNavDock from '$lib/components/bottom-nav-dock.svelte';
+	import { nav_items } from '$lib/config/navigation';
 	import { Sparkles } from '$lib/icons';
 	import Logo from '$lib/logo.svelte';
 	import { generate_qr_code_data_url } from '$lib/utils/qr-code';
@@ -85,12 +86,9 @@
 									<li class="menu-title">
 										<span>{user.name}</span>
 									</li>
-									<li><a href="/dashboard">Dashboard</a></li>
-									<li><a href="/contacts">Contacts</a></li>
-									<li><a href="/tags">Tags</a></li>
-									<li><a href="/interactions">Interactions</a></li>
-									<li><a href="/follow-ups">Follow-ups</a></li>
-									<li><a href="/settings">Settings</a></li>
+									{#each nav_items as item}
+										<li><a href={item.href}>{item.label}</a></li>
+									{/each}
 									<li>
 										<button onclick={handle_logout}>Logout</button>
 									</li>
