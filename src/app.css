@@ -176,6 +176,6 @@
 	}
 }
 
-@plugin "daisyui" {
+@plugin 'daisyui' {
 	themes: all;
 }
