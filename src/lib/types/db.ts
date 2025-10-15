@@ -1,4 +1,5 @@
 // Database type definitions for Devhub CRM
+import type { InteractionType } from '$lib/constants/interaction';
 
 export interface Contact {
 	id: string;
@@ -22,7 +23,7 @@ export interface Contact {
 export interface Interaction {
 	id: string;
 	contact_id: string;
-	type: 'meeting' | 'call' | 'email' | 'message';
+	type: InteractionType;
 	note: string | null;
 	created_at: number;
 	updated_at: number;
@@ -58,12 +59,7 @@ export interface UserPreferences {
 		| 'recently_added'
 		| 'company';
 	default_follow_up_days: number;
-	default_interaction_type:
-		| 'meeting'
-		| 'call'
-		| 'email'
-		| 'message'
-		| null;
+	default_interaction_type: InteractionType | null;
 	created_at: number;
 	updated_at: number;
 }

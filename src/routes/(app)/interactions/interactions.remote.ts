@@ -180,7 +180,7 @@ export const create_interaction = guarded_form(
 
 const update_interaction_schema = v.object({
 	id: v.pipe(v.string(), v.minLength(1)),
-	type: v.picklist(['meeting', 'call', 'email', 'message']),
+	type: v.picklist(['meeting', 'call', 'email', 'message', 'coffee']),
 	note: v.optional(v.string()),
 });
 
