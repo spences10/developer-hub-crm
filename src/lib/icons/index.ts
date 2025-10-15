@@ -25,6 +25,7 @@ export { default as Mastodon } from './mastodon.svelte';
 export { default as Message } from './message.svelte';
 export { default as Monitor } from './monitor.svelte';
 export { default as Phone } from './phone.svelte';
+export { default as QrCode } from './qr-code.svelte';
 export { default as Refresh } from './refresh.svelte';
 export { default as Rocket } from './rocket.svelte';
 export { default as Settings } from './settings.svelte';
