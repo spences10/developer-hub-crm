@@ -26,13 +26,6 @@ CLI, AI/agents, viral growth, infrastructure.
 Free vs Pro vs Premium tiers, revenue projections, upgrade triggers,
 freemium vs open core models.
 
-### [public-profiles.md](./public-profiles.md)
-
-**Viral growth via public profiles**
-
-Profile system (`@username`), QR codes for conferences, "Add to CRM"
-viral loop, analytics, growth strategy, privacy controls.
-
 ### [github-integration.md](./github-integration.md)
 
 **GitHub automation features**
@@ -53,6 +46,23 @@ pipes, integration with main app.
 
 Three tiers (Analysis → Automation → Agents), relationship insights,
 message drafting, daily digest, GitHub activity agent.
+
+### [vector-search.md](./vector-search.md)
+
+**Vector search with sqlite-vec**
+
+Semantic search foundation, embedding model, cost analysis, features
+enabled (semantic search, smart context, similar contacts, topic
+clustering).
+
+### [connection-insights.md](./connection-insights.md)
+
+**Advanced relationship intelligence features**
+
+18 novel features for understanding connections: Memory Strength,
+Reciprocity Balance, Topic Freshness, Smart Conversation Starters,
+Knowledge Debt Tracker, Network Clusters, Conversation Evolution,
+Event Anchors. Organized by implementation phase with priority levels.
 
 ### [public-profiles.md](./public-profiles.md)
 
