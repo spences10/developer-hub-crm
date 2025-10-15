@@ -55,15 +55,6 @@ Semantic search foundation, embedding model, cost analysis, features
 enabled (semantic search, smart context, similar contacts, topic
 clustering).
 
-### [connection-insights.md](./connection-insights.md)
-
-**Advanced relationship intelligence features**
-
-18 novel features for understanding connections: Memory Strength,
-Reciprocity Balance, Topic Freshness, Smart Conversation Starters,
-Knowledge Debt Tracker, Network Clusters, Conversation Evolution,
-Event Anchors. Organized by implementation phase with priority levels.
-
 ### [public-profiles.md](./public-profiles.md)
 
 **Viral growth via public profiles**

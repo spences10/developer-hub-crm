@@ -385,6 +385,38 @@ The new features look great. Have you seen much adoption so far?"
 - Connection graph visualization
 - Network analytics dashboard
 
+## Additional Feature Ideas
+
+Quick wins and advanced features to enhance relationship intelligence:
+
+| Feature                        | Description                                                                      | Tier     | Priority |
+| ------------------------------ | -------------------------------------------------------------------------------- | -------- | -------- |
+| **Memory Strength**            | Score (0-100) showing how much context you have about each contact               | Free     | High     |
+| **Topic Freshness**            | Show when you last discussed each topic ("React: 2 weeks ago, Career: 2 months") | Pro      | High     |
+| **Knowledge Debt Tracker**     | Extract promises from notes ("Said I'd send article" → auto follow-up)           | Free/Pro | High     |
+| **Context Before Contact**     | One-click pre-call summary with last topics, pending items, suggestions          | Pro      | High     |
+| **Event Anchors**              | Track "Met at React Summit 2024" with anniversary alerts                         | Free/Pro | High     |
+| **Meaningful Interaction**     | Distinguish substantial conversations from quick check-ins                       | Free     | Medium   |
+| **Reciprocity Balance**        | Visual showing who initiates contact (balanced vs one-sided)                     | Pro      | Medium   |
+| **Contact Pattern Learning**   | "You typically contact Sarah every 6 weeks" (personalized cadence)               | Pro      | Medium   |
+| **Shared Interests**           | "Alex and Sarah both mentioned Svelte - introduce them?"                         | Pro      | Medium   |
+| **Network Clusters**           | Auto-group contacts by topics/industries, show gaps in network                   | Premium  | Medium   |
+| **Conversation Evolution**     | Timeline showing how relationship changed (technical → personal)                 | Premium  | Medium   |
+| **Network Health by Category** | "Work colleagues: stale, Conference contacts: active"                            | Premium  | Medium   |
+| **Introduction Graph**         | Who introduced you, connector value, 2-degrees discovery                         | Premium  | Low      |
+| **Connection Value**           | Strategic scoring beyond health (mutual value, bridging, expertise)              | Premium  | Low      |
+| **Network Diversity**          | Measure breadth across industries/roles/topics                                   | Premium  | Low      |
+| **Conversation Heatmap**       | GitHub-style graph showing when you network most                                 | Premium  | Low      |
+
+**Implementation notes:**
+
+- Phase 1 (quick wins): Memory Strength, Knowledge Debt, Event
+  Anchors, Meaningful Interaction
+- Phase 2 (vector-powered): Topic Freshness, Context Before Contact,
+  Pattern Learning, Reciprocity
+- Phase 3+ (premium): Network analysis, evolution timeline, advanced
+  analytics
+
 ## Future Enhancements
 
 **Local AI Models:**
