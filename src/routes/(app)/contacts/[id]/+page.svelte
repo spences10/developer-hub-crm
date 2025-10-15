@@ -528,279 +528,270 @@
 						<div class="space-y-4">
 							<!-- Follow-ups Section -->
 							{#if pending_follow_ups.length > 0}
-								<div class="card bg-base-100 shadow-xl">
-									<div class="card-body">
-										<div
-											class="mb-4 flex items-center justify-between"
+								<div>
+									<div class="mb-4 flex items-center justify-between">
+										<h3
+											class="flex items-center gap-2 text-xl font-bold"
 										>
-											<h3
-												class="flex items-center gap-2 text-xl font-bold"
-											>
-												<Calendar size="24px" />
-												Pending Follow-ups
-												{#if overdue_follow_ups.length > 0}
-													<span class="badge badge-error">
-														{overdue_follow_ups.length} overdue
-													</span>
-												{/if}
-											</h3>
-											<a
-												href="/follow-ups/new?contact_id={contact.id}"
-												class="btn btn-sm btn-primary"
-											>
-												Add Follow-up
-											</a>
-										</div>
+											<Calendar size="24px" />
+											Pending Follow-ups
+											{#if overdue_follow_ups.length > 0}
+												<span class="badge badge-error">
+													{overdue_follow_ups.length} overdue
+												</span>
+											{/if}
+										</h3>
+										<a
+											href="/follow-ups/new?contact_id={contact.id}"
+											class="btn btn-sm btn-primary"
+										>
+											Add Follow-up
+										</a>
+									</div>
 
-										<div class="space-y-3">
-											{#each pending_follow_ups as follow_up}
-												{@const overdue =
-													!follow_up.completed &&
-													is_overdue(follow_up.due_date)}
-												{@const icon_color = overdue
-													? 'bg-error text-error-content'
-													: 'bg-warning text-warning-content'}
-												{@const metadata_classes = overdue
-													? 'opacity-60 text-error'
-													: 'opacity-60'}
-												{#if edit_follow_up_id === follow_up.id}
-													<!-- Edit Mode -->
-													<div
-														class="rounded-box border border-base-300 bg-base-200/50 p-4"
-													>
-														<div class="space-y-3">
-															<fieldset class="fieldset">
-																<legend class="fieldset-legend">
-																	Due Date
-																</legend>
-																<label class="input w-full">
-																	<input
-																		type="datetime-local"
-																		bind:value={
-																			edit_follow_up_due_date_str
-																		}
-																		class="grow"
-																	/>
-																</label>
-															</fieldset>
+									<div class="grid grid-cols-1 gap-3 md:grid-cols-2">
+										{#each pending_follow_ups as follow_up}
+											{@const overdue =
+												!follow_up.completed &&
+												is_overdue(follow_up.due_date)}
+											{@const icon_color = overdue
+												? 'bg-error text-error-content'
+												: 'bg-warning text-warning-content'}
+											{@const metadata_classes = overdue
+												? 'opacity-60 text-error'
+												: 'opacity-60'}
+											{#if edit_follow_up_id === follow_up.id}
+												<!-- Edit Mode -->
+												<div
+													class="rounded-box border border-base-300 bg-base-200/50 p-4"
+												>
+													<div class="space-y-3">
+														<fieldset class="fieldset">
+															<legend class="fieldset-legend">
+																Due Date
+															</legend>
+															<label class="input w-full">
+																<input
+																	type="datetime-local"
+																	bind:value={
+																		edit_follow_up_due_date_str
+																	}
+																	class="grow"
+																/>
+															</label>
+														</fieldset>
 
-															<fieldset class="fieldset">
-																<legend class="fieldset-legend">
-																	Note
-																</legend>
-																<textarea
-																	bind:value={edit_follow_up_note}
-																	class="textarea h-24 w-full"
-																	placeholder="Add a note..."
-																></textarea>
-															</fieldset>
+														<fieldset class="fieldset">
+															<legend class="fieldset-legend">
+																Note
+															</legend>
+															<textarea
+																bind:value={edit_follow_up_note}
+																class="textarea h-24 w-full"
+																placeholder="Add a note..."
+															></textarea>
+														</fieldset>
 
-															{@render form_actions(
-																cancel_edit_follow_up,
-																save_edit_follow_up,
-															)}
-														</div>
+														{@render form_actions(
+															cancel_edit_follow_up,
+															save_edit_follow_up,
+														)}
 													</div>
-												{:else}
-													<!-- View Mode -->
-													<ActivityCard
-														icon={Calendar}
-														icon_color_classes={icon_color}
-														contact_id={contact.id}
-														contact_name={contact.name}
-														metadata="Due: {format_due_date(
-															follow_up.due_date,
-															preferences.date_format,
-														)}{overdue
-															? " <span class='badge badge-sm badge-error'>Overdue</span>"
-															: ''}"
-														{metadata_classes}
-														note={follow_up.note}
-														show_delete_confirmation={delete_follow_up_id ===
-															follow_up.id}
-														on_confirm_delete={confirm_delete_follow_up}
-														on_cancel_delete={cancel_delete_follow_up}
-													>
-														{#snippet action_buttons()}
-															<button
-																onclick={() =>
-																	handle_complete_follow_up(
-																		follow_up.id,
-																	)}
-																class="btn gap-0 text-success btn-ghost btn-xs lg:gap-1"
-																aria-label="Complete follow-up"
-															>
-																<Check size="16px" />
-																<span class="hidden lg:inline">
-																	Complete
-																</span>
-															</button>
-															<button
-																class="btn gap-0 btn-ghost btn-xs lg:gap-1"
-																aria-label="Edit follow-up"
-																onclick={(e) =>
-																	handle_edit_follow_up_click(
-																		e,
-																		follow_up,
-																	)}
-															>
-																<Edit size="16px" />
-																<span class="hidden lg:inline">
-																	Edit
-																</span>
-															</button>
-															<button
-																class="btn gap-0 text-error btn-ghost btn-xs lg:gap-1"
-																aria-label="Delete follow-up"
-																onclick={(e) =>
-																	handle_delete_follow_up_click(
-																		e,
-																		follow_up.id,
-																	)}
-															>
-																<Trash size="16px" />
-																<span class="hidden lg:inline">
-																	Delete
-																</span>
-															</button>
-														{/snippet}
-													</ActivityCard>
-												{/if}
-											{/each}
-										</div>
+												</div>
+											{:else}
+												<!-- View Mode -->
+												<ActivityCard
+													icon={Calendar}
+													icon_color_classes={icon_color}
+													contact_id={contact.id}
+													contact_name={contact.name}
+													metadata="Due: {format_due_date(
+														follow_up.due_date,
+														preferences.date_format,
+													)}{overdue
+														? " <span class='badge badge-sm badge-error'>Overdue</span>"
+														: ''}"
+													{metadata_classes}
+													note={follow_up.note}
+													show_delete_confirmation={delete_follow_up_id ===
+														follow_up.id}
+													on_confirm_delete={confirm_delete_follow_up}
+													on_cancel_delete={cancel_delete_follow_up}
+												>
+													{#snippet action_buttons()}
+														<button
+															onclick={() =>
+																handle_complete_follow_up(
+																	follow_up.id,
+																)}
+															class="btn gap-0 text-success btn-ghost btn-xs lg:gap-1"
+															aria-label="Complete follow-up"
+														>
+															<Check size="16px" />
+															<span class="hidden lg:inline">
+																Complete
+															</span>
+														</button>
+														<button
+															class="btn gap-0 btn-ghost btn-xs lg:gap-1"
+															aria-label="Edit follow-up"
+															onclick={(e) =>
+																handle_edit_follow_up_click(
+																	e,
+																	follow_up,
+																)}
+														>
+															<Edit size="16px" />
+															<span class="hidden lg:inline">
+																Edit
+															</span>
+														</button>
+														<button
+															class="btn gap-0 text-error btn-ghost btn-xs lg:gap-1"
+															aria-label="Delete follow-up"
+															onclick={(e) =>
+																handle_delete_follow_up_click(
+																	e,
+																	follow_up.id,
+																)}
+														>
+															<Trash size="16px" />
+															<span class="hidden lg:inline">
+																Delete
+															</span>
+														</button>
+													{/snippet}
+												</ActivityCard>
+											{/if}
+										{/each}
 									</div>
 								</div>
 							{/if}
 
 							<!-- Interactions Section -->
 							{#if interactions.length > 0}
-								<div class="card bg-base-100 shadow-xl">
-									<div class="card-body">
-										<div
-											class="mb-4 flex items-center justify-between"
+								<div>
+									<div class="mb-4 flex items-center justify-between">
+										<h3
+											class="flex items-center gap-2 text-xl font-bold"
 										>
-											<h3
-												class="flex items-center gap-2 text-xl font-bold"
-											>
-												<Message size="24px" />
-												Recent Interactions
-											</h3>
+											<Message size="24px" />
+											Recent Interactions
+										</h3>
+										<a
+											href="/interactions/new?contact_id={contact.id}"
+											class="btn btn-sm btn-primary"
+										>
+											Log Interaction
+										</a>
+									</div>
+
+									<div class="grid grid-cols-1 gap-3 md:grid-cols-2">
+										{#each interactions.slice(0, 10) as interaction}
+											{@const TypeIcon = type_icons[interaction.type]}
+											{#if edit_interaction_id === interaction.id}
+												<!-- Edit Mode -->
+												<div
+													class="rounded-box border border-base-300 bg-base-200/50 p-4"
+												>
+													<div class="space-y-3">
+														<fieldset class="fieldset">
+															<legend class="fieldset-legend">
+																Type
+															</legend>
+															<select
+																bind:value={edit_interaction_type}
+																class="select w-full"
+															>
+																{#each interaction_types as type}
+																	<option value={type.value}>
+																		{type.label}
+																	</option>
+																{/each}
+															</select>
+														</fieldset>
+
+														<fieldset class="fieldset">
+															<legend class="fieldset-legend">
+																Note
+															</legend>
+															<textarea
+																bind:value={edit_interaction_note}
+																class="textarea h-24 w-full"
+																placeholder="Add a note..."
+															></textarea>
+														</fieldset>
+
+														{@render form_actions(
+															cancel_edit_interaction,
+															save_edit_interaction,
+														)}
+													</div>
+												</div>
+											{:else}
+												<!-- View Mode -->
+												<ActivityCard
+													icon={TypeIcon}
+													icon_color_classes={type_colors[
+														interaction.type
+													]}
+													contact_id={contact.id}
+													contact_name={contact.name}
+													metadata="<span class='capitalize'>{interaction.type}</span> • {format_date(
+														new Date(interaction.created_at),
+														preferences.date_format,
+													)}"
+													note={interaction.note}
+													show_delete_confirmation={delete_interaction_id ===
+														interaction.id}
+													on_confirm_delete={confirm_delete_interaction}
+													on_cancel_delete={cancel_delete_interaction}
+												>
+													{#snippet action_buttons()}
+														<button
+															class="btn gap-0 btn-ghost btn-xs lg:gap-1"
+															aria-label="Edit interaction"
+															onclick={(e) =>
+																handle_edit_interaction_click(
+																	e,
+																	interaction,
+																)}
+														>
+															<Edit size="16px" />
+															<span class="hidden lg:inline">
+																Edit
+															</span>
+														</button>
+														<button
+															class="btn gap-0 text-error btn-ghost btn-xs lg:gap-1"
+															aria-label="Delete interaction"
+															onclick={(e) =>
+																handle_delete_interaction_click(
+																	e,
+																	interaction.id,
+																)}
+														>
+															<Trash size="16px" />
+															<span class="hidden lg:inline">
+																Delete
+															</span>
+														</button>
+													{/snippet}
+												</ActivityCard>
+											{/if}
+										{/each}
+									</div>
+
+									{#if interactions.length > 10}
+										<div class="mt-4 text-center">
 											<a
-												href="/interactions/new?contact_id={contact.id}"
-												class="btn btn-sm btn-primary"
+												href="/interactions?contact_id={contact.id}"
+												class="link link-primary"
 											>
-												Log Interaction
+												View all {interactions.length} interactions
 											</a>
 										</div>
-
-										<div class="space-y-3">
-											{#each interactions.slice(0, 10) as interaction}
-												{@const TypeIcon =
-													type_icons[interaction.type]}
-												{#if edit_interaction_id === interaction.id}
-													<!-- Edit Mode -->
-													<div
-														class="rounded-box border border-base-300 bg-base-200/50 p-4"
-													>
-														<div class="space-y-3">
-															<fieldset class="fieldset">
-																<legend class="fieldset-legend">
-																	Type
-																</legend>
-																<select
-																	bind:value={edit_interaction_type}
-																	class="select w-full"
-																>
-																	{#each interaction_types as type}
-																		<option value={type.value}>
-																			{type.label}
-																		</option>
-																	{/each}
-																</select>
-															</fieldset>
-
-															<fieldset class="fieldset">
-																<legend class="fieldset-legend">
-																	Note
-																</legend>
-																<textarea
-																	bind:value={edit_interaction_note}
-																	class="textarea h-24 w-full"
-																	placeholder="Add a note..."
-																></textarea>
-															</fieldset>
-
-															{@render form_actions(
-																cancel_edit_interaction,
-																save_edit_interaction,
-															)}
-														</div>
-													</div>
-												{:else}
-													<!-- View Mode -->
-													<ActivityCard
-														icon={TypeIcon}
-														icon_color_classes={type_colors[
-															interaction.type
-														]}
-														contact_id={contact.id}
-														contact_name={contact.name}
-														metadata="<span class='capitalize'>{interaction.type}</span> • {format_date(
-															new Date(interaction.created_at),
-															preferences.date_format,
-														)}"
-														note={interaction.note}
-														show_delete_confirmation={delete_interaction_id ===
-															interaction.id}
-														on_confirm_delete={confirm_delete_interaction}
-														on_cancel_delete={cancel_delete_interaction}
-													>
-														{#snippet action_buttons()}
-															<button
-																class="btn gap-0 btn-ghost btn-xs lg:gap-1"
-																aria-label="Edit interaction"
-																onclick={(e) =>
-																	handle_edit_interaction_click(
-																		e,
-																		interaction,
-																	)}
-															>
-																<Edit size="16px" />
-																<span class="hidden lg:inline"
-																	>Edit</span
-																>
-															</button>
-															<button
-																class="btn gap-0 text-error btn-ghost btn-xs lg:gap-1"
-																aria-label="Delete interaction"
-																onclick={(e) =>
-																	handle_delete_interaction_click(
-																		e,
-																		interaction.id,
-																	)}
-															>
-																<Trash size="16px" />
-																<span class="hidden lg:inline"
-																	>Delete</span
-																>
-															</button>
-														{/snippet}
-													</ActivityCard>
-												{/if}
-											{/each}
-										</div>
-
-										{#if interactions.length > 10}
-											<div class="mt-4 text-center">
-												<a
-													href="/interactions?contact_id={contact.id}"
-													class="link link-primary"
-												>
-													View all {interactions.length} interactions
-												</a>
-											</div>
-										{/if}
-									</div>
+									{/if}
 								</div>
 							{/if}
 						</div>
