@@ -148,7 +148,7 @@
 				{#if github_state.cache.has_cache}
 					<!-- Cache exists - show info and load from cache option -->
 					<div
-						class="mt-4 rounded-lg border-2 border-info bg-base-100 p-4"
+						class="mt-4 rounded-box border-2 border-info bg-base-100 p-4"
 					>
 						<div class="flex items-start gap-3">
 							<svg
@@ -206,7 +206,7 @@
 				{:else}
 					<!-- No cache - show warning with following info -->
 					<div
-						class="mt-4 rounded-lg border-2 border-warning bg-base-100 p-4"
+						class="mt-4 rounded-box border-2 border-warning bg-base-100 p-4"
 					>
 						<div class="flex items-start gap-3">
 							<svg
@@ -287,7 +287,7 @@
 				{/if}
 			{:else if github_state.stage === 'loading'}
 				<!-- Show loading progress -->
-				<div class="mt-4 rounded-lg bg-base-200 p-4">
+				<div class="mt-4 rounded-box bg-base-200 p-4">
 					<div class="flex flex-col gap-3">
 						<p class="flex items-center gap-2 text-sm opacity-70">
 							<span class="loading loading-sm loading-spinner"></span>
