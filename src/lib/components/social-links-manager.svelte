@@ -18,13 +18,44 @@
 	let { social_links, on_add, on_delete }: Props = $props();
 
 	// New social link state
-	let new_platform = $state('');
 	let new_url = $state('');
 	let adding_link = $state(false);
 	let delete_confirmation_id = $state<string | null>(null);
 
+	function detect_platform(url: string): string {
+		try {
+			const normalized_url = url.includes('://')
+				? url
+				: `https://${url}`;
+			const hostname = new URL(normalized_url).hostname.toLowerCase();
+
+			if (hostname.includes('github.com')) return 'github';
+			if (
+				hostname.includes('twitter.com') ||
+				hostname.includes('x.com')
+			)
+				return 'twitter';
+			if (
+				hostname.includes('bsky.app') ||
+				hostname.includes('bluesky.')
+			)
+				return 'bluesky';
+			if (hostname.includes('linkedin.com')) return 'linkedin';
+			if (
+				hostname.includes('mastodon.') ||
+				hostname.includes('fosstodon.') ||
+				hostname.includes('mas.to')
+			)
+				return 'mastodon';
+
+			return 'website';
+		} catch {
+			return 'website';
+		}
+	}
+
 	async function handle_add_social_link() {
-		if (!new_platform || !new_url) return;
+		if (!new_url) return;
 
 		// Auto-add https:// if no protocol specified
 		let url_to_add = new_url.trim();
@@ -32,10 +63,11 @@
 			url_to_add = `https://${url_to_add}`;
 		}
 
+		const platform = detect_platform(url_to_add);
+
 		adding_link = true;
 		try {
-			await on_add(new_platform, url_to_add);
-			new_platform = '';
+			await on_add(platform, url_to_add);
 			new_url = '';
 		} catch (err) {
 			console.error('Failed to add social link:', err);
@@ -110,35 +142,21 @@
 	<!-- Add New Social Link -->
 	<div class="space-y-3">
 		<p class="text-xs font-medium opacity-70">Add new social link</p>
-		<div class="grid grid-cols-1 gap-3 md:grid-cols-2">
-			<fieldset class="fieldset">
-				<legend class="fieldset-legend">Platform</legend>
-				<select bind:value={new_platform} class="select w-full">
-					<option value="">Select platform</option>
-					<option value="github">GitHub</option>
-					<option value="twitter">Twitter/X</option>
-					<option value="bluesky">Bluesky</option>
-					<option value="linkedin">LinkedIn</option>
-					<option value="mastodon">Mastodon</option>
-					<option value="website">Website</option>
-				</select>
-			</fieldset>
-			<fieldset class="fieldset">
-				<legend class="fieldset-legend">URL</legend>
-				<label class="input w-full">
-					<input
-						type="url"
-						placeholder="https://example.com"
-						bind:value={new_url}
-						class="grow"
-					/>
-				</label>
-			</fieldset>
-		</div>
+		<fieldset class="fieldset">
+			<legend class="fieldset-legend">URL</legend>
+			<label class="input w-full">
+				<input
+					type="url"
+					placeholder="https://github.com/username or https://example.com"
+					bind:value={new_url}
+					class="grow"
+				/>
+			</label>
+		</fieldset>
 		<button
 			type="button"
 			onclick={handle_add_social_link}
-			disabled={adding_link || !new_platform || !new_url}
+			disabled={adding_link || !new_url}
 			class="btn btn-block btn-primary"
 		>
 			{#if adding_link}

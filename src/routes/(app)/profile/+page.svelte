@@ -437,10 +437,14 @@
 				{#await social_links then links}
 					<SocialLinksManager
 						social_links={links || []}
-						on_add={(platform, url) =>
-							add_user_social_link({ platform, url })}
-						on_delete={delete_user_social_link}
-						on_change={() => social_links.refresh()}
+						on_add={async (platform, url) => {
+							await add_user_social_link({ platform, url });
+							social_links.refresh();
+						}}
+						on_delete={async (link_id) => {
+							await delete_user_social_link(link_id);
+							social_links.refresh();
+						}}
 					/>
 				{/await}
 			</div>
