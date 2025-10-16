@@ -11,6 +11,10 @@
 		get_dashboard_activity,
 		get_dashboard_stats,
 	} from './dashboard.remote';
+
+	const stats_query = get_dashboard_stats();
+	const activity_query = get_dashboard_activity();
+	const preferences_query = get_user_preferences();
 </script>
 
 <Head seo_config={seo_configs.dashboard} />
@@ -35,7 +39,16 @@
 </div>
 <PageNav />
 <!-- Stats Bar -->
-{#await get_dashboard_stats() then stats}
+{#if stats_query.loading}
+	<div class="mb-8 flex justify-center">
+		<span class="loading loading-sm loading-spinner"></span>
+	</div>
+{:else if stats_query.error}
+	<div class="mb-8 alert alert-error">
+		<p>Error loading stats</p>
+	</div>
+{:else if stats_query.current}
+	{@const stats = stats_query.current}
 	<div class="mb-8 flex flex-wrap items-center gap-2 text-sm">
 		<a href="/contacts" class="link link-hover">
 			<span class="font-semibold">{stats.contacts}</span>
@@ -57,11 +70,25 @@
 			</span>
 		{/if}
 	</div>
-{/await}
+{/if}
 
 <!-- Activity Section -->
-{#await Promise.all( [get_dashboard_activity(), get_user_preferences()], ) then [activity, preferences]}
-	<div class="grid gap-6 lg:grid-cols-2">
+{#if activity_query.error || preferences_query.error}
+	<div class="alert alert-error">
+		<p>Error loading activity. Please try again.</p>
+	</div>
+{:else if (activity_query.loading || preferences_query.loading) && (activity_query.current === undefined || preferences_query.current === undefined)}
+	<!-- Only show loading spinner on initial load -->
+	<div class="flex justify-center p-8">
+		<span class="loading loading-lg loading-spinner"></span>
+	</div>
+{:else if activity_query.current && preferences_query.current}
+	{@const activity = activity_query.current}
+	{@const preferences = preferences_query.current}
+	<div
+		class="grid gap-6 lg:grid-cols-2"
+		class:opacity-60={activity_query.loading}
+	>
 		<!-- Overdue Follow-ups (if any) -->
 		{#if activity.overdue_follow_ups.length > 0}
 			<div
@@ -86,7 +113,7 @@
 						{#each activity.overdue_follow_ups as follow_up}
 							<FollowUpCard
 								{follow_up}
-								date_format={preferences.date_format}
+								date_format={preferences?.date_format ?? 'YYYY-MM-DD'}
 								variant="dashboard"
 							/>
 						{/each}
@@ -111,7 +138,7 @@
 						{#each activity.upcoming_follow_ups as follow_up}
 							<FollowUpCard
 								{follow_up}
-								date_format={preferences.date_format}
+								date_format={preferences?.date_format ?? 'YYYY-MM-DD'}
 								variant="compact"
 							/>
 						{/each}
@@ -136,7 +163,7 @@
 						{#each activity.recent_interactions as interaction}
 							<InteractionCard
 								{interaction}
-								date_format={preferences.date_format}
+								date_format={preferences?.date_format ?? 'YYYY-MM-DD'}
 								variant="compact"
 							/>
 						{/each}
@@ -145,4 +172,4 @@
 			</div>
 		</div>
 	</div>
-{/await}
+{/if}

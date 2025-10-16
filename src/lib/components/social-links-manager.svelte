@@ -13,11 +13,9 @@
 		social_links: SocialLink[];
 		on_add: (platform: string, url: string) => Promise<void>;
 		on_delete: (link_id: string) => Promise<void>;
-		on_change: () => void;
 	}
 
-	let { social_links, on_add, on_delete, on_change }: Props =
-		$props();
+	let { social_links, on_add, on_delete }: Props = $props();
 
 	// New social link state
 	let new_platform = $state('');
@@ -39,7 +37,6 @@
 			await on_add(new_platform, url_to_add);
 			new_platform = '';
 			new_url = '';
-			on_change();
 		} catch (err) {
 			console.error('Failed to add social link:', err);
 		} finally {
@@ -57,7 +54,6 @@
 		try {
 			await on_delete(delete_confirmation_id);
 			delete_confirmation_id = null;
-			on_change();
 		} catch (err) {
 			console.error('Failed to delete social link:', err);
 		}

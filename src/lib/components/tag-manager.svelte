@@ -9,7 +9,6 @@
 		on_add_tag: (tag_id: string) => Promise<void>;
 		on_remove_tag: (tag_id: string) => Promise<void>;
 		on_create_tag: (name: string, color: string) => Promise<void>;
-		on_change: () => void;
 	}
 
 	let {
@@ -18,7 +17,6 @@
 		on_add_tag,
 		on_remove_tag,
 		on_create_tag,
-		on_change,
 	}: Props = $props();
 
 	// GitHub default color palette
@@ -93,7 +91,6 @@
 			custom_color = '';
 			use_custom_color = false;
 			show_create_form = false;
-			on_change();
 		} catch (err: any) {
 			alert(err.message || 'Failed to create tag');
 		} finally {
@@ -104,7 +101,6 @@
 	async function handle_add_existing_tag(tag_id: string) {
 		try {
 			await on_add_tag(tag_id);
-			on_change();
 		} catch (err: any) {
 			alert(err.message || 'Failed to add tag');
 		}
@@ -120,7 +116,6 @@
 		try {
 			await on_remove_tag(delete_confirmation_id);
 			delete_confirmation_id = null;
-			on_change();
 		} catch (err: any) {
 			alert(err.message || 'Failed to remove tag');
 		}

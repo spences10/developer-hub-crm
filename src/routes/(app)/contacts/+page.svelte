@@ -24,6 +24,9 @@
 	>('name');
 	let sort_direction = $state<'asc' | 'desc'>('asc');
 
+	const contacts_query = get_contacts();
+	const preferences_query = get_user_preferences();
+
 	// Client-side filtering function
 	function filter_contacts(
 		contacts: Contact[],
@@ -167,7 +170,18 @@
 </div>
 
 <!-- Contacts List -->
-{#await Promise.all( [get_contacts(), get_user_preferences()], ) then [contacts, preferences]}
+{#if contacts_query.error || preferences_query.error}
+	<div class="alert alert-error">
+		<p>Error loading contacts. Please try again.</p>
+	</div>
+{:else if (contacts_query.loading || preferences_query.loading) && (contacts_query.current === undefined || preferences_query.current === undefined)}
+	<!-- Only show loading spinner on initial load -->
+	<div class="flex justify-center p-8">
+		<span class="loading loading-lg loading-spinner"></span>
+	</div>
+{:else}
+	{@const contacts = contacts_query.current ?? []}
+	{@const preferences = preferences_query.current}
 	{@const filtered_contacts = filter_contacts(contacts, search)}
 	{@const sorted_contacts = sort_contacts(filtered_contacts)}
 	{#if filtered_contacts.length === 0}
@@ -179,7 +193,10 @@
 			action_text={!search ? 'Add Your First Contact' : undefined}
 		/>
 	{:else}
-		<div class="overflow-x-auto">
+		<div
+			class="overflow-x-auto"
+			class:opacity-60={contacts_query.loading}
+		>
 			<table class="table">
 				<thead>
 					<tr>
@@ -285,4 +302,4 @@
 
 		<ItemCount count={filtered_contacts.length} item_name="contact" />
 	{/if}
-{/await}
+{/if}

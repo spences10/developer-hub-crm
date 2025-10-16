@@ -32,7 +32,6 @@
 		'#d4c5f9',
 	];
 
-	let refresh_key = $state(0);
 	let show_create_form = $state(false);
 	let delete_confirmation_id = $state<string | null>(null);
 	let edit_tag_id = $state<string | null>(null);
@@ -94,7 +93,6 @@
 			custom_color = '';
 			use_custom_color = false;
 			show_create_form = false;
-			refresh_key++;
 		} catch (err: any) {
 			alert(err.message || 'Failed to create tag');
 		} finally {
@@ -134,7 +132,6 @@
 				color,
 			});
 			edit_tag_id = null;
-			refresh_key++;
 		} catch (err: any) {
 			alert(err.message || 'Failed to update tag');
 		} finally {
@@ -160,7 +157,6 @@
 		try {
 			await delete_tag(delete_confirmation_id);
 			delete_confirmation_id = null;
-			refresh_key++;
 		} catch (err: any) {
 			alert(err.message || 'Failed to delete tag');
 		}
@@ -291,194 +287,185 @@
 	</div>
 {/if}
 
-{#key refresh_key}
-	{#await get_tags() then tags}
-		{#if tags.length === 0}
-			<div class="card bg-base-100 shadow-xl">
-				<div class="card-body">
-					<EmptyState
-						message="No tags yet. Create your first tag to organize your contacts!"
-					/>
-				</div>
+{#await get_tags() then tags}
+	{#if tags.length === 0}
+		<div class="card bg-base-100 shadow-xl">
+			<div class="card-body">
+				<EmptyState
+					message="No tags yet. Create your first tag to organize your contacts!"
+				/>
 			</div>
-		{:else}
-			<div
-				class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3"
-			>
-				{#each tags as tag}
-					{#if edit_tag_id === tag.id}
-						<!-- Edit Mode Card -->
-						<div
-							class="card border border-base-300 bg-base-100 shadow"
-						>
-							<div class="card-body p-4">
-								<div class="space-y-3">
-									<!-- Edit Name -->
-									<fieldset class="fieldset">
-										<legend class="fieldset-legend">Tag Name</legend>
-										<label class="input input-sm w-full">
-											<input
-												type="text"
-												bind:value={edit_name}
-												class="grow"
-												maxlength="30"
-											/>
-										</label>
-									</fieldset>
+		</div>
+	{:else}
+		<div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+			{#each tags as tag}
+				{#if edit_tag_id === tag.id}
+					<!-- Edit Mode Card -->
+					<div class="card border border-base-300 bg-base-100 shadow">
+						<div class="card-body p-4">
+							<div class="space-y-3">
+								<!-- Edit Name -->
+								<fieldset class="fieldset">
+									<legend class="fieldset-legend">Tag Name</legend>
+									<label class="input input-sm w-full">
+										<input
+											type="text"
+											bind:value={edit_name}
+											class="grow"
+											maxlength="30"
+										/>
+									</label>
+								</fieldset>
 
-									<!-- Edit Color -->
-									<div>
-										<p class="mb-2 text-xs font-medium">Color</p>
-										<div class="mb-2 grid grid-cols-8 gap-1">
-											{#each DEFAULT_COLORS as color}
-												<button
-													type="button"
-													onclick={() => {
-														edit_color = color;
-														edit_use_custom = false;
-													}}
-													class="size-6 rounded border transition-transform hover:scale-110 {edit_color ===
-														color && !edit_use_custom
-														? 'border-primary ring-1 ring-primary'
-														: 'border-base-300'}"
-													style="background-color: {color};"
-													aria-label="Select color {color}"
-												></button>
-											{/each}
-										</div>
-
-										<div class="flex gap-1">
-											<label
-												class="input input-sm flex flex-1 items-center gap-1"
-											>
-												<input
-													type="text"
-													placeholder="#ff5733"
-													bind:value={edit_custom_color}
-													onfocus={() => {
-														edit_use_custom = true;
-														edit_color = edit_custom_color;
-													}}
-													class="grow"
-													maxlength="7"
-												/>
-												{#if edit_use_custom && edit_custom_color}
-													<div
-														class="size-4 rounded border border-base-300"
-														style="background-color: {edit_custom_color};"
-													></div>
-												{/if}
-											</label>
+								<!-- Edit Color -->
+								<div>
+									<p class="mb-2 text-xs font-medium">Color</p>
+									<div class="mb-2 grid grid-cols-8 gap-1">
+										{#each DEFAULT_COLORS as color}
 											<button
 												type="button"
-												onclick={handle_edit_random_color}
-												class="btn btn-square btn-outline btn-xs"
-											>
-												<Refresh size="14px" />
-											</button>
-										</div>
-									</div>
-
-									<!-- Actions -->
-									<div class="flex gap-2">
-										<button
-											onclick={cancel_edit}
-											class="btn flex-1 btn-ghost btn-xs"
-										>
-											Cancel
-										</button>
-										<button
-											onclick={handle_update_tag}
-											disabled={updating_tag || !edit_name.trim()}
-											class="btn flex-1 btn-xs btn-primary"
-										>
-											{#if updating_tag}
-												<span
-													class="loading loading-xs loading-spinner"
-												></span>
-											{:else}
-												Save
-											{/if}
-										</button>
-									</div>
-								</div>
-							</div>
-						</div>
-					{:else}
-						<!-- View Mode Card -->
-						<div
-							class="card border border-base-300 bg-base-100 shadow transition-shadow hover:shadow-lg"
-						>
-							<div class="card-body p-4">
-								<div class="flex items-start justify-between">
-									<div class="flex-1">
-										<div
-											class="mb-2 badge badge-lg"
-											style="background-color: {tag.color}; color: white; border: none;"
-										>
-											{tag.name}
-										</div>
-										<p class="text-sm opacity-70">
-											{tag.contact_count}
-											{tag.contact_count === 1
-												? 'contact'
-												: 'contacts'}
-										</p>
+												onclick={() => {
+													edit_color = color;
+													edit_use_custom = false;
+												}}
+												class="size-6 rounded border transition-transform hover:scale-110 {edit_color ===
+													color && !edit_use_custom
+													? 'border-primary ring-1 ring-primary'
+													: 'border-base-300'}"
+												style="background-color: {color};"
+												aria-label="Select color {color}"
+											></button>
+										{/each}
 									</div>
 
 									<div class="flex gap-1">
-										{#if delete_confirmation_id === tag.id}
-											<ConfirmDialog
-												is_inline={true}
-												message="Delete tag?"
-												on_confirm={confirm_delete}
-												on_cancel={cancel_delete}
+										<label
+											class="input input-sm flex flex-1 items-center gap-1"
+										>
+											<input
+												type="text"
+												placeholder="#ff5733"
+												bind:value={edit_custom_color}
+												onfocus={() => {
+													edit_use_custom = true;
+													edit_color = edit_custom_color;
+												}}
+												class="grow"
+												maxlength="7"
 											/>
-										{:else}
-											<button
-												onclick={() => handle_edit_click(tag)}
-												class="tooltip btn btn-ghost btn-xs"
-												data-tip="Edit"
-											>
-												<Edit size="16px" />
-											</button>
-											<button
-												onclick={() => handle_delete_click(tag.id)}
-												class="tooltip btn text-error btn-ghost btn-xs"
-												data-tip="Delete"
-											>
-												<Trash size="16px" />
-											</button>
-										{/if}
+											{#if edit_use_custom && edit_custom_color}
+												<div
+													class="size-4 rounded border border-base-300"
+													style="background-color: {edit_custom_color};"
+												></div>
+											{/if}
+										</label>
+										<button
+											type="button"
+											onclick={handle_edit_random_color}
+											class="btn btn-square btn-outline btn-xs"
+										>
+											<Refresh size="14px" />
+										</button>
 									</div>
 								</div>
 
-								<!-- Show contacts with this tag -->
-								{#if tag.contact_count > 0}
-									{#await get_tag_contacts(tag.id) then contacts}
-										<div class="divider my-2"></div>
-										<div class="space-y-1">
-											{#each contacts.slice(0, 3) as contact}
-												<a
-													href="/contacts/{contact.id}"
-													class="block link text-sm link-hover"
-												>
-													{contact.name}
-												</a>
-											{/each}
-											{#if contacts.length > 3}
-												<p class="text-xs opacity-60">
-													+{contacts.length - 3} more
-												</p>
-											{/if}
-										</div>
-									{/await}
-								{/if}
+								<!-- Actions -->
+								<div class="flex gap-2">
+									<button
+										onclick={cancel_edit}
+										class="btn flex-1 btn-ghost btn-xs"
+									>
+										Cancel
+									</button>
+									<button
+										onclick={handle_update_tag}
+										disabled={updating_tag || !edit_name.trim()}
+										class="btn flex-1 btn-xs btn-primary"
+									>
+										{#if updating_tag}
+											<span class="loading loading-xs loading-spinner"
+											></span>
+										{:else}
+											Save
+										{/if}
+									</button>
+								</div>
 							</div>
 						</div>
-					{/if}
-				{/each}
-			</div>
-		{/if}
-	{/await}
-{/key}
+					</div>
+				{:else}
+					<!-- View Mode Card -->
+					<div
+						class="card border border-base-300 bg-base-100 shadow transition-shadow hover:shadow-lg"
+					>
+						<div class="card-body p-4">
+							<div class="flex items-start justify-between">
+								<div class="flex-1">
+									<div
+										class="mb-2 badge badge-lg"
+										style="background-color: {tag.color}; color: white; border: none;"
+									>
+										{tag.name}
+									</div>
+									<p class="text-sm opacity-70">
+										{tag.contact_count}
+										{tag.contact_count === 1 ? 'contact' : 'contacts'}
+									</p>
+								</div>
+
+								<div class="flex gap-1">
+									{#if delete_confirmation_id === tag.id}
+										<ConfirmDialog
+											is_inline={true}
+											message="Delete tag?"
+											on_confirm={confirm_delete}
+											on_cancel={cancel_delete}
+										/>
+									{:else}
+										<button
+											onclick={() => handle_edit_click(tag)}
+											class="tooltip btn btn-ghost btn-xs"
+											data-tip="Edit"
+										>
+											<Edit size="16px" />
+										</button>
+										<button
+											onclick={() => handle_delete_click(tag.id)}
+											class="tooltip btn text-error btn-ghost btn-xs"
+											data-tip="Delete"
+										>
+											<Trash size="16px" />
+										</button>
+									{/if}
+								</div>
+							</div>
+
+							<!-- Show contacts with this tag -->
+							{#if tag.contact_count > 0}
+								{#await get_tag_contacts(tag.id) then contacts}
+									<div class="divider my-2"></div>
+									<div class="space-y-1">
+										{#each contacts.slice(0, 3) as contact}
+											<a
+												href="/contacts/{contact.id}"
+												class="block link text-sm link-hover"
+											>
+												{contact.name}
+											</a>
+										{/each}
+										{#if contacts.length > 3}
+											<p class="text-xs opacity-60">
+												+{contacts.length - 3} more
+											</p>
+										{/if}
+									</div>
+								{/await}
+							{/if}
+						</div>
+					</div>
+				{/if}
+			{/each}
+		</div>
+	{/if}
+{/await}

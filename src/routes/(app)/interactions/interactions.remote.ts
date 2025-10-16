@@ -217,11 +217,7 @@ export const update_interaction = guarded_command(
 
 		stmt.run(data.type, data.note || null, Date.now(), data.id);
 
-		// Single-flight mutation: refresh related queries
-		await get_interactions(interaction.contact_id).refresh();
-		await get_all_interactions('').refresh();
-		await get_recent_interactions().refresh();
-
+		// Client will handle refresh via .updates()
 		return { success: true };
 	},
 );
@@ -258,11 +254,7 @@ export const delete_interaction = guarded_command(
 
 		stmt.run(id);
 
-		// Single-flight mutation: refresh related queries
-		await get_interactions(interaction.contact_id).refresh();
-		await get_all_interactions('').refresh();
-		await get_recent_interactions().refresh();
-
+		// Client will handle refresh via .updates()
 		return { success: true };
 	},
 );

@@ -179,7 +179,18 @@
 />
 
 <!-- Follow-ups List -->
-{#await Promise.all( [all_follow_ups, preferences], ) then [all_follow_ups_data, preferences_data]}
+{#if all_follow_ups.error || preferences.error}
+	<div class="alert alert-error">
+		<p>Error loading follow-ups. Please try again.</p>
+	</div>
+{:else if (all_follow_ups.loading || preferences.loading) && (all_follow_ups.current === undefined || preferences.current === undefined)}
+	<!-- Only show loading spinner on initial load -->
+	<div class="flex justify-center p-8">
+		<span class="loading loading-lg loading-spinner"></span>
+	</div>
+{:else}
+	{@const all_follow_ups_data = all_follow_ups.current ?? []}
+	{@const preferences_data = preferences.current}
 	{@const follow_ups = filter_follow_ups(all_follow_ups_data, filter)}
 	{#if follow_ups.length === 0}
 		<EmptyState
@@ -196,7 +207,10 @@
 				: undefined}
 		/>
 	{:else}
-		<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+		<div
+			class="grid grid-cols-1 gap-4 md:grid-cols-2"
+			class:opacity-60={all_follow_ups.loading}
+		>
 			{#each follow_ups as follow_up}
 				{@const overdue =
 					!follow_up.completed && is_overdue(follow_up.due_date)}
@@ -274,14 +288,14 @@
 						contact_name={follow_up.contact_name}
 						metadata="Due: {format_due_date(
 							follow_up.due_date,
-							preferences_data.date_format,
+							preferences_data?.date_format ?? 'YYYY-MM-DD',
 						)}"
 						{metadata_classes}
 						note={follow_up.note}
 						footer_text={follow_up.completed && follow_up.completed_at
 							? `Completed: ${format_date(
 									new Date(follow_up.completed_at),
-									preferences_data.date_format,
+									preferences_data?.date_format ?? 'YYYY-MM-DD',
 								)}`
 							: undefined}
 						show_delete_confirmation={delete_confirmation_id ===
@@ -333,4 +347,4 @@
 
 		<ItemCount count={follow_ups.length} item_name="follow-up" />
 	{/if}
-{/await}
+{/if}

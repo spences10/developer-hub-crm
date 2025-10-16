@@ -6,14 +6,13 @@
 	import PageHeaderWithAction from '$lib/components/page-header-with-action.svelte';
 	import PageNav from '$lib/components/page-nav.svelte';
 	import SearchBar from '$lib/components/search-bar.svelte';
+	import type { InteractionType } from '$lib/constants/interaction';
 	import {
-		Calendar,
-		Call,
-		Edit,
-		Email,
-		Message,
-		Trash,
-	} from '$lib/icons';
+		INTERACTION_TYPE_COLORS,
+		INTERACTION_TYPE_ICONS,
+		INTERACTION_TYPES,
+	} from '$lib/constants/interaction';
+	import { Edit, Trash } from '$lib/icons';
 	import { seo_configs } from '$lib/seo';
 	import type { Interaction } from '$lib/types/db';
 	import { format_date } from '$lib/utils/date-helpers';
@@ -22,52 +21,26 @@
 	import {
 		delete_interaction,
 		get_all_interactions,
-		get_interactions,
 		update_interaction,
 	} from './interactions.remote';
 
 	let search = $state('');
-	let filter = $state<
-		'all' | 'meeting' | 'call' | 'email' | 'message'
-	>('all');
+	let filter = $state<'all' | InteractionType>('all');
 
 	let delete_confirmation_id = $state<string | null>(null);
 	let delete_contact_id = $state<string | null>(null);
 	let edit_interaction_id = $state<string | null>(null);
 	let edit_contact_id = $state<string | null>(null);
-	let edit_type = $state<'meeting' | 'call' | 'email' | 'message'>(
-		'meeting',
-	);
+	let edit_type = $state<InteractionType>('meeting');
 	let edit_note = $state('');
-
-	// Store queries - use $derived for search reactivity
-	const all_interactions = $derived(get_all_interactions(search));
-	const preferences = get_user_preferences();
 
 	const interaction_types = [
 		'all',
-		'meeting',
-		'call',
-		'email',
-		'message',
+		...INTERACTION_TYPES.map((t) => t.value),
 	] as const;
 
-	const type_icons: Record<
-		string,
-		typeof Calendar | typeof Call | typeof Email | typeof Message
-	> = {
-		meeting: Calendar,
-		call: Call,
-		email: Email,
-		message: Message,
-	};
-
-	const type_colors: Record<string, string> = {
-		meeting: 'bg-primary text-primary-content',
-		call: 'bg-secondary text-secondary-content',
-		email: 'bg-accent text-accent-content',
-		message: 'bg-info text-info-content',
-	};
+	const interactions_query = $derived(get_all_interactions(search));
+	const preferences_query = get_user_preferences();
 
 	function handle_edit_click(
 		event: MouseEvent,
@@ -80,22 +53,27 @@
 		edit_note = interaction.note || '';
 	}
 
-	async function save_edit() {
+	async function save_edit(event?: Event) {
+		event?.preventDefault();
+		event?.stopPropagation();
+
 		if (!edit_interaction_id || !edit_contact_id) return;
 
-		// Use .updates() to refresh both the list query and contact-specific query
-		// This ensures the contact detail page shows fresh data
+		const interaction_id = edit_interaction_id;
+
+		// Call the command
 		await update_interaction({
-			id: edit_interaction_id,
+			id: interaction_id,
 			type: edit_type,
 			note: edit_note,
-		}).updates(
-			get_all_interactions(search),
-			get_interactions(edit_contact_id),
-		);
+		});
 
+		// Close edit mode FIRST
 		edit_interaction_id = null;
 		edit_contact_id = null;
+
+		// THEN refresh the query (data will update in place)
+		await interactions_query.refresh();
 	}
 
 	function cancel_edit() {
@@ -114,11 +92,11 @@
 	async function confirm_delete() {
 		if (!delete_confirmation_id || !delete_contact_id) return;
 
-		// Use .updates() to refresh both the list query and contact-specific query
-		await delete_interaction(delete_confirmation_id).updates(
-			get_all_interactions(search),
-			get_interactions(delete_contact_id),
-		);
+		// Call the command
+		await delete_interaction(delete_confirmation_id);
+
+		// Then refresh the query
+		await interactions_query.refresh();
 
 		delete_confirmation_id = null;
 		delete_contact_id = null;
@@ -153,7 +131,18 @@
 />
 
 <!-- Interactions List -->
-{#await Promise.all( [all_interactions, preferences], ) then [interactions_data, preferences_data]}
+{#if interactions_query.error || preferences_query.error}
+	<div class="alert alert-error">
+		<p>Error loading interactions. Please try again.</p>
+	</div>
+{:else if (interactions_query.loading || preferences_query.loading) && (interactions_query.current === undefined || preferences_query.current === undefined)}
+	<!-- Only show loading spinner on initial load -->
+	<div class="flex justify-center p-8">
+		<span class="loading loading-lg loading-spinner"></span>
+	</div>
+{:else}
+	{@const interactions_data = interactions_query.current ?? []}
+	{@const preferences_data = preferences_query.current}
 	{@const interactions =
 		filter === 'all'
 			? interactions_data
@@ -174,9 +163,12 @@
 				: undefined}
 		/>
 	{:else}
-		<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+		<div
+			class="grid grid-cols-1 gap-4 md:grid-cols-2"
+			class:opacity-60={interactions_query.loading}
+		>
 			{#each interactions as interaction}
-				{@const TypeIcon = type_icons[interaction.type]}
+				{@const TypeIcon = INTERACTION_TYPE_ICONS[interaction.type]}
 				{#if edit_interaction_id === interaction.id}
 					<!-- Edit Mode -->
 					<div
@@ -200,10 +192,11 @@
 											bind:value={edit_type}
 											class="select w-full"
 										>
-											<option value="meeting">Meeting</option>
-											<option value="call">Call</option>
-											<option value="email">Email</option>
-											<option value="message">Message</option>
+											{#each INTERACTION_TYPES as type}
+												<option value={type.value}
+													>{type.label}</option
+												>
+											{/each}
 										</select>
 									</fieldset>
 
@@ -219,14 +212,16 @@
 
 								<div class="flex justify-end gap-2">
 									<button
+										type="button"
 										class="btn btn-ghost btn-sm"
 										onclick={cancel_edit}
 									>
 										Cancel
 									</button>
 									<button
+										type="button"
 										class="btn btn-sm btn-primary"
-										onclick={save_edit}
+										onclick={(e) => save_edit(e)}
 									>
 										Save
 									</button>
@@ -238,12 +233,14 @@
 					<!-- View Mode -->
 					<ActivityCard
 						icon={TypeIcon}
-						icon_color_classes={type_colors[interaction.type]}
+						icon_color_classes={INTERACTION_TYPE_COLORS[
+							interaction.type
+						]}
 						contact_id={interaction.contact_id}
 						contact_name={interaction.contact_name}
 						metadata="<span class='capitalize'>{interaction.type}</span> • {format_date(
 							new Date(interaction.created_at),
-							preferences_data.date_format,
+							preferences_data?.date_format ?? 'YYYY-MM-DD',
 						)}"
 						note={interaction.note}
 						show_delete_confirmation={delete_confirmation_id ===
@@ -276,4 +273,4 @@
 
 		<ItemCount count={interactions.length} item_name="interaction" />
 	{/if}
-{/await}
+{/if}
