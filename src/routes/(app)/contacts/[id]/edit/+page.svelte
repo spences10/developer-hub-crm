@@ -301,13 +301,18 @@
 					<!-- Social Links Management -->
 					<SocialLinksManager
 						social_links={contact.social_links || []}
-						on_add={(platform, url) =>
-							add_social_link({
+						on_add={async (platform, url) => {
+							await add_social_link({
 								contact_id: contact.id,
 								platform,
 								url,
-							})}
-						on_delete={delete_social_link}
+							});
+							contact_query?.refresh();
+						}}
+						on_delete={async (link_id) => {
+							await delete_social_link(link_id);
+							contact_query?.refresh();
+						}}
 					/>
 
 					<!-- Tags Management -->
