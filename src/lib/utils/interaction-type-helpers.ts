@@ -122,6 +122,8 @@ export const AVAILABLE_THEME_COLORS = [
  * Get color name by value (for display in UI)
  */
 export function get_color_name(color_value: string): string {
-	const color = AVAILABLE_THEME_COLORS.find((c) => c.value === color_value);
+	const color = AVAILABLE_THEME_COLORS.find(
+		(c) => c.value === color_value,
+	);
 	return color?.name || 'Unknown';
 }

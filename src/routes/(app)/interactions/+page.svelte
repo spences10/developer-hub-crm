@@ -6,15 +6,15 @@
 	import PageHeaderWithAction from '$lib/components/page-header-with-action.svelte';
 	import PageNav from '$lib/components/page-nav.svelte';
 	import SearchBar from '$lib/components/search-bar.svelte';
-	import { get_icon_component } from '$lib/utils/interaction-type-helpers';
 	import { Edit, Trash } from '$lib/icons';
 	import { seo_configs } from '$lib/seo';
 	import type { Interaction } from '$lib/types/db';
 	import type { InteractionType } from '$lib/types/interaction-type';
 	import { format_date } from '$lib/utils/date-helpers';
+	import { get_icon_component } from '$lib/utils/interaction-type-helpers';
 	import { Head } from 'svead';
-	import { get_user_preferences } from '../settings/settings.remote';
 	import { get_interaction_types } from '../settings/interaction-types.remote';
+	import { get_user_preferences } from '../settings/settings.remote';
 	import {
 		delete_interaction,
 		get_all_interactions,
@@ -31,7 +31,20 @@
 	let edit_type = $state<string>('meeting');
 	let edit_note = $state('');
 
-	const interaction_types_query = get_interaction_types();
+	const interaction_types_query:
+		| Promise<InteractionType[]>
+		| InteractionType[] = get_interaction_types();
+
+	const type_color_map = $derived.by(() => {
+		const map: Record<string, string> = {};
+		if (Array.isArray(interaction_types_query)) {
+			for (const type of interaction_types_query) {
+				map[type.value] = type.color;
+			}
+		}
+		return map;
+	});
+
 	const interaction_types = $derived.by(() => {
 		const types = [];
 		types.push('all');
@@ -126,7 +139,7 @@
 <!-- Filter Tabs -->
 {#await interaction_types_query}
 	<div class="flex justify-center p-4">
-		<span class="loading loading-spinner loading-sm"></span>
+		<span class="loading loading-sm loading-spinner"></span>
 	</div>
 {:then types}
 	<FilterTabs
@@ -174,7 +187,16 @@
 			class:opacity-60={interactions_query.loading}
 		>
 			{#each interactions as interaction}
-				{@const TypeIcon = INTERACTION_TYPE_ICONS[interaction.type]}
+				{@const interaction_type_from_query = Array.isArray(
+					interaction_types_query,
+				)
+					? (interaction_types_query.find(
+							(t: InteractionType) => t.value === interaction.type,
+						) ?? null)
+					: null}
+				{@const TypeIcon = interaction_type_from_query
+					? get_icon_component(interaction_type_from_query.icon)
+					: null}
 				{#if edit_interaction_id === interaction.id}
 					<!-- Edit Mode -->
 					<div
@@ -245,9 +267,8 @@
 					<!-- View Mode -->
 					<ActivityCard
 						icon={TypeIcon}
-						icon_color_classes={INTERACTION_TYPE_COLORS[
-							interaction.type
-						]}
+						icon_color_classes={type_color_map[interaction.type] ??
+							'bg-base-300'}
 						contact_id={interaction.contact_id}
 						contact_name={interaction.contact_name}
 						metadata="<span class='capitalize'>{interaction.type}</span> • {format_date(

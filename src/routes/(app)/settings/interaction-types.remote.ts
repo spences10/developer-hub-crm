@@ -1,4 +1,4 @@
-import { query, command } from '$app/server';
+import { query } from '$app/server';
 import {
 	get_current_user_id,
 	guarded_command,
@@ -27,20 +27,27 @@ export const get_interaction_types = query(async () => {
 /**
  * Create a new custom interaction type for the current user
  */
-export const create_interaction_type = guarded_command(
-	v.object({
-		value: v.pipe(
-			v.string(),
-			v.minLength(1),
-			v.maxLength(50),
-			v.regex(/^[a-z0-9_-]+$/, 'Value must contain only lowercase letters, numbers, underscores, and hyphens'),
+const create_interaction_type_schema = v.object({
+	value: v.pipe(
+		v.string(),
+		v.minLength(1),
+		v.maxLength(50),
+		v.regex(
+			/^[a-z0-9_-]+$/,
+			'Value must contain only lowercase letters, numbers, underscores, and hyphens',
 		),
-		label: v.pipe(v.string(), v.minLength(1), v.maxLength(100)),
-		icon: v.pipe(v.string(), v.minLength(1), v.maxLength(50)),
-		color: v.pipe(v.string(), v.minLength(1), v.maxLength(100)),
-		display_order: v.optional(v.number(), 0),
-	}),
-	async (data) => {
+	),
+	label: v.pipe(v.string(), v.minLength(1), v.maxLength(100)),
+	icon: v.pipe(v.string(), v.minLength(1), v.maxLength(50)),
+	color: v.pipe(v.string(), v.minLength(1), v.maxLength(100)),
+	display_order: v.optional(v.number(), 0),
+});
+
+export const create_interaction_type = guarded_command(
+	create_interaction_type_schema,
+	async (
+		data: v.InferOutput<typeof create_interaction_type_schema>,
+	) => {
 		const user_id = await get_current_user_id();
 
 		// Check if this value already exists for this user
@@ -90,15 +97,19 @@ export const create_interaction_type = guarded_command(
  * Update an existing custom interaction type
  * Cannot update system types (user_id = NULL)
  */
+const update_interaction_type_schema = v.object({
+	id: v.pipe(v.string(), v.minLength(1)),
+	label: v.pipe(v.string(), v.minLength(1), v.maxLength(100)),
+	icon: v.pipe(v.string(), v.minLength(1), v.maxLength(50)),
+	color: v.pipe(v.string(), v.minLength(1), v.maxLength(100)),
+	display_order: v.optional(v.number(), 0),
+});
+
 export const update_interaction_type = guarded_command(
-	v.object({
-		id: v.pipe(v.string(), v.minLength(1)),
-		label: v.pipe(v.string(), v.minLength(1), v.maxLength(100)),
-		icon: v.pipe(v.string(), v.minLength(1), v.maxLength(50)),
-		color: v.pipe(v.string(), v.minLength(1), v.maxLength(100)),
-		display_order: v.optional(v.number(), 0),
-	}),
-	async (data) => {
+	update_interaction_type_schema,
+	async (
+		data: v.InferOutput<typeof update_interaction_type_schema>,
+	) => {
 		const user_id = await get_current_user_id();
 
 		// Fetch the interaction type to verify it belongs to the user
@@ -106,7 +117,9 @@ export const update_interaction_type = guarded_command(
 			.prepare(
 				`SELECT id, user_id FROM interaction_types WHERE id = ?`,
 			)
-			.get(data.id) as { id: string; user_id: string | null } | undefined;
+			.get(data.id) as
+			| { id: string; user_id: string | null }
+			| undefined;
 
 		if (!type_check) {
 			return { error: 'Interaction type not found' };
@@ -119,7 +132,9 @@ export const update_interaction_type = guarded_command(
 
 		// Verify it belongs to the current user
 		if (type_check.user_id !== user_id) {
-			return { error: 'You do not have permission to edit this type' };
+			return {
+				error: 'You do not have permission to edit this type',
+			};
 		}
 
 		const stmt = db.prepare(`
@@ -175,7 +190,9 @@ export const delete_interaction_type = guarded_command(
 
 		// Verify it belongs to the current user
 		if (type_check.user_id !== user_id) {
-			return { error: 'You do not have permission to delete this type' };
+			return {
+				error: 'You do not have permission to delete this type',
+			};
 		}
 
 		// Check if this type is in use
@@ -193,7 +210,9 @@ export const delete_interaction_type = guarded_command(
 			};
 		}
 
-		const stmt = db.prepare(`DELETE FROM interaction_types WHERE id = ?`);
+		const stmt = db.prepare(
+			`DELETE FROM interaction_types WHERE id = ?`,
+		);
 
 		try {
 			stmt.run(id);

@@ -1,6 +1,5 @@
 <script lang="ts">
 	import ActivityCard from '$lib/components/activity-card.svelte';
-	import { get_icon_component } from '$lib/utils/interaction-type-helpers';
 	import { Edit, Trash } from '$lib/icons';
 	import {
 		cancel_delete_interaction,
@@ -9,13 +8,13 @@
 		edit_state,
 		handle_delete_interaction_click,
 		handle_edit_interaction_click,
-		INTERACTION_TYPE_COLORS,
-		INTERACTION_TYPE_ICONS,
 		save_edit_interaction,
 	} from '$lib/state/contact-edit-state.svelte';
-	import { get_interaction_types } from '../../settings/interaction-types.remote';
-	import { format_date } from '$lib/utils/date-helpers';
 	import type { Interaction, UserPreferences } from '$lib/types/db';
+	import type { InteractionType } from '$lib/types/interaction-type';
+	import { format_date } from '$lib/utils/date-helpers';
+	import { get_icon_component } from '$lib/utils/interaction-type-helpers';
+	import { get_interaction_types } from '../../settings/interaction-types.remote';
 
 	interface Props {
 		interaction: Interaction;
@@ -27,11 +26,33 @@
 	let { interaction, contact_id, contact_name, date_format }: Props =
 		$props();
 
-	const interaction_types_query = get_interaction_types();
+	const interaction_types_query:
+		| Promise<InteractionType[]>
+		| InteractionType[] = get_interaction_types();
 
-	const TypeIcon = $derived(
-		INTERACTION_TYPE_ICONS[interaction.type],
-	);
+	const TypeIcon = $derived.by(() => {
+		if (Array.isArray(interaction_types_query)) {
+			const type_data = interaction_types_query.find(
+				(t) => t.value === interaction.type,
+			);
+			if (type_data) {
+				return get_icon_component(type_data.icon);
+			}
+		}
+		return null;
+	});
+
+	const type_color = $derived.by(() => {
+		if (Array.isArray(interaction_types_query)) {
+			const type_data = interaction_types_query.find(
+				(t) => t.value === interaction.type,
+			);
+			if (type_data) {
+				return type_data.color;
+			}
+		}
+		return 'bg-base-300';
+	});
 </script>
 
 {#if edit_state.edit_interaction_id === interaction.id}
@@ -85,9 +106,7 @@
 	<!-- View Mode -->
 	<ActivityCard
 		icon={TypeIcon}
-		icon_color_classes={INTERACTION_TYPE_COLORS[
-			interaction.type as InteractionType
-		]}
+		icon_color_classes={type_color}
 		{contact_id}
 		{contact_name}
 		metadata="<span class='capitalize'>{interaction.type}</span> • {format_date(
