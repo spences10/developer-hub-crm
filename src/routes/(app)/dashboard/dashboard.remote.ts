@@ -2,6 +2,7 @@ import { query } from '$app/server';
 import { get_current_user_id } from '$lib/server/auth-helpers';
 import { db } from '$lib/server/db';
 import type { FollowUp, Interaction } from '$lib/types/db';
+import { addDays } from 'date-fns';
 
 export const get_dashboard_stats = query(async () => {
 	const user_id = await get_current_user_id();
@@ -78,7 +79,7 @@ export const get_dashboard_activity = query(async () => {
 
 	// Get upcoming follow-ups (next 7 days)
 	const now = Date.now();
-	const future = now + 7 * 24 * 60 * 60 * 1000;
+	const future = addDays(now, 7).getTime();
 	const upcoming_follow_ups = db
 		.prepare(
 			`

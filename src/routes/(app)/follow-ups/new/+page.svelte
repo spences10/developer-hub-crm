@@ -2,6 +2,7 @@
 	import { page } from '$app/state';
 	import PageHeaderWithAction from '$lib/components/page-header-with-action.svelte';
 	import PageNav from '$lib/components/page-nav.svelte';
+	import { addDays, format, setHours, startOfDay } from 'date-fns';
 	import { get_contacts } from '../../contacts/contacts.remote';
 	import { get_user_preferences } from '../../settings/settings.remote';
 	import { create_follow_up } from '../follow-ups.remote';
@@ -14,11 +15,12 @@
 		date_string: string;
 		timestamp: number;
 	} {
-		const date = new Date();
-		date.setDate(date.getDate() + days_offset);
-		date.setHours(9, 0, 0, 0);
+		const date = setHours(
+			addDays(startOfDay(new Date()), days_offset),
+			9,
+		);
 		return {
-			date_string: date.toISOString().slice(0, 16),
+			date_string: format(date, "yyyy-MM-dd'T'HH:mm"),
 			timestamp: date.getTime(),
 		};
 	}

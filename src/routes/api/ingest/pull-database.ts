@@ -1,6 +1,7 @@
 import { env } from '$env/dynamic/private';
 import { get_database_path } from '$lib/server/db-path';
 import Database from 'better-sqlite3';
+import { format } from 'date-fns';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 
@@ -38,10 +39,9 @@ export const pull_database = async () => {
 
 		// Save downloaded backup to temporary location
 		const now = new Date();
-		const date = now.toISOString().split('T')[0];
-		const hour = now.getHours().toString().padStart(2, '0');
-		const minute = now.getMinutes().toString().padStart(2, '0');
-		const downloaded_filename = `local-downloaded-${date}-${hour}${minute}.db`;
+		const date = format(now, 'yyyy-MM-dd');
+		const time = format(now, 'HHmm');
+		const downloaded_filename = `local-downloaded-${date}-${time}.db`;
 		const downloaded_path = path.join(
 			backups_dir,
 			downloaded_filename,
@@ -55,7 +55,7 @@ export const pull_database = async () => {
 		);
 
 		// Create backup of current local database before replacing using SQLite backup API
-		const current_backup_name = `local-backup-${date}-${hour}${minute}.db`;
+		const current_backup_name = `local-backup-${date}-${time}.db`;
 		const current_backup_path = path.join(
 			backups_dir,
 			current_backup_name,

@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { format } from 'date-fns';
+
 	interface ConnectionStatus {
 		connected: boolean;
 		has_follow_scope: boolean;
@@ -174,9 +176,10 @@
 										>
 									</p>
 									<p class="opacity-80">
-										Cached {new Date(
+										Cached {format(
 											github_state.cache.cached_at!,
-										).toLocaleString()}
+											'PPpp',
+										)}
 										(loads instantly from cache)
 									</p>
 								</div>

@@ -1,5 +1,6 @@
 import { get_database_path } from '$lib/server/db-path';
 import Database from 'better-sqlite3';
+import { format } from 'date-fns';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 
@@ -24,8 +25,8 @@ export const backup_database = async () => {
 
 		// Create timestamped backup filename with hour for multiple backups per day
 		const now = new Date();
-		const date = now.toISOString().split('T')[0]; // YYYY-MM-DD
-		const hour = now.getHours().toString().padStart(2, '0');
+		const date = format(now, 'yyyy-MM-dd');
+		const hour = format(now, 'HH');
 		const backup_filename = `local-${date}-${hour}00.db`;
 		const backup_path = path.join(backups_dir, backup_filename);
 

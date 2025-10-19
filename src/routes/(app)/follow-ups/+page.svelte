@@ -20,6 +20,7 @@
 		format_due_date,
 		is_overdue,
 	} from '$lib/utils/date-helpers';
+	import { format } from 'date-fns';
 	import { Head } from 'svead';
 	import { get_user_preferences } from '../settings/settings.remote';
 	import {
@@ -80,7 +81,7 @@
 		edit_contact_id = follow_up.contact_id;
 		// Convert timestamp to datetime-local string format
 		const date = new Date(follow_up.due_date);
-		edit_due_date_str = date.toISOString().slice(0, 16); // YYYY-MM-DDTHH:mm
+		edit_due_date_str = format(date, "yyyy-MM-dd'T'HH:mm");
 		edit_note = follow_up.note || '';
 	}
 

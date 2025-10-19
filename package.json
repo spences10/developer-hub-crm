@@ -37,6 +37,7 @@
 		"@types/node": "^24",
 		"@vitest/browser": "^3.2.4",
 		"daisyui": "^5.3.7",
+		"date-fns": "^4.1.0",
 		"eslint": "^9.38.0",
 		"eslint-config-prettier": "^10.1.8",
 		"eslint-plugin-svelte": "^3.12.4",

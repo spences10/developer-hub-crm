@@ -8,9 +8,10 @@ import {
 	User,
 	Warning,
 } from '$lib/icons';
-import { format_date } from './date-helpers';
 import type { Contact, UserPreferences } from '$lib/types/db';
+import { differenceInDays, formatDistanceToNow } from 'date-fns';
 import type { Component } from 'svelte';
+import { format_date } from './date-helpers';
 
 // Extended contact type with computed fields
 export interface ContactWithStats extends Contact {
@@ -46,9 +47,9 @@ export function calculate_health_score(
 
 	// Recent contact boost
 	if (contact.last_interaction_at) {
-		const days_since = Math.floor(
-			(Date.now() - contact.last_interaction_at) /
-				(1000 * 60 * 60 * 24),
+		const days_since = differenceInDays(
+			Date.now(),
+			contact.last_interaction_at,
 		);
 		if (days_since < 7) score += 20;
 		else if (days_since < 30) score += 10;
@@ -90,15 +91,15 @@ export function get_health_status(score: number): HealthStatus {
 
 export function days_since_contact(timestamp: number | null): string {
 	if (!timestamp) return 'Never';
-	const days = Math.floor(
-		(Date.now() - timestamp) / (1000 * 60 * 60 * 24),
-	);
-	if (days === 0) return 'Today';
-	if (days === 1) return 'Yesterday';
-	if (days < 7) return `${days} days ago`;
-	if (days < 30) return `${Math.floor(days / 7)} weeks ago`;
-	if (days < 365) return `${Math.floor(days / 30)} months ago`;
-	return `${Math.floor(days / 365)} years ago`;
+	return formatDistanceToNow(timestamp, { addSuffix: true });
+}
+
+/**
+ * Format network duration without the "ago" suffix
+ * Used for "In Your Network" display
+ */
+export function format_network_duration(timestamp: number): string {
+	return formatDistanceToNow(timestamp);
 }
 
 export function get_stats_cards(
@@ -139,7 +140,9 @@ export function get_stats_cards(
 		{
 			icon: User,
 			icon_color: 'text-success',
-			value: `${Math.floor((Date.now() - (contact.in_network_since || contact.created_at)) / (1000 * 60 * 60 * 24))}d`,
+			value: format_network_duration(
+				contact.in_network_since || contact.created_at,
+			),
 			value_color: 'text-success',
 			label: 'In Your Network',
 			sublabel: `Since ${format_date(new Date(contact.in_network_since || contact.created_at), preferences.date_format)}`,
