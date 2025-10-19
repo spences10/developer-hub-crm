@@ -72,7 +72,7 @@
 			font-family="Helvetica Neue, Helvetica, Arial, sans-serif"
 			font-weight="700"
 			font-size="10"
-			fill={hub_text_color}
+			fill={dev_text_color}
 			letter-spacing="-0.5">CRM</text
 		>
 	</g>
