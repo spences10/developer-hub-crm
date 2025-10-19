@@ -1,5 +1,6 @@
 <script lang="ts">
 	import ActivityCard from '$lib/components/activity-card.svelte';
+	import { get_icon_component } from '$lib/utils/interaction-type-helpers';
 	import { Edit, Trash } from '$lib/icons';
 	import {
 		cancel_delete_interaction,
@@ -10,10 +11,9 @@
 		handle_edit_interaction_click,
 		INTERACTION_TYPE_COLORS,
 		INTERACTION_TYPE_ICONS,
-		INTERACTION_TYPES,
 		save_edit_interaction,
-		type InteractionType,
 	} from '$lib/state/contact-edit-state.svelte';
+	import { get_interaction_types } from '../../settings/interaction-types.remote';
 	import { format_date } from '$lib/utils/date-helpers';
 	import type { Interaction, UserPreferences } from '$lib/types/db';
 
@@ -27,8 +27,10 @@
 	let { interaction, contact_id, contact_name, date_format }: Props =
 		$props();
 
+	const interaction_types_query = get_interaction_types();
+
 	const TypeIcon = $derived(
-		INTERACTION_TYPE_ICONS[interaction.type as InteractionType],
+		INTERACTION_TYPE_ICONS[interaction.type],
 	);
 </script>
 
@@ -38,14 +40,20 @@
 		<div class="space-y-3">
 			<fieldset class="fieldset">
 				<legend class="fieldset-legend">Type</legend>
-				<select
-					bind:value={edit_state.edit_interaction_type}
-					class="select w-full"
-				>
-					{#each INTERACTION_TYPES as type}
-						<option value={type.value}>{type.label}</option>
-					{/each}
-				</select>
+				{#await interaction_types_query}
+					<select disabled class="select w-full">
+						<option>Loading...</option>
+					</select>
+				{:then types}
+					<select
+						bind:value={edit_state.edit_interaction_type}
+						class="select w-full"
+					>
+						{#each types as type}
+							<option value={type.value}>{type.label}</option>
+						{/each}
+					</select>
+				{/await}
 			</fieldset>
 
 			<fieldset class="fieldset">

@@ -4,11 +4,14 @@
 	import PageNav from '$lib/components/page-nav.svelte';
 	import { get_contacts } from '../../contacts/contacts.remote';
 	import { get_user_preferences } from '../../settings/settings.remote';
+	import { get_interaction_types } from '../../settings/interaction-types.remote';
 	import { create_interaction } from '../interactions.remote';
 
 	const preselected_contact_id = $derived(
 		page.url.searchParams.get('contact_id'),
 	);
+
+	const interaction_types = get_interaction_types();
 </script>
 
 <PageHeaderWithAction title="Log New Interaction" />
@@ -41,18 +44,27 @@
 
 			<fieldset class="fieldset">
 				<legend class="fieldset-legend">Interaction Type</legend>
-				<select
-					name="type"
-					class="select w-full"
-					required
-					value={preferences.default_interaction_type || ''}
-				>
-					<option value="" disabled>Select type</option>
-					<option value="meeting">Meeting</option>
-					<option value="call">Call</option>
-					<option value="email">Email</option>
-					<option value="message">Message</option>
-				</select>
+				{#await interaction_types}
+					<select disabled class="select w-full">
+						<option>Loading...</option>
+					</select>
+				{:then types}
+					<select
+						name="type"
+						class="select w-full"
+						required
+						value={preferences.default_interaction_type || ''}
+					>
+						<option value="" disabled>Select type</option>
+						{#each types as type}
+							<option value={type.value}>{type.label}</option>
+						{/each}
+					</select>
+				{:catch}
+					<select disabled class="select w-full">
+						<option>Failed to load types</option>
+					</select>
+				{/await}
 			</fieldset>
 
 			<fieldset class="fieldset">

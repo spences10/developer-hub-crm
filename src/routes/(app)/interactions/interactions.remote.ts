@@ -123,7 +123,7 @@ export const get_recent_interactions = query(
 export const create_interaction = guarded_form(
 	v.object({
 		contact_id: v.pipe(v.string(), v.minLength(1)),
-		type: v.picklist(['meeting', 'call', 'email', 'message']),
+		type: v.pipe(v.string(), v.minLength(1)),
 		note: v.optional(v.string()),
 	}),
 	async (data) => {
@@ -180,7 +180,7 @@ export const create_interaction = guarded_form(
 
 const update_interaction_schema = v.object({
 	id: v.pipe(v.string(), v.minLength(1)),
-	type: v.picklist(['meeting', 'call', 'email', 'message', 'coffee']),
+	type: v.pipe(v.string(), v.minLength(1)),
 	note: v.optional(v.string()),
 });
 

@@ -6,18 +6,15 @@
 	import PageHeaderWithAction from '$lib/components/page-header-with-action.svelte';
 	import PageNav from '$lib/components/page-nav.svelte';
 	import SearchBar from '$lib/components/search-bar.svelte';
-	import type { InteractionType } from '$lib/constants/interaction';
-	import {
-		INTERACTION_TYPE_COLORS,
-		INTERACTION_TYPE_ICONS,
-		INTERACTION_TYPES,
-	} from '$lib/constants/interaction';
+	import { get_icon_component } from '$lib/utils/interaction-type-helpers';
 	import { Edit, Trash } from '$lib/icons';
 	import { seo_configs } from '$lib/seo';
 	import type { Interaction } from '$lib/types/db';
+	import type { InteractionType } from '$lib/types/interaction-type';
 	import { format_date } from '$lib/utils/date-helpers';
 	import { Head } from 'svead';
 	import { get_user_preferences } from '../settings/settings.remote';
+	import { get_interaction_types } from '../settings/interaction-types.remote';
 	import {
 		delete_interaction,
 		get_all_interactions,
@@ -25,19 +22,22 @@
 	} from './interactions.remote';
 
 	let search = $state('');
-	let filter = $state<'all' | InteractionType>('all');
+	let filter = $state<'all' | string>('all');
 
 	let delete_confirmation_id = $state<string | null>(null);
 	let delete_contact_id = $state<string | null>(null);
 	let edit_interaction_id = $state<string | null>(null);
 	let edit_contact_id = $state<string | null>(null);
-	let edit_type = $state<InteractionType>('meeting');
+	let edit_type = $state<string>('meeting');
 	let edit_note = $state('');
 
-	const interaction_types = [
-		'all',
-		...INTERACTION_TYPES.map((t) => t.value),
-	] as const;
+	const interaction_types_query = get_interaction_types();
+	const interaction_types = $derived.by(() => {
+		const types = [];
+		types.push('all');
+		// In a real app, we'd use the query result, but for simplicity here we'll defer to rendering
+		return types;
+	});
 
 	const interactions_query = $derived(get_all_interactions(search));
 	const preferences_query = get_user_preferences();
@@ -124,11 +124,17 @@
 />
 
 <!-- Filter Tabs -->
-<FilterTabs
-	options={interaction_types}
-	active_filter={filter}
-	on_filter_change={(f) => (filter = f)}
-/>
+{#await interaction_types_query}
+	<div class="flex justify-center p-4">
+		<span class="loading loading-spinner loading-sm"></span>
+	</div>
+{:then types}
+	<FilterTabs
+		options={['all', ...types.map((t) => t.value)]}
+		active_filter={filter}
+		on_filter_change={(f) => (filter = f)}
+	/>
+{/await}
 
 <!-- Interactions List -->
 {#if interactions_query.error || preferences_query.error}
@@ -188,16 +194,22 @@
 								<div class="space-y-3">
 									<fieldset class="fieldset">
 										<legend class="fieldset-legend">Type</legend>
-										<select
-											bind:value={edit_type}
-											class="select w-full"
-										>
-											{#each INTERACTION_TYPES as type}
-												<option value={type.value}
-													>{type.label}</option
-												>
-											{/each}
-										</select>
+										{#await interaction_types_query}
+											<select disabled class="select w-full">
+												<option>Loading...</option>
+											</select>
+										{:then types}
+											<select
+												bind:value={edit_type}
+												class="select w-full"
+											>
+												{#each types as type}
+													<option value={type.value}
+														>{type.label}</option
+													>
+												{/each}
+											</select>
+										{/await}
 									</fieldset>
 
 									<fieldset class="fieldset">

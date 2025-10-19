@@ -68,6 +68,21 @@ CREATE TABLE IF NOT EXISTS contacts (
   FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE
 );
 
+-- Interaction types table
+CREATE TABLE IF NOT EXISTS interaction_types (
+  id TEXT PRIMARY KEY,
+  user_id TEXT,
+  value TEXT NOT NULL,
+  label TEXT NOT NULL,
+  icon TEXT NOT NULL,
+  color TEXT NOT NULL,
+  display_order INTEGER NOT NULL DEFAULT 0,
+  created_at INTEGER NOT NULL,
+  updated_at INTEGER NOT NULL,
+  FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE,
+  UNIQUE(user_id, value)
+);
+
 -- Interactions table
 CREATE TABLE IF NOT EXISTS interactions (
   id TEXT PRIMARY KEY,
@@ -193,6 +208,10 @@ CREATE TABLE IF NOT EXISTS github_following_cache (
 CREATE INDEX IF NOT EXISTS idx_contacts_user_id ON contacts(user_id);
 CREATE INDEX IF NOT EXISTS idx_contacts_email ON contacts(email);
 CREATE INDEX IF NOT EXISTS idx_contacts_last_contacted ON contacts(last_contacted_at);
+
+CREATE INDEX IF NOT EXISTS idx_interaction_types_user_id ON interaction_types(user_id);
+CREATE INDEX IF NOT EXISTS idx_interaction_types_value ON interaction_types(value);
+CREATE INDEX IF NOT EXISTS idx_interaction_types_display_order ON interaction_types(display_order);
 
 CREATE INDEX IF NOT EXISTS idx_interactions_contact_id ON interactions(contact_id);
 CREATE INDEX IF NOT EXISTS idx_interactions_created_at ON interactions(created_at);

@@ -3,6 +3,12 @@
 	import { seo_configs } from '$lib/seo';
 	import { themes } from '$lib/themes';
 	import { format_date } from '$lib/utils/date-helpers';
+	import {
+		get_available_icons,
+		get_color_name,
+		get_icon_component,
+		AVAILABLE_THEME_COLORS,
+	} from '$lib/utils/interaction-type-helpers';
 	import { Head } from 'svead';
 	import { onMount } from 'svelte';
 	import {
@@ -13,12 +19,106 @@
 		update_default_interaction_type,
 		update_time_format,
 	} from './settings.remote';
+	import {
+		get_interaction_types,
+		create_interaction_type,
+		update_interaction_type,
+		delete_interaction_type,
+	} from './interaction-types.remote';
+	import type { InteractionType } from '$lib/types/interaction-type';
 
 	const today = new Date();
 	const preferences = get_user_preferences();
+	const interaction_types = get_interaction_types();
 
 	let saving = $state(false);
 	let current_theme = $state('');
+
+	// Interaction type management
+	let show_type_modal = $state(false);
+	let editing_type: InteractionType | null = $state(null);
+	let form_value = $state('');
+	let form_label = $state('');
+	let form_icon = $state('Calendar');
+	let form_color = $state('bg-primary text-primary-content');
+	let form_loading = $state(false);
+	let form_error = $state('');
+
+	async function open_type_modal(type?: InteractionType) {
+		if (type) {
+			editing_type = type;
+			form_value = type.value;
+			form_label = type.label;
+			form_icon = type.icon;
+			form_color = type.color;
+		} else {
+			editing_type = null;
+			form_value = '';
+			form_label = '';
+			form_icon = 'Calendar';
+			form_color = 'bg-primary text-primary-content';
+		}
+		form_error = '';
+		show_type_modal = true;
+	}
+
+	function close_type_modal() {
+		show_type_modal = false;
+		editing_type = null;
+	}
+
+	async function save_interaction_type() {
+		form_loading = true;
+		form_error = '';
+
+		try {
+			let result;
+			if (editing_type) {
+				result = await update_interaction_type({
+					id: editing_type.id,
+					label: form_label,
+					icon: form_icon,
+					color: form_color,
+					display_order: editing_type.display_order,
+				});
+			} else {
+				result = await create_interaction_type({
+					value: form_value.toLowerCase().replace(/\s+/g, '_'),
+					label: form_label,
+					icon: form_icon,
+					color: form_color,
+				});
+			}
+
+			if (result.error) {
+				form_error = result.error;
+			} else {
+				close_type_modal();
+				await interaction_types.refresh();
+			}
+		} catch (error) {
+			form_error = 'Failed to save type';
+		} finally {
+			form_loading = false;
+		}
+	}
+
+	async function delete_type(type: InteractionType) {
+		if (!confirm(`Delete "${type.label}"? This cannot be undone.`)) {
+			return;
+		}
+
+		try {
+			const result = await delete_interaction_type(type.id);
+			if (result.error) {
+				alert(`Error: ${result.error}`);
+			} else {
+				await interaction_types.refresh();
+			}
+		} catch (error) {
+			alert('Failed to delete type');
+		}
+	}
 
 	onMount(async () => {
 		// Load theme from localStorage
@@ -253,6 +353,177 @@
 			</div>
 		</div>
 
+		<!-- Manage Interaction Types -->
+		<div class="col-span-full card bg-base-100 shadow-xl">
+			<div class="card-body">
+				<div class="flex items-center justify-between">
+					<div>
+						<h2 class="card-title">Manage Interaction Types</h2>
+						<p class="text-sm opacity-70">
+							Create custom interaction types or edit existing ones
+						</p>
+					</div>
+					<button
+						type="button"
+						class="btn btn-primary btn-sm"
+						onclick={() => open_type_modal()}
+					>
+						Add New Type
+					</button>
+				</div>
+
+				{#await interaction_types}
+					<div class="flex justify-center py-8">
+						<span class="loading loading-spinner loading-lg"></span>
+					</div>
+				{:then types}
+					<!-- Desktop table view -->
+					<div class="mt-4 hidden overflow-x-auto sm:block">
+						<table class="table w-full">
+							<thead>
+								<tr>
+									<th>Label</th>
+									<th>Value</th>
+									<th>Icon</th>
+									<th>Color</th>
+									<th>Type</th>
+									<th>Actions</th>
+								</tr>
+							</thead>
+							<tbody>
+								{#each types as type (type.id)}
+									<tr class="hover">
+										<td>
+											<span class="font-medium">{type.label}</span>
+										</td>
+										<td>
+											<code class="bg-base-200 px-2 py-1 rounded text-sm"
+												>{type.value}</code
+											>
+										</td>
+										<td>
+											<div class="flex items-center gap-2">
+												<svelte:component
+													this={get_icon_component(type.icon)}
+													class="w-5 h-5"
+												/>
+												<span class="text-sm">{type.icon}</span>
+											</div>
+										</td>
+										<td>
+											<div
+												class="badge {type.color} w-24 text-center"
+											>
+												{get_color_name(type.color)}
+											</div>
+										</td>
+										<td>
+											{#if type.user_id}
+												<span class="badge badge-secondary">Custom</span>
+											{:else}
+												<span class="badge">System</span>
+											{/if}
+										</td>
+										<td>
+											<div class="flex gap-2">
+												{#if type.user_id}
+													<button
+														type="button"
+														class="btn btn-ghost btn-xs"
+														onclick={() => open_type_modal(type)}
+													>
+														Edit
+													</button>
+													<button
+														type="button"
+														class="btn btn-ghost btn-xs text-error"
+														onclick={() => delete_type(type)}
+													>
+														Delete
+													</button>
+												{/if}
+											</div>
+										</td>
+									</tr>
+								{/each}
+							</tbody>
+						</table>
+					</div>
+
+					<!-- Mobile card view -->
+					<div class="mt-4 space-y-3 sm:hidden">
+						{#each types as type (type.id)}
+							<div class="card bg-base-200">
+								<div class="card-body p-4">
+									<div class="flex items-start justify-between gap-2">
+										<div class="flex-1">
+											<h3 class="font-bold">{type.label}</h3>
+											<p class="text-xs opacity-70">
+												<code>{type.value}</code>
+											</p>
+										</div>
+										<div>
+											{#if type.user_id}
+												<span class="badge badge-secondary badge-sm"
+													>Custom</span
+												>
+											{:else}
+												<span class="badge badge-sm">System</span>
+											{/if}
+										</div>
+									</div>
+
+									<div class="divider my-2"></div>
+
+									<div class="space-y-2 text-sm">
+										<div class="flex items-center gap-2">
+											<span class="font-medium">Icon:</span>
+											<svelte:component
+												this={get_icon_component(type.icon)}
+												class="w-5 h-5"
+											/>
+											<span>{type.icon}</span>
+										</div>
+										<div class="flex items-center gap-2">
+											<span class="font-medium">Color:</span>
+											<div
+												class="badge {type.color} text-xs"
+											>
+												{get_color_name(type.color)}
+											</div>
+										</div>
+									</div>
+
+									{#if type.user_id}
+										<div class="card-actions justify-end gap-2 mt-3">
+											<button
+												type="button"
+												class="btn btn-ghost btn-sm"
+												onclick={() => open_type_modal(type)}
+											>
+												Edit
+											</button>
+											<button
+												type="button"
+												class="btn btn-ghost btn-sm text-error"
+												onclick={() => delete_type(type)}
+											>
+												Delete
+											</button>
+										</div>
+									{/if}
+								</div>
+							</div>
+						{/each}
+					</div>
+				{:catch error}
+					<div class="alert alert-error">
+						<span>Failed to load interaction types</span>
+					</div>
+				{/await}
+			</div>
+		</div>
+
 		<!-- Default Interaction Type -->
 		<div class="card bg-base-100 shadow-xl">
 			<div class="card-body">
@@ -263,23 +534,28 @@
 				</p>
 
 				<label class="label mt-4">
-					<select
-						name="default_interaction_type"
-						class="select w-full max-w-xs"
-						value={preferences_data.default_interaction_type || ''}
-						onchange={(e) =>
-							save_with_indicator(() =>
-								update_default_interaction_type(
-									e.currentTarget.value || '',
-								),
-							)}
-					>
-						<option value="">None (no default)</option>
-						<option value="meeting">Meeting</option>
-						<option value="call">Call</option>
-						<option value="email">Email</option>
-						<option value="message">Message</option>
-					</select>
+					{#await interaction_types}
+						<select disabled class="select w-full max-w-xs">
+							<option>Loading...</option>
+						</select>
+					{:then types}
+						<select
+							name="default_interaction_type"
+							class="select w-full max-w-xs"
+							value={preferences_data.default_interaction_type || ''}
+							onchange={(e) =>
+								save_with_indicator(() =>
+									update_default_interaction_type(
+										e.currentTarget.value || '',
+									),
+								)}
+						>
+							<option value="">None (no default)</option>
+							{#each types as type}
+								<option value={type.value}>{type.label}</option>
+							{/each}
+						</select>
+					{/await}
 				</label>
 			</div>
 		</div>
@@ -289,3 +565,118 @@
 		<span>Failed to load settings: {error.message}</span>
 	</div>
 {/await}
+
+<!-- Interaction Type Modal -->
+{#if show_type_modal}
+	<div class="modal modal-open">
+		<div class="modal-box w-full max-w-md">
+			<h3 class="font-bold text-lg">
+				{editing_type ? 'Edit' : 'Create'} Interaction Type
+			</h3>
+
+			{#if form_error}
+				<div class="alert alert-error mt-4">
+					<span>{form_error}</span>
+				</div>
+			{/if}
+
+			<div class="form-control mt-4">
+				{#if !editing_type}
+					<label class="label">
+						<span class="label-text">Value (identifier)</span>
+					</label>
+					<input
+						type="text"
+						placeholder="my_type"
+						class="input input-bordered"
+						bind:value={form_value}
+						disabled={form_loading}
+					/>
+					<span class="label-text-alt mt-1">
+						Lowercase letters, numbers, underscores only
+					</span>
+				{/if}
+			</div>
+
+			<div class="form-control mt-4">
+				<label class="label">
+					<span class="label-text">Label (display name)</span>
+				</label>
+				<input
+					type="text"
+					placeholder="My Type"
+					class="input input-bordered"
+					bind:value={form_label}
+					disabled={form_loading}
+				/>
+			</div>
+
+			<div class="form-control mt-4">
+				<label class="label">
+					<span class="label-text">Icon</span>
+				</label>
+				<select
+					class="select select-bordered"
+					bind:value={form_icon}
+					disabled={form_loading}
+				>
+					{#each get_available_icons() as icon}
+						<option value={icon}>{icon}</option>
+					{/each}
+				</select>
+				<div class="mt-2 flex items-center gap-2">
+					<span class="text-sm">Preview:</span>
+					<svelte:component
+						this={get_icon_component(form_icon)}
+						class="w-6 h-6"
+					/>
+				</div>
+			</div>
+
+			<div class="form-control mt-4">
+				<label class="label">
+					<span class="label-text">Color</span>
+				</label>
+				<select
+					class="select select-bordered"
+					bind:value={form_color}
+					disabled={form_loading}
+				>
+					{#each AVAILABLE_THEME_COLORS as color}
+						<option value={color.value}>{color.name}</option>
+					{/each}
+				</select>
+				<div class="mt-2">
+					<span class="text-sm">Preview:</span>
+					<div class="badge {form_color} mt-2 py-4">
+						{get_color_name(form_color)}
+					</div>
+				</div>
+			</div>
+
+			<div class="modal-action mt-6">
+				<button
+					type="button"
+					class="btn btn-ghost"
+					onclick={close_type_modal}
+					disabled={form_loading}
+				>
+					Cancel
+				</button>
+				<button
+					type="button"
+					class="btn btn-primary"
+					onclick={save_interaction_type}
+					disabled={form_loading || !form_label}
+				>
+					{#if form_loading}
+						<span class="loading loading-spinner loading-sm"></span>
+					{:else}
+						{editing_type ? 'Update' : 'Create'}
+					{/if}
+				</button>
+			</div>
+		</div>
+		<div class="modal-backdrop" onclick={close_type_modal}></div>
+	</div>
+{/if}
