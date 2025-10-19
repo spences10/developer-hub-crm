@@ -139,10 +139,10 @@ export function get_stats_cards(
 		{
 			icon: User,
 			icon_color: 'text-success',
-			value: `${Math.floor((Date.now() - contact.created_at) / (1000 * 60 * 60 * 24))}d`,
+			value: `${Math.floor((Date.now() - (contact.in_network_since || contact.created_at)) / (1000 * 60 * 60 * 24))}d`,
 			value_color: 'text-success',
 			label: 'In Your Network',
-			sublabel: `Since ${format_date(new Date(contact.created_at), preferences.date_format)}`,
+			sublabel: `Since ${format_date(new Date(contact.in_network_since || contact.created_at), preferences.date_format)}`,
 			sublabel_color: 'opacity-60',
 		},
 	];

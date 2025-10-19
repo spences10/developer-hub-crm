@@ -95,11 +95,43 @@ export const pull_database = async () => {
 
 		const imported_size = await fs.stat(db_path);
 
+		// Clean up old downloaded backups (keep 10 most recent)
+		const all_files = await fs.readdir(backups_dir);
+		const downloaded_files = all_files
+			.filter(
+				(file) =>
+					file.startsWith('local-downloaded-') &&
+					file.endsWith('.db'),
+			)
+			.sort()
+			.reverse(); // newest first
+
+		const downloaded_to_delete = downloaded_files.slice(10);
+		for (const file of downloaded_to_delete) {
+			await fs.unlink(path.join(backups_dir, file));
+		}
+
+		// Clean up old local backups (keep 10 most recent)
+		const backup_files = all_files
+			.filter(
+				(file) =>
+					file.startsWith('local-backup-') && file.endsWith('.db'),
+			)
+			.sort()
+			.reverse(); // newest first
+
+		const backups_to_delete = backup_files.slice(10);
+		for (const file of backups_to_delete) {
+			await fs.unlink(path.join(backups_dir, file));
+		}
+
 		return {
 			message: 'Database pulled from production successfully',
 			downloaded_backup: downloaded_filename,
 			database_size: `${Math.round(imported_size.size / 1024 / 1024)}MB`,
 			local_backup_created: current_backup_name,
+			downloaded_files_deleted: downloaded_to_delete.length,
+			backup_files_deleted: backups_to_delete.length,
 		};
 	} catch (error) {
 		console.error('Error pulling database:', error);

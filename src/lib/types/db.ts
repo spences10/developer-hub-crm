@@ -14,6 +14,7 @@ export interface Contact {
 	is_vip: number; // 0 or 1 (SQLite boolean)
 	birthday: string | null; // YYYY-MM-DD format
 	notes: string | null;
+	in_network_since: number | null; // Timestamp when contact joined network
 	last_contacted_at: number | null;
 	created_at: number;
 	updated_at: number;

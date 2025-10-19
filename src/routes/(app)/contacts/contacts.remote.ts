@@ -168,6 +168,7 @@ export const create_contact = guarded_form(
 		avatar_url: v.optional(v.string()),
 		is_vip: v.optional(v.boolean()),
 		birthday: v.optional(v.string()), // YYYY-MM-DD format
+		in_network_since: v.optional(v.string()), // Date input - will be converted to timestamp
 		notes: v.optional(v.string()),
 		social_links: v.optional(v.string()), // JSON stringified array
 	}),
@@ -177,14 +178,19 @@ export const create_contact = guarded_form(
 		const stmt = db.prepare(`
       INSERT INTO contacts (
         id, user_id, name, email, phone, company, title,
-        github_username, avatar_url, is_vip, birthday, notes,
+        github_username, avatar_url, is_vip, birthday, in_network_since, notes,
         last_contacted_at, created_at, updated_at
       )
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `);
 
 		const id = crypto.randomUUID();
 		const now = Date.now();
+
+		// Convert date string to timestamp if provided, otherwise default to current time
+		const in_network_since = data.in_network_since
+			? new Date(data.in_network_since).getTime()
+			: now;
 
 		stmt.run(
 			id,
@@ -198,6 +204,7 @@ export const create_contact = guarded_form(
 			data.avatar_url || null,
 			data.is_vip ? 1 : 0,
 			data.birthday || null,
+			in_network_since,
 			data.notes || null,
 			null, // last_contacted_at
 			now,
@@ -257,6 +264,7 @@ const update_contact_schema = v.object({
 	avatar_url: v.optional(v.string()),
 	is_vip: v.optional(v.boolean()),
 	birthday: v.optional(v.string()),
+	in_network_since: v.optional(v.string()), // Date input - will be converted to timestamp
 	notes: v.optional(v.string()),
 });
 
@@ -267,6 +275,11 @@ export const update_contact = guarded_command(
 	update_contact_schema,
 	async (data: v.InferOutput<typeof update_contact_schema>) => {
 		const user_id = await get_current_user_id();
+
+		// Convert date string to timestamp if provided
+		const in_network_since = data.in_network_since
+			? new Date(data.in_network_since).getTime()
+			: undefined;
 
 		const stmt = db.prepare(`
       UPDATE contacts
@@ -280,6 +293,7 @@ export const update_contact = guarded_command(
         avatar_url = ?,
         is_vip = ?,
         birthday = ?,
+        in_network_since = ?,
         notes = ?,
         updated_at = ?
       WHERE id = ? AND user_id = ?
@@ -295,6 +309,7 @@ export const update_contact = guarded_command(
 			data.avatar_url || null,
 			data.is_vip ? 1 : 0,
 			data.birthday || null,
+			in_network_since !== undefined ? in_network_since : null,
 			data.notes || null,
 			Date.now(),
 			data.id,

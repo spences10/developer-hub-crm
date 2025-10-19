@@ -62,6 +62,7 @@ CREATE TABLE IF NOT EXISTS contacts (
   is_vip INTEGER DEFAULT 0,
   birthday TEXT,
   notes TEXT,
+  in_network_since INTEGER,
   last_contacted_at INTEGER,
   created_at INTEGER NOT NULL,
   updated_at INTEGER NOT NULL,
@@ -208,6 +209,7 @@ CREATE TABLE IF NOT EXISTS github_following_cache (
 CREATE INDEX IF NOT EXISTS idx_contacts_user_id ON contacts(user_id);
 CREATE INDEX IF NOT EXISTS idx_contacts_email ON contacts(email);
 CREATE INDEX IF NOT EXISTS idx_contacts_last_contacted ON contacts(last_contacted_at);
+-- Note: idx_contacts_in_network_since created by migration 003
 
 CREATE INDEX IF NOT EXISTS idx_interaction_types_user_id ON interaction_types(user_id);
 CREATE INDEX IF NOT EXISTS idx_interaction_types_value ON interaction_types(value);

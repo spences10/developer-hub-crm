@@ -84,6 +84,10 @@
 				contact_state.birthday ??
 				current_contact.birthday ??
 				undefined,
+			in_network_since:
+				contact_state.in_network_since ??
+				current_contact.in_network_since ??
+				undefined,
 			notes:
 				contact_state.notes ?? current_contact.notes ?? undefined,
 		};
@@ -288,6 +292,33 @@
 							</label>
 						</fieldset>
 					</div>
+
+					<!-- In Network Since - Full Width -->
+					<fieldset class="fieldset">
+						<legend class="fieldset-legend">In Network Since</legend>
+						<label class="input w-full">
+							<input
+								type="date"
+								value={contact.in_network_since
+									? new Date(contact.in_network_since)
+											.toISOString()
+											.split('T')[0]
+									: new Date(contact.created_at)
+											.toISOString()
+											.split('T')[0]}
+								class="grow"
+								onblur={(e) =>
+									save_field(
+										'in_network_since',
+										e.currentTarget.value,
+										contact,
+									)}
+							/>
+						</label>
+						<p class="label">
+							When you first met or added this contact to your network
+						</p>
+					</fieldset>
 
 					<!-- Notes - Full Width -->
 					<fieldset class="fieldset">

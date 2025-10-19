@@ -23,7 +23,22 @@ function get_applied_migrations(): string[] {
 // Apply a single migration
 function apply_migration(name: string, sql: string) {
 	const transaction = db.transaction(() => {
-		db.exec(sql);
+		try {
+			db.exec(sql);
+		} catch (error: any) {
+			// Handle ALTER TABLE errors when column already exists (from schema.sql)
+			// This allows migrations to be idempotent like CREATE TABLE IF NOT EXISTS
+			if (
+				error.message?.includes('duplicate column name') ||
+				error.code === 'SQLITE_ERROR'
+			) {
+				console.log(
+					`  ⚠️  Skipping ALTER TABLE (column already exists) - ${name}`,
+				);
+			} else {
+				throw error;
+			}
+		}
 		db.prepare(
 			'INSERT INTO migrations (name, applied_at) VALUES (?, ?)',
 		).run(name, Date.now());
