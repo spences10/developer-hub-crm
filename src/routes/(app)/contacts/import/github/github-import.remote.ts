@@ -71,10 +71,16 @@ export const check_github_connection = query(
 		try {
 			const user_id = await get_current_user_id();
 
-			// Just check if token exists in DB (fast)
+			// Check if token exists and get GitHub username from profile
 			const account_stmt = db.prepare(`
-        SELECT accessToken, accountId, scope FROM account
-        WHERE userId = ? AND providerId = 'github'
+        SELECT
+          a.accessToken,
+          a.accountId,
+          a.scope,
+          p.github_username
+        FROM account a
+        LEFT JOIN user_profiles p ON a.userId = p.user_id
+        WHERE a.userId = ? AND a.providerId = 'github'
       `);
 
 			const account = account_stmt.get(user_id) as
@@ -82,6 +88,7 @@ export const check_github_connection = query(
 						accessToken: string | null;
 						accountId: string;
 						scope: string | null;
+						github_username: string | null;
 				  }
 				| undefined;
 
@@ -102,7 +109,8 @@ export const check_github_connection = query(
 			return {
 				connected: true,
 				has_follow_scope,
-				username: account.accountId,
+				// Use github_username from profile, fallback to accountId if not set
+				username: account.github_username || account.accountId,
 			};
 		} catch (error) {
 			console.error('Error checking GitHub connection:', error);
