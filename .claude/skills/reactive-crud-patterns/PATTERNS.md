@@ -364,43 +364,45 @@ When creating the remote functions, ensure proper structure:
 // ✅ GOOD: Independent queries
 
 export const get_user_social_links = query(
-  async (): Promise<UserSocialLink[]> => {
-    const user_id = await get_current_user_id();
-    const stmt = db.prepare(
-      'SELECT id, platform, url FROM user_social_links WHERE user_id = ? ORDER BY created_at'
-    );
-    return stmt.all(user_id) as UserSocialLink[];
-  }
+	async (): Promise<UserSocialLink[]> => {
+		const user_id = await get_current_user_id();
+		const stmt = db.prepare(
+			'SELECT id, platform, url FROM user_social_links WHERE user_id = ? ORDER BY created_at',
+		);
+		return stmt.all(user_id) as UserSocialLink[];
+	},
 );
 
 export const add_user_social_link = guarded_command(
-  v.object({
-    platform: v.string(),
-    url: v.pipe(v.string(), v.url()),
-  }),
-  async (data) => {
-    const user_id = await get_current_user_id();
-    const id = crypto.randomUUID();
-    db.prepare(
-      'INSERT INTO user_social_links (id, user_id, platform, url, created_at) VALUES (?, ?, ?, ?, ?)'
-    ).run(id, user_id, data.platform, data.url, Date.now());
-    return { success: true };
-  }
+	v.object({
+		platform: v.string(),
+		url: v.pipe(v.string(), v.url()),
+	}),
+	async (data) => {
+		const user_id = await get_current_user_id();
+		const id = crypto.randomUUID();
+		db.prepare(
+			'INSERT INTO user_social_links (id, user_id, platform, url, created_at) VALUES (?, ?, ?, ?, ?)',
+		).run(id, user_id, data.platform, data.url, Date.now());
+		return { success: true };
+	},
 );
 
 export const delete_user_social_link = guarded_command(
-  v.string(),
-  async (link_id) => {
-    const user_id = await get_current_user_id();
-    const link = db
-      .prepare('SELECT user_id FROM user_social_links WHERE id = ?')
-      .get(link_id);
-    if (!link || link.user_id !== user_id) {
-      throw new Error('Unauthorized');
-    }
-    db.prepare('DELETE FROM user_social_links WHERE id = ?').run(link_id);
-    return { success: true };
-  }
+	v.string(),
+	async (link_id) => {
+		const user_id = await get_current_user_id();
+		const link = db
+			.prepare('SELECT user_id FROM user_social_links WHERE id = ?')
+			.get(link_id);
+		if (!link || link.user_id !== user_id) {
+			throw new Error('Unauthorized');
+		}
+		db.prepare('DELETE FROM user_social_links WHERE id = ?').run(
+			link_id,
+		);
+		return { success: true };
+	},
 );
 ```
 
