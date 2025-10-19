@@ -15,6 +15,7 @@
 		add_social_link,
 		delete_social_link,
 		get_contact,
+		get_social_links,
 		update_contact,
 	} from '../../contacts.remote';
 
@@ -24,6 +25,9 @@
 	);
 	const contact_tags_query = $derived(
 		contact_id ? get_contact_tags(contact_id) : null,
+	);
+	const social_links_query = $derived(
+		contact_id ? get_social_links(contact_id) : null,
 	);
 	const all_tags_query = get_tags();
 
@@ -298,22 +302,26 @@
 						></textarea>
 					</fieldset>
 
-					<!-- Social Links Management -->
-					<SocialLinksManager
-						social_links={contact.social_links || []}
-						on_add={async (platform, url) => {
-							await add_social_link({
-								contact_id: contact.id,
-								platform,
-								url,
-							});
-							contact_query?.refresh();
-						}}
-						on_delete={async (link_id) => {
-							await delete_social_link(link_id);
-							contact_query?.refresh();
-						}}
-					/>
+					<!-- Social Links Management - Separate Query for Instant Updates -->
+					{#if social_links_query}
+						{#await social_links_query then links}
+							<SocialLinksManager
+								social_links={links || []}
+								on_add={async (platform, url) => {
+									await add_social_link({
+										contact_id: contact.id,
+										platform,
+										url,
+									});
+									social_links_query.refresh();
+								}}
+								on_delete={async (link_id) => {
+									await delete_social_link(link_id);
+									social_links_query.refresh();
+								}}
+							/>
+						{/await}
+					{/if}
 
 					<!-- Tags Management -->
 					{#if contact_tags_query?.loading || all_tags_query.loading}
