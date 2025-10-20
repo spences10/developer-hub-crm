@@ -3,13 +3,14 @@
 ## 1. Manual Refresh Keys
 
 ❌ **DON'T:**
+
 ```svelte
 let refresh_key = $state(0);
 
 {#key refresh_key}
-  {#await get_data() then data}
-    <!-- Forces full re-render -->
-  {/await}
+	{#await get_data() then data}
+		<!-- Forces full re-render -->
+	{/await}
 {/key}
 ```
 
@@ -18,9 +19,10 @@ let refresh_key = $state(0);
 ## 2. Using `{#await}` for Inline Editing
 
 ❌ **DON'T:**
+
 ```svelte
 {#await get_data() then items}
-  <!-- Re-renders entire block, causes page jump -->
+	<!-- Re-renders entire block, causes page jump -->
 {/await}
 ```
 
@@ -29,9 +31,11 @@ let refresh_key = $state(0);
 ## 3. Hiding Content During Refresh
 
 ❌ **DON'T:**
+
 ```svelte
 {#if data_query.loading}
-  <p>Loading...</p>  <!-- Hides on every refresh -->
+	<p>Loading...</p>
+	<!-- Hides on every refresh -->
 {/if}
 ```
 
@@ -40,6 +44,7 @@ let refresh_key = $state(0);
 ## 4. Manual Refresh Callbacks
 
 ❌ **DON'T:**
+
 ```svelte
 <Component on_change={() => query.refresh()} />
 ```

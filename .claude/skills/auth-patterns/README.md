@@ -1,6 +1,7 @@
 # Auth Patterns
 
-Better-auth integration for authentication. Use when implementing login, registration, protected routes, or email verification.
+Better-auth integration for authentication. Use when implementing
+login, registration, protected routes, or email verification.
 
 ## Structure
 
@@ -11,4 +12,5 @@ Better-auth integration for authentication. Use when implementing login, registr
 
 ## Usage
 
-This skill is automatically discovered by Claude when relevant to the task.
+This skill is automatically discovered by Claude when relevant to the
+task.

@@ -1,48 +1,43 @@
 ---
 name: sveltekit-patterns
-description: SvelteKit patterns for devhub-crm including routing, server functions, form actions, and remote functions. Use when building pages, handling forms, or implementing server-side logic with SvelteKit.
+description:
+  SvelteKit patterns for devhub-crm. Use for remote functions (query,
+  form, command), routing, and server-side logic.
 ---
 
 # SvelteKit Patterns
 
 ## Quick Start
 
-devhub-crm uses SvelteKit's remote functions for type-safe server-client communication:
-
 ```typescript
 // src/routes/contacts.remote.ts
 import { query, form, command } from '$app/server';
-import { db } from '$lib/server/db';
 import * as v from 'valibot';
 
-// Query: Fetch data (GET-like)
+// Query: Fetch data
 export const get_contacts = query(async () => {
-  const stmt = db.prepare('SELECT * FROM contacts WHERE user_id = ?');
-  return stmt.all(user_id);
+	return db
+		.prepare('SELECT * FROM contacts WHERE user_id = ?')
+		.all(user_id);
 });
 
 // Form: Validated mutations with redirects
 export const create_contact = form(
-  v.object({
-    name: v.pipe(v.string(), v.minLength(1)),
-    email: v.pipe(v.string(), v.email()),
-  }),
-  async ({ name, email }) => {
-    const stmt = db.prepare('INSERT INTO contacts ...');
-    stmt.run(id, name, email);
-    redirect(303, '/contacts');
-  }
+	v.object({
+		name: v.string(),
+		email: v.pipe(v.string(), v.email()),
+	}),
+	async ({ name, email }) => {
+		db.prepare('INSERT INTO contacts ...').run(id, name, email);
+		redirect(303, '/contacts');
+	},
 );
 
 // Command: Mutations without redirects
-export const delete_contact = command(
-  v.pipe(v.string(), v.minLength(1)),
-  async (id) => {
-    const stmt = db.prepare('DELETE FROM contacts WHERE id = ?');
-    stmt.run(id);
-    return { success: true };
-  }
-);
+export const delete_contact = command(v.string(), async (id) => {
+	db.prepare('DELETE FROM contacts WHERE id = ?').run(id);
+	return { success: true };
+});
 ```
 
 ## Core Patterns
@@ -50,6 +45,7 @@ export const delete_contact = command(
 ### Remote Functions
 
 Three types for server-client communication:
+
 - `query` - Read operations (supports batching)
 - `form` - Mutations with validation + redirects
 - `command` - Mutations without redirects
@@ -66,17 +62,18 @@ Always use prepared statements with user_id for row-level security.
 
 ## Best Practices
 
-✅ Use `.remote.ts` for all server logic
-✅ Validate with valibot schemas
-✅ Include user_id in all database queries
-✅ Use `redirect()` only in `form` handlers
-✅ Use `query.batch()` for N+1 optimization
+✅ Use `.remote.ts` for all server logic ✅ Validate with valibot
+schemas ✅ Include user_id in all database queries ✅ Use `redirect()`
+only in `form` handlers ✅ Use `query.batch()` for N+1 optimization
 
 ## Reference Files
 
-- [references/remote-functions.md](references/remote-functions.md) - Complete remote functions API
-- [references/routing.md](references/routing.md) - File-based routing patterns
-- [references/database-patterns.md](references/database-patterns.md) - Advanced DB queries
+- [references/remote-functions.md](references/remote-functions.md) -
+  Complete remote functions API
+- [references/routing.md](references/routing.md) - File-based routing
+  patterns
+- [references/database-patterns.md](references/database-patterns.md) -
+  Advanced DB queries
 
 ## Notes
 

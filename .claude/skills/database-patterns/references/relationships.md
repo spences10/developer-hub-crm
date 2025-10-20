@@ -2,14 +2,18 @@
 
 ## Overview
 
-The database uses foreign keys with CASCADE deletes to maintain referential integrity. All tables are user-scoped via the `user_id` column.
+The database uses foreign keys with CASCADE deletes to maintain
+referential integrity. All tables are user-scoped via the `user_id`
+column.
 
 ## Core Tables
 
 ### contacts
+
 Primary contact management table with user-scoped access.
 
 **Columns:**
+
 - `id` (TEXT PRIMARY KEY)
 - `user_id` (TEXT) - FK to users table
 - `name` (TEXT)
@@ -23,15 +27,18 @@ Primary contact management table with user-scoped access.
 - `in_network_since` (INTEGER)
 
 **Relationships:**
+
 - One-to-many with `interactions`
 - One-to-many with `follow_ups`
 - One-to-many with `social_links`
 - Many-to-many with `tags` (via `contact_tags`)
 
 ### interactions
+
 Communication history linked to contacts.
 
 **Columns:**
+
 - `id` (TEXT PRIMARY KEY)
 - `user_id` (TEXT) - FK to users table
 - `contact_id` (TEXT) - FK to contacts table
@@ -40,12 +47,15 @@ Communication history linked to contacts.
 - `created_at` (INTEGER)
 
 **Relationships:**
+
 - Many-to-one with `contacts`
 
 ### follow_ups
+
 Scheduled follow-up tasks with completion tracking.
 
 **Columns:**
+
 - `id` (TEXT PRIMARY KEY)
 - `user_id` (TEXT) - FK to users table
 - `contact_id` (TEXT) - FK to contacts table
@@ -56,12 +66,15 @@ Scheduled follow-up tasks with completion tracking.
 - `updated_at` (INTEGER)
 
 **Relationships:**
+
 - Many-to-one with `contacts`
 
 ### tags
+
 User-defined tags for organizing contacts.
 
 **Columns:**
+
 - `id` (TEXT PRIMARY KEY)
 - `user_id` (TEXT) - FK to users table
 - `name` (TEXT)
@@ -69,25 +82,31 @@ User-defined tags for organizing contacts.
 - `created_at` (INTEGER)
 
 **Relationships:**
+
 - Many-to-many with `contacts` (via `contact_tags`)
 
 ### contact_tags
+
 Join table for many-to-many contact/tag relationships.
 
 **Columns:**
+
 - `id` (TEXT PRIMARY KEY)
 - `contact_id` (TEXT) - FK to contacts table
 - `tag_id` (TEXT) - FK to tags table
 - `created_at` (INTEGER)
 
 **Relationships:**
+
 - Many-to-one with `contacts`
 - Many-to-one with `tags`
 
 ### social_links
+
 Social media profiles for contacts.
 
 **Columns:**
+
 - `id` (TEXT PRIMARY KEY)
 - `user_id` (TEXT) - FK to users table
 - `contact_id` (TEXT) - FK to contacts table
@@ -97,11 +116,13 @@ Social media profiles for contacts.
 - `created_at` (INTEGER)
 
 **Relationships:**
+
 - Many-to-one with `contacts`
 
 ## CASCADE Behavior
 
 Deleting a user cascades to all their data:
+
 ```
 users → contacts → interactions, follow_ups, social_links, contact_tags
 users → tags → contact_tags
@@ -109,11 +130,14 @@ users → tags → contact_tags
 
 ## User-Scoped Queries
 
-All queries must include `user_id` in the WHERE clause for row-level security:
+All queries must include `user_id` in the WHERE clause for row-level
+security:
 
 ```typescript
 // ✅ Correct
-const stmt = db.prepare('SELECT * FROM contacts WHERE id = ? AND user_id = ?');
+const stmt = db.prepare(
+	'SELECT * FROM contacts WHERE id = ? AND user_id = ?',
+);
 const contact = stmt.get(id, user_id);
 
 // ❌ Wrong - security vulnerability
@@ -124,6 +148,7 @@ const contact = stmt.get(id);
 ## Common Join Patterns
 
 ### Contact with Tags
+
 ```typescript
 const stmt = db.prepare(`
   SELECT c.*, GROUP_CONCAT(t.name) as tag_names
@@ -137,6 +162,7 @@ const contacts = stmt.all(user_id);
 ```
 
 ### Contact with Interaction Count
+
 ```typescript
 const stmt = db.prepare(`
   SELECT c.*, COUNT(i.id) as interaction_count
@@ -149,6 +175,7 @@ const contacts = stmt.all(user_id);
 ```
 
 ### Contact with Pending Follow-ups
+
 ```typescript
 const stmt = db.prepare(`
   SELECT c.*, COUNT(f.id) as pending_followups

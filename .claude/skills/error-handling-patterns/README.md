@@ -1,6 +1,7 @@
 # Error Handling Patterns
 
-Svelte 5 error handling. Use for error boundaries, async await expressions, loading states, and form errors.
+Svelte 5 error handling. Use for error boundaries, async await
+expressions, loading states, and form errors.
 
 ## Structure
 
@@ -11,4 +12,5 @@ Svelte 5 error handling. Use for error boundaries, async await expressions, load
 
 ## Usage
 
-This skill is automatically discovered by Claude when relevant to the task.
+This skill is automatically discovered by Claude when relevant to the
+task.

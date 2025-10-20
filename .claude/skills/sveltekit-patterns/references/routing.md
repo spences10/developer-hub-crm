@@ -5,27 +5,29 @@ File-based routing patterns used in devhub-crm.
 ## Route File Types
 
 ### +page.svelte
+
 Client-side page component.
 
 ```svelte
 <script lang="ts">
-  import { get_contacts } from './contacts.remote';
+	import { get_contacts } from './contacts.remote';
 
-  const contacts = get_contacts();
+	const contacts = get_contacts();
 </script>
 
 {#await contacts}
-  Loading...
+	Loading...
 {:then data}
-  <ul>
-    {#each data as contact}
-      <li>{contact.name}</li>
-    {/each}
-  </ul>
+	<ul>
+		{#each data as contact}
+			<li>{contact.name}</li>
+		{/each}
+	</ul>
 {/await}
 ```
 
 ### +server.ts
+
 API route handler (REST endpoints).
 
 ```typescript
@@ -33,41 +35,43 @@ import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 
 export const GET: RequestHandler = async ({ params, url }) => {
-  const id = params.id;
-  const filter = url.searchParams.get('filter');
+	const id = params.id;
+	const filter = url.searchParams.get('filter');
 
-  return json({ id, filter });
+	return json({ id, filter });
 };
 
 export const POST: RequestHandler = async ({ request }) => {
-  const body = await request.json();
-  // Handle mutation
-  return json({ success: true });
+	const body = await request.json();
+	// Handle mutation
+	return json({ success: true });
 };
 ```
 
-### *.remote.ts
+### \*.remote.ts
+
 Remote function definitions (RPC-style).
 
 ```typescript
 import { query, form, command } from '$app/server';
 
 export const get_data = query(async () => {
-  // Server logic
+	// Server logic
 });
 
 export const save_data = form(schema, async (data) => {
-  // Mutation with redirect
+	// Mutation with redirect
 });
 
 export const update_data = command(schema, async (data) => {
-  // Mutation with return value
+	// Mutation with return value
 });
 ```
 
 ## Dynamic Routes
 
 ### [param]
+
 Single parameter.
 
 ```
@@ -76,6 +80,7 @@ src/routes/users/[id]/+page.svelte
 ```
 
 ### [...slug]
+
 Catch-all parameter.
 
 ```
@@ -85,6 +90,7 @@ src/routes/docs/[...slug]/+page.svelte
 ```
 
 ### [[optional]]
+
 Optional parameter.
 
 ```
@@ -94,6 +100,7 @@ src/routes/posts/[[page]]/+page.svelte
 ```
 
 ### @[username]
+
 Custom pattern (used for profiles).
 
 ```
@@ -105,29 +112,32 @@ src/routes/@[username]/+page.svelte
 ## Layout Routes
 
 ### +layout.svelte
+
 Shared layout for all child routes.
 
 ```svelte
 <!-- src/routes/dashboard/+layout.svelte -->
 <script lang="ts">
-  import { get_current_user } from '../auth.remote';
+	import { get_current_user } from '../auth.remote';
 
-  const user = get_current_user();
+	const user = get_current_user();
 </script>
 
 {#await user then userData}
-  {#if userData}
-    <nav>Dashboard Navigation</nav>
-    <slot /> <!-- Child routes render here -->
-  {:else}
-    <p>Not authenticated</p>
-  {/if}
+	{#if userData}
+		<nav>Dashboard Navigation</nav>
+		<slot />
+		<!-- Child routes render here -->
+	{:else}
+		<p>Not authenticated</p>
+	{/if}
 {/await}
 ```
 
 ## Route Groups
 
 ### (group)
+
 Group routes without affecting URL structure.
 
 ```
@@ -146,14 +156,14 @@ import { json, error } from '@sveltejs/kit';
 import { db } from '$lib/server/db';
 
 export const GET: RequestHandler = async ({ url }) => {
-  const search = url.searchParams.get('q');
+	const search = url.searchParams.get('q');
 
-  const stmt = db.prepare(`
+	const stmt = db.prepare(`
     SELECT * FROM contacts WHERE name LIKE ?
   `);
 
-  const contacts = stmt.all(`%${search}%`);
-  return json(contacts);
+	const contacts = stmt.all(`%${search}%`);
+	return json(contacts);
 };
 ```
 
@@ -162,19 +172,20 @@ export const GET: RequestHandler = async ({ url }) => {
 ```typescript
 // src/routes/api/contacts/[id]/+server.ts
 export const GET: RequestHandler = async ({ params }) => {
-  const contact = db.prepare('SELECT * FROM contacts WHERE id = ?')
-    .get(params.id);
+	const contact = db
+		.prepare('SELECT * FROM contacts WHERE id = ?')
+		.get(params.id);
 
-  if (!contact) {
-    throw error(404, 'Contact not found');
-  }
+	if (!contact) {
+		throw error(404, 'Contact not found');
+	}
 
-  return json(contact);
+	return json(contact);
 };
 
 export const DELETE: RequestHandler = async ({ params }) => {
-  db.prepare('DELETE FROM contacts WHERE id = ?').run(params.id);
-  return json({ success: true });
+	db.prepare('DELETE FROM contacts WHERE id = ?').run(params.id);
+	return json({ success: true });
 };
 ```
 

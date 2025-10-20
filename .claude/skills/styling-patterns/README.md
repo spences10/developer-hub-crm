@@ -1,6 +1,7 @@
 # Styling Patterns
 
-DaisyUI v5 design system. Use for backgrounds, borders, text sizes, opacity, semantic colors, and spacing.
+DaisyUI v5 design system. Use for backgrounds, borders, text sizes,
+opacity, semantic colors, and spacing.
 
 ## Structure
 
@@ -11,4 +12,5 @@ DaisyUI v5 design system. Use for backgrounds, borders, text sizes, opacity, sem
 
 ## Usage
 
-This skill is automatically discovered by Claude when relevant to the task.
+This skill is automatically discovered by Claude when relevant to the
+task.

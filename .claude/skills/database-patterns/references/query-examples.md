@@ -78,77 +78,88 @@ const recent_interactions = stmt.all(user_id, limit);
 import { db } from '$lib/server/db';
 import { nanoid } from 'nanoid';
 
-const insert_contact_with_tags = db.transaction((contact_data, tag_ids) => {
-  // Insert contact
-  const contact_stmt = db.prepare(`
+const insert_contact_with_tags = db.transaction(
+	(contact_data, tag_ids) => {
+		// Insert contact
+		const contact_stmt = db.prepare(`
     INSERT INTO contacts (id, user_id, name, email, created_at, updated_at)
     VALUES (?, ?, ?, ?, ?, ?)
   `);
-  const contact_id = nanoid();
-  const now = Date.now();
-  contact_stmt.run(contact_id, user_id, contact_data.name, contact_data.email, now, now);
+		const contact_id = nanoid();
+		const now = Date.now();
+		contact_stmt.run(
+			contact_id,
+			user_id,
+			contact_data.name,
+			contact_data.email,
+			now,
+			now,
+		);
 
-  // Insert tags
-  const tag_stmt = db.prepare(`
+		// Insert tags
+		const tag_stmt = db.prepare(`
     INSERT INTO contact_tags (id, contact_id, tag_id, created_at)
     VALUES (?, ?, ?, ?)
   `);
-  for (const tag_id of tag_ids) {
-    tag_stmt.run(nanoid(), contact_id, tag_id, now);
-  }
+		for (const tag_id of tag_ids) {
+			tag_stmt.run(nanoid(), contact_id, tag_id, now);
+		}
 
-  return contact_id;
-});
+		return contact_id;
+	},
+);
 
 // Execute transaction
 const contact_id = insert_contact_with_tags(
-  { name: 'John Doe', email: 'john@example.com' },
-  ['tag_id_1', 'tag_id_2']
+	{ name: 'John Doe', email: 'john@example.com' },
+	['tag_id_1', 'tag_id_2'],
 );
 ```
 
 ### Update Contact and Add Interaction
 
 ```typescript
-const update_contact_and_add_interaction = db.transaction((contact_id, contact_updates, interaction_data) => {
-  const now = Date.now();
+const update_contact_and_add_interaction = db.transaction(
+	(contact_id, contact_updates, interaction_data) => {
+		const now = Date.now();
 
-  // Update contact
-  const update_stmt = db.prepare(`
+		// Update contact
+		const update_stmt = db.prepare(`
     UPDATE contacts
     SET name = ?, email = ?, updated_at = ?
     WHERE id = ? AND user_id = ?
   `);
-  update_stmt.run(
-    contact_updates.name,
-    contact_updates.email,
-    now,
-    contact_id,
-    user_id
-  );
+		update_stmt.run(
+			contact_updates.name,
+			contact_updates.email,
+			now,
+			contact_id,
+			user_id,
+		);
 
-  // Add interaction
-  const interaction_stmt = db.prepare(`
+		// Add interaction
+		const interaction_stmt = db.prepare(`
     INSERT INTO interactions (id, user_id, contact_id, type, notes, created_at)
     VALUES (?, ?, ?, ?, ?, ?)
   `);
-  interaction_stmt.run(
-    nanoid(),
-    user_id,
-    contact_id,
-    interaction_data.type,
-    interaction_data.notes,
-    now
-  );
+		interaction_stmt.run(
+			nanoid(),
+			user_id,
+			contact_id,
+			interaction_data.type,
+			interaction_data.notes,
+			now,
+		);
 
-  return { contact_id, interaction_id: nanoid() };
-});
+		return { contact_id, interaction_id: nanoid() };
+	},
+);
 
 // Execute
 const result = update_contact_and_add_interaction(
-  'contact_123',
-  { name: 'John Doe', email: 'john@example.com' },
-  { type: 'email', notes: 'Sent proposal' }
+	'contact_123',
+	{ name: 'John Doe', email: 'john@example.com' },
+	{ type: 'email', notes: 'Sent proposal' },
 );
 ```
 
@@ -156,28 +167,28 @@ const result = update_contact_and_add_interaction(
 
 ```typescript
 const bulk_insert_contacts = db.transaction((contacts_data) => {
-  const stmt = db.prepare(`
+	const stmt = db.prepare(`
     INSERT INTO contacts (id, user_id, name, email, created_at, updated_at)
     VALUES (?, ?, ?, ?, ?, ?)
   `);
 
-  const now = Date.now();
-  const inserted_ids = [];
+	const now = Date.now();
+	const inserted_ids = [];
 
-  for (const contact of contacts_data) {
-    const id = nanoid();
-    stmt.run(id, user_id, contact.name, contact.email, now, now);
-    inserted_ids.push(id);
-  }
+	for (const contact of contacts_data) {
+		const id = nanoid();
+		stmt.run(id, user_id, contact.name, contact.email, now, now);
+		inserted_ids.push(id);
+	}
 
-  return inserted_ids;
+	return inserted_ids;
 });
 
 // Execute
 const ids = bulk_insert_contacts([
-  { name: 'Alice', email: 'alice@example.com' },
-  { name: 'Bob', email: 'bob@example.com' },
-  { name: 'Charlie', email: 'charlie@example.com' }
+	{ name: 'Alice', email: 'alice@example.com' },
+	{ name: 'Bob', email: 'bob@example.com' },
+	{ name: 'Charlie', email: 'charlie@example.com' },
 ]);
 ```
 
@@ -197,7 +208,9 @@ invalidate('app:contacts'); // Triggers reload of contacts data
 
 ```typescript
 // After updating a contact
-const stmt = db.prepare('UPDATE contacts SET name = ? WHERE id = ? AND user_id = ?');
+const stmt = db.prepare(
+	'UPDATE contacts SET name = ? WHERE id = ? AND user_id = ?',
+);
 stmt.run(name, id, user_id);
 
 // Invalidate multiple dependencies
@@ -214,20 +227,22 @@ import { db } from '$lib/server/db';
 import * as v from 'valibot';
 
 export const update_contact = command(
-  v.object({
-    id: v.string(),
-    name: v.string()
-  }),
-  async ({ id, name }) => {
-    const stmt = db.prepare('UPDATE contacts SET name = ?, updated_at = ? WHERE id = ? AND user_id = ?');
-    stmt.run(name, Date.now(), id, user_id);
+	v.object({
+		id: v.string(),
+		name: v.string(),
+	}),
+	async ({ id, name }) => {
+		const stmt = db.prepare(
+			'UPDATE contacts SET name = ?, updated_at = ? WHERE id = ? AND user_id = ?',
+		);
+		stmt.run(name, Date.now(), id, user_id);
 
-    // Return invalidation hints
-    return {
-      success: true,
-      invalidate: ['app:contacts']
-    };
-  }
+		// Return invalidation hints
+		return {
+			success: true,
+			invalidate: ['app:contacts'],
+		};
+	},
 );
 ```
 
@@ -249,7 +264,9 @@ const stmt = db.prepare(`
 const contacts = stmt.all(user_id, per_page, offset);
 
 // Get total count
-const count_stmt = db.prepare('SELECT COUNT(*) as total FROM contacts WHERE user_id = ?');
+const count_stmt = db.prepare(
+	'SELECT COUNT(*) as total FROM contacts WHERE user_id = ?',
+);
 const { total } = count_stmt.get(user_id);
 ```
 
@@ -286,7 +303,13 @@ const stmt = db.prepare(`
     )
   ORDER BY name
 `);
-const results = stmt.all(user_id, search_term, search_term, search_term, search_term);
+const results = stmt.all(
+	user_id,
+	search_term,
+	search_term,
+	search_term,
+	search_term,
+);
 ```
 
 ### Filter by Tags
@@ -351,7 +374,10 @@ const stmt = db.prepare(`
   GROUP BY type, date
   ORDER BY date DESC
 `);
-const trends = stmt.all(user_id, Date.now() - 30 * 24 * 60 * 60 * 1000); // Last 30 days
+const trends = stmt.all(
+	user_id,
+	Date.now() - 30 * 24 * 60 * 60 * 1000,
+); // Last 30 days
 ```
 
 ### Top Contacts by Interaction

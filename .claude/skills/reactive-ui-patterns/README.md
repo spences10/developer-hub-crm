@@ -1,6 +1,8 @@
 # Reactive Ui Patterns
 
-Remote functions reactive UI patterns. Use for smooth in-place updates, preventing page jumps, and managing loading states with .current property.
+Remote functions reactive UI patterns. Use for smooth in-place
+updates, preventing page jumps, and managing loading states with
+.current property.
 
 ## Structure
 
@@ -11,4 +13,5 @@ Remote functions reactive UI patterns. Use for smooth in-place updates, preventi
 
 ## Usage
 
-This skill is automatically discovered by Claude when relevant to the task.
+This skill is automatically discovered by Claude when relevant to the
+task.

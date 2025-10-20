@@ -11,19 +11,19 @@ import { getRequestEvent } from '$app/server';
 import { auth } from '$lib/server/auth';
 
 export const get_contacts = query(async () => {
-  // Get authenticated user
-  const event = getRequestEvent();
-  const session = await auth.api.getSession({
-    headers: event.request.headers
-  });
-  const user_id = session?.user?.id;
+	// Get authenticated user
+	const event = getRequestEvent();
+	const session = await auth.api.getSession({
+		headers: event.request.headers,
+	});
+	const user_id = session?.user?.id;
 
-  // User-scoped query
-  const stmt = db.prepare(`
+	// User-scoped query
+	const stmt = db.prepare(`
     SELECT * FROM contacts WHERE user_id = ?
   `);
 
-  return stmt.all(user_id);
+	return stmt.all(user_id);
 });
 ```
 
@@ -51,21 +51,21 @@ Use `query.batch()` for loading multiple items:
 
 ```typescript
 export const get_profiles = query.batch(
-  v.string(), // Validation for each ID
-  async (usernames: string[]) => {
-    // Fetch ALL usernames in ONE query
-    const stmt = db.prepare(`
+	v.string(), // Validation for each ID
+	async (usernames: string[]) => {
+		// Fetch ALL usernames in ONE query
+		const stmt = db.prepare(`
       SELECT * FROM user_profiles
       WHERE username IN (${usernames.map(() => '?').join(',')})
     `);
 
-    const profiles = stmt.all(...usernames);
+		const profiles = stmt.all(...usernames);
 
-    // Return lookup function
-    return (username: string) => {
-      return profiles.find(p => p.username === username) ?? null;
-    };
-  }
+		// Return lookup function
+		return (username: string) => {
+			return profiles.find((p) => p.username === username) ?? null;
+		};
+	},
 );
 
 // Usage on client:
@@ -83,40 +83,42 @@ import { form } from '$app/server';
 import { db } from '$lib/server/db';
 
 export const create_contact_with_tags = form(
-  v.object({
-    name: v.string(),
-    tag_ids: v.array(v.string()),
-  }),
-  async ({ name, tag_ids }) => {
-    const user_id = await getUserId();
+	v.object({
+		name: v.string(),
+		tag_ids: v.array(v.string()),
+	}),
+	async ({ name, tag_ids }) => {
+		const user_id = await getUserId();
 
-    // Wrap in transaction
-    const insert_contact_with_tags = db.transaction(() => {
-      // Insert contact
-      const contact_id = nanoid();
-      db.prepare(`
+		// Wrap in transaction
+		const insert_contact_with_tags = db.transaction(() => {
+			// Insert contact
+			const contact_id = nanoid();
+			db.prepare(
+				`
         INSERT INTO contacts (id, user_id, name, created_at)
         VALUES (?, ?, ?, ?)
-      `).run(contact_id, user_id, name, Date.now());
+      `,
+			).run(contact_id, user_id, name, Date.now());
 
-      // Insert contact_tags
-      const tag_stmt = db.prepare(`
+			// Insert contact_tags
+			const tag_stmt = db.prepare(`
         INSERT INTO contact_tags (id, contact_id, tag_id, created_at)
         VALUES (?, ?, ?, ?)
       `);
 
-      for (const tag_id of tag_ids) {
-        tag_stmt.run(nanoid(), contact_id, tag_id, Date.now());
-      }
+			for (const tag_id of tag_ids) {
+				tag_stmt.run(nanoid(), contact_id, tag_id, Date.now());
+			}
 
-      return contact_id;
-    });
+			return contact_id;
+		});
 
-    // Execute transaction
-    const contact_id = insert_contact_with_tags();
+		// Execute transaction
+		const contact_id = insert_contact_with_tags();
 
-    redirect(303, `/contacts/${contact_id}`);
-  }
+		redirect(303, `/contacts/${contact_id}`);
+	},
 );
 ```
 
@@ -124,9 +126,9 @@ export const create_contact_with_tags = form(
 
 ```typescript
 export const get_contacts_with_stats = query(async () => {
-  const user_id = await getUserId();
+	const user_id = await getUserId();
 
-  const stmt = db.prepare(`
+	const stmt = db.prepare(`
     SELECT
       c.*,
       COUNT(i.id) as interaction_count,
@@ -138,7 +140,7 @@ export const get_contacts_with_stats = query(async () => {
     ORDER BY last_interaction DESC
   `);
 
-  return stmt.all(user_id);
+	return stmt.all(user_id);
 });
 ```
 
@@ -146,38 +148,38 @@ export const get_contacts_with_stats = query(async () => {
 
 ```typescript
 export const get_contacts_paginated = query(
-  v.object({
-    page: v.pipe(v.number(), v.minValue(1)),
-    per_page: v.pipe(v.number(), v.minValue(1), v.maxValue(100)),
-  }),
-  async ({ page, per_page }) => {
-    const user_id = await getUserId();
-    const offset = (page - 1) * per_page;
+	v.object({
+		page: v.pipe(v.number(), v.minValue(1)),
+		per_page: v.pipe(v.number(), v.minValue(1), v.maxValue(100)),
+	}),
+	async ({ page, per_page }) => {
+		const user_id = await getUserId();
+		const offset = (page - 1) * per_page;
 
-    // Count total
-    const count_stmt = db.prepare(`
+		// Count total
+		const count_stmt = db.prepare(`
       SELECT COUNT(*) as total FROM contacts WHERE user_id = ?
     `);
-    const { total } = count_stmt.get(user_id);
+		const { total } = count_stmt.get(user_id);
 
-    // Fetch page
-    const stmt = db.prepare(`
+		// Fetch page
+		const stmt = db.prepare(`
       SELECT * FROM contacts
       WHERE user_id = ?
       LIMIT ? OFFSET ?
     `);
-    const contacts = stmt.all(user_id, per_page, offset);
+		const contacts = stmt.all(user_id, per_page, offset);
 
-    return {
-      contacts,
-      pagination: {
-        total,
-        page,
-        per_page,
-        total_pages: Math.ceil(total / per_page),
-      },
-    };
-  }
+		return {
+			contacts,
+			pagination: {
+				total,
+				page,
+				per_page,
+				total_pages: Math.ceil(total / per_page),
+			},
+		};
+	},
 );
 ```
 
@@ -192,22 +194,22 @@ import { auth } from '$lib/server/auth';
 import { error } from '@sveltejs/kit';
 
 export async function getUserId(): Promise<string> {
-  const event = getRequestEvent();
-  const session = await auth.api.getSession({
-    headers: event.request.headers
-  });
+	const event = getRequestEvent();
+	const session = await auth.api.getSession({
+		headers: event.request.headers,
+	});
 
-  if (!session?.user?.id) {
-    throw error(401, 'Unauthorized');
-  }
+	if (!session?.user?.id) {
+		throw error(401, 'Unauthorized');
+	}
 
-  return session.user.id;
+	return session.user.id;
 }
 
 // Usage in remote functions:
 export const get_data = query(async () => {
-  const user_id = await getUserId();
-  // ...
+	const user_id = await getUserId();
+	// ...
 });
 ```
 
@@ -215,8 +217,10 @@ export const get_data = query(async () => {
 
 1. **Always use prepared statements** - Never string concatenation
 2. **Always scope by user_id** - Prevent cross-user data access
-3. **Use transactions for multi-table ops** - All-or-nothing consistency
-4. **Batch queries when possible** - Use `query.batch()` to prevent N+1
+3. **Use transactions for multi-table ops** - All-or-nothing
+   consistency
+4. **Batch queries when possible** - Use `query.batch()` to prevent
+   N+1
 5. **Validate inputs** - Use valibot schemas
 6. **Handle errors** - Return error objects from forms/commands
 

@@ -1,6 +1,8 @@
 # Sveltekit Patterns
 
-SvelteKit patterns for devhub-crm including routing, server functions, form actions, and remote functions. Use when building pages, handling forms, or implementing server-side logic with SvelteKit.
+SvelteKit patterns for devhub-crm including routing, server functions,
+form actions, and remote functions. Use when building pages, handling
+forms, or implementing server-side logic with SvelteKit.
 
 ## Structure
 
@@ -11,4 +13,5 @@ SvelteKit patterns for devhub-crm including routing, server functions, form acti
 
 ## Usage
 
-This skill is automatically discovered by Claude when relevant to the task.
+This skill is automatically discovered by Claude when relevant to the
+task.

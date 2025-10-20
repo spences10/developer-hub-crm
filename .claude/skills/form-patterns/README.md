@@ -1,6 +1,7 @@
 # Form Patterns
 
-DaisyUI v5 form patterns. Use for inputs, selects, textareas, validation, and form structure with fieldset/legend.
+DaisyUI v5 form patterns. Use for inputs, selects, textareas,
+validation, and form structure with fieldset/legend.
 
 ## Structure
 
@@ -11,4 +12,5 @@ DaisyUI v5 form patterns. Use for inputs, selects, textareas, validation, and fo
 
 ## Usage
 
-This skill is automatically discovered by Claude when relevant to the task.
+This skill is automatically discovered by Claude when relevant to the
+task.

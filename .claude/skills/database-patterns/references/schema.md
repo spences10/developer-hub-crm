@@ -5,6 +5,7 @@ Complete schema for devhub-crm SQLite database.
 ## Core Tables
 
 ### contacts
+
 Contact management with user-scoped access.
 
 ```sql
@@ -30,6 +31,7 @@ CREATE TABLE contacts (
 ```
 
 ### interactions
+
 Communication history with contacts.
 
 ```sql
@@ -45,6 +47,7 @@ CREATE TABLE interactions (
 ```
 
 ### follow_ups
+
 Scheduled follow-up tasks.
 
 ```sql
@@ -62,6 +65,7 @@ CREATE TABLE follow_ups (
 ```
 
 ### tags
+
 User-defined tags for organization.
 
 ```sql
@@ -77,6 +81,7 @@ CREATE TABLE tags (
 ```
 
 ### contact_tags
+
 Many-to-many relationship between contacts and tags.
 
 ```sql
@@ -92,6 +97,7 @@ CREATE TABLE contact_tags (
 ```
 
 ### social_links
+
 Social media profiles for contacts.
 
 ```sql
@@ -108,6 +114,7 @@ CREATE TABLE social_links (
 ## Supporting Tables
 
 ### interaction_types
+
 Customizable interaction type definitions.
 
 ```sql
@@ -127,6 +134,7 @@ CREATE TABLE interaction_types (
 ```
 
 ### github_following_cache
+
 Cached GitHub following data.
 
 ```sql
@@ -142,6 +150,7 @@ CREATE TABLE github_following_cache (
 ## Auth Tables (better-auth)
 
 ### user
+
 ```sql
 CREATE TABLE user (
   id TEXT NOT NULL PRIMARY KEY,
@@ -155,6 +164,7 @@ CREATE TABLE user (
 ```
 
 ### account
+
 ```sql
 CREATE TABLE account (
   id TEXT NOT NULL PRIMARY KEY,
@@ -174,6 +184,7 @@ CREATE TABLE account (
 ```
 
 ### session
+
 ```sql
 CREATE TABLE session (
   id TEXT NOT NULL PRIMARY KEY,
@@ -190,6 +201,7 @@ CREATE TABLE session (
 ## User Profile Tables
 
 ### user_profiles
+
 ```sql
 CREATE TABLE user_profiles (
   id TEXT PRIMARY KEY,
@@ -212,6 +224,7 @@ CREATE TABLE user_profiles (
 ```
 
 ### user_social_links
+
 ```sql
 CREATE TABLE user_social_links (
   id TEXT PRIMARY KEY,
@@ -224,6 +237,7 @@ CREATE TABLE user_social_links (
 ```
 
 ### user_preferences
+
 ```sql
 CREATE TABLE user_preferences (
   id TEXT PRIMARY KEY,
@@ -240,6 +254,7 @@ CREATE TABLE user_preferences (
 ```
 
 ### profile_views
+
 ```sql
 CREATE TABLE profile_views (
   id TEXT PRIMARY KEY,
@@ -279,7 +294,8 @@ contacts (*) ----< (*) tags (via contact_tags)
 ## Cascade Rules
 
 - DELETE user → CASCADE deletes all user-owned data
-- DELETE contact → CASCADE deletes interactions, follow_ups, social_links, contact_tags
+- DELETE contact → CASCADE deletes interactions, follow_ups,
+  social_links, contact_tags
 - DELETE tag → CASCADE removes contact_tags entries
 
 ## Indexes
