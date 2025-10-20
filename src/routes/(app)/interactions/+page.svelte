@@ -31,9 +31,7 @@
 	let edit_type = $state<string>('meeting');
 	let edit_note = $state('');
 
-	const interaction_types_query:
-		| Promise<InteractionType[]>
-		| InteractionType[] = get_interaction_types();
+	const interaction_types_query = get_interaction_types();
 
 	const type_color_map = $derived.by(() => {
 		const map: Record<string, string> = {};
