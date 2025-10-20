@@ -26,32 +26,31 @@
 	let { interaction, contact_id, contact_name, date_format }: Props =
 		$props();
 
-	const interaction_types_query:
-		| Promise<InteractionType[]>
-		| InteractionType[] = get_interaction_types();
+	const interaction_types_query = get_interaction_types();
 
+	// Derive the icon and color - handle both Promise and cached array
 	const TypeIcon = $derived.by(() => {
-		if (Array.isArray(interaction_types_query)) {
-			const type_data = interaction_types_query.find(
-				(t) => t.value === interaction.type,
-			);
-			if (type_data) {
-				return get_icon_component(type_data.icon);
-			}
-		}
-		return null;
+		const types = Array.isArray(interaction_types_query)
+			? interaction_types_query
+			: interaction_types_query.current;
+
+		if (!types) return get_icon_component('Calendar');
+
+		const type_data = types.find((t: InteractionType) => t.value === interaction.type);
+		return type_data
+			? get_icon_component(type_data.icon)
+			: get_icon_component('Calendar');
 	});
 
 	const type_color = $derived.by(() => {
-		if (Array.isArray(interaction_types_query)) {
-			const type_data = interaction_types_query.find(
-				(t) => t.value === interaction.type,
-			);
-			if (type_data) {
-				return type_data.color;
-			}
-		}
-		return 'bg-base-300';
+		const types = Array.isArray(interaction_types_query)
+			? interaction_types_query
+			: interaction_types_query.current;
+
+		if (!types) return 'bg-base-300';
+
+		const type_data = types.find((t: InteractionType) => t.value === interaction.type);
+		return type_data ? type_data.color : 'bg-base-300';
 	});
 </script>
 
@@ -124,7 +123,10 @@
 				class="btn gap-0 btn-ghost btn-xs lg:gap-1"
 				aria-label="Edit interaction"
 				onclick={(e) =>
-					handle_edit_interaction_click(e as MouseEvent, interaction)}
+					handle_edit_interaction_click(
+						e as MouseEvent,
+						interaction,
+					)}
 			>
 				<Edit size="16px" />
 				<span class="hidden lg:inline">Edit</span>

@@ -37,8 +37,12 @@
 
 	const type_color_map = $derived.by(() => {
 		const map: Record<string, string> = {};
-		if (Array.isArray(interaction_types_query)) {
-			for (const type of interaction_types_query) {
+		const types = Array.isArray(interaction_types_query)
+			? interaction_types_query
+			: interaction_types_query.current;
+
+		if (types) {
+			for (const type of types) {
 				map[type.value] = type.color;
 			}
 		}
@@ -187,16 +191,17 @@
 			class:opacity-60={interactions_query.loading}
 		>
 			{#each interactions as interaction}
-				{@const interaction_type_from_query = Array.isArray(
-					interaction_types_query,
-				)
-					? (interaction_types_query.find(
+				{@const types = Array.isArray(interaction_types_query)
+					? interaction_types_query
+					: interaction_types_query.current}
+				{@const interaction_type_from_query = types
+					? (types.find(
 							(t: InteractionType) => t.value === interaction.type,
 						) ?? null)
 					: null}
 				{@const TypeIcon = interaction_type_from_query
 					? get_icon_component(interaction_type_from_query.icon)
-					: null}
+					: get_icon_component('Calendar')}
 				{#if edit_interaction_id === interaction.id}
 					<!-- Edit Mode -->
 					<div
