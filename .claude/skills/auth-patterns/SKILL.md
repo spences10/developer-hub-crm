@@ -12,14 +12,17 @@ description:
 ```typescript
 // Login form
 export const login = form(schema, async ({ email, password }) => {
-  const event = getRequestEvent();
-  await auth.api.signInEmail({ body: { email, password }, headers: event.request.headers });
-  redirect(303, '/dashboard'); // Outside try/catch
+	const event = getRequestEvent();
+	await auth.api.signInEmail({
+		body: { email, password },
+		headers: event.request.headers,
+	});
+	redirect(303, '/dashboard'); // Outside try/catch
 });
 
 // Protected query
 export const get_data = guarded_query(() => {
-  return { message: 'Protected data' };
+	return { message: 'Protected data' };
 });
 ```
 
@@ -33,6 +36,9 @@ export const get_data = guarded_query(() => {
 
 ## Reference Files
 
-- [auth-setup.md](references/auth-setup.md) - Complete better-auth configuration
-- [auth-usage.md](references/auth-usage.md) - All auth patterns and examples
-- [email-verification.md](references/email-verification.md) - Email verification flow
+- [auth-setup.md](references/auth-setup.md) - Complete better-auth
+  configuration
+- [auth-usage.md](references/auth-usage.md) - All auth patterns and
+  examples
+- [email-verification.md](references/email-verification.md) - Email
+  verification flow

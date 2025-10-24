@@ -1,7 +1,8 @@
 # Component Testing Patterns
 
-Vitest browser testing with vitest-browser-svelte. Use for unit tests,
-component rendering, user interactions, and form testing.
+Vitest browser mode component testing. Use for testing Svelte 5
+components with real browsers, locators, accessibility patterns, and
+reactive state.
 
 ## Structure
 
