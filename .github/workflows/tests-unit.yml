@@ -1,0 +1,46 @@
+name: 'Tests: Unit'
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize]
+
+jobs:
+  unit-tests:
+    name: Run unit tests
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+      options: --user 1001
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: pnpm/action-setup@v4.2.0
+        with:
+          version: 10
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22.x
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Verify Playwright versions match
+        run: |
+          PACKAGE_VERSION=$(node -p "require('./package.json').devDependencies.playwright.replace('^', '')")
+          CONTAINER_VERSION="1.56.1"
+          if [ "$PACKAGE_VERSION" != "$CONTAINER_VERSION" ]; then
+            echo "Warning: Playwright versions don't match!"
+            echo "Package.json: $PACKAGE_VERSION"
+            echo "Container: $CONTAINER_VERSION"
+          fi
+
+      - name: Run unit tests
+        run: pnpm run test:ci
+        env:
+          PUBLIC_FATHOM_ID: test_fathom_id
+          PUBLIC_FATHOM_URL: https://test.example.com
