@@ -18,7 +18,7 @@ Select options:
 
 ```bash
 cd my-testing-app
-pnpm install -D @vitest/browser vitest-browser-svelte playwright
+pnpm install -D @vitest/browser-playwright vitest-browser-svelte playwright
 pnpm un @testing-library/jest-dom @testing-library/svelte jsdom
 ```
 
@@ -30,34 +30,43 @@ Update `vite.config.ts` with the "Client-Server Alignment Strategy":
 
 ```typescript
 import tailwindcss from '@tailwindcss/vite';
+import { playwright } from '@vitest/browser-playwright';
 import { sveltekit } from '@sveltejs/kit/vite';
-import { defineConfig } from 'vite';
+import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
 	plugins: [tailwindcss(), sveltekit()],
 	test: {
 		projects: [
 			{
-				name: 'client',
-				environment: 'browser',
-				testTimeout: 2000,
-				browser: {
-					enabled: true,
-					provider: 'playwright',
-					instances: [{ browser: 'chromium' }],
+				extends: './vite.config.ts',
+				test: {
+					name: 'client',
+					browser: {
+						enabled: true,
+						provider: playwright(),
+						instances: [{ browser: 'chromium' }],
+					},
+					include: ['src/**/*.svelte.{test,spec}.{js,ts}'],
+					setupFiles: ['./vitest-setup-client.ts'],
 				},
-				include: ['src/**/*.svelte.{test,spec}.{js,ts}'],
-				setupFiles: ['./src/vitest-setup-client.ts'],
 			},
 			{
-				name: 'ssr',
-				environment: 'node',
-				include: ['src/**/*.ssr.{test,spec}.{js,ts}'],
+				extends: './vite.config.ts',
+				test: {
+					name: 'ssr',
+					environment: 'node',
+					include: ['src/**/*.ssr.{test,spec}.{js,ts}'],
+				},
 			},
 			{
-				name: 'server',
-				environment: 'node',
-				include: ['src/**/*.{test,spec}.{js,ts}'],
+				extends: './vite.config.ts',
+				test: {
+					name: 'server',
+					environment: 'node',
+					include: ['src/**/*.{test,spec}.{js,ts}'],
+					exclude: ['src/**/*.svelte.{test,spec}.{js,ts}'],
+				},
 			},
 		],
 	},
@@ -66,11 +75,11 @@ export default defineConfig({
 
 ### Vitest Setup File
 
-Create `src/vitest-setup-client.ts`:
+Create `vitest-setup-client.ts`:
 
 ```typescript
-/// <reference types="@vitest/browser/matchers" />
-/// <reference types="@vitest/browser/providers/playwright" />
+/// <reference types="vitest/browser" />
+/// <reference types="@vitest/browser-playwright" />
 ```
 
 ## File Naming Conventions

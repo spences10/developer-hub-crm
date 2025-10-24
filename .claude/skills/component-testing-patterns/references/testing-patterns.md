@@ -5,7 +5,7 @@
 ```typescript
 import { describe, expect, it } from 'vitest';
 import { render } from 'vitest-browser-svelte';
-import { page } from '@vitest/browser/context';
+import { page } from 'vitest/browser';
 import MyButton from './my-button.svelte';
 
 describe('MyButton', () => {
