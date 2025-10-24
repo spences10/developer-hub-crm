@@ -98,6 +98,34 @@ export const auth = betterAuth({
 				});
 
 				console.log('Email sent successfully:', result);
+
+				// Send notification to admin
+				try {
+					await resend.emails.send({
+						from: 'Devhub <updates@updates.devhub.party>',
+						to: 'updates@devhub.party',
+						subject: '🎉 New Devhub signup!',
+						html: `
+							<div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
+								<h2>🎉 New user signed up!</h2>
+								<p><strong>Name:</strong> ${user.name}</p>
+								<p><strong>Email:</strong> ${user.email}</p>
+								<p><strong>Time:</strong> ${new Date().toLocaleString()}</p>
+								<p><strong>User ID:</strong> ${user.id}</p>
+							</div>
+						`,
+					});
+					console.log(
+						'Admin notification sent for new user:',
+						user.email,
+					);
+				} catch (notifyError) {
+					// Don't block signup if notification fails
+					console.error(
+						'Failed to send admin notification:',
+						notifyError,
+					);
+				}
 			} catch (error) {
 				console.error('Failed to send verification email:', error);
 				throw error;
