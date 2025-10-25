@@ -24,12 +24,19 @@ async function set_future_date(page: any, days: number = 7) {
 	const future_date = new Date(
 		Date.now() + days * 24 * 60 * 60 * 1000,
 	);
+	// Zero out seconds and milliseconds since datetime-local only supports minute precision
+	future_date.setSeconds(0, 0);
+
 	const date_string = future_date.toISOString().slice(0, 16);
-	await page.locator('input[type="datetime-local"]').fill(date_string);
+	await page
+		.locator('input[type="datetime-local"]')
+		.fill(date_string);
 
 	// Wait for the hidden input to be updated by Svelte's reactivity
 	const expected_timestamp = future_date.getTime().toString();
-	await expect(page.locator('input[name="due_date"]')).toHaveValue(expected_timestamp);
+	await expect(page.locator('input[name="due_date"]')).toHaveValue(
+		expected_timestamp,
+	);
 }
 
 test.describe('Keyboard Shortcuts - ctrl_enter_submit', () => {
