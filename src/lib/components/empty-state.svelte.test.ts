@@ -37,7 +37,9 @@ describe('EmptyState', () => {
 
 		const link = page.getByRole('link', { name: 'Add Contact' });
 		await expect.element(link).toBeInTheDocument();
-		await expect.element(link).toHaveAttribute('href', '/contacts/new');
+		await expect
+			.element(link)
+			.toHaveAttribute('href', '/contacts/new');
 	});
 
 	it('should apply primary button styling to action link', async () => {

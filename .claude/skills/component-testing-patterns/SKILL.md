@@ -38,10 +38,10 @@ await expect.element(page.getByRole('button')).toBeInTheDocument();
 
 ## References
 
-- [setup-configuration.md](references/setup-configuration.md) - Complete
-  Vitest browser setup
-- [testing-patterns.md](references/testing-patterns.md) - Comprehensive
-  testing patterns
+- [setup-configuration.md](references/setup-configuration.md) -
+  Complete Vitest browser setup
+- [testing-patterns.md](references/testing-patterns.md) -
+  Comprehensive testing patterns
 - [locator-strategies.md](references/locator-strategies.md) - Semantic
   locator guide
 - [troubleshooting.md](references/troubleshooting.md) - Common issues

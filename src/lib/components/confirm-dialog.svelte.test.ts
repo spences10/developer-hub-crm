@@ -158,7 +158,9 @@ describe('ConfirmDialog', () => {
 		// When show_icons is true (default), the button should have the label as aria-label
 		const confirmBtn = page.getByRole('button', { name: 'Delete' });
 		await expect.element(confirmBtn).toBeInTheDocument();
-		await expect.element(confirmBtn).toHaveAttribute('aria-label', 'Delete');
+		await expect
+			.element(confirmBtn)
+			.toHaveAttribute('aria-label', 'Delete');
 	});
 
 	it('should apply correct styling to confirm button', async () => {

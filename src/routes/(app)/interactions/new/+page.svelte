@@ -2,9 +2,10 @@
 	import { page } from '$app/state';
 	import PageHeaderWithAction from '$lib/components/page-header-with-action.svelte';
 	import PageNav from '$lib/components/page-nav.svelte';
+	import { ctrl_enter_submit } from '$lib/utils/keyboard-attachments';
 	import { get_contacts } from '../../contacts/contacts.remote';
-	import { get_user_preferences } from '../../settings/settings.remote';
 	import { get_interaction_types } from '../../settings/interaction-types.remote';
+	import { get_user_preferences } from '../../settings/settings.remote';
 	import { create_interaction } from '../interactions.remote';
 
 	const preselected_contact_id = $derived(
@@ -74,12 +75,7 @@
 					class="textarea w-full"
 					rows="6"
 					placeholder="Add any notes about this interaction..."
-					onkeydown={(e) => {
-						if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
-							e.preventDefault();
-							e.currentTarget.form?.requestSubmit();
-						}
-					}}
+					{@attach ctrl_enter_submit()}
 				></textarea>
 			</fieldset>
 

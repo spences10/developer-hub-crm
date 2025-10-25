@@ -14,6 +14,7 @@
 	import type { InteractionType } from '$lib/types/interaction-type';
 	import { format_date } from '$lib/utils/date-helpers';
 	import { get_icon_component } from '$lib/utils/interaction-type-helpers';
+	import { ctrl_enter_callback } from '$lib/utils/keyboard-attachments';
 	import { get_interaction_types } from '../../settings/interaction-types.remote';
 
 	interface Props {
@@ -86,12 +87,7 @@
 					bind:value={edit_state.edit_interaction_note}
 					class="textarea h-24 w-full"
 					placeholder="Add a note..."
-					onkeydown={(e) => {
-						if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
-							e.preventDefault();
-							save_edit_interaction();
-						}
-					}}
+					{@attach ctrl_enter_callback(() => save_edit_interaction())}
 				></textarea>
 			</fieldset>
 

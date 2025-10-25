@@ -57,7 +57,9 @@ describe('SearchBar', () => {
 		});
 
 		// Check for legend text which indicates proper fieldset structure
-		await expect.element(page.getByText('Search')).toBeInTheDocument();
+		await expect
+			.element(page.getByText('Search'))
+			.toBeInTheDocument();
 
 		// Verify the input is accessible
 		const input = page.getByRole('textbox');
@@ -109,7 +111,8 @@ describe('SearchBar', () => {
 		expect(on_change.mock.calls.length).toBeGreaterThan(0);
 
 		// Get the last call to verify final value
-		const lastCall = on_change.mock.calls[on_change.mock.calls.length - 1];
+		const lastCall =
+			on_change.mock.calls[on_change.mock.calls.length - 1];
 		expect(lastCall[0]).toBe('abc');
 	});
 

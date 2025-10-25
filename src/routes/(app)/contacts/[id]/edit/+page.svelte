@@ -4,6 +4,7 @@
 	import SocialLinksManager from '$lib/components/social-links-manager.svelte';
 	import TagManager from '$lib/components/tag-manager.svelte';
 	import { Cancel } from '$lib/icons';
+	import { ctrl_enter_callback } from '$lib/utils/keyboard-attachments';
 	import {
 		add_tag_to_contact,
 		create_tag,
@@ -330,12 +331,9 @@
 							value={contact.notes || ''}
 							onblur={(e) =>
 								save_field('notes', e.currentTarget.value, contact)}
-							onkeydown={(e) => {
-								if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
-									e.preventDefault();
-									save_field('notes', e.currentTarget.value, contact);
-								}
-							}}
+							{@attach ctrl_enter_callback((value) =>
+								save_field('notes', value || '', contact),
+							)}
 						></textarea>
 					</fieldset>
 
