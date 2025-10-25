@@ -19,6 +19,19 @@ async function login_as_demo(page: any) {
 	});
 }
 
+// Helper to set date field to a future date
+async function set_future_date(page: any, days: number = 7) {
+	const future_date = new Date(
+		Date.now() + days * 24 * 60 * 60 * 1000,
+	);
+	const date_string = future_date.toISOString().slice(0, 16);
+	await page.locator('input[type="datetime-local"]').fill(date_string);
+
+	// Wait for the hidden input to be updated by Svelte's reactivity
+	const expected_timestamp = future_date.getTime().toString();
+	await expect(page.locator('input[name="due_date"]')).toHaveValue(expected_timestamp);
+}
+
 test.describe('Keyboard Shortcuts - ctrl_enter_submit', () => {
 	test('should submit follow-up form with Ctrl+Enter', async ({
 		page,
@@ -32,10 +45,7 @@ test.describe('Keyboard Shortcuts - ctrl_enter_submit', () => {
 		await expect(contact_select.locator('option')).not.toHaveCount(1);
 		await contact_select.selectOption({ index: 2 });
 
-		// Set date to 7 days from now
-		const futureDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
-		const dateString = futureDate.toISOString().slice(0, 16);
-		await page.locator('input[type="datetime-local"]').fill(dateString);
+		await set_future_date(page);
 
 		const textarea = page.getByPlaceholder(
 			/what do you need to follow up about/i,
@@ -61,10 +71,7 @@ test.describe('Keyboard Shortcuts - ctrl_enter_submit', () => {
 		await expect(contact_select.locator('option')).not.toHaveCount(1);
 		await contact_select.selectOption({ index: 2 });
 
-		// Set date to 7 days from now
-		const futureDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
-		const dateString = futureDate.toISOString().slice(0, 16);
-		await page.locator('input[type="datetime-local"]').fill(dateString);
+		await set_future_date(page);
 
 		const textarea = page.getByPlaceholder(
 			/what do you need to follow up about/i,
@@ -118,10 +125,7 @@ test.describe('Keyboard Shortcuts - ctrl_enter_submit', () => {
 		await expect(contact_select.locator('option')).not.toHaveCount(1);
 		await contact_select.selectOption({ index: 2 });
 
-		// Set date to 7 days from now
-		const futureDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
-		const dateString = futureDate.toISOString().slice(0, 16);
-		await page.locator('input[type="datetime-local"]').fill(dateString);
+		await set_future_date(page);
 
 		const textarea = page.getByPlaceholder(
 			/what do you need to follow up about/i,
@@ -279,10 +283,7 @@ test.describe('Keyboard Shortcuts - Cross-Platform', () => {
 		await expect(contact_select.locator('option')).not.toHaveCount(1);
 		await contact_select.selectOption({ index: 2 });
 
-		// Set date to 7 days from now
-		const futureDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
-		const dateString = futureDate.toISOString().slice(0, 16);
-		await page.locator('input[type="datetime-local"]').fill(dateString);
+		await set_future_date(page);
 
 		const textarea = page.getByPlaceholder(
 			/what do you need to follow up about/i,
