@@ -62,11 +62,11 @@ test.describe('Keyboard Shortcuts - ctrl_enter_submit', () => {
 		// Press Ctrl+Enter
 		await textarea.press('Control+Enter');
 
-		// Should navigate to the contact detail page
-		await expect(page).toHaveURL(/\/contacts\//);
+		// Wait for navigation to start
+		await page.waitForURL(/\/contacts\//, { timeout: 5000 });
 	});
 
-	test.skip('should submit follow-up form with Cmd+Enter (Mac)', async ({
+	test('should submit follow-up form with Cmd+Enter (Mac)', async ({
 		page,
 	}) => {
 		await login_as_demo(page);
@@ -227,12 +227,6 @@ test.describe('Keyboard Shortcuts - ctrl_enter_callback', () => {
 			.getByRole('button', { name: /edit/i })
 			.first();
 
-		// Check if there are any interactions to edit
-		const edit_button_count = await edit_button.count();
-		if (edit_button_count === 0) {
-			test.skip();
-			return;
-		}
 
 		await edit_button.click();
 
@@ -301,7 +295,7 @@ test.describe('Keyboard Shortcuts - Cross-Platform', () => {
 		await textarea.press('Control+Enter');
 
 		// Should have submitted and navigated to contact detail page
-		await expect(page).toHaveURL(/\/contacts\//);
+		await page.waitForURL(/\/contacts\//, { timeout: 5000 });
 
 		// Go back and test Meta variant
 		await page.goto('/follow-ups/new');
@@ -312,6 +306,6 @@ test.describe('Keyboard Shortcuts - Cross-Platform', () => {
 		await textarea.press('Meta+Enter');
 
 		// Should have submitted again
-		await expect(page).toHaveURL(/\/contacts\//);
+		await page.waitForURL(/\/contacts\//, { timeout: 5000 });
 	});
 });
