@@ -86,6 +86,12 @@
 					bind:value={edit_state.edit_interaction_note}
 					class="textarea h-24 w-full"
 					placeholder="Add a note..."
+					onkeydown={(e) => {
+						if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+							e.preventDefault();
+							save_edit_interaction();
+						}
+					}}
 				></textarea>
 			</fieldset>
 

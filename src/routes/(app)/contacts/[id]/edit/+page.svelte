@@ -330,6 +330,12 @@
 							value={contact.notes || ''}
 							onblur={(e) =>
 								save_field('notes', e.currentTarget.value, contact)}
+							onkeydown={(e) => {
+								if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+									e.preventDefault();
+									save_field('notes', e.currentTarget.value, contact);
+								}
+							}}
 						></textarea>
 					</fieldset>
 

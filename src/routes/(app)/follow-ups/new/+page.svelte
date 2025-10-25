@@ -95,6 +95,12 @@
 					class="textarea w-full"
 					rows="6"
 					placeholder="What do you need to follow up about?"
+					onkeydown={(e) => {
+						if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+							e.preventDefault();
+							e.currentTarget.form?.requestSubmit();
+						}
+					}}
 				></textarea>
 			</fieldset>
 
