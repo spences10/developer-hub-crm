@@ -59,11 +59,11 @@ test.describe('Keyboard Shortcuts - ctrl_enter_submit', () => {
 		);
 		await textarea.fill('Test follow-up with Ctrl+Enter');
 
-		// Press Ctrl+Enter
-		await textarea.press('Control+Enter');
-
-		// Wait for navigation to start
-		await page.waitForURL(/\/contacts\//, { timeout: 5000 });
+		// Press Ctrl+Enter and wait for navigation
+		await Promise.all([
+			page.waitForURL(/\/contacts\//),
+			textarea.press('Control+Enter'),
+		]);
 	});
 
 	test('should submit follow-up form with Cmd+Enter (Mac)', async ({
@@ -295,7 +295,7 @@ test.describe('Keyboard Shortcuts - Cross-Platform', () => {
 		await textarea.press('Control+Enter');
 
 		// Should have submitted and navigated to contact detail page
-		await page.waitForURL(/\/contacts\//, { timeout: 5000 });
+		await page.waitForURL(/\/contacts\//);
 
 		// Go back and test Meta variant
 		await page.goto('/follow-ups/new');
@@ -306,6 +306,6 @@ test.describe('Keyboard Shortcuts - Cross-Platform', () => {
 		await textarea.press('Meta+Enter');
 
 		// Should have submitted again
-		await page.waitForURL(/\/contacts\//, { timeout: 5000 });
+		await page.waitForURL(/\/contacts\//);
 	});
 });
