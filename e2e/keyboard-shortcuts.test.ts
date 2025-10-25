@@ -40,7 +40,7 @@ async function set_future_date(page: any, days: number = 7) {
 }
 
 test.describe('Keyboard Shortcuts - ctrl_enter_submit', () => {
-	test.skip('should submit follow-up form with Ctrl+Enter', async ({
+	test('should submit follow-up form with Ctrl+Enter', async ({
 		page,
 	}) => {
 		await login_as_demo(page);
@@ -66,7 +66,7 @@ test.describe('Keyboard Shortcuts - ctrl_enter_submit', () => {
 		await expect(page).toHaveURL(/\/contacts\//);
 	});
 
-	test('should submit follow-up form with Cmd+Enter (Mac)', async ({
+	test.skip('should submit follow-up form with Cmd+Enter (Mac)', async ({
 		page,
 	}) => {
 		await login_as_demo(page);
