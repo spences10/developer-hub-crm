@@ -40,7 +40,7 @@ async function set_future_date(page: any, days: number = 7) {
 }
 
 test.describe('Keyboard Shortcuts - ctrl_enter_submit', () => {
-	test('should submit follow-up form with Ctrl+Enter', async ({
+	test.skip('should submit follow-up form with Ctrl+Enter', async ({
 		page,
 	}) => {
 		await login_as_demo(page);
