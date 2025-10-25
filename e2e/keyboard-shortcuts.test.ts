@@ -32,8 +32,10 @@ test.describe('Keyboard Shortcuts - ctrl_enter_submit', () => {
 		await expect(contact_select.locator('option')).not.toHaveCount(1);
 		await contact_select.selectOption({ index: 2 });
 
-		// Wait for date field to be populated (hidden input with timestamp)
-		await expect(page.locator('input[name="due_date"]')).not.toHaveValue('0');
+		// Set date to 7 days from now
+		const futureDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+		const dateString = futureDate.toISOString().slice(0, 16);
+		await page.locator('input[type="datetime-local"]').fill(dateString);
 
 		const textarea = page.getByPlaceholder(
 			/what do you need to follow up about/i,
@@ -59,8 +61,10 @@ test.describe('Keyboard Shortcuts - ctrl_enter_submit', () => {
 		await expect(contact_select.locator('option')).not.toHaveCount(1);
 		await contact_select.selectOption({ index: 2 });
 
-		// Wait for date field to be populated
-		await expect(page.locator('input[name="due_date"]')).not.toHaveValue('0');
+		// Set date to 7 days from now
+		const futureDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+		const dateString = futureDate.toISOString().slice(0, 16);
+		await page.locator('input[type="datetime-local"]').fill(dateString);
 
 		const textarea = page.getByPlaceholder(
 			/what do you need to follow up about/i,
@@ -114,8 +118,10 @@ test.describe('Keyboard Shortcuts - ctrl_enter_submit', () => {
 		await expect(contact_select.locator('option')).not.toHaveCount(1);
 		await contact_select.selectOption({ index: 2 });
 
-		// Wait for date field to be populated
-		await expect(page.locator('input[name="due_date"]')).not.toHaveValue('0');
+		// Set date to 7 days from now
+		const futureDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+		const dateString = futureDate.toISOString().slice(0, 16);
+		await page.locator('input[type="datetime-local"]').fill(dateString);
 
 		const textarea = page.getByPlaceholder(
 			/what do you need to follow up about/i,
@@ -273,8 +279,10 @@ test.describe('Keyboard Shortcuts - Cross-Platform', () => {
 		await expect(contact_select.locator('option')).not.toHaveCount(1);
 		await contact_select.selectOption({ index: 2 });
 
-		// Wait for date field to be populated
-		await expect(page.locator('input[name="due_date"]')).not.toHaveValue('0');
+		// Set date to 7 days from now
+		const futureDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+		const dateString = futureDate.toISOString().slice(0, 16);
+		await page.locator('input[type="datetime-local"]').fill(dateString);
 
 		const textarea = page.getByPlaceholder(
 			/what do you need to follow up about/i,
