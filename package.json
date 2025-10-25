@@ -21,7 +21,7 @@
 		"test:e2e": "playwright test"
 	},
 	"dependencies": {
-		"better-auth": "^1.3.30",
+		"better-auth": "^1.3.31",
 		"better-sqlite3": "^12.4.1",
 		"fathom-client": "^3.7.2",
 		"qr-code-styling": "^1.9.2",
@@ -50,7 +50,7 @@
 		"prettier-plugin-svelte": "^3.4.0",
 		"prettier-plugin-tailwindcss": "^0.7.1",
 		"svead": "^0.0.15",
-		"svelte": "^5.41.4",
+		"svelte": "^5.42.0",
 		"svelte-check": "^4.3.3",
 		"tailwindcss": "^4.1.16",
 		"typescript": "^5.9.3",
