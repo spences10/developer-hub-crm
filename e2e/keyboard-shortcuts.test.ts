@@ -37,11 +37,11 @@ test.describe('Keyboard Shortcuts - ctrl_enter_submit', () => {
 		);
 		await textarea.fill('Test follow-up with Ctrl+Enter');
 
-		// Press Ctrl+Enter and wait for navigation
-		await Promise.all([
-			page.waitForURL(/\/contacts\//),
-			textarea.press('Control+Enter'),
-		]);
+		// Press Ctrl+Enter
+		await textarea.press('Control+Enter');
+
+		// Should navigate to the contact detail page
+		await expect(page).toHaveURL(/\/contacts\//);
 	});
 
 	test('should submit follow-up form with Cmd+Enter (Mac)', async ({
@@ -61,11 +61,11 @@ test.describe('Keyboard Shortcuts - ctrl_enter_submit', () => {
 		);
 		await textarea.fill('Test follow-up with Cmd+Enter');
 
-		// Press Cmd+Enter and wait for navigation
-		await Promise.all([
-			page.waitForURL(/\/contacts\//),
-			textarea.press('Meta+Enter'),
-		]);
+		// Press Cmd+Enter
+		await textarea.press('Meta+Enter');
+
+		// Should navigate to the contact detail page
+		await expect(page).toHaveURL(/\/contacts\//);
 	});
 
 	test('should submit interaction form with Ctrl+Enter', async ({
@@ -90,11 +90,10 @@ test.describe('Keyboard Shortcuts - ctrl_enter_submit', () => {
 		);
 		await textarea.fill('Test interaction with Ctrl+Enter');
 
-		// Press Ctrl+Enter and wait for navigation
-		await Promise.all([
-			page.waitForURL(/\/contacts\//),
-			textarea.press('Control+Enter'),
-		]);
+		await textarea.press('Control+Enter');
+
+		// Should navigate to the contact detail page
+		await expect(page).toHaveURL(/\/contacts\//);
 	});
 
 	test('should allow multiline text with plain Enter', async ({
@@ -271,10 +270,10 @@ test.describe('Keyboard Shortcuts - Cross-Platform', () => {
 
 		// Test Ctrl variant
 		await textarea.fill('Test Ctrl');
-		await Promise.all([
-			page.waitForURL(/\/contacts\//),
-			textarea.press('Control+Enter'),
-		]);
+		await textarea.press('Control+Enter');
+
+		// Should have submitted and navigated to contact detail page
+		await expect(page).toHaveURL(/\/contacts\//);
 
 		// Go back and test Meta variant
 		await page.goto('/follow-ups/new');
@@ -282,9 +281,9 @@ test.describe('Keyboard Shortcuts - Cross-Platform', () => {
 		await contact_select.selectOption({ index: 2 });
 
 		await textarea.fill('Test Meta');
-		await Promise.all([
-			page.waitForURL(/\/contacts\//),
-			textarea.press('Meta+Enter'),
-		]);
+		await textarea.press('Meta+Enter');
+
+		// Should have submitted again
+		await expect(page).toHaveURL(/\/contacts\//);
 	});
 });
