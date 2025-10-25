@@ -27,10 +27,13 @@ test.describe('Keyboard Shortcuts - ctrl_enter_submit', () => {
 
 		await page.goto('/follow-ups/new');
 
-		// Select a contact - wait for options to load first
+		// Wait for form to be fully loaded
 		const contact_select = page.locator('select[name="contact_id"]');
 		await expect(contact_select.locator('option')).not.toHaveCount(1);
 		await contact_select.selectOption({ index: 2 });
+
+		// Wait for date field to be populated (hidden input with timestamp)
+		await expect(page.locator('input[name="due_date"]')).not.toHaveValue('0');
 
 		const textarea = page.getByPlaceholder(
 			/what do you need to follow up about/i,
@@ -51,10 +54,13 @@ test.describe('Keyboard Shortcuts - ctrl_enter_submit', () => {
 
 		await page.goto('/follow-ups/new');
 
-		// Select a contact - wait for options to load first
+		// Wait for form to be fully loaded
 		const contact_select = page.locator('select[name="contact_id"]');
 		await expect(contact_select.locator('option')).not.toHaveCount(1);
 		await contact_select.selectOption({ index: 2 });
+
+		// Wait for date field to be populated
+		await expect(page.locator('input[name="due_date"]')).not.toHaveValue('0');
 
 		const textarea = page.getByPlaceholder(
 			/what do you need to follow up about/i,
@@ -103,10 +109,13 @@ test.describe('Keyboard Shortcuts - ctrl_enter_submit', () => {
 
 		await page.goto('/follow-ups/new');
 
-		// Select a contact - wait for options to load first
+		// Wait for form to be fully loaded
 		const contact_select = page.locator('select[name="contact_id"]');
 		await expect(contact_select.locator('option')).not.toHaveCount(1);
 		await contact_select.selectOption({ index: 2 });
+
+		// Wait for date field to be populated
+		await expect(page.locator('input[name="due_date"]')).not.toHaveValue('0');
 
 		const textarea = page.getByPlaceholder(
 			/what do you need to follow up about/i,
@@ -259,10 +268,13 @@ test.describe('Keyboard Shortcuts - Cross-Platform', () => {
 
 		await page.goto('/follow-ups/new');
 
-		// Select a contact - wait for options to load first
+		// Wait for form to be fully loaded
 		const contact_select = page.locator('select[name="contact_id"]');
 		await expect(contact_select.locator('option')).not.toHaveCount(1);
 		await contact_select.selectOption({ index: 2 });
+
+		// Wait for date field to be populated
+		await expect(page.locator('input[name="due_date"]')).not.toHaveValue('0');
 
 		const textarea = page.getByPlaceholder(
 			/what do you need to follow up about/i,
