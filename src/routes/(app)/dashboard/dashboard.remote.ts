@@ -3,6 +3,7 @@ import { get_current_user_id } from '$lib/server/auth-helpers';
 import { db } from '$lib/server/db';
 import type { FollowUp, Interaction } from '$lib/types/db';
 import { addDays } from 'date-fns';
+import * as v from 'valibot';
 
 export const get_dashboard_stats = query(async () => {
 	const user_id = await get_current_user_id();
@@ -122,3 +123,129 @@ export const get_dashboard_activity = query(async () => {
 		overdue_follow_ups,
 	};
 });
+
+// Dashboard insights from embeddings
+interface InteractionTypeBreakdown {
+	type: string;
+	label: string;
+	count: number;
+	percentage: number;
+}
+
+interface MostActiveContact {
+	contact_id: string;
+	contact_name: string;
+	interaction_count: number;
+	last_interaction_at: number;
+}
+
+interface InteractionInsights {
+	total_interactions: number;
+	interactions_this_month: number;
+	interactions_last_month: number;
+	unique_contacts_this_month: number;
+	type_breakdown: InteractionTypeBreakdown[];
+	most_active_contacts: MostActiveContact[];
+}
+
+interface ReconnectSuggestion {
+	contact_id: string;
+	contact_name: string;
+	days_since_contact: number;
+	reason: string;
+	similarity_score: number;
+}
+
+export const get_dashboard_insights = query(async () => {
+	const user_id = await get_current_user_id();
+
+	const empty_insights: InteractionInsights = {
+		total_interactions: 0,
+		interactions_this_month: 0,
+		interactions_last_month: 0,
+		unique_contacts_this_month: 0,
+		type_breakdown: [],
+		most_active_contacts: [],
+	};
+
+	try {
+		const result = db
+			.prepare(
+				`
+				SELECT network_topics, reconnect_suggestions, last_updated
+				FROM dashboard_insights
+				WHERE user_id = ?
+			`,
+			)
+			.get(user_id) as
+			| {
+					network_topics: string;
+					reconnect_suggestions: string;
+					last_updated: number;
+			  }
+			| undefined;
+
+		if (!result) {
+			return {
+				interaction_insights: empty_insights,
+				reconnect_suggestions: [] as ReconnectSuggestion[],
+				last_updated: null,
+			};
+		}
+
+		return {
+			interaction_insights: JSON.parse(
+				result.network_topics,
+			) as InteractionInsights,
+			reconnect_suggestions: JSON.parse(
+				result.reconnect_suggestions,
+			) as ReconnectSuggestion[],
+			last_updated: result.last_updated,
+		};
+	} catch (error) {
+		console.error('Error getting dashboard insights:', error);
+		return {
+			interaction_insights: empty_insights,
+			reconnect_suggestions: [] as ReconnectSuggestion[],
+			last_updated: null,
+		};
+	}
+});
+
+// Get context for a follow-up (recent interactions with the contact)
+export const get_follow_up_context = query.batch(
+	v.string(),
+	async (contact_ids) => {
+		const context_map = new Map<
+			string,
+			Array<{ note: string; type: string; created_at: number }>
+		>();
+
+		// Get recent interactions for each contact (last 5)
+		for (const contact_id of contact_ids) {
+			const interactions = db
+				.prepare(
+					`
+				SELECT note, type, created_at
+				FROM interactions
+				WHERE contact_id = ?
+				AND note IS NOT NULL
+				AND note != ''
+				ORDER BY created_at DESC
+				LIMIT 5
+			`,
+				)
+				.all(contact_id) as Array<{
+				note: string;
+				type: string;
+				created_at: number;
+			}>;
+
+			context_map.set(contact_id, interactions);
+		}
+
+		return (contact_id: string) => {
+			return context_map.get(contact_id) || [];
+		};
+	},
+);

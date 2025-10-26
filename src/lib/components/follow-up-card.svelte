@@ -13,6 +13,7 @@
 		};
 		date_format: DateFormat;
 		variant?: 'full' | 'compact' | 'dashboard';
+		context?: Array<{ note: string; type: string }>;
 		on_complete?: (id: string) => void;
 		on_reopen?: (id: string) => void;
 		on_delete?: (id: string) => void;
@@ -22,6 +23,7 @@
 		follow_up,
 		date_format,
 		variant = 'full',
+		context,
 		on_complete,
 		on_reopen,
 		on_delete,
@@ -53,6 +55,20 @@
 					<p class="text-sm opacity-80">
 						{follow_up.note}
 					</p>
+				{/if}
+				{#if context && context.length > 0}
+					<div class="mt-2 border-t border-base-300 pt-2">
+						<p class="mb-1 text-xs font-medium opacity-60">
+							Last discussed:
+						</p>
+						<div class="flex flex-wrap gap-1">
+							{#each context.slice(0, 3) as ctx}
+								<span class="badge badge-ghost badge-xs">
+									{ctx.type}
+								</span>
+							{/each}
+						</div>
+					</div>
 				{/if}
 			</div>
 			{#if follow_up.contact_id}
@@ -86,6 +102,15 @@
 						? '...'
 						: ''}
 				</p>
+			{/if}
+			{#if context && context.length > 0}
+				<div class="mt-2 flex flex-wrap gap-1">
+					{#each context.slice(0, 2) as ctx}
+						<span class="badge badge-ghost badge-xs">
+							{ctx.type}
+						</span>
+					{/each}
+				</div>
 			{/if}
 		</a>
 	{:else}

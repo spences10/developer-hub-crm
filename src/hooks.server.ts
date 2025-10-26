@@ -9,12 +9,31 @@ import { seed_demo } from './routes/api/ingest/seed-demo';
 
 const DEMO_USER_EMAIL = env.DEMO_USER_EMAIL || 'demo@devhub.party';
 
-// Initialize schema on startup
+// Initialize schema on startup (gracefully handle errors for columns that don't exist yet)
 const schema = readFileSync('schema.sql', 'utf-8');
-db.exec(schema);
+try {
+	db.exec(schema);
+} catch (error: any) {
+	// Handle errors for indexes on columns that don't exist yet (will be added by migrations)
+	if (error.message?.includes('no such column')) {
+		console.log('⚠️  Schema initialization skipped some indexes (columns will be added by migrations)');
+	} else {
+		throw error;
+	}
+}
 
 // Run any pending migrations
 run_migrations();
+
+// Re-apply schema to create any indexes that were skipped
+try {
+	db.exec(schema);
+} catch (error: any) {
+	// Silently ignore errors on second pass
+	if (!error.message?.includes('no such column') && error.code !== 'SQLITE_ERROR') {
+		console.error('Error re-applying schema:', error);
+	}
+}
 
 // Auto-seed demo account on startup if it doesn't exist
 const demo_user = db

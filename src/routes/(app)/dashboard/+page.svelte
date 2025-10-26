@@ -3,18 +3,21 @@
 	import FollowUpCard from '$lib/components/follow-up-card.svelte';
 	import InteractionCard from '$lib/components/interaction-card.svelte';
 	import PageNav from '$lib/components/page-nav.svelte';
-	import { Cross, Warning } from '$lib/icons';
+	import { Cross, Sparkles, Warning } from '$lib/icons';
 	import { seo_configs } from '$lib/seo';
 	import { Head } from 'svead';
 	import { get_user_preferences } from '../settings/settings.remote';
 	import {
 		get_dashboard_activity,
+		get_dashboard_insights,
 		get_dashboard_stats,
+		get_follow_up_context,
 	} from './dashboard.remote';
 
 	const stats_query = get_dashboard_stats();
 	const activity_query = get_dashboard_activity();
 	const preferences_query = get_user_preferences();
+	const insights_query = get_dashboard_insights();
 </script>
 
 <Head seo_config={seo_configs.dashboard} />
@@ -72,6 +75,174 @@
 	</div>
 {/if}
 
+<!-- AI Insights Section -->
+{#if insights_query.current}
+	{@const insights = insights_query.current}
+	{@const has_insights =
+		insights.interaction_insights.total_interactions > 0 ||
+		insights.reconnect_suggestions.length > 0}
+	{#if has_insights}
+		<div class="mb-8 grid gap-6 lg:grid-cols-2">
+			<!-- Network Activity Widget -->
+			{#if insights.interaction_insights.total_interactions > 0}
+				<div class="card bg-base-100 shadow-xl">
+					<div class="card-body">
+						<div class="mb-4 flex items-center justify-between">
+							<h2 class="card-title">Network Activity</h2>
+							<span class="text-xs opacity-60"> Last 30 days </span>
+						</div>
+
+						<!-- Activity Summary -->
+						<div class="mb-4 grid grid-cols-2 gap-4">
+							<div
+								class="rounded-lg border border-base-300 bg-base-200/50 p-3"
+							>
+								<div class="text-xs opacity-60">This Month</div>
+								<div class="text-2xl font-bold text-primary">
+									{insights.interaction_insights
+										.interactions_this_month}
+								</div>
+								<div class="text-xs">
+									{#if insights.interaction_insights.interactions_last_month > 0}
+										{@const change =
+											insights.interaction_insights
+												.interactions_this_month -
+											insights.interaction_insights
+												.interactions_last_month}
+										{@const percent = Math.round(
+											(change /
+												insights.interaction_insights
+													.interactions_last_month) *
+												100,
+										)}
+										<span
+											class:text-success={change > 0}
+											class:text-error={change < 0}
+										>
+											{change > 0 ? '+' : ''}{percent}% vs last month
+										</span>
+									{:else}
+										interactions
+									{/if}
+								</div>
+							</div>
+							<div
+								class="rounded-lg border border-base-300 bg-base-200/50 p-3"
+							>
+								<div class="text-xs opacity-60">Contacts Engaged</div>
+								<div class="text-2xl font-bold text-secondary">
+									{insights.interaction_insights
+										.unique_contacts_this_month}
+								</div>
+								<div class="text-xs opacity-60">this month</div>
+							</div>
+						</div>
+
+						<!-- Interaction Type Breakdown -->
+						{#if insights.interaction_insights.type_breakdown.length > 0}
+							<div class="mb-3">
+								<div class="mb-2 text-sm font-semibold">
+									Interaction Types
+								</div>
+								<div class="space-y-2">
+									{#each insights.interaction_insights.type_breakdown as type}
+										<div class="flex items-center gap-2">
+											<div class="flex-1">
+												<div
+													class="flex items-center justify-between text-sm"
+												>
+													<span>{type.label}</span>
+													<span class="opacity-60">{type.count}</span>
+												</div>
+												<div
+													class="mt-1 h-2 w-full overflow-hidden rounded-full bg-base-300"
+												>
+													<div
+														class="h-full bg-primary"
+														style="width: {type.percentage}%"
+													></div>
+												</div>
+											</div>
+											<span
+												class="w-10 text-right text-xs font-semibold opacity-60"
+											>
+												{type.percentage}%
+											</span>
+										</div>
+									{/each}
+								</div>
+							</div>
+						{/if}
+
+						<!-- Most Active Contacts -->
+						{#if insights.interaction_insights.most_active_contacts.length > 0}
+							<div>
+								<div class="mb-2 text-sm font-semibold">
+									Most Active
+								</div>
+								<div class="space-y-1">
+									{#each insights.interaction_insights.most_active_contacts.slice(0, 3) as contact}
+										<a
+											href={`/contacts/${contact.contact_id}`}
+											class="flex items-center justify-between rounded-lg border border-base-300 px-3 py-2 text-sm transition-colors hover:border-primary hover:bg-base-200"
+										>
+											<span class="font-medium"
+												>{contact.contact_name}</span
+											>
+											<span class="badge badge-ghost badge-sm">
+												{contact.interaction_count} interaction{contact.interaction_count !==
+												1
+													? 's'
+													: ''}
+											</span>
+										</a>
+									{/each}
+								</div>
+							</div>
+						{/if}
+					</div>
+				</div>
+			{/if}
+
+			<!-- Reconnect Suggestions Widget -->
+			{#if insights.reconnect_suggestions.length > 0}
+				<div class="card bg-base-100 shadow-xl">
+					<div class="card-body">
+						<div class="mb-4 flex items-center justify-between">
+							<h2 class="card-title">Consider Reconnecting</h2>
+							<span class="text-xs opacity-60"> <Sparkles /> </span>
+						</div>
+						<div class="space-y-3">
+							{#each insights.reconnect_suggestions as suggestion}
+								<a
+									href={`/contacts/${suggestion.contact_id}`}
+									class="flex flex-col gap-2 rounded-lg border border-base-300 p-3 transition-colors hover:border-primary hover:bg-base-200"
+								>
+									<div class="flex items-center justify-between">
+										<div class="font-medium">
+											{suggestion.contact_name}
+										</div>
+										<div class="badge badge-ghost badge-sm">
+											{#if suggestion.reason === 'Start building this relationship'}
+												Added {suggestion.days_since_contact} days ago
+											{:else}
+												{suggestion.days_since_contact} days ago
+											{/if}
+										</div>
+									</div>
+									<div class="text-xs opacity-70">
+										{suggestion.reason}
+									</div>
+								</a>
+							{/each}
+						</div>
+					</div>
+				</div>
+			{/if}
+		</div>
+	{/if}
+{/if}
+
 <!-- Activity Section -->
 {#if activity_query.error || preferences_query.error}
 	<div class="alert alert-error">
@@ -111,11 +282,15 @@
 					</div>
 					<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
 						{#each activity.overdue_follow_ups as follow_up}
-							<FollowUpCard
-								{follow_up}
-								date_format={preferences?.date_format ?? 'YYYY-MM-DD'}
-								variant="dashboard"
-							/>
+							{#await get_follow_up_context(follow_up.contact_id) then context}
+								<FollowUpCard
+									{follow_up}
+									date_format={preferences?.date_format ??
+										'YYYY-MM-DD'}
+									variant="dashboard"
+									{context}
+								/>
+							{/await}
 						{/each}
 					</div>
 				</div>
@@ -136,11 +311,15 @@
 				{:else}
 					<div class="space-y-3">
 						{#each activity.upcoming_follow_ups as follow_up}
-							<FollowUpCard
-								{follow_up}
-								date_format={preferences?.date_format ?? 'YYYY-MM-DD'}
-								variant="compact"
-							/>
+							{#await get_follow_up_context(follow_up.contact_id) then context}
+								<FollowUpCard
+									{follow_up}
+									date_format={preferences?.date_format ??
+										'YYYY-MM-DD'}
+									variant="compact"
+									{context}
+								/>
+							{/await}
 						{/each}
 					</div>
 				{/if}
