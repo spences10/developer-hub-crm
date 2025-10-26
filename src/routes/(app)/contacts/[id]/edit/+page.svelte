@@ -11,6 +11,7 @@
 	} from '$lib/components/ui';
 	import { Cancel, Crown } from '$lib/icons';
 	import { ctrl_enter_callback } from '$lib/utils/keyboard-attachments';
+	import { format } from 'date-fns';
 	import { scale } from 'svelte/transition';
 	import {
 		add_tag_to_contact,
@@ -94,8 +95,9 @@
 				undefined,
 			in_network_since:
 				contact_state.in_network_since ??
-				current_contact.in_network_since ??
-				undefined,
+				(current_contact.in_network_since
+					? format(current_contact.in_network_since, 'yyyy-MM-dd')
+					: undefined),
 			notes:
 				contact_state.notes ?? current_contact.notes ?? undefined,
 		};
