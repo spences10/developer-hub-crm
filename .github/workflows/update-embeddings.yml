@@ -1,0 +1,16 @@
+name: Update Embeddings
+
+on:
+  schedule:
+    - cron: '0 2 * * *' # Daily at 02:00 UTC
+  workflow_dispatch: # Manual trigger
+
+jobs:
+  update-embeddings:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Update embeddings for all users
+        run: |
+          curl -X POST https://devhub.party/api/ingest \
+            -H "Content-Type: application/json" \
+            -d '{"task": "update_embeddings", "token": "${{ secrets.INGEST_TOKEN }}"}'

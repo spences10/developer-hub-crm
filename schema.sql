@@ -64,6 +64,7 @@ CREATE TABLE IF NOT EXISTS contacts (
   notes TEXT,
   in_network_since INTEGER,
   last_contacted_at INTEGER,
+  content_hash TEXT,
   created_at INTEGER NOT NULL,
   updated_at INTEGER NOT NULL,
   FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE
@@ -90,6 +91,7 @@ CREATE TABLE IF NOT EXISTS interactions (
   contact_id TEXT NOT NULL,
   type TEXT NOT NULL,
   note TEXT,
+  content_hash TEXT,
   created_at INTEGER NOT NULL,
   updated_at INTEGER NOT NULL,
   FOREIGN KEY (contact_id) REFERENCES contacts(id) ON DELETE CASCADE
@@ -205,10 +207,34 @@ CREATE TABLE IF NOT EXISTS github_following_cache (
   FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE
 );
 
+-- Vector embeddings tables (requires sqlite-vec extension)
+-- Contact embeddings virtual table
+CREATE VIRTUAL TABLE IF NOT EXISTS contact_embeddings USING vec0(
+  contact_id TEXT PRIMARY KEY,
+  embedding FLOAT[1024]
+);
+
+-- Interaction embeddings virtual table
+CREATE VIRTUAL TABLE IF NOT EXISTS interaction_embeddings USING vec0(
+  interaction_id TEXT PRIMARY KEY,
+  embedding FLOAT[1024]
+);
+
+-- Pre-computed dashboard insights cache
+CREATE TABLE IF NOT EXISTS dashboard_insights (
+  user_id TEXT PRIMARY KEY,
+  network_topics TEXT,
+  reconnect_suggestions TEXT,
+  last_updated INTEGER NOT NULL,
+  created_at INTEGER NOT NULL,
+  FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE
+);
+
 -- Indexes for performance
 CREATE INDEX IF NOT EXISTS idx_contacts_user_id ON contacts(user_id);
 CREATE INDEX IF NOT EXISTS idx_contacts_email ON contacts(email);
 CREATE INDEX IF NOT EXISTS idx_contacts_last_contacted ON contacts(last_contacted_at);
+CREATE INDEX IF NOT EXISTS idx_contacts_content_hash ON contacts(content_hash);
 -- Note: idx_contacts_in_network_since created by migration 003
 
 CREATE INDEX IF NOT EXISTS idx_interaction_types_user_id ON interaction_types(user_id);
@@ -217,6 +243,7 @@ CREATE INDEX IF NOT EXISTS idx_interaction_types_display_order ON interaction_ty
 
 CREATE INDEX IF NOT EXISTS idx_interactions_contact_id ON interactions(contact_id);
 CREATE INDEX IF NOT EXISTS idx_interactions_created_at ON interactions(created_at);
+CREATE INDEX IF NOT EXISTS idx_interactions_content_hash ON interactions(content_hash);
 
 CREATE INDEX IF NOT EXISTS idx_follow_ups_contact_id ON follow_ups(contact_id);
 CREATE INDEX IF NOT EXISTS idx_follow_ups_due_date ON follow_ups(due_date);
@@ -240,3 +267,5 @@ CREATE INDEX IF NOT EXISTS idx_profile_views_created_at ON profile_views(created
 
 CREATE INDEX IF NOT EXISTS idx_github_following_cache_user_id ON github_following_cache(user_id);
 CREATE INDEX IF NOT EXISTS idx_github_following_cache_cached_at ON github_following_cache(cached_at);
+
+CREATE INDEX IF NOT EXISTS idx_dashboard_insights_last_updated ON dashboard_insights(last_updated);

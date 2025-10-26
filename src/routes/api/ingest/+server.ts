@@ -1,8 +1,10 @@
 import { env } from '$env/dynamic/private';
 import { json } from '@sveltejs/kit';
 import { backup_database } from './backup-database';
+import { compute_insights } from './compute-insights';
 import { pull_database } from './pull-database';
 import { seed_demo } from './seed-demo';
+import { update_embeddings } from './update-embeddings';
 
 /**
  * === BACKUP DATABASE ===
@@ -28,13 +30,34 @@ import { seed_demo } from './seed-demo';
  curl -X POST https://devhub.party/api/ingest \
    -H "Content-Type: application/json" \
    -d '{"task": "seed_demo", "token": "your-secret-token"}'
+ *
+ * === UPDATE EMBEDDINGS ===
+ *
+ * Generate embeddings for contacts and interactions:
+ *
+ curl -X POST https://devhub.party/api/ingest \
+   -H "Content-Type: application/json" \
+   -d '{"task": "update_embeddings", "token": "your-secret-token"}'
+ *
+ * === COMPUTE INSIGHTS ===
+ *
+ * Compute AI-powered dashboard insights:
+ *
+ curl -X POST https://devhub.party/api/ingest \
+   -H "Content-Type: application/json" \
+   -d '{"task": "compute_insights", "token": "your-secret-token"}'
  */
 
 type TaskFunction<TArgs = any, TResult = any> = (
 	...args: TArgs[]
 ) => Promise<TResult>;
 
-type TaskKey = 'backup_database' | 'pull_database' | 'seed_demo';
+type TaskKey =
+	| 'backup_database'
+	| 'pull_database'
+	| 'seed_demo'
+	| 'update_embeddings'
+	| 'compute_insights';
 
 interface TaskType {
 	[key: string]: {
@@ -56,6 +79,12 @@ const tasks: TaskType = {
 	},
 	seed_demo: {
 		function: seed_demo,
+	},
+	update_embeddings: {
+		function: update_embeddings,
+	},
+	compute_insights: {
+		function: compute_insights,
 	},
 };
 
