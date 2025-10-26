@@ -6,7 +6,7 @@
 	import { Sparkles } from '$lib/icons';
 	import Logo from '$lib/logo.svelte';
 	import { generate_qr_code_data_url } from '$lib/utils/qr-code';
-	import { onMount } from 'svelte';
+	import { onDestroy, onMount } from 'svelte';
 	import { get_current_user, logout } from '../auth.remote';
 	import { ensure_profile, is_demo_user } from './layout.remote';
 	import {
@@ -17,9 +17,52 @@
 
 	let { children } = $props();
 
+	let countdown_text = $state('');
+	let is_warning = $state(false);
+	let countdown_interval: ReturnType<typeof setInterval> | null =
+		null;
+
 	async function handle_logout() {
 		await logout();
 		goto('/login');
+	}
+
+	// Calculate time until next reset (resets at :00 and :30)
+	function calculate_next_reset() {
+		const now = new Date();
+		const current_minutes = now.getMinutes();
+		const next_reset = new Date(now);
+
+		// If current time is before :30, next reset is at :30
+		// If current time is at or after :30, next reset is at :00 of next hour
+		if (current_minutes < 30) {
+			next_reset.setMinutes(30, 0, 0);
+		} else {
+			next_reset.setHours(next_reset.getHours() + 1, 0, 0, 0);
+		}
+
+		return next_reset;
+	}
+
+	// Update countdown display
+	function update_countdown() {
+		const now = new Date();
+		const next_reset = calculate_next_reset();
+		const diff = next_reset.getTime() - now.getTime();
+
+		const minutes = Math.floor(diff / 60000);
+		const seconds = Math.floor((diff % 60000) / 1000);
+
+		// Set warning state when 5 minutes or less remaining
+		is_warning = minutes <= 5;
+
+		if (minutes > 0) {
+			countdown_text = `${minutes} min ${seconds} sec`;
+		} else if (seconds > 0) {
+			countdown_text = `${seconds} sec`;
+		} else {
+			countdown_text = 'now';
+		}
 	}
 
 	// Auto-generate QR code if user doesn't have one
@@ -38,6 +81,16 @@
 		} catch (error) {
 			// Silent fail - users can generate manually in settings
 			console.error('Failed to auto-generate QR code:', error);
+		}
+
+		// Start countdown timer for demo users
+		update_countdown();
+		countdown_interval = setInterval(update_countdown, 1000);
+	});
+
+	onDestroy(() => {
+		if (countdown_interval) {
+			clearInterval(countdown_interval);
 		}
 	});
 </script>
@@ -81,7 +134,7 @@
 								</div>
 								<ul
 									tabindex="0"
-									class="dropdown-content menu z-[1] mt-3 w-52 menu-sm rounded-box bg-base-100 p-2 shadow"
+									class="dropdown-content menu z-1 mt-3 w-52 menu-sm rounded-box bg-base-100 p-2 shadow"
 								>
 									<li class="menu-title">
 										<span>{user.name}</span>
@@ -116,11 +169,23 @@
 									<p class="font-semibold text-info-content">
 										You're in demo mode
 									</p>
-									<p class="text-sm text-info-content opacity-80">
-										Data resets every 6 hours. Create an account to
-										keep your data.
+									<p
+										class="text-sm text-info-content {is_warning
+											? 'font-bold'
+											: 'opacity-80'}"
+									>
+										Resets in
+										<span class="text-warning">
+											{countdown_text}.
+										</span>
+										Create an account to add your own contacts.
 									</p>
 								</div>
+								<Sparkles
+									size="24px"
+									class_names="text-info-content"
+									gradient={true}
+								/>
 							</div>
 							<a
 								href="/register"
