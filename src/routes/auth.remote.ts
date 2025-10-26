@@ -6,6 +6,30 @@ import * as v from 'valibot';
 
 const DEMO_USER_EMAIL = env.DEMO_USER_EMAIL || 'demo@devhub.party';
 const DEMO_PASSWORD = env.DEMO_PASSWORD || 'demo1234567890';
+const TURNSTILE_SECRET_KEY = env.TURNSTILE_SECRET_KEY;
+
+async function verify_turnstile(
+	token: string,
+	ip: string,
+): Promise<boolean> {
+	const response = await fetch(
+		'https://challenges.cloudflare.com/turnstile/v0/siteverify',
+		{
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify({
+				secret: TURNSTILE_SECRET_KEY,
+				response: token,
+				remoteip: ip,
+			}),
+		},
+	);
+
+	const data = await response.json();
+	return data.success === true;
+}
 
 export const register = form(
 	v.object({
@@ -15,9 +39,22 @@ export const register = form(
 			v.string(),
 			v.minLength(8, 'Password must be at least 8 characters'),
 		),
+		turnstile_token: v.string(),
 	}),
-	async ({ name, email, password }) => {
+	async ({ name, email, password, turnstile_token }) => {
 		const event = getRequestEvent();
+		const ip =
+			event.request.headers.get('x-forwarded-for')?.split(',')[0] ||
+			event.request.headers.get('x-real-ip') ||
+			'unknown';
+
+		// Verify Turnstile token
+		const is_valid = await verify_turnstile(turnstile_token, ip);
+		if (!is_valid) {
+			return {
+				error: 'Failed to verify captcha. Please try again.',
+			};
+		}
 
 		try {
 			await auth.api.signUpEmail({
@@ -143,10 +180,23 @@ export const resend_verification_email = command(
 export const forgot_password = form(
 	v.object({
 		email: v.pipe(v.string(), v.email('Invalid email address')),
+		turnstile_token: v.string(),
 	}),
-	async ({ email }) => {
+	async ({ email, turnstile_token }) => {
 		const event = getRequestEvent();
 		const mode = event.url.searchParams.get('mode');
+		const ip =
+			event.request.headers.get('x-forwarded-for')?.split(',')[0] ||
+			event.request.headers.get('x-real-ip') ||
+			'unknown';
+
+		// Verify Turnstile token
+		const is_valid = await verify_turnstile(turnstile_token, ip);
+		if (!is_valid) {
+			return {
+				error: 'Failed to verify captcha. Please try again.',
+			};
+		}
 
 		try {
 			await auth.api.forgetPassword({
