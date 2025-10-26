@@ -2,7 +2,7 @@
 	import type { Snippet } from 'svelte';
 
 	interface Props {
-		legend: string;
+		legend: string | Snippet;
 		helper_text?: string;
 		class_name?: string;
 		children: Snippet;
@@ -22,7 +22,13 @@
 </script>
 
 <fieldset class={computed_classes}>
-	<legend class="fieldset-legend">{legend}</legend>
+	<legend class="fieldset-legend">
+		{#if typeof legend === 'string'}
+			{legend}
+		{:else}
+			{@render legend()}
+		{/if}
+	</legend>
 	{@render children()}
 	{#if helper_text}
 		<p class="label">{helper_text}</p>

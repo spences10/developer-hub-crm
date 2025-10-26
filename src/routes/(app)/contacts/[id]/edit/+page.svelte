@@ -9,8 +9,9 @@
 		Input,
 		Textarea,
 	} from '$lib/components/ui';
-	import { Cancel } from '$lib/icons';
+	import { Cancel, Crown } from '$lib/icons';
 	import { ctrl_enter_callback } from '$lib/utils/keyboard-attachments';
+	import { scale } from 'svelte/transition';
 	import {
 		add_tag_to_contact,
 		create_tag,
@@ -140,12 +141,13 @@
 	</div>
 {:else if contact_query.current}
 	{@const contact = contact_query.current}
+	{@const is_vip = contact_state.is_vip ?? contact.is_vip === 1}
 	{#key contact_id}
 		<div class="card bg-base-100 shadow-xl">
 			<div class="card-body">
 				<div class="space-y-4">
-					<!-- Name & VIP - Two Column Grid -->
-					<div class="grid items-end gap-4 md:grid-cols-2">
+					<!-- Row 1: Name, Email, Phone - Three Column Grid -->
+					<div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
 						<Field legend="Name *">
 							<Input
 								type="text"
@@ -158,22 +160,6 @@
 							/>
 						</Field>
 
-						<div class="pb-2">
-							<Checkbox
-								checked={contact.is_vip === 1}
-								label="Mark as VIP"
-								onchange={(e) =>
-									save_field(
-										'is_vip',
-										e.currentTarget.checked,
-										contact,
-									)}
-							/>
-						</div>
-					</div>
-
-					<!-- Email & Phone - Two Column Grid -->
-					<div class="grid gap-4 md:grid-cols-2">
 						<Field legend="Email">
 							<Input
 								type="email"
@@ -196,8 +182,8 @@
 						</Field>
 					</div>
 
-					<!-- Company & Title - Two Column Grid -->
-					<div class="grid gap-4 md:grid-cols-2">
+					<!-- Row 2: Company, Title, Birthday - Three Column Grid -->
+					<div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
 						<Field legend="Company">
 							<Input
 								type="text"
@@ -221,10 +207,23 @@
 									save_field('title', e.currentTarget.value, contact)}
 							/>
 						</Field>
+
+						<Field legend="Birthday">
+							<Input
+								type="date"
+								value={contact.birthday || ''}
+								onblur={(e) =>
+									save_field(
+										'birthday',
+										e.currentTarget.value,
+										contact,
+									)}
+							/>
+						</Field>
 					</div>
 
-					<!-- GitHub Username & Birthday - Two Column Grid -->
-					<div class="grid gap-4 md:grid-cols-2">
+					<!-- Row 3: GitHub Username, In Network Since, VIP - Three Column Grid -->
+					<div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
 						<Field
 							legend="GitHub Username"
 							helper_text="Enter username without @"
@@ -242,42 +241,54 @@
 							/>
 						</Field>
 
-						<Field legend="Birthday">
+						<Field
+							legend="In Network Since"
+							helper_text="When you first met or added this contact to your network"
+						>
 							<Input
 								type="date"
-								value={contact.birthday || ''}
+								value={contact.in_network_since
+									? new Date(contact.in_network_since)
+											.toISOString()
+											.split('T')[0]
+									: new Date(contact.created_at)
+											.toISOString()
+											.split('T')[0]}
 								onblur={(e) =>
 									save_field(
-										'birthday',
+										'in_network_since',
 										e.currentTarget.value,
 										contact,
 									)}
 							/>
 						</Field>
-					</div>
 
-					<!-- In Network Since - Full Width -->
-					<Field
-						legend="In Network Since"
-						helper_text="When you first met or added this contact to your network"
-					>
-						<Input
-							type="date"
-							value={contact.in_network_since
-								? new Date(contact.in_network_since)
-										.toISOString()
-										.split('T')[0]
-								: new Date(contact.created_at)
-										.toISOString()
-										.split('T')[0]}
-							onblur={(e) =>
-								save_field(
-									'in_network_since',
-									e.currentTarget.value,
-									contact,
-								)}
-						/>
-					</Field>
+						<Field>
+							{#snippet legend()}
+								<span class="inline-flex items-center gap-2">
+									VIP Status
+									{#if is_vip}
+										<span
+											in:scale={{ duration: 300, start: 0.5 }}
+											class="text-warning"
+										>
+											<Crown size="18px" />
+										</span>
+									{/if}
+								</span>
+							{/snippet}
+							<Checkbox
+								checked={is_vip}
+								label="Mark as VIP"
+								onchange={(e) =>
+									save_field(
+										'is_vip',
+										e.currentTarget.checked,
+										contact,
+									)}
+							/>
+						</Field>
+					</div>
 
 					<!-- Notes - Full Width -->
 					<Field legend="Notes">

@@ -10,6 +10,7 @@ export { default as CircleBack } from './circle-back.svelte';
 export { default as ContactBook } from './contact-book.svelte';
 export { default as Contacts } from './contacts.svelte';
 export { default as Cross } from './cross.svelte';
+export { default as Crown } from './crown.svelte';
 export { default as Dashboard } from './dashboard.svelte';
 export { default as DiscoBall } from './disco-ball.svelte';
 export { default as Edit } from './edit.svelte';
