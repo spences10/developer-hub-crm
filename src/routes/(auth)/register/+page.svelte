@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { PUBLIC_TURNSTILE_SITE_KEY } from '$env/static/public';
 	import { auth_client } from '$lib/client/auth';
 	import AuthFeatureCard from '$lib/components/auth-feature-card.svelte';
 	import AuthHeroPanel from '$lib/components/auth-hero-panel.svelte';
@@ -7,7 +8,10 @@
 	import Logo from '$lib/logo.svelte';
 	import { seo_configs } from '$lib/seo';
 	import { Head } from 'svead';
+	import { Turnstile } from 'svelte-turnstile';
 	import { register } from '../../auth.remote';
+
+	let turnstile_token = $state('');
 
 	async function handle_github_signin() {
 		await auth_client.signIn.social({
@@ -146,7 +150,25 @@
 					'Must be at least 8 characters',
 				)}
 
+				<input
+					type="hidden"
+					name="turnstile_token"
+					value={turnstile_token}
+				/>
+
+				<div class="mb-0 flex justify-center">
+					<Turnstile
+						size="flexible"
+						theme="auto"
+						siteKey={PUBLIC_TURNSTILE_SITE_KEY}
+						on:turnstile-callback={(e) => {
+							turnstile_token = e.detail.token;
+						}}
+					/>
+				</div>
+
 				<button
+					disabled={!turnstile_token}
 					class="btn mt-8 btn-block shadow-lg transition-all duration-300 btn-lg btn-primary hover:scale-105 hover:shadow-xl active:scale-95"
 					type="submit"
 				>

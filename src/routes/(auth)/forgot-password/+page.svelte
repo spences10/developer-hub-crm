@@ -1,13 +1,17 @@
 <script lang="ts">
 	import { page } from '$app/state';
+	import { PUBLIC_TURNSTILE_SITE_KEY } from '$env/static/public';
 	import Logo from '$lib/logo.svelte';
 	import { seo_configs } from '$lib/seo';
 	import { Head } from 'svead';
+	import { Turnstile } from 'svelte-turnstile';
 	import { forgot_password } from '../../auth.remote';
 
 	const mode = page.url.searchParams.get('mode');
 	const is_setup = mode === 'setup';
 	const prefilled_email = page.url.searchParams.get('email') || '';
+
+	let turnstile_token = $state('');
 </script>
 
 <Head seo_config={seo_configs.forgotPassword} />
@@ -50,7 +54,28 @@
 		{/if}
 	</fieldset>
 
-	<button class="btn mt-6 btn-block btn-primary" type="submit">
+	<input
+		type="hidden"
+		name="turnstile_token"
+		value={turnstile_token}
+	/>
+
+	<div class="mb-0 flex justify-center">
+		<Turnstile
+			size="flexible"
+			theme="auto"
+			siteKey={PUBLIC_TURNSTILE_SITE_KEY}
+			on:turnstile-callback={(e) => {
+				turnstile_token = e.detail.token;
+			}}
+		/>
+	</div>
+
+	<button
+		disabled={!turnstile_token}
+		class="btn mt-6 btn-block btn-primary"
+		type="submit"
+	>
 		{is_setup ? 'Send setup link' : 'Send reset link'}
 	</button>
 </form>

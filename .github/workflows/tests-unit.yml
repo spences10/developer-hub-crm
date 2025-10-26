@@ -45,3 +45,5 @@ jobs:
         env:
           PUBLIC_FATHOM_ID: test_fathom_id
           PUBLIC_FATHOM_URL: https://test.example.com
+          PUBLIC_TURNSTILE_SITE_KEY: test_turnstile_site_key
+          TURNSTILE_SECRET_KEY: test_turnstile_secret_key
