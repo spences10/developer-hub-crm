@@ -57,6 +57,7 @@ test.describe('Keyboard Shortcuts - ctrl_enter_submit', () => {
 		const textarea = page.getByPlaceholder(
 			/what do you need to follow up about/i,
 		);
+		await textarea.waitFor({ state: 'visible' });
 		await textarea.fill('Test follow-up with Ctrl+Enter');
 
 		// Press Ctrl+Enter and wait for navigation
@@ -83,6 +84,7 @@ test.describe('Keyboard Shortcuts - ctrl_enter_submit', () => {
 		const textarea = page.getByPlaceholder(
 			/what do you need to follow up about/i,
 		);
+		await textarea.waitFor({ state: 'visible' });
 		await textarea.fill('Test follow-up with Cmd+Enter');
 
 		// Press Cmd+Enter
@@ -112,6 +114,7 @@ test.describe('Keyboard Shortcuts - ctrl_enter_submit', () => {
 		const textarea = page.getByPlaceholder(
 			/add any notes about this interaction/i,
 		);
+		await textarea.waitFor({ state: 'visible' });
 		await textarea.fill('Test interaction with Ctrl+Enter');
 
 		await textarea.press('Control+Enter');
@@ -137,6 +140,7 @@ test.describe('Keyboard Shortcuts - ctrl_enter_submit', () => {
 		const textarea = page.getByPlaceholder(
 			/what do you need to follow up about/i,
 		);
+		await textarea.waitFor({ state: 'visible' });
 		await textarea.fill('Line 1');
 		await textarea.press('Enter');
 		await textarea.type('Line 2');
@@ -171,6 +175,7 @@ test.describe('Keyboard Shortcuts - ctrl_enter_callback', () => {
 		const textarea = page.getByPlaceholder(
 			/additional notes about this contact/i,
 		);
+		await textarea.waitFor({ state: 'visible' });
 		const test_note = `Updated note at ${Date.now()}`;
 		await textarea.fill(test_note);
 
@@ -202,6 +207,7 @@ test.describe('Keyboard Shortcuts - ctrl_enter_callback', () => {
 		const textarea = page.getByPlaceholder(
 			/additional notes about this contact/i,
 		);
+		await textarea.waitFor({ state: 'visible' });
 		const test_note = `Updated note with Cmd+Enter at ${Date.now()}`;
 		await textarea.fill(test_note);
 
@@ -227,11 +233,11 @@ test.describe('Keyboard Shortcuts - ctrl_enter_callback', () => {
 			.getByRole('button', { name: /edit/i })
 			.first();
 
-
 		await edit_button.click();
 
 		// Find the textarea in edit mode
 		const textarea = page.getByPlaceholder(/add a note/i);
+		await textarea.waitFor({ state: 'visible' });
 		await textarea.fill('Updated interaction note');
 
 		// Press Ctrl+Enter to save
@@ -262,6 +268,7 @@ test.describe('Keyboard Shortcuts - ctrl_enter_callback', () => {
 		const textarea = page.getByPlaceholder(
 			/additional notes about this contact/i,
 		);
+		await textarea.waitFor({ state: 'visible' });
 		await textarea.fill('Line 1');
 		await textarea.press('Enter');
 		await textarea.type('Line 2');
@@ -289,6 +296,7 @@ test.describe('Keyboard Shortcuts - Cross-Platform', () => {
 		const textarea = page.getByPlaceholder(
 			/what do you need to follow up about/i,
 		);
+		await textarea.waitFor({ state: 'visible' });
 
 		// Test Ctrl variant
 		await textarea.fill('Test Ctrl');

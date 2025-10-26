@@ -11,7 +11,9 @@
  * ```
  */
 
-type AttachmentFn = (element: HTMLElement) => (() => void) | void;
+export type AttachmentFn = (
+	element: HTMLElement,
+) => (() => void) | void;
 
 /**
  * Attachment that submits the parent form when Ctrl+Enter (or Cmd+Enter on Mac) is pressed

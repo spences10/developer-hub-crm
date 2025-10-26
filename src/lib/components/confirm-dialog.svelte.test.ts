@@ -1,6 +1,6 @@
-import { page } from 'vitest/browser';
 import { describe, expect, it, vi } from 'vitest';
 import { render } from 'vitest-browser-svelte';
+import { page } from 'vitest/browser';
 import ConfirmDialog from './confirm-dialog.svelte';
 
 describe('ConfirmDialog', () => {
@@ -82,7 +82,6 @@ describe('ConfirmDialog', () => {
 		const on_confirm = vi.fn(async () => {
 			// Simulate async operation
 			await new Promise((resolve) => setTimeout(resolve, 100));
-			return 'success';
 		});
 
 		render(ConfirmDialog, {
