@@ -1,4 +1,4 @@
-name: Update Embeddings
+name: Update Embeddings & Insights
 
 on:
   schedule:
@@ -6,11 +6,54 @@ on:
   workflow_dispatch: # Manual trigger
 
 jobs:
-  update-embeddings:
+  update-embeddings-and-insights:
     runs-on: ubuntu-latest
     steps:
       - name: Update embeddings for all users
+        id: embeddings
         run: |
-          curl -X POST https://devhub.party/api/ingest \
+          echo "Starting embedding updates..."
+          RESPONSE=$(curl -s -w "\n%{http_code}" -X POST https://devhub.party/api/ingest \
             -H "Content-Type: application/json" \
-            -d '{"task": "update_embeddings", "token": "${{ secrets.INGEST_TOKEN }}"}'
+            -d '{"task": "update_embeddings", "token": "${{ secrets.INGEST_TOKEN }}"}')
+
+          HTTP_CODE=$(echo "$RESPONSE" | tail -n1)
+          BODY=$(echo "$RESPONSE" | sed '$d')
+
+          echo "Response: $BODY"
+
+          if [ "$HTTP_CODE" -ne 200 ]; then
+            echo "::error::Embeddings update failed with status $HTTP_CODE"
+            echo "::error::Response: $BODY"
+            exit 1
+          fi
+
+          echo "✅ Embeddings updated successfully"
+
+      - name: Compute dashboard insights
+        id: insights
+        if: success()
+        run: |
+          echo "Starting insights computation..."
+          RESPONSE=$(curl -s -w "\n%{http_code}" -X POST https://devhub.party/api/ingest \
+            -H "Content-Type: application/json" \
+            -d '{"task": "compute_insights", "token": "${{ secrets.INGEST_TOKEN }}"}')
+
+          HTTP_CODE=$(echo "$RESPONSE" | tail -n1)
+          BODY=$(echo "$RESPONSE" | sed '$d')
+
+          echo "Response: $BODY"
+
+          if [ "$HTTP_CODE" -ne 200 ]; then
+            echo "::error::Insights computation failed with status $HTTP_CODE"
+            echo "::error::Response: $BODY"
+            exit 1
+          fi
+
+          echo "✅ Insights computed successfully"
+
+      - name: Report failure
+        if: failure()
+        run: |
+          echo "::error::Workflow failed - check logs above for details"
+          echo "Failed step: ${{ steps.embeddings.outcome == 'failure' && 'Update embeddings' || 'Compute insights' }}"
