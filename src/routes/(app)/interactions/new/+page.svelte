@@ -2,6 +2,12 @@
 	import { page } from '$app/state';
 	import PageHeaderWithAction from '$lib/components/page-header-with-action.svelte';
 	import PageNav from '$lib/components/page-nav.svelte';
+	import {
+		Button,
+		Field,
+		Select,
+		Textarea,
+	} from '$lib/components/ui';
 	import { ctrl_enter_submit } from '$lib/utils/keyboard-attachments';
 	import { get_contacts } from '../../contacts/contacts.remote';
 	import { get_interaction_types } from '../../settings/interaction-types.remote';
@@ -21,12 +27,10 @@
 {#await get_user_preferences() then preferences}
 	<form {...create_interaction} class="card bg-base-100 shadow-xl">
 		<div class="card-body">
-			<fieldset class="fieldset">
-				<legend class="fieldset-legend">Contact</legend>
+			<Field legend="Contact">
 				{#await get_contacts() then contacts}
-					<select
+					<Select
 						name="contact_id"
-						class="select w-full"
 						required
 						value={preselected_contact_id || ''}
 					>
@@ -39,20 +43,18 @@
 								{/if}
 							</option>
 						{/each}
-					</select>
+					</Select>
 				{/await}
-			</fieldset>
+			</Field>
 
-			<fieldset class="fieldset">
-				<legend class="fieldset-legend">Interaction Type</legend>
+			<Field legend="Interaction Type">
 				{#await interaction_types}
-					<select disabled class="select w-full">
+					<Select disabled>
 						<option>Loading...</option>
-					</select>
+					</Select>
 				{:then types}
-					<select
+					<Select
 						name="type"
-						class="select w-full"
 						required
 						value={preferences.default_interaction_type || ''}
 					>
@@ -60,30 +62,28 @@
 						{#each types as type}
 							<option value={type.value}>{type.label}</option>
 						{/each}
-					</select>
+					</Select>
 				{:catch}
-					<select disabled class="select w-full">
+					<Select disabled>
 						<option>Failed to load types</option>
-					</select>
+					</Select>
 				{/await}
-			</fieldset>
+			</Field>
 
-			<fieldset class="fieldset">
-				<legend class="fieldset-legend">Notes (Optional)</legend>
-				<textarea
+			<Field legend="Notes (Optional)">
+				<Textarea
 					name="note"
-					class="textarea w-full"
-					rows="6"
+					rows={6}
 					placeholder="Add any notes about this interaction..."
-					{@attach ctrl_enter_submit()}
-				></textarea>
-			</fieldset>
+					attachment={ctrl_enter_submit()}
+				/>
+			</Field>
 
 			<div class="card-actions justify-end">
 				<a href="/interactions" class="btn btn-outline">Cancel</a>
-				<button type="submit" class="btn btn-primary">
+				<Button type="submit" variant="primary">
 					Log Interaction
-				</button>
+				</Button>
 			</div>
 		</div>
 	</form>

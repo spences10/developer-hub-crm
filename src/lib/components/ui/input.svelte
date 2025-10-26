@@ -2,15 +2,7 @@
 	import type { AttachmentFn } from '$lib/utils/keyboard-attachments';
 
 	interface Props {
-		type?:
-			| 'text'
-			| 'email'
-			| 'password'
-			| 'tel'
-			| 'date'
-			| 'datetime-local'
-			| 'number'
-			| 'url';
+		type?: string;
 		name?: string;
 		value?: string | number;
 		placeholder?: string;
@@ -22,9 +14,15 @@
 		maxlength?: number;
 		min?: number;
 		max?: number;
-		onblur?: (e: Event) => void;
-		oninput?: (e: Event) => void;
-		onchange?: (e: Event) => void;
+		onblur?: (
+			e: FocusEvent & { currentTarget: HTMLInputElement },
+		) => void;
+		oninput?: (
+			e: Event & { currentTarget: HTMLInputElement },
+		) => void;
+		onchange?: (
+			e: Event & { currentTarget: HTMLInputElement },
+		) => void;
 		attachment?: AttachmentFn;
 	}
 

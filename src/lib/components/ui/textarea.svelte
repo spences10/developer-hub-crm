@@ -10,9 +10,15 @@
 		disabled?: boolean;
 		class_name?: string;
 		maxlength?: number;
-		onblur?: (e: Event) => void;
-		oninput?: (e: Event) => void;
-		onchange?: (e: Event) => void;
+		onblur?: (
+			e: FocusEvent & { currentTarget: HTMLTextAreaElement },
+		) => void;
+		oninput?: (
+			e: Event & { currentTarget: HTMLTextAreaElement },
+		) => void;
+		onchange?: (
+			e: Event & { currentTarget: HTMLTextAreaElement },
+		) => void;
 		attachment?: AttachmentFn;
 	}
 

@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { page } from '$app/state';
 	import { auth_client } from '$lib/client/auth';
+	import { Button, Field, Input } from '$lib/components/ui';
 	import Github from '$lib/icons/github.svelte';
 	import Logo from '$lib/logo.svelte';
 	import { seo_configs } from '$lib/seo';
@@ -39,48 +40,49 @@
 {/if}
 
 <form {...login} class="space-y-4">
-	<fieldset class="fieldset">
-		<legend class="fieldset-legend">Email</legend>
-		<label class="validator input w-full">
-			<input
-				type="email"
-				name="email"
-				placeholder="Email"
-				class="grow"
-				required
-			/>
-		</label>
-	</fieldset>
+	<Field legend="Email">
+		<Input
+			type="email"
+			name="email"
+			placeholder="Email"
+			required
+			validator
+		/>
+	</Field>
 
-	<fieldset class="fieldset">
-		<legend class="fieldset-legend">Password</legend>
-		<label class="validator input w-full">
-			<input
-				type="password"
-				name="password"
-				placeholder="Password"
-				class="grow"
-				required
-				minlength="8"
-			/>
-		</label>
-	</fieldset>
+	<Field legend="Password">
+		<Input
+			type="password"
+			name="password"
+			placeholder="Password"
+			required
+			validator
+			minlength={8}
+		/>
+	</Field>
 
-	<button class="btn mt-6 btn-block btn-primary" type="submit">
+	<Button
+		type="submit"
+		variant="primary"
+		size="block"
+		class_name="mt-6"
+	>
 		Login
-	</button>
+	</Button>
 </form>
 
 <div class="divider">or</div>
 
-<button
+<Button
 	onclick={handle_github_signin}
-	class="btn btn-block gap-2 btn-outline"
 	type="button"
+	variant="outline"
+	size="block"
+	class_name="gap-2"
 >
 	<Github size="20px" />
 	Continue with GitHub
-</button>
+</Button>
 
 <div class="divider"></div>
 

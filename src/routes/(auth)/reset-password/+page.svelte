@@ -1,8 +1,9 @@
 <script lang="ts">
 	import { page } from '$app/state';
-	import { Head } from 'svead';
+	import { Button, Field, Input } from '$lib/components/ui';
 	import Logo from '$lib/logo.svelte';
 	import { seo_configs } from '$lib/seo';
+	import { Head } from 'svead';
 	import { reset_password } from '../../auth.remote';
 
 	// Get token from URL query parameter
@@ -39,24 +40,28 @@
 	<form {...reset_password} class="space-y-4">
 		<input type="hidden" name="token" value={token} />
 
-		<fieldset class="fieldset">
-			<legend class="fieldset-legend">New Password</legend>
-			<label class="validator input w-full">
-				<input
-					type="password"
-					name="password"
-					placeholder="New password"
-					class="grow"
-					required
-					minlength="8"
-				/>
-			</label>
-			<p class="label">Must be at least 8 characters</p>
-		</fieldset>
+		<Field
+			legend="New Password"
+			helper_text="Must be at least 8 characters"
+		>
+			<Input
+				type="password"
+				name="password"
+				placeholder="New password"
+				required
+				validator
+				minlength={8}
+			/>
+		</Field>
 
-		<button class="btn mt-6 btn-block btn-primary" type="submit">
+		<Button
+			type="submit"
+			variant="primary"
+			size="block"
+			class_name="mt-6"
+		>
 			Reset password
-		</button>
+		</Button>
 	</form>
 
 	<div class="divider">or</div>

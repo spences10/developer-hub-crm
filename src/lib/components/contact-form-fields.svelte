@@ -1,4 +1,11 @@
 <script lang="ts">
+	import {
+		Checkbox,
+		Field,
+		Input,
+		Textarea,
+	} from '$lib/components/ui';
+
 	type Props = {
 		name?: string;
 		email?: string;
@@ -26,128 +33,89 @@
 
 <!-- Name & VIP - Two Column Grid -->
 <div class="grid items-end gap-4 md:grid-cols-2">
-	<fieldset class="fieldset">
-		<legend class="fieldset-legend">Name *</legend>
-		<label class="validator input w-full">
-			<input
-				type="text"
-				name="name"
-				value={name}
-				placeholder="John Doe"
-				class="grow"
-				required
-			/>
-		</label>
-	</fieldset>
+	<Field legend="Name *">
+		<Input
+			type="text"
+			name="name"
+			value={name}
+			placeholder="John Doe"
+			required
+			validator
+		/>
+	</Field>
 
 	<div class="pb-2">
-		<label class="flex cursor-pointer items-center gap-2">
-			<input
-				type="checkbox"
-				name="is_vip"
-				checked={is_vip}
-				class="checkbox"
-			/>
-			<span>Mark as VIP</span>
-		</label>
+		<Checkbox name="is_vip" checked={is_vip} label="Mark as VIP" />
 	</div>
 </div>
 
 <!-- Email & Phone - Two Column Grid -->
 <div class="grid gap-4 md:grid-cols-2">
-	<fieldset class="fieldset">
-		<legend class="fieldset-legend">Email</legend>
-		<label class="validator input w-full">
-			<input
-				type="email"
-				name="email"
-				value={email}
-				placeholder="Email"
-				class="grow"
-			/>
-		</label>
-	</fieldset>
+	<Field legend="Email">
+		<Input
+			type="email"
+			name="email"
+			value={email}
+			placeholder="Email"
+			validator
+		/>
+	</Field>
 
-	<fieldset class="fieldset">
-		<legend class="fieldset-legend">Phone</legend>
-		<label class="input w-full">
-			<input
-				type="tel"
-				name="phone"
-				value={phone}
-				placeholder="+1 (555) 123-4567"
-				class="grow"
-			/>
-		</label>
-	</fieldset>
+	<Field legend="Phone">
+		<Input
+			type="tel"
+			name="phone"
+			value={phone}
+			placeholder="+1 (555) 123-4567"
+		/>
+	</Field>
 </div>
 
 <!-- Company & Title - Two Column Grid -->
 <div class="grid gap-4 md:grid-cols-2">
-	<fieldset class="fieldset">
-		<legend class="fieldset-legend">Company</legend>
-		<label class="input w-full">
-			<input
-				type="text"
-				name="company"
-				value={company}
-				placeholder="Acme Inc."
-				class="grow"
-			/>
-		</label>
-	</fieldset>
+	<Field legend="Company">
+		<Input
+			type="text"
+			name="company"
+			value={company}
+			placeholder="Acme Inc."
+		/>
+	</Field>
 
-	<fieldset class="fieldset">
-		<legend class="fieldset-legend">Title</legend>
-		<label class="input w-full">
-			<input
-				type="text"
-				name="title"
-				value={title}
-				placeholder="Senior Developer"
-				class="grow"
-			/>
-		</label>
-	</fieldset>
+	<Field legend="Title">
+		<Input
+			type="text"
+			name="title"
+			value={title}
+			placeholder="Senior Developer"
+		/>
+	</Field>
 </div>
 
 <!-- GitHub Username & Birthday - Two Column Grid -->
 <div class="grid gap-4 md:grid-cols-2">
-	<fieldset class="fieldset">
-		<legend class="fieldset-legend">GitHub Username</legend>
-		<label class="input w-full">
-			<input
-				type="text"
-				name="github_username"
-				value={github_username}
-				placeholder="octocat"
-				class="grow"
-			/>
-		</label>
-		<p class="label">Enter username without @</p>
-	</fieldset>
+	<Field
+		legend="GitHub Username"
+		helper_text="Enter username without @"
+	>
+		<Input
+			type="text"
+			name="github_username"
+			value={github_username}
+			placeholder="octocat"
+		/>
+	</Field>
 
-	<fieldset class="fieldset">
-		<legend class="fieldset-legend">Birthday</legend>
-		<label class="input w-full">
-			<input
-				type="date"
-				name="birthday"
-				value={birthday}
-				class="grow"
-			/>
-		</label>
-	</fieldset>
+	<Field legend="Birthday">
+		<Input type="date" name="birthday" value={birthday} />
+	</Field>
 </div>
 
 <!-- Notes - Full Width -->
-<fieldset class="fieldset">
-	<legend class="fieldset-legend">Notes</legend>
-	<textarea
+<Field legend="Notes">
+	<Textarea
 		name="notes"
-		class="textarea w-full"
-		rows="4"
-		placeholder="Additional notes about this contact..."
 		value={notes}
-	></textarea>
-</fieldset>
+		placeholder="Additional notes about this contact..."
+	/>
+</Field>

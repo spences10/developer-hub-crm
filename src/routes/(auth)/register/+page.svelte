@@ -3,6 +3,7 @@
 	import { auth_client } from '$lib/client/auth';
 	import AuthFeatureCard from '$lib/components/auth-feature-card.svelte';
 	import AuthHeroPanel from '$lib/components/auth-hero-panel.svelte';
+	import { Button, Field, Input } from '$lib/components/ui';
 	import { CheckCircleFill } from '$lib/icons';
 	import Github from '$lib/icons/github.svelte';
 	import Logo from '$lib/logo.svelte';
@@ -109,26 +110,17 @@
 				placeholder: string,
 				hint?: string,
 			)}
-				<fieldset class="fieldset">
-					<legend class="fieldset-legend font-semibold"
-						>{label}</legend
-					>
-					<label
-						class="validator input w-full shadow-sm transition-all duration-300 focus-within:scale-[1.02] focus-within:shadow-md focus-within:ring-2 focus-within:ring-primary/20"
-					>
-						<input
-							{type}
-							{name}
-							{placeholder}
-							class="grow"
-							required
-							minlength={type === 'password' ? 8 : undefined}
-						/>
-					</label>
-					{#if hint}
-						<p class="label text-base-content/60">{hint}</p>
-					{/if}
-				</fieldset>
+				<Field legend={label} helper_text={hint}>
+					<Input
+						{type}
+						{name}
+						{placeholder}
+						required
+						validator
+						class_name="shadow-sm transition-all duration-300 focus:scale-[1.02] focus:shadow-md focus:ring-2 focus:ring-primary/20"
+						minlength={type === 'password' ? 8 : undefined}
+					/>
+				</Field>
 			{/snippet}
 
 			<form
@@ -167,13 +159,15 @@
 					/>
 				</div>
 
-				<button
+				<Button
 					disabled={!turnstile_token}
-					class="btn mt-8 btn-block shadow-lg transition-all duration-300 btn-lg btn-primary hover:scale-105 hover:shadow-xl active:scale-95"
 					type="submit"
+					variant="primary"
+					size="lg"
+					class_name="btn-block mt-8 shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-xl active:scale-95"
 				>
 					Create Account
-				</button>
+				</Button>
 			</form>
 
 			<div
@@ -182,14 +176,16 @@
 				or
 			</div>
 
-			<button
+			<Button
 				onclick={handle_github_signin}
 				type="button"
-				class="animate-fade-in-up stagger-3 btn btn-block gap-2 opacity-0 transition-all duration-300 btn-outline hover:scale-105 hover:shadow-lg active:scale-95"
+				variant="outline"
+				size="block"
+				class_name="animate-fade-in-up stagger-3 gap-2 opacity-0 transition-all duration-300 hover:scale-105 hover:shadow-lg active:scale-95"
 			>
 				<Github size="20px" />
 				Continue with GitHub
-			</button>
+			</Button>
 
 			<div
 				class="animate-fade-in stagger-4 divider text-base-content/40 opacity-0"
