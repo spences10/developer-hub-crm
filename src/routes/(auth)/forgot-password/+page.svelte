@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { page } from '$app/state';
 	import { PUBLIC_TURNSTILE_SITE_KEY } from '$env/static/public';
+	import { Button, Field, Input } from '$lib/components/ui';
 	import Logo from '$lib/logo.svelte';
 	import { seo_configs } from '$lib/seo';
 	import { Head } from 'svead';
@@ -33,26 +34,22 @@
 </p>
 
 <form {...forgot_password} class="space-y-4">
-	<fieldset class="fieldset">
-		<legend class="fieldset-legend">Email</legend>
-		<label class="validator input w-full">
-			<input
-				type="email"
-				name="email"
-				placeholder="Email"
-				class="grow"
-				value={prefilled_email}
-				readonly={is_setup && !!prefilled_email}
-				required
-			/>
-		</label>
-		{#if is_setup && prefilled_email}
-			<p class="mt-1 text-xs opacity-60">
-				To use a different email, update it in your profile settings
-				first.
-			</p>
-		{/if}
-	</fieldset>
+	<Field
+		legend="Email"
+		helper_text={is_setup && prefilled_email
+			? 'To use a different email, update it in your profile settings first.'
+			: ''}
+	>
+		<Input
+			type="email"
+			name="email"
+			placeholder="Email"
+			value={prefilled_email}
+			disabled={is_setup && !!prefilled_email}
+			required
+			validator
+		/>
+	</Field>
 
 	<input
 		type="hidden"
@@ -71,13 +68,15 @@
 		/>
 	</div>
 
-	<button
+	<Button
 		disabled={!turnstile_token}
-		class="btn mt-6 btn-block btn-primary"
 		type="submit"
+		variant="primary"
+		size="block"
+		class_name="mt-6"
 	>
 		{is_setup ? 'Send setup link' : 'Send reset link'}
-	</button>
+	</Button>
 </form>
 
 <div class="divider">or</div>

@@ -2,6 +2,13 @@
 	import { page } from '$app/state';
 	import PageHeaderWithAction from '$lib/components/page-header-with-action.svelte';
 	import PageNav from '$lib/components/page-nav.svelte';
+	import {
+		Button,
+		Field,
+		Input,
+		Select,
+		Textarea,
+	} from '$lib/components/ui';
 	import { ctrl_enter_submit } from '$lib/utils/keyboard-attachments';
 	import { addDays, format, setHours, startOfDay } from 'date-fns';
 	import { get_contacts } from '../../contacts/contacts.remote';
@@ -51,12 +58,10 @@
 
 	<form {...create_follow_up} class="card bg-base-100 shadow-xl">
 		<div class="card-body">
-			<fieldset class="fieldset">
-				<legend class="fieldset-legend">Contact</legend>
+			<Field legend="Contact">
 				{#await get_contacts() then contacts}
-					<select
+					<Select
 						name="contact_id"
-						class="select w-full"
 						required
 						value={preselected_contact_id || ''}
 					>
@@ -69,42 +74,37 @@
 								{/if}
 							</option>
 						{/each}
-					</select>
+					</Select>
 				{/await}
-			</fieldset>
+			</Field>
 
-			<fieldset class="fieldset">
-				<legend class="fieldset-legend">Due Date</legend>
-				<label class="input w-full">
-					<input
-						type="datetime-local"
-						required
-						value={date_input_value}
-						oninput={handle_date_change}
-					/>
-				</label>
+			<Field
+				legend="Due Date"
+				helper_text="When do you want to follow up with this contact?"
+			>
+				<Input
+					type="datetime-local"
+					required
+					value={date_input_value}
+					oninput={handle_date_change}
+				/>
 				<input type="hidden" name="due_date" value={timestamp} />
-				<p class="mt-1 text-sm opacity-60">
-					When do you want to follow up with this contact?
-				</p>
-			</fieldset>
+			</Field>
 
-			<fieldset class="fieldset">
-				<legend class="fieldset-legend">Notes (Optional)</legend>
-				<textarea
+			<Field legend="Notes (Optional)">
+				<Textarea
 					name="note"
-					class="textarea w-full"
-					rows="6"
+					rows={6}
 					placeholder="What do you need to follow up about?"
-					{@attach ctrl_enter_submit()}
-				></textarea>
-			</fieldset>
+					attachment={ctrl_enter_submit()}
+				/>
+			</Field>
 
 			<div class="card-actions justify-end">
 				<a href="/follow-ups" class="btn btn-outline">Cancel</a>
-				<button type="submit" class="btn btn-primary">
+				<Button type="submit" variant="primary">
 					Create Follow-up
-				</button>
+				</Button>
 			</div>
 		</div>
 	</form>

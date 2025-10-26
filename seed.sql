@@ -17,7 +17,7 @@
 -- Create contacts (using first user in database)
 INSERT INTO contacts (id, user_id, name, email, phone, company, title, github_username, is_vip, birthday, notes, last_contacted_at, created_at, updated_at) VALUES
 -- VIP contacts
-('contact_001', (SELECT id FROM user LIMIT 1), 'Sarah Chen', 'sarah.chen@techcorp.io', '+1-555-0101', 'TechCorp', 'VP of Engineering', 'sarahchen', 1, '1988-03-15', 'Met at SvelteConf 2024. Very interested in our developer tools. Key decision maker.', CAST(strftime('%s', 'now', '-3 days') AS INTEGER) * 1000, CAST(strftime('%s', 'now', '-180 days') AS INTEGER) * 1000, CAST(strftime('%s', 'now', '-3 days') AS INTEGER) * 1000),
+('contact_001', (SELECT id FROM user LIMIT 1), 'Sarah Chen', 'sarah.chen@techcorp.io', '+1-555-0101', 'TechCorp', 'VP of Engineering', 'sarahchen', 1, '1988-03-15', 'Met at Svelte Summit 2025. Very interested in our developer tools. Key decision maker.', CAST(strftime('%s', 'now', '-3 days') AS INTEGER) * 1000, CAST(strftime('%s', 'now', '-180 days') AS INTEGER) * 1000, CAST(strftime('%s', 'now', '-3 days') AS INTEGER) * 1000),
 ('contact_002', (SELECT id FROM user LIMIT 1), 'Marcus Rodriguez', 'marcus@startupxyz.com', '+1-555-0102', 'StartupXYZ', 'CTO & Co-founder', 'mrodriguez', 1, '1985-07-22', 'Early adopter. Loves open source. Invested in developer experience.', CAST(strftime('%s', 'now', '-5 days') AS INTEGER) * 1000, CAST(strftime('%s', 'now', '-170 days') AS INTEGER) * 1000, CAST(strftime('%s', 'now', '-5 days') AS INTEGER) * 1000),
 ('contact_003', (SELECT id FROM user LIMIT 1), 'Emily Watson', 'e.watson@megadev.com', '+1-555-0103', 'MegaDev Solutions', 'Senior Engineering Manager', 'emilyw', 1, '1990-11-08', 'Leading a team of 25 devs. Looking to improve team collaboration tools.', CAST(strftime('%s', 'now', '-8 days') AS INTEGER) * 1000, CAST(strftime('%s', 'now', '-160 days') AS INTEGER) * 1000, CAST(strftime('%s', 'now', '-8 days') AS INTEGER) * 1000),
 
@@ -218,7 +218,7 @@ INSERT INTO tags (id, user_id, name, color, created_at, updated_at) VALUES
 ('tag_003', (SELECT id FROM user LIMIT 1), 'Exploring', '#3b82f6', CAST(strftime('%s', 'now', '-180 days') AS INTEGER) * 1000, CAST(strftime('%s', 'now', '-180 days') AS INTEGER) * 1000),
 
 -- Conference tags
-('tag_004', (SELECT id FROM user LIMIT 1), 'SvelteConf 2024', '#ff3e00', CAST(strftime('%s', 'now', '-180 days') AS INTEGER) * 1000, CAST(strftime('%s', 'now', '-180 days') AS INTEGER) * 1000),
+('tag_004', (SELECT id FROM user LIMIT 1), 'Svelte Summit 2025', '#ff3e00', CAST(strftime('%s', 'now', '-180 days') AS INTEGER) * 1000, CAST(strftime('%s', 'now', '-180 days') AS INTEGER) * 1000),
 ('tag_005', (SELECT id FROM user LIMIT 1), 'KubeCon', '#326ce5', CAST(strftime('%s', 'now', '-150 days') AS INTEGER) * 1000, CAST(strftime('%s', 'now', '-150 days') AS INTEGER) * 1000),
 ('tag_006', (SELECT id FROM user LIMIT 1), 'Conference', '#a855f7', CAST(strftime('%s', 'now', '-120 days') AS INTEGER) * 1000, CAST(strftime('%s', 'now', '-120 days') AS INTEGER) * 1000),
 
@@ -246,7 +246,7 @@ INSERT INTO tags (id, user_id, name, color, created_at, updated_at) VALUES
 INSERT INTO contact_tags (id, contact_id, tag_id, created_at) VALUES
 -- Sarah Chen (VIP, Enterprise, Leadership, Conference)
 ('ct_001', 'contact_001', 'tag_001', CAST(strftime('%s', 'now', '-180 days') AS INTEGER) * 1000), -- Hot Lead
-('ct_002', 'contact_001', 'tag_004', CAST(strftime('%s', 'now', '-180 days') AS INTEGER) * 1000), -- SvelteConf 2024
+('ct_002', 'contact_001', 'tag_004', CAST(strftime('%s', 'now', '-180 days') AS INTEGER) * 1000), -- Svelte Summit 2025
 ('ct_003', 'contact_001', 'tag_008', CAST(strftime('%s', 'now', '-180 days') AS INTEGER) * 1000), -- Enterprise
 ('ct_004', 'contact_001', 'tag_009', CAST(strftime('%s', 'now', '-180 days') AS INTEGER) * 1000), -- Leadership
 ('ct_005', 'contact_001', 'tag_015', CAST(strftime('%s', 'now', '-180 days') AS INTEGER) * 1000), -- Frontend

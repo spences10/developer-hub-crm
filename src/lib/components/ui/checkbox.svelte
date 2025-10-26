@@ -5,7 +5,9 @@
 		disabled?: boolean;
 		class_name?: string;
 		label?: string;
-		onchange?: (e: Event) => void;
+		onchange?: (
+			e: Event & { currentTarget: HTMLInputElement },
+		) => void;
 	}
 
 	let {
