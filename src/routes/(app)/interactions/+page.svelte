@@ -19,6 +19,7 @@
 	import {
 		delete_interaction,
 		get_all_interactions,
+		get_interactions,
 		update_interaction,
 	} from './interactions.remote';
 
@@ -76,20 +77,21 @@
 		if (!edit_interaction_id || !edit_contact_id) return;
 
 		const interaction_id = edit_interaction_id;
+		const contact_id = edit_contact_id;
 
-		// Call the command
+		// Call the command and refresh relevant queries
 		await update_interaction({
 			id: interaction_id,
 			type: edit_type,
 			note: edit_note,
-		});
+		}).updates(
+			get_all_interactions(search),
+			get_interactions(contact_id),
+		);
 
-		// Close edit mode FIRST
+		// Close edit mode AFTER we schedule refreshes
 		edit_interaction_id = null;
 		edit_contact_id = null;
-
-		// THEN refresh the query (data will update in place)
-		await interactions_query.refresh();
 	}
 
 	function cancel_edit() {
@@ -108,11 +110,14 @@
 	async function confirm_delete() {
 		if (!delete_confirmation_id || !delete_contact_id) return;
 
-		// Call the command
-		await delete_interaction(delete_confirmation_id);
+		const interaction_id = delete_confirmation_id;
+		const contact_id = delete_contact_id;
 
-		// Then refresh the query
-		await interactions_query.refresh();
+		// Call the command and refresh relevant queries
+		await delete_interaction(interaction_id).updates(
+			get_all_interactions(search),
+			get_interactions(contact_id),
+		);
 
 		delete_confirmation_id = null;
 		delete_contact_id = null;

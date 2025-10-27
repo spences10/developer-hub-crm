@@ -8,6 +8,10 @@ import { db } from '$lib/server/db';
 import type { Interaction } from '$lib/types/db';
 import { redirect } from '@sveltejs/kit';
 import * as v from 'valibot';
+import {
+	get_dashboard_activity,
+	get_dashboard_stats,
+} from '../dashboard/dashboard.remote';
 
 /**
  * Get all interactions for a specific contact
@@ -174,6 +178,13 @@ export const create_interaction = guarded_form(
 
 		transaction();
 
+		// Single-flight mutation: refresh related queries
+		await get_interactions(data.contact_id).refresh();
+		await get_all_interactions('').refresh();
+		await get_recent_interactions().refresh();
+		await get_dashboard_activity().refresh();
+		await get_dashboard_stats().refresh();
+
 		redirect(303, `/contacts/${data.contact_id}`);
 	},
 );
@@ -217,7 +228,13 @@ export const update_interaction = guarded_command(
 
 		stmt.run(data.type, data.note || null, Date.now(), data.id);
 
-		// Client will handle refresh via .updates()
+		// Single-flight mutation: refresh related queries
+		await get_interactions(interaction.contact_id).refresh();
+		await get_all_interactions('').refresh();
+		await get_recent_interactions().refresh();
+		await get_dashboard_activity().refresh();
+		await get_dashboard_stats().refresh();
+
 		return { success: true };
 	},
 );
@@ -254,7 +271,13 @@ export const delete_interaction = guarded_command(
 
 		stmt.run(id);
 
-		// Client will handle refresh via .updates()
+		// Single-flight mutation: refresh related queries
+		await get_interactions(interaction.contact_id).refresh();
+		await get_all_interactions('').refresh();
+		await get_recent_interactions().refresh();
+		await get_dashboard_activity().refresh();
+		await get_dashboard_stats().refresh();
+
 		return { success: true };
 	},
 );
