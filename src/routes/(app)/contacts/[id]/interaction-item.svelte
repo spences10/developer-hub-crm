@@ -1,5 +1,6 @@
 <script lang="ts">
 	import ActivityCard from '$lib/components/activity-card.svelte';
+	import { Button } from '$lib/components/ui';
 	import { Edit, Trash } from '$lib/icons';
 	import {
 		cancel_delete_interaction,
@@ -87,23 +88,27 @@
 					bind:value={edit_state.edit_interaction_note}
 					class="textarea h-24 w-full"
 					placeholder="Add a note..."
-					{@attach ctrl_enter_callback(() => save_edit_interaction())}
+					{@attach ctrl_enter_callback(() =>
+						save_edit_interaction(contact_id),
+					)}
 				></textarea>
 			</fieldset>
 
 			<div class="flex justify-end gap-2">
-				<button
-					class="btn btn-ghost btn-sm"
+				<Button
+					variant="ghost"
+					size="sm"
 					onclick={cancel_edit_interaction}
 				>
 					Cancel
-				</button>
-				<button
-					class="btn btn-sm btn-primary"
-					onclick={save_edit_interaction}
+				</Button>
+				<Button
+					variant="primary"
+					size="sm"
+					onclick={() => save_edit_interaction(contact_id)}
 				>
 					Save
-				</button>
+				</Button>
 			</div>
 		</div>
 	</div>
@@ -121,21 +126,25 @@
 		note={interaction.note}
 		show_delete_confirmation={edit_state.delete_interaction_id ===
 			interaction.id}
-		on_confirm_delete={confirm_delete_interaction}
+		on_confirm_delete={() => confirm_delete_interaction(contact_id)}
 		on_cancel_delete={cancel_delete_interaction}
 	>
 		{#snippet action_buttons()}
-			<button
-				class="btn gap-0 btn-ghost btn-xs lg:gap-1"
+			<Button
+				variant="ghost"
+				size="xs"
+				class="gap-0 lg:gap-1"
 				aria-label="Edit interaction"
 				onclick={(e) =>
 					handle_edit_interaction_click(e as MouseEvent, interaction)}
 			>
 				<Edit size="16px" />
 				<span class="hidden lg:inline">Edit</span>
-			</button>
-			<button
-				class="btn gap-0 text-error btn-ghost btn-xs lg:gap-1"
+			</Button>
+			<Button
+				variant="ghost"
+				size="xs"
+				class="gap-0 text-error lg:gap-1"
 				aria-label="Delete interaction"
 				onclick={(e) =>
 					handle_delete_interaction_click(
@@ -145,7 +154,7 @@
 			>
 				<Trash size="16px" />
 				<span class="hidden lg:inline">Delete</span>
-			</button>
+			</Button>
 		{/snippet}
 	</ActivityCard>
 {/if}

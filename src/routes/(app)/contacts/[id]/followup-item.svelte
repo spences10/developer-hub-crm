@@ -1,21 +1,22 @@
 <script lang="ts">
 	import ActivityCard from '$lib/components/activity-card.svelte';
+	import { Button } from '$lib/components/ui';
 	import { Calendar, Check, Edit, Trash } from '$lib/icons';
 	import {
+		cancel_delete_follow_up,
+		cancel_edit_follow_up,
+		confirm_delete_follow_up,
 		edit_state,
 		handle_complete_follow_up,
 		handle_delete_follow_up_click,
 		handle_edit_follow_up_click,
 		save_edit_follow_up,
-		cancel_edit_follow_up,
-		confirm_delete_follow_up,
-		cancel_delete_follow_up,
 	} from '$lib/state/contact-edit-state.svelte';
+	import type { FollowUp, UserPreferences } from '$lib/types/db';
 	import {
 		format_due_date,
 		is_overdue,
 	} from '$lib/utils/date-helpers';
-	import type { FollowUp, UserPreferences } from '$lib/types/db';
 
 	interface Props {
 		follow_up: FollowUp;
@@ -65,18 +66,20 @@
 			</fieldset>
 
 			<div class="flex justify-end gap-2">
-				<button
-					class="btn btn-ghost btn-sm"
+				<Button
+					variant="ghost"
+					size="sm"
 					onclick={cancel_edit_follow_up}
 				>
 					Cancel
-				</button>
-				<button
-					class="btn btn-sm btn-primary"
-					onclick={save_edit_follow_up}
+				</Button>
+				<Button
+					variant="primary"
+					size="sm"
+					onclick={() => save_edit_follow_up(contact_id)}
 				>
 					Save
-				</button>
+				</Button>
 			</div>
 		</div>
 	</div>
@@ -97,29 +100,36 @@
 		note={follow_up.note}
 		show_delete_confirmation={edit_state.delete_follow_up_id ===
 			follow_up.id}
-		on_confirm_delete={confirm_delete_follow_up}
+		on_confirm_delete={() => confirm_delete_follow_up(contact_id)}
 		on_cancel_delete={cancel_delete_follow_up}
 	>
 		{#snippet action_buttons()}
-			<button
-				onclick={() => handle_complete_follow_up(follow_up.id)}
-				class="btn gap-0 text-success btn-ghost btn-xs lg:gap-1"
+			<Button
+				variant="ghost"
+				size="xs"
+				class="gap-0 text-success lg:gap-1"
+				onclick={() =>
+					handle_complete_follow_up(follow_up.id, contact_id)}
 				aria-label="Complete follow-up"
 			>
 				<Check size="16px" />
 				<span class="hidden lg:inline">Complete</span>
-			</button>
-			<button
-				class="btn gap-0 btn-ghost btn-xs lg:gap-1"
+			</Button>
+			<Button
+				variant="ghost"
+				size="xs"
+				class="gap-0 lg:gap-1"
 				aria-label="Edit follow-up"
 				onclick={(e) =>
 					handle_edit_follow_up_click(e as MouseEvent, follow_up)}
 			>
 				<Edit size="16px" />
 				<span class="hidden lg:inline">Edit</span>
-			</button>
-			<button
-				class="btn gap-0 text-error btn-ghost btn-xs lg:gap-1"
+			</Button>
+			<Button
+				variant="ghost"
+				size="xs"
+				class="gap-0 text-error lg:gap-1"
 				aria-label="Delete follow-up"
 				onclick={(e) =>
 					handle_delete_follow_up_click(
@@ -129,7 +139,7 @@
 			>
 				<Trash size="16px" />
 				<span class="hidden lg:inline">Delete</span>
-			</button>
+			</Button>
 		{/snippet}
 	</ActivityCard>
 {/if}
