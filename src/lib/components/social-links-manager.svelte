@@ -2,6 +2,7 @@
 	import { Trash } from '$lib/icons';
 	import ConfirmDialog from './confirm-dialog.svelte';
 	import SocialLinkIcon from './social-link.svelte';
+	import Surface from './surface.svelte';
 	import { Button, Field, Input } from './ui';
 
 	interface SocialLink {
@@ -97,7 +98,7 @@
 	}
 </script>
 
-<div class="rounded-box bg-base-200 p-4">
+<Surface>
 	<p class="mb-3 text-sm font-medium">Social Links</p>
 
 	<!-- Existing Social Links -->
@@ -127,14 +128,15 @@
 							on_cancel={cancel_delete}
 						/>
 					{:else}
-						<button
+						<Button
 							type="button"
+							variant="ghost"
+							size="xs"
 							onclick={() => handle_delete_click(link.id)}
-							class="btn btn-ghost btn-xs"
 							aria-label="Remove social link"
 						>
 							<Trash size="16px" class_names="text-error" />
-						</button>
+						</Button>
 					{/if}
 				</div>
 			{/each}
@@ -162,4 +164,4 @@
 			Add
 		</Button>
 	</div>
-</div>
+</Surface>

@@ -1,5 +1,6 @@
 <script lang="ts">
 	import BaseCard from '$lib/components/base-card.svelte';
+	import Surface from '$lib/components/surface.svelte';
 	import { format } from 'date-fns';
 
 	interface ConnectionStatus {
@@ -291,7 +292,7 @@
 				{/if}
 			{:else if github_state.stage === 'loading'}
 				<!-- Show loading progress -->
-				<div class="mt-4 rounded-box bg-base-200 p-4">
+				<Surface class="mt-4">
 					<div class="flex flex-col gap-3">
 						<p class="flex items-center gap-2 text-sm opacity-70">
 							<span class="loading loading-sm loading-spinner"></span>
@@ -310,7 +311,7 @@
 							max={github_state.total}
 						></progress>
 					</div>
-				</div>
+				</Surface>
 			{:else if following_list_length === 0}
 				<!-- Initial state - show load button -->
 				<div class="card-actions justify-end">

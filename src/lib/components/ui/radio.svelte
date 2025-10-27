@@ -7,6 +7,7 @@
 		value: string;
 		checked?: boolean;
 		label?: string;
+		class_name?: string;
 	}
 
 	let {
@@ -14,13 +15,14 @@
 		value,
 		checked = false,
 		class: className = '',
+		class_name = '',
 		label = '',
 		...restProps
 	}: Props = $props();
 
 	const base_classes = 'radio radio-primary';
 	const computed_classes = $derived(
-		[base_classes, className].filter(Boolean).join(' '),
+		[base_classes, class_name, className].filter(Boolean).join(' '),
 	);
 </script>
 

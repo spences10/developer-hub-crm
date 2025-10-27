@@ -117,7 +117,7 @@
 						{placeholder}
 						required
 						validator
-						class_name="shadow-sm transition-all duration-300 focus:scale-[1.02] focus:shadow-md focus:ring-2 focus:ring-primary/20"
+						class="shadow-sm transition-all duration-300 focus:scale-[1.02] focus:shadow-md focus:ring-2 focus:ring-primary/20"
 						minlength={type === 'password' ? 8 : undefined}
 					/>
 				</Field>

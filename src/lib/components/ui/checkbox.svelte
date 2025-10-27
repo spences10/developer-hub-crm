@@ -5,18 +5,20 @@
 		extends Omit<HTMLInputAttributes, 'type' | 'checked'> {
 		checked?: boolean;
 		label?: string;
+		class_name?: string;
 	}
 
 	let {
 		checked = $bindable(false),
 		class: className = '',
+		class_name = '',
 		label = '',
 		...restProps
 	}: Props = $props();
 
 	const base_classes = 'checkbox';
 	const computed_classes = $derived(
-		[base_classes, className].filter(Boolean).join(' '),
+		[base_classes, class_name, className].filter(Boolean).join(' '),
 	);
 </script>
 

@@ -58,8 +58,12 @@
 		}[variant],
 	);
 
+	const applied_shadow = $derived(
+		variant === 'elevated' && shadow === 'xl' ? 'none' : shadow,
+	);
+
 	const shadow_class = $derived(
-		shadow === 'none' ? '' : `shadow-${shadow}`,
+		applied_shadow === 'none' ? '' : `shadow-${applied_shadow}`,
 	);
 
 	const card_classes = $derived(

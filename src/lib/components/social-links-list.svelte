@@ -1,5 +1,7 @@
 <script lang="ts">
 	import SocialLinkIcon from './social-link.svelte';
+	import Surface from './surface.svelte';
+	import { Button } from './ui';
 
 	interface SocialLink {
 		id?: string;
@@ -17,7 +19,7 @@
 </script>
 
 {#if links.length > 0}
-	<div class="rounded-box bg-base-200 p-4">
+	<Surface>
 		<p class="mb-3 text-sm font-medium">
 			Social Links{editable ? '' : ''}
 		</p>
@@ -39,16 +41,17 @@
 						</a>
 					</div>
 					{#if editable && on_remove}
-						<button
+						<Button
 							type="button"
+							variant="ghost"
+							size="xs"
 							onclick={() => on_remove?.(link.id || i)}
-							class="btn btn-ghost btn-xs"
 						>
 							Remove
-						</button>
+						</Button>
 					{/if}
 				</div>
 			{/each}
 		</div>
-	</div>
+	</Surface>
 {/if}

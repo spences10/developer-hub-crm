@@ -46,8 +46,8 @@
 {:else}
 	<!-- Full version (used in interactions list and contact detail) -->
 	<CompactItem variant="default" href={null}>
-		{#snippet metadata()}
-			<div class="mb-2 flex items-center gap-2">
+		{#snippet header()}
+			<div class="flex items-center gap-2">
 				<span class="badge {type_badges[interaction.type]}">
 					{interaction.type}
 				</span>
@@ -55,11 +55,14 @@
 					{format_date(new Date(interaction.created_at), date_format)}
 				</span>
 			</div>
-			{#if interaction.note}
+		{/snippet}
+
+		{#if interaction.note}
+			{#snippet body()}
 				<p class="text-sm whitespace-pre-wrap">
 					{interaction.note}
 				</p>
-			{/if}
-		{/snippet}
+			{/snippet}
+		{/if}
 	</CompactItem>
 {/if}

@@ -1,8 +1,9 @@
 <script lang="ts">
-	import { Button, Field, Input } from './ui';
 	import { Refresh, Trash } from '$lib/icons';
 	import type { Tag } from '$lib/types/db';
 	import ConfirmDialog from './confirm-dialog.svelte';
+	import Surface from './surface.svelte';
+	import { Button, Field, Input } from './ui';
 
 	interface Props {
 		contact_tags: Tag[];
@@ -127,7 +128,7 @@
 	}
 </script>
 
-<div class="rounded-box bg-base-200 p-4">
+<Surface>
 	<p class="mb-3 text-sm font-medium">Tags</p>
 
 	<!-- Assigned Tags -->
@@ -147,14 +148,16 @@
 							on_cancel={cancel_remove}
 						/>
 					{:else}
-						<button
+						<Button
 							type="button"
+							variant="ghost"
+							size="xs"
+							class="size-4 min-h-0 p-0"
 							onclick={() => handle_remove_click(tag.id)}
-							class="btn size-4 min-h-0 p-0 btn-ghost btn-xs"
 							aria-label="Remove tag"
 						>
 							<Trash size="12px" class_names="text-white" />
-						</button>
+						</Button>
 					{/if}
 				</div>
 			{/each}
@@ -299,4 +302,4 @@
 			</div>
 		{/if}
 	</div>
-</div>
+</Surface>
