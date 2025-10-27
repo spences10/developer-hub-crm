@@ -1,6 +1,7 @@
 <script lang="ts">
-	import { ContactBook } from '$lib/icons';
+	import BaseCard from '$lib/components/base-card.svelte';
 	import SocialLinkIcon from '$lib/components/social-link.svelte';
+	import { ContactBook } from '$lib/icons';
 	import type { DateFormat } from '$lib/utils/date-helpers';
 	import { format_date } from '$lib/utils/date-helpers';
 
@@ -55,13 +56,8 @@
 	{/if}
 {/snippet}
 
-<div class="card bg-base-100 shadow-xl">
-	<div class="card-body">
-		<h2 class="mb-4 card-title flex items-center gap-2">
-			<ContactBook size="24px" />
-			Contact Details
-		</h2>
-
+<BaseCard icon={ContactBook} title="Contact Details">
+	{#snippet children()}
 		<div class="space-y-4">
 			{@render detail_field('Email', email, true, 'mailto:')}
 			{@render detail_field('Phone', phone, true, 'tel:')}
@@ -95,5 +91,5 @@
 				</div>
 			{/if}
 		</div>
-	</div>
-</div>
+	{/snippet}
+</BaseCard>

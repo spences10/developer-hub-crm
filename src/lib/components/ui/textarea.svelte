@@ -10,6 +10,8 @@
 		disabled?: boolean;
 		class_name?: string;
 		maxlength?: number;
+		aria_label?: string;
+		aria_describedby?: string;
 		onblur?: (
 			e: FocusEvent & { currentTarget: HTMLTextAreaElement },
 		) => void;
@@ -31,6 +33,8 @@
 		disabled = false,
 		class_name = '',
 		maxlength = undefined,
+		aria_label = undefined,
+		aria_describedby = undefined,
 		onblur = undefined,
 		oninput = undefined,
 		onchange = undefined,
@@ -51,6 +55,8 @@
 	{required}
 	{disabled}
 	{maxlength}
+	aria-label={aria_label}
+	aria-describedby={aria_describedby}
 	{onblur}
 	{oninput}
 	{onchange}

@@ -7,6 +7,7 @@
 		required?: boolean;
 		disabled?: boolean;
 		class_name?: string;
+		aria_label?: string;
 		onchange?: (e: Event) => void;
 		children: Snippet;
 	}
@@ -17,6 +18,7 @@
 		required = false,
 		disabled = false,
 		class_name = '',
+		aria_label = undefined,
 		onchange = undefined,
 		children,
 	}: Props = $props();
@@ -32,6 +34,7 @@
 	bind:value
 	{required}
 	{disabled}
+	aria-label={aria_label}
 	{onchange}
 	class={computed_classes}
 >

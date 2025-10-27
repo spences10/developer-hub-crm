@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { Button } from './ui';
 	import { Check, Cross } from '$lib/icons';
 
 	interface Props {
@@ -35,8 +36,10 @@
 {#if is_inline}
 	<div class="flex items-center gap-2">
 		<span class="mr-2 text-xs text-error">{message}</span>
-		<button
-			class="btn btn-ghost btn-xs btn-error"
+		<Button
+			variant="ghost"
+			size="xs"
+			class="btn-error"
 			aria-label={confirm_label}
 			onclick={handle_confirm}
 		>
@@ -45,9 +48,10 @@
 			{:else}
 				{confirm_label}
 			{/if}
-		</button>
-		<button
-			class="btn btn-ghost btn-xs"
+		</Button>
+		<Button
+			variant="ghost"
+			size="xs"
 			aria-label={cancel_label}
 			onclick={handle_cancel}
 		>
@@ -56,12 +60,13 @@
 			{:else}
 				{cancel_label}
 			{/if}
-		</button>
+		</Button>
 	</div>
 {:else}
 	<div class="flex items-center gap-2">
-		<button
-			class="btn btn-sm btn-error"
+		<Button
+			variant="error"
+			size="sm"
 			aria-label={confirm_label}
 			onclick={handle_confirm}
 		>
@@ -69,9 +74,10 @@
 				<Check size="20px" />
 			{/if}
 			{confirm_label}
-		</button>
-		<button
-			class="btn btn-outline btn-sm"
+		</Button>
+		<Button
+			variant="outline"
+			size="sm"
 			aria-label={cancel_label}
 			onclick={handle_cancel}
 		>
@@ -79,6 +85,6 @@
 				<Cross size="20px" />
 			{/if}
 			{cancel_label}
-		</button>
+		</Button>
 	</div>
 {/if}

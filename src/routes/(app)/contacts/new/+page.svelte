@@ -1,7 +1,7 @@
 <script lang="ts">
+	import { Button, Field, Input } from '$lib/components/ui';
 	import ContactFormFields from '$lib/components/contact-form-fields.svelte';
 	import FormActions from '$lib/components/form-actions.svelte';
-	import LoadingButton from '$lib/components/loading-button.svelte';
 	import PageHeaderWithAction from '$lib/components/page-header-with-action.svelte';
 	import PageNav from '$lib/components/page-nav.svelte';
 	import SocialLinksList from '$lib/components/social-links-list.svelte';
@@ -85,27 +85,28 @@
 		<p class="text-sm opacity-70">
 			Automatically populate contact details from a GitHub profile
 		</p>
-		<div class="mt-4 flex gap-2">
-			<label class="input flex-1">
-				<input
-					type="text"
-					placeholder="Enter GitHub username (e.g., octocat)"
-					class="grow"
-					bind:value={github_input}
-					onkeydown={(e) =>
-						e.key === 'Enter' && handle_github_import()}
-					disabled={loading}
-				/>
-			</label>
-			<LoadingButton
-				{loading}
+		<div class="mt-4 flex items-end gap-2">
+			<div class="flex-1">
+				<Field legend="GitHub Username">
+					<Input
+						type="text"
+						name="github_username_import"
+						placeholder="Enter GitHub username (e.g., octocat)"
+						bind:value={github_input}
+						onkeydown={(e) =>
+							e.key === 'Enter' && handle_github_import()}
+						disabled={loading}
+					/>
+				</Field>
+			</div>
+			<Button
+				variant="primary"
 				disabled={!github_input.trim()}
-				class_names="btn btn-primary"
-				loading_text="Fetching..."
+				loading={loading}
 				onclick={handle_github_import}
 			>
 				Fetch Profile
-			</LoadingButton>
+			</Button>
 		</div>
 		{#if error}
 			<div class="mt-2 alert alert-error">

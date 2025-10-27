@@ -6,6 +6,7 @@
 		disabled?: boolean;
 		class_name?: string;
 		label?: string;
+		aria_label?: string;
 		onchange?: (e: Event) => void;
 	}
 
@@ -16,6 +17,7 @@
 		disabled = false,
 		class_name = '',
 		label = '',
+		aria_label = undefined,
 		onchange = undefined,
 	}: Props = $props();
 
@@ -33,6 +35,7 @@
 			{value}
 			{checked}
 			{disabled}
+			aria-label={aria_label}
 			{onchange}
 			class={computed_classes}
 		/>
@@ -45,6 +48,7 @@
 		{value}
 		{checked}
 		{disabled}
+		aria-label={aria_label}
 		{onchange}
 		class={computed_classes}
 	/>

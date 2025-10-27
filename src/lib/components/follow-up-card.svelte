@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { Button } from './ui';
+	import CompactItem from '$lib/components/compact-item.svelte';
 	import type { FollowUp } from '$lib/types/db';
 	import {
 		type DateFormat,
@@ -83,26 +85,19 @@
 	</div>
 {:else if variant === 'compact'}
 	<!-- Compact version (used in dashboard upcoming section) -->
-	{#if follow_up.contact_id}
-		<a
-			href="/contacts/{follow_up.contact_id}"
-			class="block rounded-box bg-base-200 p-3 transition hover:bg-base-300"
-		>
-			{#if follow_up.contact_name}
-				<p class="font-semibold">
-					{follow_up.contact_name}
-				</p>
-			{/if}
+	<CompactItem
+		href={follow_up.contact_id
+			? `/contacts/${follow_up.contact_id}`
+			: null}
+		heading={follow_up.contact_name}
+		note={follow_up.note}
+	>
+		{#snippet metadata()}
 			<p class="text-sm opacity-70">
 				{format_due_date(follow_up.due_date, date_format)}
 			</p>
-			{#if follow_up.note}
-				<p class="text-sm opacity-60">
-					{follow_up.note.substring(0, 50)}{follow_up.note.length > 50
-						? '...'
-						: ''}
-				</p>
-			{/if}
+		{/snippet}
+		{#snippet extra_content()}
 			{#if context && context.length > 0}
 				<div class="mt-2 flex flex-wrap gap-1">
 					{#each context.slice(0, 2) as ctx}
@@ -112,21 +107,8 @@
 					{/each}
 				</div>
 			{/if}
-		</a>
-	{:else}
-		<div class="block rounded-box bg-base-200 p-3">
-			<p class="text-sm opacity-70">
-				{format_due_date(follow_up.due_date, date_format)}
-			</p>
-			{#if follow_up.note}
-				<p class="text-sm opacity-60">
-					{follow_up.note.substring(0, 50)}{follow_up.note.length > 50
-						? '...'
-						: ''}
-				</p>
-			{/if}
-		</div>
-	{/if}
+		{/snippet}
+	</CompactItem>
 {:else}
 	<!-- Full version (used in follow-ups list and contact detail) -->
 	<div class="rounded-box bg-base-200 p-4">
@@ -143,28 +125,32 @@
 			</div>
 			<div class="flex gap-2">
 				{#if on_complete && !follow_up.completed}
-					<button
+					<Button
+						variant="success"
+						size="xs"
 						onclick={() => on_complete?.(follow_up.id)}
-						class="btn btn-xs btn-success"
 					>
 						Complete
-					</button>
+					</Button>
 				{/if}
 				{#if on_reopen && follow_up.completed}
-					<button
+					<Button
+						variant="outline"
+						size="xs"
 						onclick={() => on_reopen?.(follow_up.id)}
-						class="btn btn-outline btn-xs"
 					>
 						Reopen
-					</button>
+					</Button>
 				{/if}
 				{#if on_delete}
-					<button
+					<Button
+						variant="outline"
+						size="xs"
+						class="btn-error"
 						onclick={() => on_delete?.(follow_up.id)}
-						class="btn btn-outline btn-xs btn-error"
 					>
 						Delete
-					</button>
+					</Button>
 				{/if}
 			</div>
 		</div>

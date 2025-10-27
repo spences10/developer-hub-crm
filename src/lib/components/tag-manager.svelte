@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { Button, Field, Input } from './ui';
 	import { Refresh, Trash } from '$lib/icons';
 	import type { Tag } from '$lib/types/db';
 	import ConfirmDialog from './confirm-dialog.svelte';
@@ -184,13 +185,14 @@
 	<!-- Create New Tag -->
 	<div class="space-y-3">
 		{#if !show_create_form}
-			<button
-				type="button"
+			<Button
+				variant="outline"
+				size="sm"
 				onclick={() => (show_create_form = true)}
-				class="btn btn-block btn-outline btn-sm"
+				class="btn-block"
 			>
 				Create New Tag
-			</button>
+			</Button>
 		{:else}
 			<div class="rounded-box border border-base-300 bg-base-100 p-4">
 				<p class="mb-3 text-xs font-medium opacity-70">
@@ -198,18 +200,17 @@
 				</p>
 
 				<!-- Tag Name -->
-				<fieldset class="mb-3 fieldset">
-					<legend class="fieldset-legend">Tag Name</legend>
-					<label class="input w-full">
-						<input
+				<div class="mb-3">
+					<Field legend="Tag Name">
+						<Input
 							type="text"
+							name="tag_name"
 							placeholder="e.g., Client, Lead, Partner"
 							bind:value={new_tag_name}
-							class="grow"
-							maxlength="30"
+							maxlength={30}
 						/>
-					</label>
-				</fieldset>
+					</Field>
+				</div>
 
 				<!-- Color Selection -->
 				<div class="mb-3">
@@ -236,41 +237,43 @@
 
 					<!-- Custom Color & Random Button -->
 					<div class="flex gap-2">
-						<fieldset class="fieldset flex-1">
-							<legend class="fieldset-legend">Custom Hex</legend>
-							<label class="input flex items-center gap-2">
-								<input
-									type="text"
-									placeholder="#ff5733"
-									bind:value={custom_color}
-									onfocus={() => (use_custom_color = true)}
-									class="grow"
-									maxlength="7"
-								/>
-								{#if use_custom_color && custom_color}
-									<div
-										class="size-6 rounded border border-base-300"
-										style="background-color: {custom_color};"
-									></div>
-								{/if}
-							</label>
-						</fieldset>
-						<button
-							type="button"
+						<div class="flex-1">
+							<Field legend="Custom Hex">
+								<div class="flex items-center gap-2">
+									<Input
+										type="text"
+										name="custom_color"
+										placeholder="#ff5733"
+										bind:value={custom_color}
+										onfocus={() => (use_custom_color = true)}
+										maxlength={7}
+									/>
+									{#if use_custom_color && custom_color}
+										<div
+											class="size-6 rounded border border-base-300"
+											style="background-color: {custom_color};"
+										></div>
+									{/if}
+								</div>
+							</Field>
+						</div>
+						<Button
+							variant="outline"
 							onclick={handle_random_color}
-							class="tooltip btn gap-2 btn-outline"
+							class="tooltip"
 							data-tip="Random color"
 							aria-label="Generate random color"
 						>
 							<Refresh size="20px" />
-						</button>
+						</Button>
 					</div>
 				</div>
 
 				<!-- Action Buttons -->
 				<div class="flex gap-2">
-					<button
-						type="button"
+					<Button
+						variant="ghost"
+						size="sm"
 						onclick={() => {
 							show_create_form = false;
 							new_tag_name = '';
@@ -278,22 +281,20 @@
 							custom_color = '';
 							use_custom_color = false;
 						}}
-						class="btn flex-1 btn-ghost btn-sm"
+						class="flex-1"
 					>
 						Cancel
-					</button>
-					<button
-						type="button"
+					</Button>
+					<Button
+						variant="primary"
+						size="sm"
 						onclick={handle_create_tag}
 						disabled={adding_tag || !new_tag_name.trim()}
-						class="btn flex-1 btn-sm btn-primary"
+						loading={adding_tag}
+						class="flex-1"
 					>
-						{#if adding_tag}
-							<span class="loading loading-sm loading-spinner"></span>
-						{:else}
-							Create
-						{/if}
-					</button>
+						Create
+					</Button>
 				</div>
 			</div>
 		{/if}

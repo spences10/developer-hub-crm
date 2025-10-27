@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { Button, Field, Input } from './ui';
 	import { Trash } from '$lib/icons';
 	import ConfirmDialog from './confirm-dialog.svelte';
 	import SocialLinkIcon from './social-link.svelte';
@@ -142,28 +143,22 @@
 	<!-- Add New Social Link -->
 	<div class="space-y-3">
 		<p class="text-xs font-medium opacity-70">Add new social link</p>
-		<fieldset class="fieldset">
-			<legend class="fieldset-legend">URL</legend>
-			<label class="input w-full">
-				<input
-					type="url"
-					placeholder="https://github.com/username or https://example.com"
-					bind:value={new_url}
-					class="grow"
-				/>
-			</label>
-		</fieldset>
-		<button
-			type="button"
+		<Field legend="URL">
+			<Input
+				type="url"
+				name="social_url"
+				placeholder="https://github.com/username or https://example.com"
+				bind:value={new_url}
+			/>
+		</Field>
+		<Button
+			variant="primary"
 			onclick={handle_add_social_link}
 			disabled={adding_link || !new_url}
-			class="btn btn-block btn-primary"
+			loading={adding_link}
+			class="btn-block"
 		>
-			{#if adding_link}
-				<span class="loading loading-sm loading-spinner"></span>
-			{:else}
-				Add
-			{/if}
-		</button>
+			Add
+		</Button>
 	</div>
 </div>

@@ -14,6 +14,8 @@
 		maxlength?: number;
 		min?: number;
 		max?: number;
+		aria_label?: string;
+		aria_describedby?: string;
 		onblur?: (
 			e: FocusEvent & { currentTarget: HTMLInputElement },
 		) => void;
@@ -39,6 +41,8 @@
 		maxlength = undefined,
 		min = undefined,
 		max = undefined,
+		aria_label = undefined,
+		aria_describedby = undefined,
 		onblur = undefined,
 		oninput = undefined,
 		onchange = undefined,
@@ -69,6 +73,8 @@
 		{maxlength}
 		{min}
 		{max}
+		aria-label={aria_label}
+		aria-describedby={aria_describedby}
 		{onblur}
 		{oninput}
 		{onchange}
