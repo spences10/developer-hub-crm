@@ -1,14 +1,39 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
-	import type { HTMLButtonAttributes } from 'svelte/elements';
+	import type {
+		HTMLAnchorAttributes,
+		HTMLButtonAttributes,
+	} from 'svelte/elements';
 
-	interface Props extends HTMLButtonAttributes {
+	type ClickHandler = (event: MouseEvent) => void;
+
+	interface BaseProps {
 		variant?: 'primary' | 'outline' | 'ghost' | 'error' | 'success';
 		size?: 'xs' | 'sm' | 'md' | 'lg' | 'block';
 		loading?: boolean;
-		ref?: HTMLButtonElement | null;
+		ref?: HTMLElement | null;
 		children: Snippet;
+		class?: string;
+		onclick?: ClickHandler;
+		disabled?: boolean;
+		target?: string;
+		rel?: string;
 	}
+
+	type AnchorProps = BaseProps &
+		Omit<HTMLAnchorAttributes, 'onclick' | 'target' | 'rel'> & {
+			href: string;
+			onclick?: ClickHandler;
+			type?: never;
+		};
+
+	type NativeButtonProps = BaseProps &
+		Omit<HTMLButtonAttributes, 'onclick'> & {
+			href?: undefined;
+			onclick?: ClickHandler;
+		};
+
+	type Props = AnchorProps | NativeButtonProps;
 
 	let {
 		class: className = '',
@@ -17,6 +42,9 @@
 		size = 'md',
 		loading = false,
 		disabled = false,
+		href = undefined,
+		target = undefined,
+		rel = undefined,
 		ref = $bindable(null),
 		children,
 		...restProps
@@ -51,17 +79,37 @@
 	);
 </script>
 
-<button
-	bind:this={ref}
-	{type}
-	disabled={disabled || loading}
-	class={computed_classes}
-	{...restProps}
->
-	{#if loading}
-		<span class="loading loading-sm loading-spinner"></span>
-		Loading...
-	{:else}
-		{@render children()}
-	{/if}
-</button>
+{#if href}
+	<a
+		bind:this={ref as HTMLAnchorElement | null}
+		href={disabled || loading ? undefined : href}
+		{target}
+		{rel}
+		aria-disabled={disabled || loading}
+		tabindex={disabled || loading ? -1 : undefined}
+		class={computed_classes}
+		{...restProps as Record<string, unknown>}
+	>
+		{#if loading}
+			<span class="loading loading-sm loading-spinner"></span>
+			Loading...
+		{:else}
+			{@render children()}
+		{/if}
+	</a>
+{:else}
+	<button
+		bind:this={ref as HTMLButtonElement | null}
+		{type}
+		disabled={disabled || loading}
+		class={computed_classes}
+		{...restProps as Record<string, unknown>}
+	>
+		{#if loading}
+			<span class="loading loading-sm loading-spinner"></span>
+			Loading...
+		{:else}
+			{@render children()}
+		{/if}
+	</button>
+{/if}

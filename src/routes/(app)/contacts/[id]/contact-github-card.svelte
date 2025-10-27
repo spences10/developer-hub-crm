@@ -13,7 +13,7 @@
 	<BaseCard
 		icon={GitHub}
 		title="GitHub Profile"
-		gradient={true}
+		variant="gradient"
 		card_class="overflow-hidden"
 	>
 		{#snippet children()}

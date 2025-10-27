@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { page } from '$app/state';
 	import favicon from '$lib/assets/favicon.svg';
+	import { Button } from '$lib/components/ui';
 	import Logo from '$lib/logo.svelte';
 	import {
 		get_error_description,
@@ -41,10 +42,10 @@
 			</p>
 
 			<div class="mt-6 card-actions flex flex-col gap-2 sm:flex-row">
-				<a href="/" class="btn btn-primary"> Go to Home </a>
-				<a href="/dashboard" class="btn btn-ghost btn-outline">
+				<Button href="/" variant="primary">Go to Home</Button>
+				<Button href="/dashboard" variant="outline">
 					Go to Dashboard
-				</a>
+				</Button>
 			</div>
 
 			{#if status === 404}

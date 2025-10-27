@@ -65,7 +65,8 @@
 							name="form_value"
 							placeholder="my_type"
 							value={form_value}
-							onchange={(e) => onFormValueChange(e.currentTarget.value)}
+							onchange={(e) =>
+								onFormValueChange(e.currentTarget.value)}
 							disabled={form_loading}
 						/>
 						<span class="label-text-alt mt-1">

@@ -418,12 +418,14 @@
 					<SocialLinksManager
 						social_links={links || []}
 						on_add={async (platform, url) => {
-							await add_user_social_link({ platform, url });
-							social_links.refresh();
+							await add_user_social_link({ platform, url }).updates(
+								social_links,
+							);
 						}}
 						on_delete={async (link_id) => {
-							await delete_user_social_link(link_id);
-							social_links.refresh();
+							await delete_user_social_link(link_id).updates(
+								social_links,
+							);
 						}}
 					/>
 				{/await}

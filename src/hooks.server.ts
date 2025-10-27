@@ -16,7 +16,9 @@ try {
 } catch (error: any) {
 	// Handle errors for indexes on columns that don't exist yet (will be added by migrations)
 	if (error.message?.includes('no such column')) {
-		console.log('⚠️  Schema initialization skipped some indexes (columns will be added by migrations)');
+		console.log(
+			'⚠️  Schema initialization skipped some indexes (columns will be added by migrations)',
+		);
 	} else {
 		throw error;
 	}
@@ -30,7 +32,10 @@ try {
 	db.exec(schema);
 } catch (error: any) {
 	// Silently ignore errors on second pass
-	if (!error.message?.includes('no such column') && error.code !== 'SQLITE_ERROR') {
+	if (
+		!error.message?.includes('no such column') &&
+		error.code !== 'SQLITE_ERROR'
+	) {
 		console.error('Error re-applying schema:', error);
 	}
 }

@@ -2,6 +2,7 @@
 	import { auth_client } from '$lib/client/auth';
 	import PageHeaderWithAction from '$lib/components/page-header-with-action.svelte';
 	import PageNav from '$lib/components/page-nav.svelte';
+	import { Button } from '$lib/components/ui';
 	import { seo_configs } from '$lib/seo';
 	import { Head } from 'svead';
 	import GithubConnectionStatus from './github-connection-status.svelte';
@@ -296,9 +297,9 @@
 <Head seo_config={seo_configs.contacts} />
 
 <PageHeaderWithAction title="Import from GitHub">
-	<a href="/contacts" class="btn btn-ghost btn-outline">
+	<Button href="/contacts" variant="outline" size="sm">
 		Back to Contacts
-	</a>
+	</Button>
 </PageHeaderWithAction>
 <PageNav />
 
@@ -368,17 +369,19 @@
 
 		<!-- Actions -->
 		<div class="mb-6 flex flex-wrap gap-2">
-			<button
-				class="btn btn-ghost btn-sm"
+			<Button
+				variant="ghost"
+				size="sm"
 				onclick={select_all_not_imported}
 			>
 				Select All New
-			</button>
-			<button class="btn btn-ghost btn-sm" onclick={deselect_all}>
+			</Button>
+			<Button variant="ghost" size="sm" onclick={deselect_all}>
 				Deselect All
-			</button>
-			<button
-				class="btn btn-sm btn-primary"
+			</Button>
+			<Button
+				variant="primary"
+				size="sm"
 				onclick={handle_import}
 				disabled={selected_usernames.size === 0 || is_importing}
 			>
@@ -397,7 +400,7 @@
 				{:else}
 					Import {selected_usernames.size} Selected
 				{/if}
-			</button>
+			</Button>
 		</div>
 
 		<!-- User Grid -->

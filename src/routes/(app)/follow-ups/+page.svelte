@@ -228,7 +228,10 @@
 						: 'opacity-60'}
 				{#if edit_follow_up_id === follow_up.id}
 					<!-- Edit Mode -->
-					<BaseCard class="shadow-md transition-shadow hover:shadow-lg" body_class="p-4">
+					<BaseCard
+						class="shadow-md transition-shadow hover:shadow-lg"
+						body_class="p-4"
+					>
 						{#snippet children()}
 							<div class="space-y-4">
 								<div class="flex items-center justify-between">

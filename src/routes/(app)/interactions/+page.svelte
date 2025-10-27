@@ -203,7 +203,10 @@
 					: get_icon_component('Calendar')}
 				{#if edit_interaction_id === interaction.id}
 					<!-- Edit Mode -->
-					<BaseCard class="shadow-md transition-shadow hover:shadow-lg" body_class="p-4">
+					<BaseCard
+						class="shadow-md transition-shadow hover:shadow-lg"
+						body_class="p-4"
+					>
 						{#snippet children()}
 							<div class="space-y-4">
 								<div class="flex items-center justify-between">

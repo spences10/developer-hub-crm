@@ -1,6 +1,7 @@
 <script lang="ts">
 	import BaseCard from '$lib/components/base-card.svelte';
 	import Surface from '$lib/components/surface.svelte';
+	import { Button } from '$lib/components/ui';
 	import { format } from 'date-fns';
 
 	interface ConnectionStatus {
@@ -315,9 +316,9 @@
 			{:else if following_list_length === 0}
 				<!-- Initial state - show load button -->
 				<div class="card-actions justify-end">
-					<button class="btn btn-primary" onclick={on_load_following}>
+					<Button variant="primary" onclick={on_load_following}>
 						Load Following List
-					</button>
+					</Button>
 				</div>
 			{/if}
 		{/snippet}

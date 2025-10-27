@@ -1,8 +1,16 @@
 <script lang="ts">
+	import { Button } from '$lib/components/ui';
+
 	interface Props {
 		submit_text: string;
 		cancel_href: string;
 		submitting?: boolean;
+		submit_variant?:
+			| 'primary'
+			| 'outline'
+			| 'ghost'
+			| 'error'
+			| 'success';
 		submit_class?: string;
 	}
 
@@ -10,13 +18,21 @@
 		submit_text,
 		cancel_href,
 		submitting = false,
-		submit_class = 'btn flex-1 btn-primary',
+		submit_variant = 'primary',
+		submit_class = 'flex-1',
 	}: Props = $props();
 </script>
 
 <div class="flex gap-4">
-	<button class={submit_class} type="submit" disabled={submitting}>
+	<Button
+		type="submit"
+		variant={submit_variant}
+		class={submit_class}
+		disabled={submitting}
+	>
 		{submitting ? 'Saving...' : submit_text}
-	</button>
-	<a href={cancel_href} class="btn btn-ghost">Cancel</a>
+	</Button>
+	<a href={cancel_href} class="inline-block">
+		<Button variant="ghost">Cancel</Button>
+	</a>
 </div>

@@ -316,12 +316,12 @@
 										contact_id: contact.id,
 										platform,
 										url,
-									});
-									social_links_query.refresh();
+									}).updates(social_links_query);
 								}}
 								on_delete={async (link_id) => {
-									await delete_social_link(link_id);
-									social_links_query.refresh();
+									await delete_social_link(link_id).updates(
+										social_links_query,
+									);
 								}}
 							/>
 						{/await}

@@ -57,9 +57,9 @@
 			{#if follow_up.contact_id}
 				<a
 					href="/contacts/{follow_up.contact_id}"
-					class="btn btn-sm btn-error"
+					class="inline-block"
 				>
-					View
+					<Button variant="error" size="sm">View</Button>
 				</a>
 			{/if}
 		{/snippet}
@@ -150,9 +150,8 @@
 				{/if}
 				{#if on_delete}
 					<Button
-						variant="outline"
+						variant="error"
 						size="xs"
-						class="btn-error"
 						onclick={() => on_delete?.(follow_up.id)}
 					>
 						Delete
