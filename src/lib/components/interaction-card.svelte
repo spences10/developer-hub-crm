@@ -45,19 +45,21 @@
 	</CompactItem>
 {:else}
 	<!-- Full version (used in interactions list and contact detail) -->
-	<div class="rounded-box bg-base-200 p-4">
-		<div class="mb-2 flex items-center gap-2">
-			<span class="badge {type_badges[interaction.type]}">
-				{interaction.type}
-			</span>
-			<span class="text-sm opacity-60">
-				{format_date(new Date(interaction.created_at), date_format)}
-			</span>
-		</div>
-		{#if interaction.note}
-			<p class="text-sm whitespace-pre-wrap">
-				{interaction.note}
-			</p>
-		{/if}
-	</div>
+	<CompactItem variant="default" href={null}>
+		{#snippet metadata()}
+			<div class="mb-2 flex items-center gap-2">
+				<span class="badge {type_badges[interaction.type]}">
+					{interaction.type}
+				</span>
+				<span class="text-sm opacity-60">
+					{format_date(new Date(interaction.created_at), date_format)}
+				</span>
+			</div>
+			{#if interaction.note}
+				<p class="text-sm whitespace-pre-wrap">
+					{interaction.note}
+				</p>
+			{/if}
+		{/snippet}
+	</CompactItem>
 {/if}

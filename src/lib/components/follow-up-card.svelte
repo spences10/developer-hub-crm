@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { Button } from './ui';
 	import CompactItem from '$lib/components/compact-item.svelte';
 	import type { FollowUp } from '$lib/types/db';
 	import {
@@ -7,6 +6,7 @@
 		format_due_date,
 		is_overdue,
 	} from '$lib/utils/date-helpers';
+	import { Button } from './ui';
 
 	interface Props {
 		follow_up: FollowUp & {
@@ -39,50 +39,52 @@
 
 {#if variant === 'dashboard'}
 	<!-- Dashboard compact version (used in overdue section) -->
-	<div class="rounded-box bg-base-100 p-4">
-		<div class="flex items-center justify-between">
-			<div class="flex-1">
-				{#if follow_up.contact_id && follow_up.contact_name}
+	<CompactItem variant="elevated" href={null}>
+		{#snippet metadata()}
+			<div class="flex items-center justify-between">
+				<div class="flex-1">
+					{#if follow_up.contact_id && follow_up.contact_name}
+						<a
+							href="/contacts/{follow_up.contact_id}"
+							class="link font-semibold link-hover"
+						>
+							{follow_up.contact_name}
+						</a>
+					{/if}
+					<p class="text-sm text-error">
+						Due: {format_due_date(follow_up.due_date, date_format)}
+					</p>
+					{#if follow_up.note}
+						<p class="text-sm opacity-80">
+							{follow_up.note}
+						</p>
+					{/if}
+					{#if context && context.length > 0}
+						<div class="mt-2 border-t border-base-300 pt-2">
+							<p class="mb-1 text-xs font-medium opacity-60">
+								Last discussed:
+							</p>
+							<div class="flex flex-wrap gap-1">
+								{#each context.slice(0, 3) as ctx}
+									<span class="badge badge-ghost badge-xs">
+										{ctx.type}
+									</span>
+								{/each}
+							</div>
+						</div>
+					{/if}
+				</div>
+				{#if follow_up.contact_id}
 					<a
 						href="/contacts/{follow_up.contact_id}"
-						class="link font-semibold link-hover"
+						class="btn btn-sm btn-error"
 					>
-						{follow_up.contact_name}
+						View
 					</a>
 				{/if}
-				<p class="text-sm text-error">
-					Due: {format_due_date(follow_up.due_date, date_format)}
-				</p>
-				{#if follow_up.note}
-					<p class="text-sm opacity-80">
-						{follow_up.note}
-					</p>
-				{/if}
-				{#if context && context.length > 0}
-					<div class="mt-2 border-t border-base-300 pt-2">
-						<p class="mb-1 text-xs font-medium opacity-60">
-							Last discussed:
-						</p>
-						<div class="flex flex-wrap gap-1">
-							{#each context.slice(0, 3) as ctx}
-								<span class="badge badge-ghost badge-xs">
-									{ctx.type}
-								</span>
-							{/each}
-						</div>
-					</div>
-				{/if}
 			</div>
-			{#if follow_up.contact_id}
-				<a
-					href="/contacts/{follow_up.contact_id}"
-					class="btn btn-sm btn-error"
-				>
-					View
-				</a>
-			{/if}
-		</div>
-	</div>
+		{/snippet}
+	</CompactItem>
 {:else if variant === 'compact'}
 	<!-- Compact version (used in dashboard upcoming section) -->
 	<CompactItem
@@ -111,53 +113,58 @@
 	</CompactItem>
 {:else}
 	<!-- Full version (used in follow-ups list and contact detail) -->
-	<div class="rounded-box bg-base-200 p-4">
-		<div class="mb-2 flex items-center justify-between">
-			<div>
-				<span class="text-sm font-medium" class:text-error={overdue}>
-					{format_due_date(follow_up.due_date, date_format)}
-				</span>
-				{#if overdue}
-					<span class="ml-2 badge badge-sm badge-error">
-						Overdue
+	<CompactItem variant="default" href={null}>
+		{#snippet metadata()}
+			<div class="mb-2 flex items-center justify-between">
+				<div>
+					<span
+						class="text-sm font-medium"
+						class:text-error={overdue}
+					>
+						{format_due_date(follow_up.due_date, date_format)}
 					</span>
-				{/if}
+					{#if overdue}
+						<span class="ml-2 badge badge-sm badge-error">
+							Overdue
+						</span>
+					{/if}
+				</div>
+				<div class="flex gap-2">
+					{#if on_complete && !follow_up.completed}
+						<Button
+							variant="success"
+							size="xs"
+							onclick={() => on_complete?.(follow_up.id)}
+						>
+							Complete
+						</Button>
+					{/if}
+					{#if on_reopen && follow_up.completed}
+						<Button
+							variant="outline"
+							size="xs"
+							onclick={() => on_reopen?.(follow_up.id)}
+						>
+							Reopen
+						</Button>
+					{/if}
+					{#if on_delete}
+						<Button
+							variant="outline"
+							size="xs"
+							class="btn-error"
+							onclick={() => on_delete?.(follow_up.id)}
+						>
+							Delete
+						</Button>
+					{/if}
+				</div>
 			</div>
-			<div class="flex gap-2">
-				{#if on_complete && !follow_up.completed}
-					<Button
-						variant="success"
-						size="xs"
-						onclick={() => on_complete?.(follow_up.id)}
-					>
-						Complete
-					</Button>
-				{/if}
-				{#if on_reopen && follow_up.completed}
-					<Button
-						variant="outline"
-						size="xs"
-						onclick={() => on_reopen?.(follow_up.id)}
-					>
-						Reopen
-					</Button>
-				{/if}
-				{#if on_delete}
-					<Button
-						variant="outline"
-						size="xs"
-						class="btn-error"
-						onclick={() => on_delete?.(follow_up.id)}
-					>
-						Delete
-					</Button>
-				{/if}
-			</div>
-		</div>
-		{#if follow_up.note}
-			<p class="text-sm whitespace-pre-wrap">
-				{follow_up.note}
-			</p>
-		{/if}
-	</div>
+			{#if follow_up.note}
+				<p class="text-sm whitespace-pre-wrap">
+					{follow_up.note}
+				</p>
+			{/if}
+		{/snippet}
+	</CompactItem>
 {/if}
