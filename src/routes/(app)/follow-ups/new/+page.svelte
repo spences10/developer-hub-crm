@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { page } from '$app/state';
+	import BaseCard from '$lib/components/base-card.svelte';
 	import PageHeaderWithAction from '$lib/components/page-header-with-action.svelte';
 	import PageNav from '$lib/components/page-nav.svelte';
 	import {
@@ -56,56 +57,58 @@
 		'')}
 	{/if}
 
-	<form {...create_follow_up} class="card bg-base-100 shadow-xl">
-		<div class="card-body">
-			<Field legend="Contact">
-				{#await get_contacts() then contacts}
-					<Select
-						name="contact_id"
+	<form {...create_follow_up}>
+		<BaseCard>
+			{#snippet children()}
+				<Field legend="Contact">
+					{#await get_contacts() then contacts}
+						<Select
+							name="contact_id"
+							required
+							value={preselected_contact_id || ''}
+						>
+							<option value="" disabled>Select a contact</option>
+							{#each contacts as contact}
+								<option value={contact.id}>
+									{contact.name}
+									{#if contact.company}
+										- {contact.company}
+									{/if}
+								</option>
+							{/each}
+						</Select>
+					{/await}
+				</Field>
+
+				<Field
+					legend="Due Date"
+					helper_text="When do you want to follow up with this contact?"
+				>
+					<Input
+						type="datetime-local"
 						required
-						value={preselected_contact_id || ''}
-					>
-						<option value="" disabled>Select a contact</option>
-						{#each contacts as contact}
-							<option value={contact.id}>
-								{contact.name}
-								{#if contact.company}
-									- {contact.company}
-								{/if}
-							</option>
-						{/each}
-					</Select>
-				{/await}
-			</Field>
+						value={date_input_value}
+						oninput={handle_date_change}
+					/>
+					<input type="hidden" name="due_date" value={timestamp} />
+				</Field>
 
-			<Field
-				legend="Due Date"
-				helper_text="When do you want to follow up with this contact?"
-			>
-				<Input
-					type="datetime-local"
-					required
-					value={date_input_value}
-					oninput={handle_date_change}
-				/>
-				<input type="hidden" name="due_date" value={timestamp} />
-			</Field>
+				<Field legend="Notes (Optional)">
+					<Textarea
+						name="note"
+						rows={6}
+						placeholder="What do you need to follow up about?"
+						attachment={ctrl_enter_submit()}
+					/>
+				</Field>
 
-			<Field legend="Notes (Optional)">
-				<Textarea
-					name="note"
-					rows={6}
-					placeholder="What do you need to follow up about?"
-					attachment={ctrl_enter_submit()}
-				/>
-			</Field>
-
-			<div class="card-actions justify-end">
-				<a href="/follow-ups" class="btn btn-outline">Cancel</a>
-				<Button type="submit" variant="primary">
-					Create Follow-up
-				</Button>
-			</div>
-		</div>
+				<div class="card-actions justify-end">
+					<a href="/follow-ups" class="btn btn-outline">Cancel</a>
+					<Button type="submit" variant="primary">
+						Create Follow-up
+					</Button>
+				</div>
+			{/snippet}
+		</BaseCard>
 	</form>
 {/await}

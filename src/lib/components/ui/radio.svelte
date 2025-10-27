@@ -1,29 +1,26 @@
 <script lang="ts">
-	interface Props {
+	import type { HTMLInputAttributes } from 'svelte/elements';
+
+	interface Props
+		extends Omit<HTMLInputAttributes, 'type' | 'checked'> {
 		name: string;
 		value: string;
 		checked?: boolean;
-		disabled?: boolean;
-		class_name?: string;
 		label?: string;
-		aria_label?: string;
-		onchange?: (e: Event) => void;
 	}
 
 	let {
 		name,
 		value,
 		checked = false,
-		disabled = false,
-		class_name = '',
+		class: className = '',
 		label = '',
-		aria_label = undefined,
-		onchange = undefined,
+		...restProps
 	}: Props = $props();
 
 	const base_classes = 'radio radio-primary';
 	const computed_classes = $derived(
-		[base_classes, class_name].filter(Boolean).join(' '),
+		[base_classes, className].filter(Boolean).join(' '),
 	);
 </script>
 
@@ -34,10 +31,8 @@
 			{name}
 			{value}
 			{checked}
-			{disabled}
-			aria-label={aria_label}
-			{onchange}
 			class={computed_classes}
+			{...restProps}
 		/>
 		<span>{label}</span>
 	</label>
@@ -47,9 +42,7 @@
 		{name}
 		{value}
 		{checked}
-		{disabled}
-		aria-label={aria_label}
-		{onchange}
 		class={computed_classes}
+		{...restProps}
 	/>
 {/if}

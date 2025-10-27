@@ -1,8 +1,8 @@
 <script lang="ts">
-	import { Button, Field, Input } from './ui';
 	import { Trash } from '$lib/icons';
 	import ConfirmDialog from './confirm-dialog.svelte';
 	import SocialLinkIcon from './social-link.svelte';
+	import { Button, Field, Input } from './ui';
 
 	interface SocialLink {
 		id: string;
@@ -131,6 +131,7 @@
 							type="button"
 							onclick={() => handle_delete_click(link.id)}
 							class="btn btn-ghost btn-xs"
+							aria-label="Remove social link"
 						>
 							<Trash size="16px" class_names="text-error" />
 						</button>

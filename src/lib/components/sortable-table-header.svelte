@@ -20,6 +20,12 @@
 		center = false,
 		class_names = '',
 	}: Props = $props();
+
+	const aria_label = $derived(
+		current_sort === column
+			? `Sort by ${label} ${sort_direction === 'asc' ? 'descending' : 'ascending'}`
+			: `Sort by ${label}`,
+	);
 </script>
 
 <th class="p-0 {center ? 'text-center' : ''} {class_names}">
@@ -28,6 +34,7 @@
 		class="flex w-full items-center gap-1 px-4 py-3 hover:underline {center
 			? 'justify-center'
 			: ''}"
+		aria-label={aria_label}
 	>
 		{label}
 		{#if current_sort === column}

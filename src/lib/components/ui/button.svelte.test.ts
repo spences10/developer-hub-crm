@@ -1,7 +1,7 @@
-import { page } from 'vitest/browser';
 import { createRawSnippet } from 'svelte';
 import { describe, expect, it, vi } from 'vitest';
 import { render } from 'vitest-browser-svelte';
+import { page } from 'vitest/browser';
 import Button from './button.svelte';
 
 describe('Button', () => {
@@ -193,7 +193,7 @@ describe('Button', () => {
 		}));
 
 		render(Button, {
-			class_name: 'my-custom-class',
+			class: 'my-custom-class',
 			children,
 		});
 
@@ -209,7 +209,7 @@ describe('Button', () => {
 		render(Button, {
 			variant: 'primary',
 			size: 'lg',
-			class_name: 'custom-spacing',
+			class: 'custom-spacing',
 			children,
 		});
 

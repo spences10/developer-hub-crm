@@ -1,4 +1,5 @@
 <script lang="ts">
+	import BaseCard from '$lib/components/base-card.svelte';
 	import { format } from 'date-fns';
 
 	interface ConnectionStatus {
@@ -80,8 +81,8 @@
 
 {#if !connection.connected}
 	<!-- Not connected to GitHub -->
-	<div class="card mb-6 bg-base-100 shadow-xl">
-		<div class="card-body">
+	<BaseCard class="mb-6">
+		{#snippet children()}
 			<h2 class="card-title">Connect Your GitHub Account</h2>
 			<p class="text-sm opacity-70">
 				To import contacts from GitHub, you need to connect your
@@ -101,12 +102,12 @@
 					{/if}
 				</button>
 			</div>
-		</div>
-	</div>
+		{/snippet}
+	</BaseCard>
 {:else if !connection.has_follow_scope}
 	<!-- Connected but missing scope -->
-	<div class="card mb-6 bg-base-100 shadow-xl">
-		<div class="card-body">
+	<BaseCard class="mb-6">
+		{#snippet children()}
 			<h2 class="card-title">Additional Permission Required</h2>
 			<p class="text-sm opacity-70">
 				Your GitHub account is connected, but we need additional
@@ -134,12 +135,12 @@
 					{/if}
 				</button>
 			</div>
-		</div>
-	</div>
+		{/snippet}
+	</BaseCard>
 {:else}
 	<!-- Connected with proper scope -->
-	<div class="card mb-6 bg-base-100 shadow-xl">
-		<div class="card-body">
+	<BaseCard class="mb-6">
+		{#snippet children()}
 			<h2 class="card-title">GitHub Connected</h2>
 			<p class="text-sm opacity-70">
 				Your GitHub account (@{connection.username}) is connected and
@@ -318,6 +319,6 @@
 					</button>
 				</div>
 			{/if}
-		</div>
-	</div>
+		{/snippet}
+	</BaseCard>
 {/if}

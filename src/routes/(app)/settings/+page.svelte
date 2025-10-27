@@ -1,6 +1,7 @@
 <script lang="ts">
-	import { Field, Input, Select } from '$lib/components/ui';
+	import BaseCard from '$lib/components/base-card.svelte';
 	import PageNav from '$lib/components/page-nav.svelte';
+	import { Field, Input, Select } from '$lib/components/ui';
 	import { seo_configs } from '$lib/seo';
 	import { themes } from '$lib/themes';
 	import { format_date } from '$lib/utils/date-helpers';
@@ -107,8 +108,8 @@
 {:then preferences_data}
 	<div class="grid grid-cols-1 gap-6 md:grid-cols-2">
 		<!-- Theme Selector -->
-		<div class="card bg-base-100 shadow-xl">
-			<div class="card-body">
+		<BaseCard>
+			{#snippet children()}
 				<h2 class="card-title">Theme</h2>
 				<p class="text-sm opacity-70">
 					Choose a color theme for the application
@@ -125,7 +126,8 @@
 								Choose a theme
 							</option>
 							{#each themes as theme}
-								<option value={theme} class="capitalize">{theme}</option
+								<option value={theme} class="capitalize"
+									>{theme}</option
 								>
 							{/each}
 						</Select>
@@ -133,8 +135,8 @@
 				</div>
 
 				<ThemePreview {current_theme} />
-			</div>
-		</div>
+			{/snippet}
+		</BaseCard>
 
 		<RadioGroupSetting
 			title="Date Format"
@@ -170,8 +172,8 @@
 		/>
 
 		<!-- Default Follow-up Offset -->
-		<div class="card bg-base-100 shadow-xl">
-			<div class="card-body">
+		<BaseCard>
+			{#snippet children()}
 				<h2 class="card-title">Default Follow-up Offset</h2>
 				<p class="text-sm opacity-70">
 					When creating follow-ups, auto-set due date to this many
@@ -196,12 +198,12 @@
 					</Field>
 					<span class="ml-2 text-sm opacity-60">days</span>
 				</div>
-			</div>
-		</div>
+			{/snippet}
+		</BaseCard>
 
 		<!-- Default Interaction Type -->
-		<div class="card bg-base-100 shadow-xl">
-			<div class="card-body">
+		<BaseCard>
+			{#snippet children()}
 				<h2 class="card-title">Default Interaction Type</h2>
 				<p class="text-sm opacity-70">
 					Pre-select this interaction type when logging new
@@ -217,7 +219,8 @@
 						{:then types}
 							<Select
 								name="default_interaction_type"
-								value={preferences_data.default_interaction_type || ''}
+								value={preferences_data.default_interaction_type ||
+									''}
 								onchange={(e) =>
 									save_with_indicator(() =>
 										update_default_interaction_type(
@@ -233,8 +236,8 @@
 						{/await}
 					</Field>
 				</div>
-			</div>
-		</div>
+			{/snippet}
+		</BaseCard>
 
 		<InteractionTypesManager {interaction_types} />
 	</div>

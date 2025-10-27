@@ -1,5 +1,6 @@
 <script lang="ts">
 	import ActivityCard from '$lib/components/activity-card.svelte';
+	import BaseCard from '$lib/components/base-card.svelte';
 	import EmptyState from '$lib/components/empty-state.svelte';
 	import FilterTabs from '$lib/components/filter-tabs.svelte';
 	import ItemCount from '$lib/components/item-count.svelte';
@@ -202,10 +203,8 @@
 					: get_icon_component('Calendar')}
 				{#if edit_interaction_id === interaction.id}
 					<!-- Edit Mode -->
-					<div
-						class="card bg-base-100 shadow-md transition-shadow hover:shadow-lg"
-					>
-						<div class="card-body p-4">
+					<BaseCard class="shadow-md transition-shadow hover:shadow-lg" body_class="p-4">
+						{#snippet children()}
 							<div class="space-y-4">
 								<div class="flex items-center justify-between">
 									<a
@@ -264,8 +263,8 @@
 									</button>
 								</div>
 							</div>
-						</div>
-					</div>
+						{/snippet}
+					</BaseCard>
 				{:else}
 					<!-- View Mode -->
 					<ActivityCard

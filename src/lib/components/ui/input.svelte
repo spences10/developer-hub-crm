@@ -1,84 +1,30 @@
 <script lang="ts">
 	import type { AttachmentFn } from '$lib/utils/keyboard-attachments';
+	import type { HTMLInputAttributes } from 'svelte/elements';
 
-	interface Props {
-		type?: string;
-		name?: string;
+	interface Props extends HTMLInputAttributes {
 		value?: string | number;
-		placeholder?: string;
-		required?: boolean;
-		disabled?: boolean;
-		validator?: boolean;
-		class_name?: string;
-		minlength?: number;
-		maxlength?: number;
-		min?: number;
-		max?: number;
-		aria_label?: string;
-		aria_describedby?: string;
-		onblur?: (
-			e: FocusEvent & { currentTarget: HTMLInputElement },
-		) => void;
-		oninput?: (
-			e: Event & { currentTarget: HTMLInputElement },
-		) => void;
-		onchange?: (
-			e: Event & { currentTarget: HTMLInputElement },
-		) => void;
 		attachment?: AttachmentFn;
 	}
 
 	let {
 		type = 'text',
-		name = undefined,
 		value = $bindable(),
-		placeholder = '',
-		required = false,
-		disabled = false,
-		validator = false,
-		class_name = '',
-		minlength = undefined,
-		maxlength = undefined,
-		min = undefined,
-		max = undefined,
-		aria_label = undefined,
-		aria_describedby = undefined,
-		onblur = undefined,
-		oninput = undefined,
-		onchange = undefined,
+		class: className = '',
 		attachment = undefined,
+		...restProps
 	}: Props = $props();
 
-	const base_wrapper_classes = 'input w-full';
-	const wrapper_classes = $derived(
-		validator
-			? `validator ${base_wrapper_classes}`
-			: base_wrapper_classes,
-	);
-
-	const input_classes = $derived(
-		['grow', class_name].filter(Boolean).join(' '),
+	const base_classes = 'input w-full';
+	const computed_classes = $derived(
+		[base_classes, className].filter(Boolean).join(' '),
 	);
 </script>
 
-<label class={wrapper_classes}>
-	<input
-		{type}
-		{name}
-		bind:value
-		{placeholder}
-		{required}
-		{disabled}
-		{minlength}
-		{maxlength}
-		{min}
-		{max}
-		aria-label={aria_label}
-		aria-describedby={aria_describedby}
-		{onblur}
-		{oninput}
-		{onchange}
-		class={input_classes}
-		{@attach attachment}
-	/>
-</label>
+<input
+	{type}
+	bind:value
+	class={computed_classes}
+	{@attach attachment}
+	{...restProps}
+/>

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import StatCard from '$lib/components/stat-card.svelte';
+	import BaseCard from '$lib/components/base-card.svelte';
 	import type { Component } from 'svelte';
 
 	interface StatCardData {
@@ -21,14 +21,23 @@
 
 <div class="mb-6 grid grid-cols-2 gap-4 md:grid-cols-4">
 	{#each stats_cards as stat}
-		<StatCard
-			icon={stat.icon}
-			icon_color={stat.icon_color}
-			value={stat.value}
-			value_color={stat.value_color}
-			label={stat.label}
-			sublabel={stat.sublabel}
-			sublabel_color={stat.sublabel_color}
-		/>
+		<BaseCard variant="stat" shadow="md" body_class="p-4">
+			{#snippet children()}
+				<div class="mb-2 flex items-center justify-center">
+					<stat.icon size="28px" class_names={stat.icon_color} />
+				</div>
+				<div class="mb-1 text-2xl font-extrabold {stat.value_color}">
+					{stat.value}
+				</div>
+				<div class="text-xs font-semibold opacity-70">
+					{stat.label}
+				</div>
+				{#if stat.sublabel}
+					<div class="text-xs {stat.sublabel_color}">
+						{stat.sublabel}
+					</div>
+				{/if}
+			{/snippet}
+		</BaseCard>
 	{/each}
 </div>

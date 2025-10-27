@@ -1,4 +1,5 @@
 <script lang="ts">
+	import BaseCard from '$lib/components/base-card.svelte';
 	import EmptyState from '$lib/components/empty-state.svelte';
 	import FollowUpCard from '$lib/components/follow-up-card.svelte';
 	import InteractionCard from '$lib/components/interaction-card.svelte';
@@ -85,8 +86,8 @@
 		<div class="mb-8 grid gap-6 lg:grid-cols-2">
 			<!-- Network Activity Widget -->
 			{#if insights.interaction_insights.total_interactions > 0}
-				<div class="card bg-base-100 shadow-xl">
-					<div class="card-body">
+				<BaseCard>
+					{#snippet children()}
 						<div class="mb-4 flex items-center justify-between">
 							<h2 class="card-title">Network Activity</h2>
 							<span class="text-xs opacity-60"> Last 30 days </span>
@@ -200,17 +201,19 @@
 								</div>
 							</div>
 						{/if}
-					</div>
-				</div>
+					{/snippet}
+				</BaseCard>
 			{/if}
 
 			<!-- Reconnect Suggestions Widget -->
 			{#if insights.reconnect_suggestions.length > 0}
-				<div class="card bg-base-100 shadow-xl">
-					<div class="card-body">
+				<BaseCard>
+					{#snippet children()}
 						<div class="mb-4 flex items-center justify-between">
 							<h2 class="card-title">Consider Reconnecting</h2>
-							<span class="text-xs opacity-60"> <Sparkles /> </span>
+							<span class="text-xs opacity-60">
+								<Sparkles gradient={true} />
+							</span>
 						</div>
 						<div class="space-y-3">
 							{#each insights.reconnect_suggestions as suggestion}
@@ -236,8 +239,8 @@
 								</a>
 							{/each}
 						</div>
-					</div>
-				</div>
+					{/snippet}
+				</BaseCard>
 			{/if}
 		</div>
 	{/if}
@@ -262,10 +265,8 @@
 	>
 		<!-- Overdue Follow-ups (if any) -->
 		{#if activity.overdue_follow_ups.length > 0}
-			<div
-				class="card border-2 border-warning bg-base-100 shadow-xl lg:col-span-2"
-			>
-				<div class="card-body">
+			<BaseCard class="border-2 border-warning lg:col-span-2">
+				{#snippet children()}
 					<div class="mb-4 flex items-center justify-between">
 						<h2
 							class="card-title flex items-center gap-2 text-warning"
@@ -293,13 +294,13 @@
 							{/await}
 						{/each}
 					</div>
-				</div>
-			</div>
+				{/snippet}
+			</BaseCard>
 		{/if}
 
 		<!-- Upcoming Follow-ups -->
-		<div class="card bg-base-100 shadow-xl">
-			<div class="card-body">
+		<BaseCard>
+			{#snippet children()}
 				<div class="mb-4 flex items-center justify-between">
 					<h2 class="card-title">Upcoming Follow-ups</h2>
 					<a href="/follow-ups" class="link text-sm link-primary">
@@ -323,12 +324,12 @@
 						{/each}
 					</div>
 				{/if}
-			</div>
-		</div>
+			{/snippet}
+		</BaseCard>
 
 		<!-- Recent Interactions -->
-		<div class="card bg-base-100 shadow-xl">
-			<div class="card-body">
+		<BaseCard>
+			{#snippet children()}
 				<div class="mb-4 flex items-center justify-between">
 					<h2 class="card-title">Recent Interactions</h2>
 					<a href="/interactions" class="link text-sm link-primary">
@@ -348,7 +349,7 @@
 						{/each}
 					</div>
 				{/if}
-			</div>
-		</div>
+			{/snippet}
+		</BaseCard>
 	</div>
 {/if}

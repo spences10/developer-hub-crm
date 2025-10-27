@@ -1,29 +1,22 @@
 <script lang="ts">
-	interface Props {
-		name?: string;
+	import type { HTMLInputAttributes } from 'svelte/elements';
+
+	interface Props
+		extends Omit<HTMLInputAttributes, 'type' | 'checked'> {
 		checked?: boolean;
-		disabled?: boolean;
-		class_name?: string;
 		label?: string;
-		aria_label?: string;
-		onchange?: (
-			e: Event & { currentTarget: HTMLInputElement },
-		) => void;
 	}
 
 	let {
-		name = undefined,
 		checked = $bindable(false),
-		disabled = false,
-		class_name = '',
+		class: className = '',
 		label = '',
-		aria_label = undefined,
-		onchange = undefined,
+		...restProps
 	}: Props = $props();
 
 	const base_classes = 'checkbox';
 	const computed_classes = $derived(
-		[base_classes, class_name].filter(Boolean).join(' '),
+		[base_classes, className].filter(Boolean).join(' '),
 	);
 </script>
 
@@ -31,23 +24,17 @@
 	<label class="flex cursor-pointer items-center gap-2">
 		<input
 			type="checkbox"
-			{name}
 			bind:checked
-			{disabled}
-			aria-label={aria_label}
-			{onchange}
 			class={computed_classes}
+			{...restProps}
 		/>
 		<span>{label}</span>
 	</label>
 {:else}
 	<input
 		type="checkbox"
-		{name}
 		bind:checked
-		{disabled}
-		aria-label={aria_label}
-		{onchange}
 		class={computed_classes}
+		{...restProps}
 	/>
 {/if}

@@ -1,28 +1,25 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
+	import type { HTMLButtonAttributes } from 'svelte/elements';
 
-	interface Props {
-		type?: 'button' | 'submit';
+	interface Props extends HTMLButtonAttributes {
 		variant?: 'primary' | 'outline' | 'ghost' | 'error' | 'success';
 		size?: 'xs' | 'sm' | 'md' | 'lg' | 'block';
 		loading?: boolean;
-		disabled?: boolean;
-		class_name?: string;
-		aria_label?: string;
-		onclick?: () => void;
+		ref?: HTMLButtonElement | null;
 		children: Snippet;
 	}
 
 	let {
+		class: className = '',
 		type = 'button',
 		variant = 'primary',
 		size = 'md',
 		loading = false,
 		disabled = false,
-		class_name = '',
-		aria_label = undefined,
-		onclick,
+		ref = $bindable(null),
 		children,
+		...restProps
 	}: Props = $props();
 
 	const base_classes = 'btn';
@@ -48,18 +45,18 @@
 	);
 
 	const computed_classes = $derived(
-		[base_classes, variant_classes, size_classes, class_name]
+		[base_classes, variant_classes, size_classes, className]
 			.filter(Boolean)
 			.join(' '),
 	);
 </script>
 
 <button
+	bind:this={ref}
 	{type}
 	disabled={disabled || loading}
 	class={computed_classes}
-	aria-label={aria_label}
-	{onclick}
+	{...restProps}
 >
 	{#if loading}
 		<span class="loading loading-sm loading-spinner"></span>

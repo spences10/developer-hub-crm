@@ -1,4 +1,5 @@
 <script lang="ts">
+	import BaseCard from '$lib/components/base-card.svelte';
 	import type { InteractionType } from '$lib/types/interaction-type';
 	import {
 		get_color_name,
@@ -111,8 +112,8 @@
 	}
 </script>
 
-<div class="card col-span-full bg-base-100 shadow-xl">
-	<div class="card-body">
+<BaseCard class="col-span-full">
+	{#snippet children()}
 		<div class="flex items-center justify-between">
 			<div>
 				<h2 class="card-title">Manage Interaction Types</h2>
@@ -207,8 +208,12 @@
 			<div class="mt-4 space-y-3 sm:hidden">
 				{#each types as type (type.id)}
 					{@const IconComponent = get_icon_component(type.icon)}
-					<div class="card bg-base-200">
-						<div class="card-body p-4">
+					<BaseCard
+						background="bg-base-200"
+						body_class="p-4"
+						shadow="none"
+					>
+						{#snippet children()}
 							<div class="flex items-start justify-between gap-2">
 								<div class="flex-1">
 									<h3 class="font-bold">{type.label}</h3>
@@ -261,8 +266,8 @@
 									</button>
 								</div>
 							{/if}
-						</div>
-					</div>
+						{/snippet}
+					</BaseCard>
 				{/each}
 			</div>
 		{:catch error}
@@ -270,8 +275,8 @@
 				<span>Failed to load interaction types</span>
 			</div>
 		{/await}
-	</div>
-</div>
+	{/snippet}
+</BaseCard>
 
 <InteractionTypeModal
 	show={show_type_modal}

@@ -1,7 +1,8 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
+	import type { HTMLAttributes } from 'svelte/elements';
 
-	interface Props {
+	interface Props extends HTMLAttributes<HTMLElement> {
 		// Link behavior
 		href?: string | null;
 		// Main heading
@@ -13,8 +14,8 @@
 		note_truncate?: number;
 		// Additional content via snippet
 		extra_content?: Snippet;
-		// Custom classes
-		item_class?: string;
+		// Variant controls default styling
+		variant?: 'default' | 'elevated' | 'plain';
 	}
 
 	let {
@@ -24,7 +25,9 @@
 		note,
 		note_truncate = 50,
 		extra_content,
-		item_class = '',
+		variant = 'default',
+		class: className = '',
+		...restProps
 	}: Props = $props();
 
 	function truncate_text(text: string, length: number): string {
@@ -32,46 +35,47 @@
 		return text.substring(0, length) + '...';
 	}
 
-	const base_classes = `block rounded-box bg-base-200 p-3 ${item_class}`;
-	const link_classes = `${base_classes} transition hover:bg-base-300`;
+	const variant_classes = $derived(
+		{
+			default: 'rounded-box bg-base-200',
+			elevated: 'rounded-box bg-base-100 shadow',
+			plain: '',
+		}[variant],
+	);
+
+	const base_classes = $derived(
+		['block p-3', variant_classes, className]
+			.filter(Boolean)
+			.join(' '),
+	);
+
+	const link_classes = $derived(
+		href
+			? `${base_classes} transition hover:bg-base-300`
+			: base_classes,
+	);
 </script>
 
-{#if href}
-	<a {href} class={link_classes}>
-		{#if heading}
-			<p class="mb-1 font-semibold">
-				{heading}
-			</p>
-		{/if}
-		<div class="mb-1">
-			{@render metadata()}
-		</div>
-		{#if note}
-			<p class="text-sm opacity-70">
-				{truncate_text(note, note_truncate)}
-			</p>
-		{/if}
-		{#if extra_content}
-			{@render extra_content()}
-		{/if}
-	</a>
-{:else}
-	<div class={base_classes}>
-		{#if heading}
-			<p class="mb-1 font-semibold">
-				{heading}
-			</p>
-		{/if}
-		<div class="mb-1">
-			{@render metadata()}
-		</div>
-		{#if note}
-			<p class="text-sm opacity-70">
-				{truncate_text(note, note_truncate)}
-			</p>
-		{/if}
-		{#if extra_content}
-			{@render extra_content()}
-		{/if}
+<svelte:element
+	this={href ? 'a' : 'div'}
+	href={href || undefined}
+	class={link_classes}
+	{...restProps}
+>
+	{#if heading}
+		<p class="mb-1 font-semibold">
+			{heading}
+		</p>
+	{/if}
+	<div class="mb-1">
+		{@render metadata()}
 	</div>
-{/if}
+	{#if note}
+		<p class="text-sm opacity-70">
+			{truncate_text(note, note_truncate)}
+		</p>
+	{/if}
+	{#if extra_content}
+		{@render extra_content()}
+	{/if}
+</svelte:element>

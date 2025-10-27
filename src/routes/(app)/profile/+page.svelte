@@ -1,7 +1,8 @@
 <script lang="ts">
-	import { Field, Input, Radio, Textarea } from '$lib/components/ui';
+	import BaseCard from '$lib/components/base-card.svelte';
 	import PageNav from '$lib/components/page-nav.svelte';
 	import SocialLinksManager from '$lib/components/social-links-manager.svelte';
+	import { Field, Input, Radio, Textarea } from '$lib/components/ui';
 	import { Email, GitHub } from '$lib/icons';
 	import { seo_configs } from '$lib/seo';
 	import { generate_qr_code_data_url } from '$lib/utils/qr-code';
@@ -105,8 +106,8 @@
 {:then profile_data}
 	<div class="grid grid-cols-1 gap-6 md:grid-cols-2">
 		<!-- Account & Security -->
-		<div class="card bg-base-100 shadow-xl md:col-span-2">
-			<div class="card-body">
+		<BaseCard class="md:col-span-2">
+			{#snippet children()}
 				<h2 class="card-title">Account & Security</h2>
 				<p class="text-sm opacity-70">
 					Manage your account information, authentication methods, and
@@ -310,12 +311,12 @@
 						</div>
 					</div>
 				</div>
-			</div>
-		</div>
+			{/snippet}
+		</BaseCard>
 
 		<!-- Public Profile -->
-		<div class="card bg-base-100 shadow-xl md:col-span-2">
-			<div class="card-body">
+		<BaseCard class="md:col-span-2">
+			{#snippet children()}
 				<h2 class="card-title">Public Profile</h2>
 				<p class="text-sm opacity-70">
 					Information displayed on your public profile page
@@ -402,12 +403,12 @@
 						</Field>
 					</div>
 				</div>
-			</div>
-		</div>
+			{/snippet}
+		</BaseCard>
 
 		<!-- Social Links -->
-		<div class="card bg-base-100 shadow-xl">
-			<div class="card-body">
+		<BaseCard>
+			{#snippet children()}
 				<h2 class="card-title">Social Links</h2>
 				<p class="text-sm opacity-70">
 					Add links to your social media profiles
@@ -426,12 +427,12 @@
 						}}
 					/>
 				{/await}
-			</div>
-		</div>
+			{/snippet}
+		</BaseCard>
 
 		<!-- QR Code -->
-		<div class="card bg-base-100 shadow-xl">
-			<div class="card-body">
+		<BaseCard>
+			{#snippet children()}
 				<h2 class="card-title">Profile QR Code</h2>
 				<p class="text-sm opacity-70">
 					Your unique QR code that links to your public profile
@@ -486,8 +487,8 @@
 						</ul>
 					</div>
 				</div>
-			</div>
-		</div>
+			{/snippet}
+		</BaseCard>
 
 		<!-- Delete Account - Danger Zone -->
 		<div class="md:col-span-2">

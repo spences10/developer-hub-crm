@@ -1,10 +1,11 @@
 <script lang="ts">
-	import { Button, Field, Input } from '$lib/components/ui';
+	import BaseCard from '$lib/components/base-card.svelte';
 	import ContactFormFields from '$lib/components/contact-form-fields.svelte';
 	import FormActions from '$lib/components/form-actions.svelte';
 	import PageHeaderWithAction from '$lib/components/page-header-with-action.svelte';
 	import PageNav from '$lib/components/page-nav.svelte';
 	import SocialLinksList from '$lib/components/social-links-list.svelte';
+	import { Button, Field, Input } from '$lib/components/ui';
 	import {
 		create_contact,
 		fetch_github_data,
@@ -77,8 +78,8 @@
 <PageNav />
 
 <!-- GitHub Import Section -->
-<div class="card mb-6 border border-primary bg-base-100 shadow-md">
-	<div class="card-body">
+<BaseCard class="mb-6 border border-primary shadow-md">
+	{#snippet children()}
 		<h2 class="card-title text-lg text-primary">
 			Quick Import from GitHub
 		</h2>
@@ -102,7 +103,7 @@
 			<Button
 				variant="primary"
 				disabled={!github_input.trim()}
-				loading={loading}
+				{loading}
 				onclick={handle_github_import}
 			>
 				Fetch Profile
@@ -113,12 +114,12 @@
 				<span>{error}</span>
 			</div>
 		{/if}
-	</div>
-</div>
+	{/snippet}
+</BaseCard>
 
 <!-- Contact Form -->
-<div class="card bg-base-100 shadow-xl">
-	<div class="card-body">
+<BaseCard>
+	{#snippet children()}
 		<form {...create_contact} class="space-y-4">
 			<!-- Hidden field for social links -->
 			<input
@@ -152,5 +153,5 @@
 				cancel_href="/contacts"
 			/>
 		</form>
-	</div>
-</div>
+	{/snippet}
+</BaseCard>

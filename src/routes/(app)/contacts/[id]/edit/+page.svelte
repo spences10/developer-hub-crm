@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { page } from '$app/state';
+	import BaseCard from '$lib/components/base-card.svelte';
 	import PageNav from '$lib/components/page-nav.svelte';
 	import SocialLinksManager from '$lib/components/social-links-manager.svelte';
 	import TagManager from '$lib/components/tag-manager.svelte';
@@ -145,8 +146,8 @@
 	{@const contact = contact_query.current}
 	{@const is_vip = contact_state.is_vip ?? contact.is_vip === 1}
 	{#key contact_id}
-		<div class="card bg-base-100 shadow-xl">
-			<div class="card-body">
+		<BaseCard>
+			{#snippet children()}
 				<div class="space-y-4">
 					<!-- Row 1: Name, Email, Phone - Three Column Grid -->
 					<div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
@@ -363,7 +364,7 @@
 						</div>
 					{/if}
 				</div>
-			</div>
-		</div>
+			{/snippet}
+		</BaseCard>
 	{/key}
 {/if}
