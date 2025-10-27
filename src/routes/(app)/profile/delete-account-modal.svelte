@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
+	import { Button, Field, Input } from '$lib/components/ui';
 	import { Trash } from '$lib/icons';
 	import type { delete_account } from './profile.remote';
 
@@ -84,9 +85,9 @@
 		</div>
 
 		<div class="mt-4 card-actions justify-end">
-			<button class="btn btn-error" onclick={open_modal}>
+			<Button variant="error" onclick={open_modal}>
 				Delete My Account
-			</button>
+			</Button>
 		</div>
 	</div>
 </div>
@@ -103,20 +104,14 @@
 			</p>
 
 			<div class="space-y-4">
-				<fieldset class="fieldset">
-					<legend class="fieldset-legend">
-						Type <strong>DELETE</strong> to confirm
-					</legend>
-					<label class="input w-full">
-						<input
-							type="text"
-							class="grow"
-							placeholder="Type DELETE"
-							bind:value={confirmation}
-							disabled={deleting}
-						/>
-					</label>
-				</fieldset>
+				<Field legend="Type DELETE to confirm">
+					<Input
+						type="text"
+						placeholder="Type DELETE"
+						bind:value={confirmation}
+						disabled={deleting}
+					/>
+				</Field>
 
 				{#if error_message}
 					<div class="alert alert-error">
@@ -126,15 +121,15 @@
 			</div>
 
 			<div class="modal-action">
-				<button
-					class="btn btn-ghost"
+				<Button
+					variant="ghost"
 					onclick={close_modal}
 					disabled={deleting}
 				>
 					Cancel
-				</button>
-				<button
-					class="btn btn-error"
+				</Button>
+				<Button
+					variant="error"
 					onclick={handle_delete}
 					disabled={deleting || confirmation !== 'DELETE'}
 				>
@@ -144,7 +139,7 @@
 					{:else}
 						Delete Account
 					{/if}
-				</button>
+				</Button>
 			</div>
 		</div>
 		<!-- svelte-ignore a11y_click_events_have_key_events -->

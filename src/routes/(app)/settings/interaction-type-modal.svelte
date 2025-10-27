@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { Button, Field, Input, Select } from '$lib/components/ui';
 	import type { InteractionType } from '$lib/types/interaction-type';
 	import {
 		AVAILABLE_THEME_COLORS,
@@ -55,109 +56,101 @@
 				</div>
 			{/if}
 
-			<div class="form-control mt-4">
-				{#if !editingType}
-					<label class="label" for="form-value">
-						<span class="label-text">Value (identifier)</span>
-					</label>
-					<input
-						id="form-value"
+			{#if !editingType}
+				<div class="mt-4">
+					<Field legend="Value (identifier)">
+						<Input
+							id="form-value"
+							type="text"
+							name="form_value"
+							placeholder="my_type"
+							value={form_value}
+							onchange={(e) =>
+								onFormValueChange(e.currentTarget.value)}
+							disabled={form_loading}
+						/>
+						<span class="label-text-alt mt-1">
+							Lowercase letters, numbers, underscores only
+						</span>
+					</Field>
+				</div>
+			{/if}
+
+			<div class="mt-4">
+				<Field legend="Label (display name)">
+					<Input
+						id="form-label"
 						type="text"
-						placeholder="my_type"
-						class="input-bordered input"
-						value={form_value}
-						onchange={(e) => onFormValueChange(e.currentTarget.value)}
+						name="form_label"
+						placeholder="My Type"
+						value={form_label}
+						onchange={(e) => onFormLabelChange(e.currentTarget.value)}
 						disabled={form_loading}
 					/>
-					<span class="label-text-alt mt-1">
-						Lowercase letters, numbers, underscores only
-					</span>
-				{/if}
+				</Field>
 			</div>
 
-			<div class="form-control mt-4">
-				<label class="label" for="form-label">
-					<span class="label-text">Label (display name)</span>
-				</label>
-				<input
-					id="form-label"
-					type="text"
-					placeholder="My Type"
-					class="input-bordered input"
-					value={form_label}
-					onchange={(e) => onFormLabelChange(e.currentTarget.value)}
-					disabled={form_loading}
-				/>
+			<div class="mt-4">
+				<Field legend="Icon">
+					<Select
+						id="form-icon"
+						name="form_icon"
+						value={form_icon}
+						onchange={(e) => onFormIconChange(e.currentTarget.value)}
+						disabled={form_loading}
+					>
+						{#each get_available_icons() as icon}
+							<option value={icon}>{icon}</option>
+						{/each}
+					</Select>
+					{#if form_icon}
+						{@const IconComponent = get_icon_component(form_icon)}
+						<div class="mt-2 flex items-center gap-2">
+							<span class="text-sm">Preview:</span>
+							<IconComponent class="h-6 w-6" />
+						</div>
+					{/if}
+				</Field>
 			</div>
 
-			<div class="form-control mt-4">
-				<label class="label" for="form-icon">
-					<span class="label-text">Icon</span>
-				</label>
-				<select
-					id="form-icon"
-					class="select-bordered select"
-					value={form_icon}
-					onchange={(e) => onFormIconChange(e.currentTarget.value)}
-					disabled={form_loading}
-				>
-					{#each get_available_icons() as icon}
-						<option value={icon}>{icon}</option>
-					{/each}
-				</select>
-				{#if form_icon}
-					{@const IconComponent = get_icon_component(form_icon)}
-					<div class="mt-2 flex items-center gap-2">
+			<div class="mt-4">
+				<Field legend="Color">
+					<Select
+						id="form-color"
+						name="form_color"
+						value={form_color}
+						onchange={(e) => onFormColorChange(e.currentTarget.value)}
+						disabled={form_loading}
+					>
+						{#each AVAILABLE_THEME_COLORS as color}
+							<option value={color.value}>{color.name}</option>
+						{/each}
+					</Select>
+					<div class="mt-2">
 						<span class="text-sm">Preview:</span>
-						<IconComponent class="h-6 w-6" />
+						<div class="badge {form_color} mt-2 py-4">
+							{get_color_name(form_color)}
+						</div>
 					</div>
-				{/if}
-			</div>
-
-			<div class="form-control mt-4">
-				<label class="label" for="form-color">
-					<span class="label-text">Color</span>
-				</label>
-				<select
-					id="form-color"
-					class="select-bordered select"
-					value={form_color}
-					onchange={(e) => onFormColorChange(e.currentTarget.value)}
-					disabled={form_loading}
-				>
-					{#each AVAILABLE_THEME_COLORS as color}
-						<option value={color.value}>{color.name}</option>
-					{/each}
-				</select>
-				<div class="mt-2">
-					<span class="text-sm">Preview:</span>
-					<div class="badge {form_color} mt-2 py-4">
-						{get_color_name(form_color)}
-					</div>
-				</div>
+				</Field>
 			</div>
 
 			<div class="modal-action mt-6">
-				<button
-					type="button"
-					class="btn btn-ghost"
+				<Button
+					variant="ghost"
 					onclick={onClose}
 					disabled={form_loading}
 				>
 					Cancel
-				</button>
-				<button
-					type="button"
-					class="btn btn-primary"
+				</Button>
+				<Button
+					variant="primary"
 					onclick={onSave}
 					disabled={form_loading || !form_label}
+					loading={form_loading}
 				>
-					{#if form_loading}
-						<span class="loading loading-sm loading-spinner"></span>
-					{:else}
-						{editingType ? 'Update' : 'Create'}
-					{/if}
-				</button>
+					{editingType ? 'Update' : 'Create'}
+				</Button>
 			</div>
 		</div>
 		<div

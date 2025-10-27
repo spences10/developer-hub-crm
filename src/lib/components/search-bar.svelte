@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { Field, Input } from './ui';
+
 	interface Props {
 		value: string;
 		placeholder: string;
@@ -13,16 +15,13 @@
 </script>
 
 <div class="mb-6">
-	<fieldset class="fieldset">
-		<legend class="fieldset-legend">Search</legend>
-		<label class="input w-full">
-			<input
-				type="text"
-				bind:value
-				{placeholder}
-				class="grow"
-				oninput={() => on_change(value)}
-			/>
-		</label>
-	</fieldset>
+	<Field legend="Search">
+		<Input
+			type="text"
+			name="search"
+			bind:value
+			{placeholder}
+			oninput={() => on_change(value)}
+		/>
+	</Field>
 </div>

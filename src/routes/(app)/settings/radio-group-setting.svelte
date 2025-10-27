@@ -1,4 +1,6 @@
 <script lang="ts">
+	import BaseCard from '$lib/components/base-card.svelte';
+
 	interface Option {
 		value: string;
 		label: string;
@@ -32,8 +34,8 @@
 	}
 </script>
 
-<div class="card bg-base-100 shadow-xl">
-	<div class="card-body">
+<BaseCard>
+	{#snippet children()}
 		<h2 class="card-title">{title}</h2>
 		<p class="text-sm opacity-70">{description}</p>
 
@@ -62,5 +64,5 @@
 				</label>
 			{/each}
 		</div>
-	</div>
-</div>
+	{/snippet}
+</BaseCard>

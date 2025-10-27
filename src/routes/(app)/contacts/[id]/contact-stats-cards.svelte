@@ -1,7 +1,8 @@
 <script lang="ts">
+	import BaseCard from '$lib/components/base-card.svelte';
 	import type { Component } from 'svelte';
 
-	interface StatCard {
+	interface StatCardData {
 		icon: Component;
 		icon_color: string;
 		value: number | string;
@@ -12,7 +13,7 @@
 	}
 
 	interface Props {
-		stats_cards: StatCard[];
+		stats_cards: StatCardData[];
 	}
 
 	let { stats_cards }: Props = $props();
@@ -20,8 +21,8 @@
 
 <div class="mb-6 grid grid-cols-2 gap-4 md:grid-cols-4">
 	{#each stats_cards as stat}
-		<div class="card border border-base-300 bg-base-100 shadow">
-			<div class="card-body p-4 text-center">
+		<BaseCard variant="stat" shadow="md" body_class="p-4">
+			{#snippet children()}
 				<div class="mb-2 flex items-center justify-center">
 					<stat.icon size="28px" class_names={stat.icon_color} />
 				</div>
@@ -36,7 +37,7 @@
 						{stat.sublabel}
 					</div>
 				{/if}
-			</div>
-		</div>
+			{/snippet}
+		</BaseCard>
 	{/each}
 </div>

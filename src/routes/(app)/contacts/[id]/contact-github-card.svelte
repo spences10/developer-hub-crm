@@ -1,4 +1,5 @@
 <script lang="ts">
+	import BaseCard from '$lib/components/base-card.svelte';
 	import { GitHub } from '$lib/icons';
 
 	interface Props {
@@ -9,14 +10,13 @@
 </script>
 
 {#if github_username}
-	<div
-		class="card overflow-hidden border border-base-300 bg-gradient-to-br from-base-100 to-base-200 shadow-xl"
+	<BaseCard
+		icon={GitHub}
+		title="GitHub Profile"
+		variant="gradient"
+		card_class="overflow-hidden"
 	>
-		<div class="card-body">
-			<h2 class="mb-4 card-title flex items-center gap-2">
-				<GitHub size="24px" />
-				GitHub Profile
-			</h2>
+		{#snippet children()}
 			<div class="space-y-3">
 				<a
 					href="https://github.com/{github_username}"
@@ -32,6 +32,6 @@
 					GitHub
 				</p>
 			</div>
-		</div>
-	</div>
+		{/snippet}
+	</BaseCard>
 {/if}

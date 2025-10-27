@@ -1,5 +1,7 @@
 <script lang="ts">
 	import { page } from '$app/state';
+	import Surface from '$lib/components/surface.svelte';
+	import { Button } from '$lib/components/ui';
 	import {
 		ContactBook,
 		Globe,
@@ -150,15 +152,17 @@
 									>
 										{#each profile.social_links as link}
 											{@const Icon = get_platform_icon(link.platform)}
-											<a
+											<Button
 												href={link.url}
+												variant="outline"
+												size="sm"
+												class="gap-2"
 												target="_blank"
 												rel="noopener noreferrer"
-												class="btn gap-2 btn-outline btn-sm"
 											>
 												<Icon size="16px" />
 												{get_platform_label(link.platform)}
-											</a>
+											</Button>
 										{/each}
 									</div>
 								{/if}
@@ -185,8 +189,9 @@
 													</div>
 												{/if}
 
-												<button
-													class="btn btn-lg btn-primary"
+												<Button
+													size="lg"
+													variant="primary"
 													onclick={handle_add_contact}
 													disabled={adding}
 												>
@@ -198,16 +203,17 @@
 														<ContactBook size="24px" />
 														Add {profile.username} to My Contacts
 													{/if}
-												</button>
+												</Button>
 
 												{#if add_message?.type === 'success'}
 													<div class="mt-4">
-														<a
+														<Button
 															href="/contacts"
-															class="btn btn-outline btn-sm"
+															variant="outline"
+															size="sm"
 														>
 															View My Contacts
-														</a>
+														</Button>
 													</div>
 												{/if}
 											{:else}
@@ -218,13 +224,14 @@
 														CRM
 													</span>
 												</div>
-												<a
+												<Button
 													href="/register"
-													class="btn btn-lg btn-primary"
+													size="lg"
+													variant="primary"
 												>
 													<Rocket size="24px" />
 													Sign up to save {profile.username}'s contact
-												</a>
+												</Button>
 												<p class="mt-4 text-sm text-base-content/60">
 													Create your free account and get your own QR
 													profile
@@ -250,8 +257,9 @@
 											Scan to add {profile.username} to your Devhub CRM
 										</p>
 									{:else}
-										<div
-											class="mx-auto flex h-64 w-64 items-center justify-center rounded-box bg-base-200"
+										<Surface
+											class="mx-auto flex h-64 w-64 items-center justify-center"
+											padding="lg"
 										>
 											<div class="text-center">
 												<p class="text-base-content/40">
@@ -261,7 +269,7 @@
 													Generate one in Settings
 												</p>
 											</div>
-										</div>
+										</Surface>
 									{/if}
 								</div>
 							</div>
@@ -282,7 +290,7 @@
 								The profile @{username} doesn't exist or is not public.
 							</p>
 							<div class="card-actions justify-center">
-								<a href="/" class="btn btn-primary">Go Home</a>
+								<Button href="/" variant="primary">Go Home</Button>
 							</div>
 						</div>
 					</div>
@@ -305,7 +313,7 @@
 						? error.message
 						: String(error)}
 				</span>
-				<button class="btn btn-sm" onclick={reset}>Retry</button>
+				<Button size="sm" onclick={reset}>Retry</Button>
 			</div>
 		</div>
 	{/snippet}

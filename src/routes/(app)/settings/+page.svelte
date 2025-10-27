@@ -1,5 +1,7 @@
 <script lang="ts">
+	import BaseCard from '$lib/components/base-card.svelte';
 	import PageNav from '$lib/components/page-nav.svelte';
+	import { Field, Input, Select } from '$lib/components/ui';
 	import { seo_configs } from '$lib/seo';
 	import { themes } from '$lib/themes';
 	import { format_date } from '$lib/utils/date-helpers';
@@ -106,32 +108,35 @@
 {:then preferences_data}
 	<div class="grid grid-cols-1 gap-6 md:grid-cols-2">
 		<!-- Theme Selector -->
-		<div class="card bg-base-100 shadow-xl">
-			<div class="card-body">
+		<BaseCard>
+			{#snippet children()}
 				<h2 class="card-title">Theme</h2>
 				<p class="text-sm opacity-70">
 					Choose a color theme for the application
 				</p>
 
-				<label class="label mt-4">
-					<select
-						bind:value={current_theme}
-						class="select w-full max-w-xs capitalize"
-						onchange={set_theme}
-					>
-						<option value="" disabled={current_theme !== ''}>
-							Choose a theme
-						</option>
-						{#each themes as theme}
-							<option value={theme} class="capitalize">{theme}</option
-							>
-						{/each}
-					</select>
-				</label>
+				<div class="mt-4">
+					<Field legend="Choose Theme">
+						<Select
+							bind:value={current_theme}
+							name="theme"
+							onchange={set_theme}
+						>
+							<option value="" disabled={current_theme !== ''}>
+								Choose a theme
+							</option>
+							{#each themes as theme}
+								<option value={theme} class="capitalize"
+									>{theme}</option
+								>
+							{/each}
+						</Select>
+					</Field>
+				</div>
 
 				<ThemePreview {current_theme} />
-			</div>
-		</div>
+			{/snippet}
+		</BaseCard>
 
 		<RadioGroupSetting
 			title="Date Format"
@@ -167,69 +172,72 @@
 		/>
 
 		<!-- Default Follow-up Offset -->
-		<div class="card bg-base-100 shadow-xl">
-			<div class="card-body">
+		<BaseCard>
+			{#snippet children()}
 				<h2 class="card-title">Default Follow-up Offset</h2>
 				<p class="text-sm opacity-70">
 					When creating follow-ups, auto-set due date to this many
 					days from today
 				</p>
 
-				<label class="label mt-4">
-					<input
-						type="number"
-						name="default_follow_up_days"
-						min="1"
-						max="90"
-						value={preferences_data.default_follow_up_days}
-						class="input w-full max-w-xs"
-						onchange={(e) =>
-							save_with_indicator(() =>
-								update_default_follow_up_days(
-									Number(e.currentTarget.value),
-								),
-							)}
-					/>
+				<div class="mt-4 flex items-center gap-2">
+					<Field legend="Days from today">
+						<Input
+							type="number"
+							name="default_follow_up_days"
+							min={1}
+							max={90}
+							value={preferences_data.default_follow_up_days}
+							onchange={(e) =>
+								save_with_indicator(() =>
+									update_default_follow_up_days(
+										Number(e.currentTarget.value),
+									),
+								)}
+						/>
+					</Field>
 					<span class="ml-2 text-sm opacity-60">days</span>
-				</label>
-			</div>
-		</div>
+				</div>
+			{/snippet}
+		</BaseCard>
 
 		<!-- Default Interaction Type -->
-		<div class="card bg-base-100 shadow-xl">
-			<div class="card-body">
+		<BaseCard>
+			{#snippet children()}
 				<h2 class="card-title">Default Interaction Type</h2>
 				<p class="text-sm opacity-70">
 					Pre-select this interaction type when logging new
 					interactions
 				</p>
 
-				<label class="label mt-4">
-					{#await interaction_types}
-						<select disabled class="select w-full max-w-xs">
-							<option>Loading...</option>
-						</select>
-					{:then types}
-						<select
-							name="default_interaction_type"
-							class="select w-full max-w-xs"
-							value={preferences_data.default_interaction_type || ''}
-							onchange={(e) =>
-								save_with_indicator(() =>
-									update_default_interaction_type(
-										e.currentTarget.value || '',
-									),
-								)}
-						>
-							<option value="">None (no default)</option>
-							{#each types as type}
-								<option value={type.value}>{type.label}</option>
-							{/each}
-						</select>
-					{/await}
-				</label>
-			</div>
-		</div>
+				<div class="mt-4">
+					<Field legend="Default type">
+						{#await interaction_types}
+							<Select disabled name="default_interaction_type">
+								<option>Loading...</option>
+							</Select>
+						{:then types}
+							<Select
+								name="default_interaction_type"
+								value={preferences_data.default_interaction_type ||
+									''}
+								onchange={(e) =>
+									save_with_indicator(() =>
+										update_default_interaction_type(
+											e.currentTarget.value || '',
+										),
+									)}
+							>
+								<option value="">None (no default)</option>
+								{#each types as type}
+									<option value={type.value}>{type.label}</option>
+								{/each}
+							</Select>
+						{/await}
+					</Field>
+				</div>
+			{/snippet}
+		</BaseCard>
 
 		<InteractionTypesManager {interaction_types} />
 	</div>

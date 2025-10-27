@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { Button } from '$lib/components/ui';
+
 	interface Props {
 		message: string;
 		action_href?: string;
@@ -11,8 +13,10 @@
 <div class="py-12 text-center">
 	<p class="text-lg opacity-70">{message}</p>
 	{#if action_href && action_text}
-		<a href={action_href} class="btn mt-4 btn-primary">
-			{action_text}
-		</a>
+		<div class="mt-4 inline-flex">
+			<Button href={action_href} variant="primary">
+				{action_text}
+			</Button>
+		</div>
 	{/if}
 </div>

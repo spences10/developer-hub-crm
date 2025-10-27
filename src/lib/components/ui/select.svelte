@@ -1,39 +1,27 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
+	import type { HTMLSelectAttributes } from 'svelte/elements';
 
-	interface Props {
-		name?: string;
+	interface Props extends HTMLSelectAttributes {
 		value?: string;
-		required?: boolean;
-		disabled?: boolean;
 		class_name?: string;
-		onchange?: (e: Event) => void;
 		children: Snippet;
 	}
 
 	let {
-		name = undefined,
 		value = $bindable(''),
-		required = false,
-		disabled = false,
+		class: className = '',
 		class_name = '',
-		onchange = undefined,
 		children,
+		...restProps
 	}: Props = $props();
 
 	const base_classes = 'select w-full';
 	const computed_classes = $derived(
-		[base_classes, class_name].filter(Boolean).join(' '),
+		[base_classes, class_name, className].filter(Boolean).join(' '),
 	);
 </script>
 
-<select
-	{name}
-	bind:value
-	{required}
-	{disabled}
-	{onchange}
-	class={computed_classes}
->
+<select bind:value class={computed_classes} {...restProps}>
 	{@render children()}
 </select>

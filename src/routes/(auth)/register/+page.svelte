@@ -117,7 +117,7 @@
 						{placeholder}
 						required
 						validator
-						class_name="shadow-sm transition-all duration-300 focus:scale-[1.02] focus:shadow-md focus:ring-2 focus:ring-primary/20"
+						class="shadow-sm transition-all duration-300 focus:scale-[1.02] focus:shadow-md focus:ring-2 focus:ring-primary/20"
 						minlength={type === 'password' ? 8 : undefined}
 					/>
 				</Field>
@@ -164,7 +164,7 @@
 					type="submit"
 					variant="primary"
 					size="lg"
-					class_name="btn-block mt-8 shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-xl active:scale-95"
+					class="mt-8 btn-block shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-xl active:scale-95"
 				>
 					Create Account
 				</Button>
@@ -181,7 +181,7 @@
 				type="button"
 				variant="outline"
 				size="block"
-				class_name="animate-fade-in-up stagger-3 gap-2 opacity-0 transition-all duration-300 hover:scale-105 hover:shadow-lg active:scale-95"
+				class="animate-fade-in-up stagger-3 gap-2 opacity-0 transition-all duration-300 hover:scale-105 hover:shadow-lg active:scale-95"
 			>
 				<Github size="20px" />
 				Continue with GitHub

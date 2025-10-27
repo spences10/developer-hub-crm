@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
+	import { Button } from '$lib/components/ui';
 	import Logo from '$lib/logo.svelte';
 	import {
 		get_error_description,
@@ -69,7 +70,7 @@
 							</div>
 						</div>
 						<ul
-							class="dropdown-content menu z-[1] mt-3 w-52 menu-sm rounded-box bg-base-100 p-2 shadow"
+							class="dropdown-content menu z-1 mt-3 w-52 menu-sm rounded-box bg-base-100 p-2 shadow"
 						>
 							<li class="menu-title">
 								<span>{user.name}</span>
@@ -78,7 +79,13 @@
 							<li><a href="/contacts">Contacts</a></li>
 							<li><a href="/settings">Settings</a></li>
 							<li>
-								<button onclick={handle_logout}>Logout</button>
+								<Button
+									variant="ghost"
+									size="sm"
+									onclick={handle_logout}
+								>
+									Logout
+								</Button>
 							</li>
 						</ul>
 					</div>
@@ -108,14 +115,14 @@
 					<div
 						class="mt-8 card-actions flex flex-col gap-3 sm:flex-row"
 					>
-						<a href="/dashboard" class="btn btn-primary">
+						<Button href="/dashboard" variant="primary">
 							Go to Dashboard
-						</a>
-						<a href="/contacts" class="btn btn-ghost btn-outline">
+						</Button>
+						<Button href="/contacts" variant="outline">
 							View Contacts
-						</a>
+						</Button>
 						{#if status === 401}
-							<a href="/login" class="btn btn-secondary"> Log In </a>
+							<Button href="/login" variant="success">Log In</Button>
 						{/if}
 					</div>
 

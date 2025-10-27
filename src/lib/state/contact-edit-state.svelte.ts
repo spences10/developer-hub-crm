@@ -11,10 +11,13 @@ import type { FollowUp, Interaction } from '$lib/types/db';
 import {
 	complete_follow_up,
 	delete_follow_up,
+	get_all_follow_ups,
+	get_contact_follow_ups,
 	update_follow_up,
 } from '../../routes/(app)/follow-ups/follow-ups.remote';
 import {
 	delete_interaction,
+	get_interactions,
 	update_interaction,
 } from '../../routes/(app)/interactions/interactions.remote';
 
@@ -48,7 +51,7 @@ export function handle_edit_follow_up_click(
 	edit_state.edit_follow_up_note = follow_up.note || '';
 }
 
-export async function save_edit_follow_up() {
+export async function save_edit_follow_up(contact_id: string) {
 	if (!edit_state.edit_follow_up_id) return;
 	try {
 		const due_date = new Date(
@@ -58,7 +61,10 @@ export async function save_edit_follow_up() {
 			id: edit_state.edit_follow_up_id,
 			due_date,
 			note: edit_state.edit_follow_up_note,
-		});
+		}).updates(
+			get_contact_follow_ups(contact_id),
+			get_all_follow_ups(''),
+		);
 		edit_state.edit_follow_up_id = null;
 	} catch (error) {
 		console.error('Failed to update follow-up:', error);
@@ -70,9 +76,15 @@ export function cancel_edit_follow_up() {
 	edit_state.edit_follow_up_id = null;
 }
 
-export async function handle_complete_follow_up(id: string) {
+export async function handle_complete_follow_up(
+	id: string,
+	contact_id: string,
+) {
 	try {
-		await complete_follow_up(id);
+		await complete_follow_up(id).updates(
+			get_contact_follow_ups(contact_id),
+			get_all_follow_ups(''),
+		);
 	} catch (error) {
 		console.error('Failed to complete follow-up:', error);
 		throw error;
@@ -87,10 +99,13 @@ export function handle_delete_follow_up_click(
 	edit_state.delete_follow_up_id = id;
 }
 
-export async function confirm_delete_follow_up() {
+export async function confirm_delete_follow_up(contact_id: string) {
 	if (!edit_state.delete_follow_up_id) return;
 	try {
-		await delete_follow_up(edit_state.delete_follow_up_id);
+		await delete_follow_up(edit_state.delete_follow_up_id).updates(
+			get_contact_follow_ups(contact_id),
+			get_all_follow_ups(''),
+		);
 		edit_state.delete_follow_up_id = null;
 	} catch (error) {
 		console.error('Failed to delete follow-up:', error);
@@ -113,14 +128,14 @@ export function handle_edit_interaction_click(
 	edit_state.edit_interaction_note = interaction.note || '';
 }
 
-export async function save_edit_interaction() {
+export async function save_edit_interaction(contact_id: string) {
 	if (!edit_state.edit_interaction_id) return;
 	try {
 		await update_interaction({
 			id: edit_state.edit_interaction_id,
 			type: edit_state.edit_interaction_type as InteractionType,
 			note: edit_state.edit_interaction_note,
-		});
+		}).updates(get_interactions(contact_id));
 		edit_state.edit_interaction_id = null;
 	} catch (error) {
 		console.error('Failed to update interaction:', error);
@@ -140,10 +155,12 @@ export function handle_delete_interaction_click(
 	edit_state.delete_interaction_id = id;
 }
 
-export async function confirm_delete_interaction() {
+export async function confirm_delete_interaction(contact_id: string) {
 	if (!edit_state.delete_interaction_id) return;
 	try {
-		await delete_interaction(edit_state.delete_interaction_id);
+		await delete_interaction(
+			edit_state.delete_interaction_id,
+		).updates(get_interactions(contact_id));
 		edit_state.delete_interaction_id = null;
 	} catch (error) {
 		console.error('Failed to delete interaction:', error);

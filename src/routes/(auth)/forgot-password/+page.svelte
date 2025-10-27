@@ -73,7 +73,7 @@
 		type="submit"
 		variant="primary"
 		size="block"
-		class_name="mt-6"
+		class="mt-6"
 	>
 		{is_setup ? 'Send setup link' : 'Send reset link'}
 	</Button>

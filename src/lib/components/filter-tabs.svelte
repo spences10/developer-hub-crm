@@ -11,8 +11,8 @@
 <div class="tabs-box mb-6 tabs">
 	{#each options as option}
 		<button
-			class="tab"
-			class:tab-active={active_filter === option}
+			type="button"
+			class="tab {active_filter === option ? 'tab-active' : ''}"
 			onclick={() => on_filter_change(option)}
 		>
 			{option.charAt(0).toUpperCase() + option.slice(1)}

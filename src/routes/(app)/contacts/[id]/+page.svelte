@@ -127,7 +127,7 @@
 			/>
 		{:else}
 			<div
-				class="flex size-20 items-center justify-center rounded-full bg-gradient-to-br from-primary to-secondary text-3xl font-bold text-primary-content shadow-lg"
+				class="flex size-20 items-center justify-center rounded-full bg-linear-to-br from-primary to-secondary text-3xl font-bold text-primary-content shadow-lg"
 			>
 				{get_initials(contact.name)}
 			</div>

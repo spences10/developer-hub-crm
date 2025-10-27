@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { Component, Snippet } from 'svelte';
+	import BaseCard from './base-card.svelte';
 	import ConfirmDialog from './confirm-dialog.svelte';
 
 	interface Props {
@@ -39,14 +40,16 @@
 	}: Props = $props();
 </script>
 
-<div
-	class="card bg-base-100 shadow-md transition-shadow hover:shadow-lg"
+<BaseCard
+	shadow="md"
+	body_class="p-4"
+	class="transition-shadow hover:shadow-lg"
 >
-	<div class="card-body p-4">
+	{#snippet children()}
 		<div class="flex h-full flex-col">
 			<!-- Header -->
 			<div class="mb-3 flex items-start gap-3">
-				<div class="flex-shrink-0">
+				<div class="shrink-0">
 					<div
 						class="flex h-10 w-10 items-center justify-center rounded-box {icon_color_classes}"
 					>
@@ -104,5 +107,5 @@
 				{/if}
 			</div>
 		</div>
-	</div>
-</div>
+	{/snippet}
+</BaseCard>

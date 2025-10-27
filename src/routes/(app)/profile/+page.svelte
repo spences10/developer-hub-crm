@@ -1,6 +1,8 @@
 <script lang="ts">
+	import BaseCard from '$lib/components/base-card.svelte';
 	import PageNav from '$lib/components/page-nav.svelte';
 	import SocialLinksManager from '$lib/components/social-links-manager.svelte';
+	import { Field, Input, Radio, Textarea } from '$lib/components/ui';
 	import { Email, GitHub } from '$lib/icons';
 	import { seo_configs } from '$lib/seo';
 	import { generate_qr_code_data_url } from '$lib/utils/qr-code';
@@ -104,8 +106,8 @@
 {:then profile_data}
 	<div class="grid grid-cols-1 gap-6 md:grid-cols-2">
 		<!-- Account & Security -->
-		<div class="card bg-base-100 shadow-xl md:col-span-2">
-			<div class="card-body">
+		<BaseCard class="md:col-span-2">
+			{#snippet children()}
 				<h2 class="card-title">Account & Security</h2>
 				<p class="text-sm opacity-70">
 					Manage your account information, authentication methods, and
@@ -116,51 +118,45 @@
 				<div class="mt-4">
 					<h3 class="mb-3 font-semibold">Personal Information</h3>
 					<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-						<fieldset class="fieldset">
-							<legend class="fieldset-legend">Name</legend>
-							{#await is_demo then demo}
-								<label class="input w-full">
-									<input
-										type="text"
-										class="grow"
-										value={profile_data.name}
-										disabled={demo}
-										onblur={(e) =>
-											save_with_indicator(() =>
-												update_name(e.currentTarget.value),
-											)}
-									/>
-								</label>
+						{#await is_demo then demo}
+							<Field legend="Name">
+								<Input
+									type="text"
+									name="name"
+									value={profile_data.name}
+									disabled={demo}
+									onblur={(e) =>
+										save_with_indicator(() =>
+											update_name(e.currentTarget.value),
+										)}
+								/>
 								{#if demo}
 									<p class="mt-1 text-xs opacity-60">
 										Cannot modify demo account
 									</p>
 								{/if}
-							{/await}
-						</fieldset>
+							</Field>
+						{/await}
 
-						<fieldset class="fieldset">
-							<legend class="fieldset-legend">Email</legend>
-							{#await is_demo then demo}
-								<label class="input w-full">
-									<input
-										type="email"
-										class="grow"
-										value={profile_data.email}
-										disabled={demo}
-										onblur={(e) =>
-											save_with_indicator(() =>
-												update_email(e.currentTarget.value),
-											)}
-									/>
-								</label>
+						{#await is_demo then demo}
+							<Field legend="Email">
+								<Input
+									type="email"
+									name="email"
+									value={profile_data.email}
+									disabled={demo}
+									onblur={(e) =>
+										save_with_indicator(() =>
+											update_email(e.currentTarget.value),
+										)}
+								/>
 								{#if demo}
 									<p class="mt-1 text-xs opacity-60">
 										Cannot modify demo account
 									</p>
 								{/if}
-							{/await}
-						</fieldset>
+							</Field>
+						{/await}
 					</div>
 				</div>
 
@@ -260,11 +256,9 @@
 						</div>
 						<div class="space-y-3">
 							<label class="flex cursor-pointer items-center gap-3">
-								<input
-									type="radio"
+								<Radio
 									name="visibility"
 									value="public"
-									class="radio radio-primary"
 									checked={profile_data.visibility === 'public'}
 									onchange={() =>
 										save_with_indicator(() =>
@@ -280,11 +274,9 @@
 							</label>
 
 							<label class="flex cursor-pointer items-center gap-3">
-								<input
-									type="radio"
+								<Radio
 									name="visibility"
 									value="unlisted"
-									class="radio radio-primary"
 									checked={profile_data.visibility === 'unlisted'}
 									onchange={() =>
 										save_with_indicator(() =>
@@ -300,11 +292,9 @@
 							</label>
 
 							<label class="flex cursor-pointer items-center gap-3">
-								<input
-									type="radio"
+								<Radio
 									name="visibility"
 									value="private"
-									class="radio radio-primary"
 									checked={profile_data.visibility === 'private'}
 									onchange={() =>
 										save_with_indicator(() =>
@@ -321,114 +311,104 @@
 						</div>
 					</div>
 				</div>
-			</div>
-		</div>
+			{/snippet}
+		</BaseCard>
 
 		<!-- Public Profile -->
-		<div class="card bg-base-100 shadow-xl md:col-span-2">
-			<div class="card-body">
+		<BaseCard class="md:col-span-2">
+			{#snippet children()}
 				<h2 class="card-title">Public Profile</h2>
 				<p class="text-sm opacity-70">
 					Information displayed on your public profile page
 				</p>
 
 				<div class="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
-					<fieldset class="fieldset">
-						<legend class="fieldset-legend">
-							Username
-							<span class="text-xs opacity-60">
-								(devhub.party/@{profile_data.username})
-							</span>
-						</legend>
-						{#await is_demo then demo}
-							<label class="input w-full">
-								<input
-									type="text"
-									class="grow"
-									value={profile_data.username}
-									disabled={demo}
-									onblur={(e) =>
-										save_with_indicator(() =>
-											update_username(e.currentTarget.value),
-										)}
-								/>
-							</label>
+					{#await is_demo then demo}
+						<Field>
+							{#snippet legend()}
+								Username
+								<span class="text-xs opacity-60">
+									(devhub.party/@{profile_data.username})
+								</span>
+							{/snippet}
+							<Input
+								type="text"
+								name="username"
+								value={profile_data.username}
+								disabled={demo}
+								onblur={(e) =>
+									save_with_indicator(() =>
+										update_username(e.currentTarget.value),
+									)}
+							/>
 							{#if demo}
 								<p class="mt-1 text-xs opacity-60">
 									Cannot modify demo account
 								</p>
 							{/if}
-						{/await}
-					</fieldset>
+						</Field>
+					{/await}
 
-					<fieldset class="fieldset">
-						<legend class="fieldset-legend">Tagline</legend>
-						<label class="input w-full">
-							<input
-								type="text"
-								class="grow"
-								value={profile_data.tagline || ''}
-								placeholder="Your professional title or tagline"
-								onblur={(e) =>
-									save_with_indicator(() =>
-										update_tagline(e.currentTarget.value),
-									)}
-							/>
-						</label>
-					</fieldset>
-
-					<fieldset class="fieldset">
-						<legend class="fieldset-legend">Location</legend>
-						<label class="input w-full">
-							<input
-								type="text"
-								class="grow"
-								value={profile_data.location || ''}
-								placeholder="City, Country"
-								onblur={(e) =>
-									save_with_indicator(() =>
-										update_location(e.currentTarget.value),
-									)}
-							/>
-						</label>
-					</fieldset>
-
-					<fieldset class="fieldset">
-						<legend class="fieldset-legend">Website</legend>
-						<label class="input w-full">
-							<input
-								type="url"
-								class="grow"
-								value={profile_data.website || ''}
-								placeholder="https://example.com"
-								onblur={(e) =>
-									save_with_indicator(() =>
-										update_website(e.currentTarget.value),
-									)}
-							/>
-						</label>
-					</fieldset>
-
-					<fieldset class="fieldset md:col-span-2">
-						<legend class="fieldset-legend">Bio</legend>
-						<textarea
-							class="textarea w-full"
-							rows="3"
-							placeholder="Tell others about yourself"
-							value={profile_data.bio || ''}
+					<Field legend="Tagline">
+						<Input
+							type="text"
+							name="tagline"
+							value={profile_data.tagline || ''}
+							placeholder="Your professional title or tagline"
 							onblur={(e) =>
 								save_with_indicator(() =>
-									update_bio(e.currentTarget.value),
+									update_tagline(e.currentTarget.value),
 								)}
-						></textarea>
-					</fieldset>
+						/>
+					</Field>
+
+					<Field legend="Location">
+						<Input
+							type="text"
+							name="location"
+							value={profile_data.location || ''}
+							placeholder="City, Country"
+							onblur={(e) =>
+								save_with_indicator(() =>
+									update_location(e.currentTarget.value),
+								)}
+						/>
+					</Field>
+
+					<Field legend="Website">
+						<Input
+							type="url"
+							name="website"
+							value={profile_data.website || ''}
+							placeholder="https://example.com"
+							onblur={(e) =>
+								save_with_indicator(() =>
+									update_website(e.currentTarget.value),
+								)}
+						/>
+					</Field>
+
+					<div class="md:col-span-2">
+						<Field legend="Bio">
+							<Textarea
+								name="bio"
+								rows={3}
+								placeholder="Tell others about yourself"
+								value={profile_data.bio || ''}
+								onblur={(e) =>
+									save_with_indicator(() =>
+										update_bio(e.currentTarget.value),
+									)}
+							/>
+						</Field>
+					</div>
 				</div>
-			</div>
-		</div>
+			{/snippet}
+		</BaseCard>
 
 		<!-- Social Links -->
-		<div class="card bg-base-100 shadow-xl">
-			<div class="card-body">
+		<BaseCard>
+			{#snippet children()}
 				<h2 class="card-title">Social Links</h2>
 				<p class="text-sm opacity-70">
 					Add links to your social media profiles
@@ -438,21 +418,23 @@
 					<SocialLinksManager
 						social_links={links || []}
 						on_add={async (platform, url) => {
-							await add_user_social_link({ platform, url });
-							social_links.refresh();
+							await add_user_social_link({ platform, url }).updates(
+								social_links,
+							);
 						}}
 						on_delete={async (link_id) => {
-							await delete_user_social_link(link_id);
-							social_links.refresh();
+							await delete_user_social_link(link_id).updates(
+								social_links,
+							);
 						}}
 					/>
 				{/await}
-			</div>
-		</div>
+			{/snippet}
+		</BaseCard>
 
 		<!-- QR Code -->
-		<div class="card bg-base-100 shadow-xl">
-			<div class="card-body">
+		<BaseCard>
+			{#snippet children()}
 				<h2 class="card-title">Profile QR Code</h2>
 				<p class="text-sm opacity-70">
 					Your unique QR code that links to your public profile
@@ -507,8 +489,8 @@
 						</ul>
 					</div>
 				</div>
-			</div>
-		</div>
+			{/snippet}
+		</BaseCard>
 
 		<!-- Delete Account - Danger Zone -->
 		<div class="md:col-span-2">

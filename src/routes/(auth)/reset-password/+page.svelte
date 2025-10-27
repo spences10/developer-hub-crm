@@ -54,12 +54,7 @@
 			/>
 		</Field>
 
-		<Button
-			type="submit"
-			variant="primary"
-			size="block"
-			class_name="mt-6"
-		>
+		<Button type="submit" variant="primary" size="block" class="mt-6">
 			Reset password
 		</Button>
 	</form>

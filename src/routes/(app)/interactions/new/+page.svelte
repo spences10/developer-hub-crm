@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { page } from '$app/state';
+	import BaseCard from '$lib/components/base-card.svelte';
 	import PageHeaderWithAction from '$lib/components/page-header-with-action.svelte';
 	import PageNav from '$lib/components/page-nav.svelte';
 	import {
@@ -25,66 +26,68 @@
 <PageNav />
 
 {#await get_user_preferences() then preferences}
-	<form {...create_interaction} class="card bg-base-100 shadow-xl">
-		<div class="card-body">
-			<Field legend="Contact">
-				{#await get_contacts() then contacts}
-					<Select
-						name="contact_id"
-						required
-						value={preselected_contact_id || ''}
-					>
-						<option value="" disabled>Select a contact</option>
-						{#each contacts as contact}
-							<option value={contact.id}>
-								{contact.name}
-								{#if contact.company}
-									- {contact.company}
-								{/if}
-							</option>
-						{/each}
-					</Select>
-				{/await}
-			</Field>
+	<form {...create_interaction}>
+		<BaseCard>
+			{#snippet children()}
+				<Field legend="Contact">
+					{#await get_contacts() then contacts}
+						<Select
+							name="contact_id"
+							required
+							value={preselected_contact_id || ''}
+						>
+							<option value="" disabled>Select a contact</option>
+							{#each contacts as contact}
+								<option value={contact.id}>
+									{contact.name}
+									{#if contact.company}
+										- {contact.company}
+									{/if}
+								</option>
+							{/each}
+						</Select>
+					{/await}
+				</Field>
 
-			<Field legend="Interaction Type">
-				{#await interaction_types}
-					<Select disabled>
-						<option>Loading...</option>
-					</Select>
-				{:then types}
-					<Select
-						name="type"
-						required
-						value={preferences.default_interaction_type || ''}
-					>
-						<option value="" disabled>Select type</option>
-						{#each types as type}
-							<option value={type.value}>{type.label}</option>
-						{/each}
-					</Select>
-				{:catch}
-					<Select disabled>
-						<option>Failed to load types</option>
-					</Select>
-				{/await}
-			</Field>
+				<Field legend="Interaction Type">
+					{#await interaction_types}
+						<Select disabled>
+							<option>Loading...</option>
+						</Select>
+					{:then types}
+						<Select
+							name="type"
+							required
+							value={preferences.default_interaction_type || ''}
+						>
+							<option value="" disabled>Select type</option>
+							{#each types as type}
+								<option value={type.value}>{type.label}</option>
+							{/each}
+						</Select>
+					{:catch}
+						<Select disabled>
+							<option>Failed to load types</option>
+						</Select>
+					{/await}
+				</Field>
 
-			<Field legend="Notes (Optional)">
-				<Textarea
-					name="note"
-					rows={6}
-					placeholder="Add any notes about this interaction..."
-					attachment={ctrl_enter_submit()}
-				/>
-			</Field>
+				<Field legend="Notes (Optional)">
+					<Textarea
+						name="note"
+						rows={6}
+						placeholder="Add any notes about this interaction..."
+						attachment={ctrl_enter_submit()}
+					/>
+				</Field>
 
-			<div class="card-actions justify-end">
-				<a href="/interactions" class="btn btn-outline">Cancel</a>
-				<Button type="submit" variant="primary">
-					Log Interaction
-				</Button>
-			</div>
-		</div>
+				<div class="card-actions justify-end">
+					<a href="/interactions" class="btn btn-outline">Cancel</a>
+					<Button type="submit" variant="primary">
+						Log Interaction
+					</Button>
+				</div>
+			{/snippet}
+		</BaseCard>
 	</form>
 {/await}

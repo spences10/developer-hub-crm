@@ -61,12 +61,7 @@
 		/>
 	</Field>
 
-	<Button
-		type="submit"
-		variant="primary"
-		size="block"
-		class_name="mt-6"
-	>
+	<Button type="submit" variant="primary" size="block" class="mt-6">
 		Login
 	</Button>
 </form>
@@ -78,7 +73,7 @@
 	type="button"
 	variant="outline"
 	size="block"
-	class_name="gap-2"
+	class="gap-2"
 >
 	<Github size="20px" />
 	Continue with GitHub
